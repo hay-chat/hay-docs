@@ -1,3 +1,12 @@
+---
+layout: docs.njk
+title: Channel Architecture
+description: Architecture design for chat channel plugins
+section: technical
+navGroup: Plugin Development
+navOrder: 3
+---
+
 # Channel Plugin Architecture
 
 > **Architecture design for chat channel plugins (WhatsApp, Slack, Instagram, Telegram, etc.)**
@@ -27,30 +36,28 @@ Channel plugins enable bidirectional communication between Hay and external mess
 
 ## System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         External Platform                        │
-│                    (WhatsApp, Slack, etc.)                       │
-└────────────────┬───────────────────────────┬────────────────────┘
-                 │                           │
-          Webhook│                           │API Calls
-                 │                           │
-                 ▼                           ▼
-┌────────────────────────────┐  ┌──────────────────────────────┐
-│   Webhook Receiver         │  │      MCP Tools               │
-│   /v1/webhooks/:plugin     │  │   (send-message, etc.)       │
-└─────────────┬──────────────┘  └──────────────┬───────────────┘
-              │                                 │
-              │ Validates & Maps                │ Called by AI
-              │                                 │
-              ▼                                 ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                        Hay Core System                           │
-│  ┌──────────────┐  ┌──────────────┐  ┌────────────────────┐   │
-│  │ Conversation │  │   Message    │  │   Orchestrator     │   │
-│  │   Service    │  │   Service    │  │   (AI Agent)       │   │
-│  └──────────────┘  └──────────────┘  └────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+  Platform["fa:fa-comments External Platform<br/>WhatsApp · Slack · Instagram"]
+
+  Platform -->|"Webhook"| Receiver["fa:fa-satellite-dish Webhook Receiver<br/>/v1/webhooks/:plugin"]
+  Platform <-->|"API Calls"| MCP["fa:fa-wrench MCP Tools<br/>send-message · send-template"]
+
+  Receiver -->|"Validates & Maps"| Core
+  MCP -->|"Called by AI"| Core
+
+  subgraph Core["fa:fa-cube  Hay Core System"]
+    Conv["fa:fa-message Conversation<br/>Service"]
+    Msg["fa:fa-envelope Message<br/>Service"]
+    Orch["fa:fa-robot Orchestrator<br/>AI Agent"]
+  end
+
+  style Platform fill:#f5f5f5,stroke:#d4d4d4,color:#404040
+  style Receiver fill:#e8f3ff,stroke:#568aff,color:#0a155c
+  style MCP fill:#e8f3ff,stroke:#568aff,color:#0a155c
+  style Conv fill:#fff,stroke:#85b7ff,color:#0a155c
+  style Msg fill:#fff,stroke:#85b7ff,color:#0a155c
+  style Orch fill:#fff,stroke:#85b7ff,color:#0a155c
 ```
 
 ---

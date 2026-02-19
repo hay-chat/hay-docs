@@ -1,8 +1,10 @@
 ---
 layout: docs.njk
-title: Plugin Development - Getting Started
+title: Getting Started
 description: Build your first Hay plugin in under 30 minutes
 section: technical
+navGroup: Plugin Development
+navOrder: 1
 ---
 
 ## Building Your First Plugin

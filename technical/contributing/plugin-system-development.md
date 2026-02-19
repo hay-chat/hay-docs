@@ -1,3 +1,12 @@
+---
+layout: docs.njk
+title: Plugin System
+description: Guide for extending the Hay plugin system
+section: technical
+navGroup: Contributing
+navOrder: 3
+---
+
 # Plugin System Development Guide
 
 > **Guide for extending and improving the Hay plugin system itself**

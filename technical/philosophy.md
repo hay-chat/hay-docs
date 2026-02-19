@@ -1,8 +1,10 @@
 ---
 layout: docs.njk
-title: Development Philosophy & Principles
+title: Philosophy
 description: The principles and values that guide Hay's development
 section: technical
+navGroup: Introduction
+navOrder: 3
 ---
 
 ## Development Philosophy

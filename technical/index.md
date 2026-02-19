@@ -1,8 +1,10 @@
 ---
 layout: docs.njk
-title: Technical Overview
+title: Overview
 description: Deep dive into Hay's architecture and development philosophy
 section: technical
+navGroup: Introduction
+navOrder: 1
 ---
 
 ## Technical Documentation

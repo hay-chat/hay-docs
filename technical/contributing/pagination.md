@@ -1,3 +1,12 @@
+---
+layout: docs.njk
+title: Pagination
+description: Global pagination system for list endpoints
+section: technical
+navGroup: Contributing
+navOrder: 2
+---
+
 # Global Pagination System
 
 This document describes the global pagination system implemented for all list endpoints in the tRPC server.

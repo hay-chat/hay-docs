@@ -1,3 +1,12 @@
+---
+layout: docs.njk
+title: Channel Registration
+description: Guide to registering channel plugins
+section: technical
+navGroup: Plugin Development
+navOrder: 4
+---
+
 # Plugin Channel Registration Guide
 
 ## Overview

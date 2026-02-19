@@ -1,3 +1,12 @@
+---
+layout: docs.njk
+title: Context API
+description: Pass end-user information into Hay conversations
+section: technical
+navGroup: Core Systems
+navOrder: 1
+---
+
 # Hay Context API
 
 The Context API lets you pass information about your end users into Hay conversations. This is how Hay knows who is talking, what permissions they have, and how to authenticate on their behalf when calling your MCP tools.

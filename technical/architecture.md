@@ -1,8 +1,10 @@
 ---
 layout: docs.njk
-title: System Architecture Overview
+title: Architecture
 description: Understanding Hay's system architecture and design decisions
 section: technical
+navGroup: Introduction
+navOrder: 2
 ---
 
 ## System Architecture
@@ -11,18 +13,23 @@ Hay is designed as a modular, event-driven platform that scales with your needs.
 
 ### High-Level Overview
 
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Clients   │────▶│   API Gateway │────▶│  Services   │
-│  (Web/Mobile)│     │   (Express)   │     │  (Plugins)  │
-└─────────────┘     └─────────────┘     └─────────────┘
-                             │                    │
-                             ▼                    ▼
-                    ┌─────────────┐     ┌─────────────┐
-                    │   Message   │     │  Database   │
-                    │    Queue    │     │ (PostgreSQL)│
-                    │   (Bull)    │     └─────────────┘
-                    └─────────────┘
+```mermaid
+graph LR
+  Clients["fa:fa-globe Clients<br/>Web / Mobile"]
+  Gateway["fa:fa-shield-halved API Gateway<br/>Express"]
+  Services["fa:fa-puzzle-piece Services<br/>Plugins"]
+  Queue["fa:fa-list-check Message Queue<br/>Bull"]
+  DB["fa:fa-database Database<br/>PostgreSQL"]
+
+  Clients --> Gateway --> Services
+  Gateway --> Queue
+  Services --> DB
+
+  style Clients fill:#e8f3ff,stroke:#568aff,color:#0a155c
+  style Gateway fill:#e8f3ff,stroke:#568aff,color:#0a155c
+  style Services fill:#e8f3ff,stroke:#568aff,color:#0a155c
+  style Queue fill:#f5f5f5,stroke:#d4d4d4,color:#404040
+  style DB fill:#f5f5f5,stroke:#d4d4d4,color:#404040
 ```
 
 ### Core Components
@@ -132,8 +139,14 @@ Hay is designed to scale horizontally:
 
 Multi-layer caching reduces database load:
 
-```
-Client Cache → CDN → Redis → Database
+```mermaid
+graph LR
+  A["fa:fa-browser Client Cache"] --> B["fa:fa-cloud CDN"] --> C["fa:fa-bolt Redis"] --> D["fa:fa-database Database"]
+
+  style A fill:#e8f3ff,stroke:#568aff,color:#0a155c
+  style B fill:#e8f3ff,stroke:#568aff,color:#0a155c
+  style C fill:#e8f3ff,stroke:#568aff,color:#0a155c
+  style D fill:#f5f5f5,stroke:#d4d4d4,color:#404040
 ```
 
 - **Client**: Browser cache for static assets

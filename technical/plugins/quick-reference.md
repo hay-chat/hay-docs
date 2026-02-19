@@ -1,3 +1,12 @@
+---
+layout: docs.njk
+title: Quick Reference
+description: Plugin development quick reference card
+section: technical
+navGroup: Plugin Development
+navOrder: 5
+---
+
 # Plugin Development Quick Reference
 
 > **Fast reference for common plugin development tasks**

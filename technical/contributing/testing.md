@@ -1,3 +1,12 @@
+---
+layout: docs.njk
+title: Testing
+description: E2E testing guide with Playwright
+section: technical
+navGroup: Contributing
+navOrder: 5
+---
+
 # E2E Testing Guide
 
 ## Overview

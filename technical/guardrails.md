@@ -1,3 +1,12 @@
+---
+layout: docs.njk
+title: Guardrails
+description: Two-stage guardrail system for AI response quality
+section: technical
+navGroup: Core Systems
+navOrder: 2
+---
+
 # Two-Stage Guardrail System
 
 ## Overview
@@ -6,61 +15,41 @@ Hay uses a sophisticated two-stage guardrail system to ensure AI responses serve
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│              AI Response Generated                       │
-└───────────────────┬─────────────────────────────────────┘
-                    │
-                    ▼
-┌─────────────────────────────────────────────────────────┐
-│  STAGE 1: Company Interest Protection                   │
-│  ┌─────────────────────────────────────────────────┐   │
-│  │  Question: Does this response harm company      │   │
-│  │            interests or is it helpful?          │   │
-│  └─────────────────────────────────────────────────┘   │
-│                                                          │
-│  Checks:                                                 │
-│  ✓ Off-topic conversations (weather, unrelated)         │
-│  ✓ Generic competitor information                       │
-│  ✓ Fabricated products/features/policies                │
-│  ✓ Allows clarifications & helpful responses            │
-│                                                          │
-│  Result: PASS / BLOCK                                   │
-└───────────────────┬─────────────────────────────────────┘
-                    │
-            ┌───────┴───────┐
-            │               │
-         BLOCK            PASS
-            │               │
-            ▼               ▼
-        ESCALATE   ┌───────────────────┐
-                   │ Requires Fact     │
-                   │ Check?            │
-                   └───────┬───────────┘
-                           │
-                    ┌──────┴──────┐
-                    │             │
-                   NO            YES
-                    │             │
-                DELIVER           ▼
-                         ┌─────────────────────────────────┐
-                         │ STAGE 2: Fact Grounding         │
-                         │ ┌───────────────────────────┐   │
-                         │ │ Question: Are company-    │   │
-                         │ │ specific claims grounded  │   │
-                         │ │ in documents?             │   │
-                         │ └───────────────────────────┘   │
-                         │                                 │
-                         │ Scoring:                        │
-                         │ • Grounding (60%)               │
-                         │ • Retrieval Quality (30%)       │
-                         │ • Certainty (10%)               │
-                         │                                 │
-                         │ Tiers:                          │
-                         │ • High (≥0.8): Deliver          │
-                         │ • Medium (0.5-0.8): Recheck     │
-                         │ • Low (<0.5): Escalate          │
-                         └─────────────────────────────────┘
+```mermaid
+flowchart TD
+  A["fa:fa-robot AI Response Generated"]
+
+  A --> B
+
+  subgraph B["fa:fa-shield-halved  Stage 1: Interest Protection"]
+    direction TB
+    B1["Does this response harm<br/>company interests?"]
+  end
+
+  B -->|"fa:fa-xmark BLOCK"| ESC["fa:fa-user Escalate to Human"]
+  B -->|"fa:fa-check PASS"| C{"Requires<br/>Fact Check?"}
+
+  C -->|"No"| DEL1["fa:fa-paper-plane Deliver Response"]
+  C -->|"Yes"| D
+
+  subgraph D["fa:fa-magnifying-glass  Stage 2 · Fact Grounding"]
+    direction TB
+    D1["Are company-specific claims<br/>grounded in documents?"]
+    D2["Grounding 60% · Retrieval 30% · Certainty 10%"]
+    D1 --- D2
+  end
+
+  D -->|"High ≥0.8"| DEL2["fa:fa-paper-plane Deliver"]
+  D -->|"Medium 0.5–0.8"| REC["fa:fa-rotate Recheck"]
+  D -->|"Low <0.5"| ESC2["fa:fa-user Escalate"]
+
+  style A fill:#e8f3ff,stroke:#568aff,color:#0a155c
+  style ESC fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
+  style ESC2 fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
+  style DEL1 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
+  style DEL2 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
+  style REC fill:#fffbeb,stroke:#fbbf24,color:#78350f
+  style C fill:#fff,stroke:#568aff,color:#0a155c
 ```
 
 ## Stage 1: Company Interest Protection

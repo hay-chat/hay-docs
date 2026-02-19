@@ -1,3 +1,12 @@
+---
+layout: docs.njk
+title: Vector Store
+description: Vector store implementation for document embeddings
+section: technical
+navGroup: Contributing
+navOrder: 4
+---
+
 # Vector Store Implementation Guide
 
 ## ✅ Implementation Complete

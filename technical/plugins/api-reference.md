@@ -1,3 +1,12 @@
+---
+layout: docs.njk
+title: API Reference
+description: Complete guide to the Hay plugin API
+section: technical
+navGroup: Plugin Development
+navOrder: 2
+---
+
 # Hay Plugin API Documentation
 
 > **Complete guide to building, extending, and working with the Hay plugin system**

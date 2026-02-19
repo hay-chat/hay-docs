@@ -1,3 +1,12 @@
+---
+layout: docs.njk
+title: Orchestrator
+description: Central coordinator for conversation processing
+section: technical
+navGroup: Contributing
+navOrder: 1
+---
+
 # Orchestrator Service Documentation
 
 ## Overview
