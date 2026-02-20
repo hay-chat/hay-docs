@@ -188,11 +188,12 @@ View security-related activity:
 ### Customer Data Privacy
 
 **Data retention:**
-Configure how long data is stored:
+Configure how long conversation data is stored. When a retention period is set, closed conversations past the window are automatically anonymized — messages and personal data are removed while analytics metadata is preserved.
 
 - Conversations: 30, 60, 90 days, or indefinitely
-- Analytics: 1 year, 2 years, or indefinitely
 - Customer information: Active until requested deletion
+
+> For full details on how anonymization works, legal holds, the cleanup schedule, and audit logging, see the [Data Retention & Privacy](/docs/user-guide/data-retention/) guide.
 
 **Customer rights:**
 
