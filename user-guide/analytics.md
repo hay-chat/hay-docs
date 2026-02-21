@@ -553,4 +553,4 @@ Industry benchmarks coming soon! For now, compare to your own historical perform
 - Use insights to improve your [Agents](/docs/user-guide/agents/)
 - Create better [Playbooks](/docs/user-guide/playbooks/) based on data
 - Add [Documents](/docs/user-guide/documents/) for low-performing topics
-- Monitor your [Queue](/docs/user-guide/queue/) for escalation patterns
+- Monitor your [Conversations](/docs/user-guide/conversations/) for escalation patterns

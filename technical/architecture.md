@@ -219,4 +219,4 @@ Distributed tracing for debugging:
 
 - Learn about our [development philosophy](/docs/technical/philosophy/)
 - Start [building plugins](/docs/technical/plugins/getting-started/)
-- Explore the [API reference](/docs/technical/api/authentication/)
+- Explore the [API reference](/docs/technical/plugins/api-reference/)
