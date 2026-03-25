@@ -18,6 +18,7 @@ Hay is built on a set of core principles that guide every technical decision. Un
 We believe that happy developers build better software.
 
 **In practice:**
+
 - Comprehensive TypeScript types throughout
 - Clear, self-documenting code
 - Detailed error messages with debugging hints
@@ -42,6 +43,7 @@ function create(params: any) { ... }
 Sensible defaults that work out of the box.
 
 **In practice:**
+
 - Zero config to get started
 - Environment-based configuration
 - Automatic discovery of plugins
@@ -61,6 +63,7 @@ Sensible defaults that work out of the box.
 Catch errors early and provide actionable feedback.
 
 **In practice:**
+
 - Strict TypeScript configuration
 - Schema validation on all inputs
 - Comprehensive error types
@@ -69,10 +72,10 @@ Catch errors early and provide actionable feedback.
 ```typescript
 // Validation errors are clear and actionable
 throw new ValidationError({
-  field: 'email',
-  message: 'Invalid email format',
+  field: "email",
+  message: "Invalid email format",
   received: userInput,
-  expected: 'user@example.com'
+  expected: "user@example.com",
 });
 ```
 
@@ -81,25 +84,20 @@ throw new ValidationError({
 Everything is a plugin, including core features.
 
 **Why:**
+
 - Forces modular design
 - Ensures extensibility
 - Dogfooding our own APIs
 - Easy to add/remove features
 
 **In practice:**
+
 ```typescript
 // Core features implemented as plugins
-const corePlugins = [
-  '@hay/plugin-conversations',
-  '@hay/plugin-automation',
-  '@hay/plugin-analytics'
-];
+const corePlugins = ["hay-plugin-conversations", "hay-plugin-automation", "hay-plugin-analytics"];
 
 // User plugins loaded the same way
-const userPlugins = [
-  '@custom/slack-integration',
-  '@custom/ai-responses'
-];
+const userPlugins = ["@custom/slack-integration", "@custom/ai-responses"];
 ```
 
 #### 5. Data Ownership and Privacy
@@ -107,6 +105,7 @@ const userPlugins = [
 Users own their data, always.
 
 **In practice:**
+
 - Export functionality for all data
 - Clear data retention policies
 - Encryption by default
@@ -118,6 +117,7 @@ Users own their data, always.
 Fast software is better software.
 
 **Optimization strategy:**
+
 1. Measure first (no premature optimization)
 2. Optimize the critical path
 3. Cache aggressively
@@ -125,7 +125,7 @@ Fast software is better software.
 
 ```typescript
 // Example: Lazy loading plugins
-const plugin = await import('./plugins/heavy-feature');
+const plugin = await import("./plugins/heavy-feature");
 if (userNeedsFeature) {
   await plugin.init();
 }
@@ -139,14 +139,14 @@ if (userNeedsFeature) {
 
 ```typescript
 // Emit events for major state changes
-eventBus.emit('conversation.resolved', {
+eventBus.emit("conversation.resolved", {
   conversationId,
   resolvedBy,
-  timestamp
+  timestamp,
 });
 
 // Plugins can react to any event
-plugin.on('conversation.resolved', async (event) => {
+plugin.on("conversation.resolved", async (event) => {
   await sendSurvey(event.conversationId);
 });
 ```
@@ -218,8 +218,8 @@ function getConversation(id: ConversationId) { ... }
 - **Minimum 80% coverage**: For new code
 
 ```typescript
-describe('AutomationService', () => {
-  it('should trigger rule when conditions match', async () => {
+describe("AutomationService", () => {
+  it("should trigger rule when conditions match", async () => {
     const service = setupService();
     const rule = createTestRule();
 
@@ -237,7 +237,7 @@ describe('AutomationService', () => {
 - **Architecture Decision Records**: For major decisions
 - **Inline comments**: Only for "why", not "what"
 
-```typescript
+````typescript
 /**
  * Evaluates automation rules against a conversation.
  *
@@ -257,9 +257,9 @@ describe('AutomationService', () => {
  */
 async function evaluate(
   rule: AutomationRule,
-  conversation: Conversation
-): Promise<EvaluationResult>
-```
+  conversation: Conversation,
+): Promise<EvaluationResult>;
+````
 
 ### Contribution Guidelines
 
@@ -280,6 +280,7 @@ When contributing to Hay:
 ## Next Steps
 
 Ready to build? Start with:
+
 - [Setting up your development environment](/docs/technical/contributing/setup/)
 - [Creating your first plugin](/docs/technical/plugins/getting-started/)
 - [Understanding the API](/docs/technical/api/authentication/)

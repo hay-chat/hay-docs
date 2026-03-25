@@ -14,6 +14,7 @@ Hay's plugin system allows you to extend and customize the platform. This guide 
 ### What You'll Build
 
 We'll create a simple plugin that:
+
 - Listens for new conversations
 - Detects the customer's timezone
 - Automatically tags the conversation with the timezone
@@ -21,6 +22,7 @@ We'll create a simple plugin that:
 ### Prerequisites
 
 Before starting, ensure you have:
+
 - Node.js 18+ installed
 - A Hay development environment set up
 - Basic TypeScript knowledge
@@ -45,7 +47,7 @@ npm init -y
 Install required dependencies:
 
 ```bash
-npm install @hay/plugin-sdk zod
+npm install hay-plugin-sdk zod
 npm install -D typescript @types/node
 ```
 
@@ -55,14 +57,14 @@ Create `package.json` with plugin metadata:
 
 ```json
 {
-  "name": "@hay/plugin-timezone-tagger",
+  "name": "hay-plugin-timezone-tagger",
   "version": "1.0.0",
   "description": "Automatically tags conversations with customer timezone",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "hay": {
     "plugin": true,
-    "requires": ["@hay/plugin-conversations"]
+    "requires": ["hay-plugin-conversations"]
   },
   "scripts": {
     "build": "tsc",
@@ -97,21 +99,21 @@ Create `tsconfig.json`:
 Create `src/index.ts`:
 
 ```typescript
-import { Plugin, PluginContext } from '@hay/plugin-sdk';
-import { z } from 'zod';
+import { Plugin, PluginContext } from "hay-plugin-sdk";
+import { z } from "zod";
 
 // Configuration schema
 const ConfigSchema = z.object({
   enabled: z.boolean().default(true),
-  tagPrefix: z.string().default('timezone:')
+  tagPrefix: z.string().default("timezone:"),
 });
 
 type Config = z.infer<typeof ConfigSchema>;
 
 // Plugin implementation
 export default class TimezonePlugin implements Plugin {
-  name = '@hay/plugin-timezone-tagger';
-  version = '1.0.0';
+  name = "hay-plugin-timezone-tagger";
+  version = "1.0.0";
 
   private config: Config;
 
@@ -122,11 +124,9 @@ export default class TimezonePlugin implements Plugin {
 
   async init(context: PluginContext): Promise<void> {
     // Register event listeners
-    context.events.on('conversation.created',
-      this.handleNewConversation.bind(this)
-    );
+    context.events.on("conversation.created", this.handleNewConversation.bind(this));
 
-    context.logger.info('Timezone tagger plugin initialized');
+    context.logger.info("Timezone tagger plugin initialized");
   }
 
   private async handleNewConversation(event: any): Promise<void> {
@@ -140,14 +140,11 @@ export default class TimezonePlugin implements Plugin {
     if (timezone) {
       // Add timezone tag
       const tag = `${this.config.tagPrefix}${timezone}`;
-      await context.services.conversations.addTag(
-        conversation.id,
-        tag
-      );
+      await context.services.conversations.addTag(conversation.id, tag);
 
-      context.logger.info('Tagged conversation with timezone', {
+      context.logger.info("Tagged conversation with timezone", {
         conversationId: conversation.id,
-        timezone
+        timezone,
       });
     }
   }
@@ -179,10 +176,7 @@ export default class TimezonePlugin implements Plugin {
 
   private timezoneFromContent(content: string): string | null {
     // Simple pattern matching for timezone mentions
-    const patterns = [
-      /\b(EST|PST|CST|MST|GMT)\b/i,
-      /UTC([+-]\d{1,2})/i
-    ];
+    const patterns = [/\b(EST|PST|CST|MST|GMT)\b/i, /UTC([+-]\d{1,2})/i];
 
     for (const pattern of patterns) {
       const match = content.match(pattern);
@@ -199,9 +193,9 @@ export default class TimezonePlugin implements Plugin {
 Create `src/index.test.ts`:
 
 ```typescript
-import TimezonePlugin from './index';
+import TimezonePlugin from "./index";
 
-describe('TimezonePlugin', () => {
+describe("TimezonePlugin", () => {
   let plugin: TimezonePlugin;
   let mockContext: any;
 
@@ -210,34 +204,34 @@ describe('TimezonePlugin', () => {
 
     mockContext = {
       events: {
-        on: jest.fn()
+        on: jest.fn(),
       },
       logger: {
-        info: jest.fn()
+        info: jest.fn(),
       },
       services: {
         conversations: {
-          addTag: jest.fn()
-        }
-      }
+          addTag: jest.fn(),
+        },
+      },
     };
   });
 
-  it('should register event listener on init', async () => {
+  it("should register event listener on init", async () => {
     await plugin.init(mockContext);
 
     expect(mockContext.events.on).toHaveBeenCalledWith(
-      'conversation.created',
-      expect.any(Function)
+      "conversation.created",
+      expect.any(Function),
     );
   });
 
-  it('should tag conversation with detected timezone', async () => {
+  it("should tag conversation with detected timezone", async () => {
     const conversation = {
-      id: 'conv-123',
+      id: "conv-123",
       customer: {
-        timezone: 'America/New_York'
-      }
+        timezone: "America/New_York",
+      },
     };
 
     await plugin.init(mockContext);
@@ -246,8 +240,8 @@ describe('TimezonePlugin', () => {
     await handler({ conversation, context: mockContext });
 
     expect(mockContext.services.conversations.addTag).toHaveBeenCalledWith(
-      'conv-123',
-      'timezone:America/New_York'
+      "conv-123",
+      "timezone:America/New_York",
     );
   });
 });
@@ -267,9 +261,7 @@ Add to your Hay configuration (`hay.config.ts`):
 
 ```typescript
 export default {
-  plugins: [
-    '@hay/plugin-timezone-tagger'
-  ]
+  plugins: ["hay-plugin-timezone-tagger"],
 };
 ```
 
@@ -282,6 +274,7 @@ npm run dev
 ```
 
 Create a test conversation and verify:
+
 1. The plugin initializes without errors
 2. New conversations get tagged with timezone
 3. Logs show plugin activity
@@ -344,6 +337,7 @@ async init(context: PluginContext): Promise<void> {
 ### Plugin Not Loading
 
 Check:
+
 1. Plugin is listed in `hay.config.ts`
 2. `package.json` has `"hay": { "plugin": true }`
 3. Build completed without errors
@@ -352,6 +346,7 @@ Check:
 ### Events Not Firing
 
 Verify:
+
 1. Event name is spelled correctly
 2. Event listener registered in `init()`
 3. Plugin initialization completed successfully
