@@ -299,6 +299,6 @@ Hay prevents this with a "locking" system. Only one agent (AI or human) can resp
 
 ## Next Steps
 
-- Learn about [Queue Management](/docs/user-guide/queue/) to handle escalations
+- Learn about [Agents](/docs/user-guide/agents/) to handle escalations
 - Explore [Agents](/docs/user-guide/agents/) to customize your AI assistant
 - Check out [Playbooks](/docs/user-guide/playbooks/) to automate common workflows

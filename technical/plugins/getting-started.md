@@ -27,7 +27,7 @@ Before starting, ensure you have:
 - A Hay development environment set up
 - Basic TypeScript knowledge
 
-If you haven't set up your dev environment, see the [development setup guide](/docs/technical/contributing/setup/).
+If you haven't set up your dev environment, see the [technical overview](/docs/technical/).
 
 ### Step 1: Create Plugin Structure
 
@@ -283,9 +283,9 @@ Create a test conversation and verify:
 
 Now that you've built your first plugin, explore:
 
-- **[Plugin API Reference](/docs/technical/plugins/api/)** - Full API documentation
-- **[Event System](/docs/technical/plugins/events/)** - All available events
-- **[Best Practices](/docs/technical/plugins/best-practices/)** - Tips for production plugins
+- **[Plugin API Reference](/docs/technical/plugins/api-reference/)** - Full API documentation
+- **[Channel Architecture](/docs/technical/plugins/channel-architecture/)** - Understand the channel system
+- **[Quick Reference](/docs/technical/plugins/quick-reference/)** - Handy reference guide
 
 ### Common Patterns
 
@@ -352,4 +352,4 @@ Verify:
 3. Plugin initialization completed successfully
 4. Check logs for errors
 
-Need help? Join our [Discord community](https://discord.gg/hay) or check the [API documentation](/docs/technical/plugins/api/).
+Need help? Join our [Discord community](https://discord.gg/hay) or check the [API documentation](/docs/technical/plugins/api-reference/).

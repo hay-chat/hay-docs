@@ -81,7 +81,7 @@ Choose your path:
 - **[Architecture](/docs/technical/architecture/)** - Understand Hay's design
 - **[Philosophy](/docs/technical/philosophy/)** - Learn our design principles
 - **[Plugin Development](/docs/technical/plugins/getting-started/)** - Build your first plugin
-- **[API Reference](/docs/technical/api/authentication/)** - Integrate with Hay's API
+- **[API Reference](/docs/technical/plugins/api-reference/)** - Integrate with Hay's API
 
 ### Community
 
@@ -89,7 +89,7 @@ Join our developer community:
 
 - **GitHub**: [github.com/hay-chat/hay](https://github.com)
 - **Discord**: Developer channel for technical discussions
-- **Contributing**: See our [contribution guide](/docs/technical/contributing/setup/)
+- **Contributing**: See our [contribution guide](/docs/technical/)
 
 ### Support
 

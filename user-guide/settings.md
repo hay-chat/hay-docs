@@ -532,6 +532,6 @@ Go to **Settings** → **Organization** → **Details**. Useful for API integrat
 ## Next Steps
 
 - Set up [Integrations](/docs/user-guide/integrations/) after configuring settings
-- Review [Security best practices](/docs/user-guide/security/) for your organization
-- Configure [Privacy settings](/docs/user-guide/privacy/) for compliance
+- Review [Security best practices](/docs/user-guide/settings/) for your organization
+- Configure [Privacy settings](/docs/user-guide/settings/) for compliance
 - Invite your team members to get started

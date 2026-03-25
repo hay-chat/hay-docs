@@ -154,4 +154,4 @@ Yes! Click **Export** in the analytics section to download reports in PDF or CSV
 
 - Learn about [Conversations](/docs/user-guide/conversations/) to understand the full conversation flow
 - Explore [Analytics](/docs/user-guide/analytics/) for deeper insights
-- Check out [Queue Management](/docs/user-guide/queue/) to handle escalations efficiently
+- Check out [Conversations](/docs/user-guide/conversations/) to handle escalations efficiently

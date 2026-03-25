@@ -275,12 +275,12 @@ When contributing to Hay:
 
 - **[Architecture Guide](/docs/technical/architecture/)** - System design details
 - **[Plugin Development](/docs/technical/plugins/getting-started/)** - Build your first plugin
-- **[Contributing Guide](/docs/technical/contributing/setup/)** - How to contribute
+- **[Contributing Guide](/docs/technical/)** - How to contribute
 
 ## Next Steps
 
 Ready to build? Start with:
 
-- [Setting up your development environment](/docs/technical/contributing/setup/)
+- [Setting up your development environment](/docs/technical/)
 - [Creating your first plugin](/docs/technical/plugins/getting-started/)
-- [Understanding the API](/docs/technical/api/authentication/)
+- [Understanding the architecture](/docs/technical/architecture/)
