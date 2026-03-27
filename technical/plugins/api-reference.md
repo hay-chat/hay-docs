@@ -22,6 +22,7 @@ navOrder: 2
 - [API Reference](#api-reference)
 - [Configuration Management](#configuration-management)
 - [UI Extensions](#ui-extensions)
+- [Internationalization (i18n)](#internationalization-i18n)
 - [Channel Registration](#channel-registration)
 - [Best Practices](#best-practices)
 - [Building New Features](#building-new-features)
@@ -84,6 +85,9 @@ Each plugin directory contains:
 ├── mcp/                 # MCP server code (if local)
 │   ├── index.js         # MCP server entry
 │   └── package.json     # MCP dependencies
+├── i18n/               # Translations (optional)
+│   ├── en.json         # English (fallback)
+│   └── pt-BR.json      # Brazilian Portuguese
 ├── components/          # Vue components (UI extensions)
 │   └── settings/
 │       └── CustomSettings.vue
@@ -881,6 +885,148 @@ For OAuth-enabled plugins, use the OAuthConnection component:
   <OAuthConnection :plugin-id="pluginId" :oauth-config="oauthConfig" />
 </template>
 ```
+
+---
+
+## Internationalization (i18n)
+
+Plugins can provide translations for their display name, description, tool labels, and configuration field labels. The system loads translations automatically from the plugin's `i18n/` directory — no manifest changes are needed.
+
+### Directory Structure
+
+```
+my-plugin/
+├── i18n/
+│   ├── en.json       # English (always required — used as fallback)
+│   └── pt-BR.json    # Brazilian Portuguese
+├── src/
+├── mcp/
+└── ...
+```
+
+File names are locale codes (e.g., `en.json`, `pt-BR.json`, `es.json`). The system supports any locale — just add a new JSON file.
+
+### Translation File Format
+
+Each JSON file has four top-level keys:
+
+```json
+{
+  "name": "My Plugin",
+  "description": "What this plugin does in one sentence",
+  "tools": {
+    "tool_name": {
+      "label": "Human-Readable Tool Name",
+      "description": "What this tool does"
+    }
+  },
+  "config": {
+    "configFieldName": {
+      "label": "Field Label",
+      "description": "Help text shown to the user"
+    }
+  }
+}
+```
+
+| Key           | Purpose                                                                                    |
+| ------------- | ------------------------------------------------------------------------------------------ |
+| `name`        | Plugin display name in marketplace and settings                                            |
+| `description` | Plugin summary shown in marketplace cards                                                  |
+| `tools`       | Labels and descriptions for each MCP tool (keys must match tool IDs from the MCP server)   |
+| `config`      | Labels and descriptions for each config field (keys must match `configSchema` field names) |
+
+All keys are optional — only translate what applies to your plugin.
+
+### Example: English (`i18n/en.json`)
+
+```json
+{
+  "name": "Stripe",
+  "description": "Connect your Stripe account to manage payments, customers, subscriptions, and more",
+  "tools": {
+    "list_customers": {
+      "label": "List Customers",
+      "description": "Search and list Stripe customers"
+    },
+    "create_payment": {
+      "label": "Create Payment",
+      "description": "Create a new payment intent"
+    }
+  },
+  "config": {
+    "apiKey": {
+      "label": "API Key",
+      "description": "Stripe API key (starts with sk_test_ or sk_live_)"
+    }
+  }
+}
+```
+
+### Example: Portuguese (`i18n/pt-BR.json`)
+
+```json
+{
+  "name": "Stripe",
+  "description": "Conecte sua conta Stripe para gerenciar pagamentos, clientes, assinaturas e mais",
+  "tools": {
+    "list_customers": {
+      "label": "Listar Clientes",
+      "description": "Buscar e listar clientes do Stripe"
+    },
+    "create_payment": {
+      "label": "Criar Pagamento",
+      "description": "Criar uma nova intenção de pagamento"
+    }
+  },
+  "config": {
+    "apiKey": {
+      "label": "Chave de API",
+      "description": "Chave de API do Stripe (começa com sk_test_ ou sk_live_)"
+    }
+  }
+}
+```
+
+### How It Works
+
+1. **Loading**: At startup, the Plugin Manager scans each plugin's `i18n/` directory, reads all `.json` files, and attaches them to the plugin manifest under the `i18n` property.
+
+2. **Serving**: The frontend requests translations for the current locale via `Hay.plugins.getPluginTranslations.query({ locale })`. The backend returns translations for all plugins, falling back to `en` if the requested locale is missing.
+
+3. **Rendering**: The frontend merges plugin translations into Vue I18n under the `plugins` namespace. Tool labels, config labels, and plugin names are then resolved from these translations in the UI.
+
+### Fallback Behavior
+
+- If a requested locale (e.g., `pt-BR`) has no translation file, the system falls back to `en.json`.
+- If a plugin has no `i18n/` directory at all, the raw values from the MCP server and manifest are used directly.
+- Always provide `en.json` as a baseline — it ensures every string has a readable default.
+
+### Currently Supported Locales
+
+- `en` — English
+- `pt-BR` — Brazilian Portuguese
+
+Additional locales can be added at any time by creating a new JSON file.
+
+### Type Definition
+
+```typescript
+interface PluginLocale {
+  name?: string;
+  description?: string;
+  tools?: Record<string, { label: string; description?: string }>;
+  config?: Record<string, { label: string; description?: string }>;
+}
+```
+
+### Best Practices
+
+1. **Always include `en.json`** — it's the fallback for all missing locales.
+2. **Keep tool keys in sync** — the keys in `tools` must match the tool names registered in your MCP server.
+3. **Keep config keys in sync** — the keys in `config` must match the field names in your `configSchema` or `ctx.register.config()`.
+4. **Use clear, concise labels** — tool labels appear in the AI agent's tool picker and in the dashboard.
+5. **Don't translate tool IDs** — only translate the `label` and `description` values, never the keys.
 
 ---
 

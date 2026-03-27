@@ -18,6 +18,7 @@ navOrder: 5
 - [ ] Create `package.json` with dependencies
 - [ ] Create `tsconfig.json` for TypeScript
 - [ ] Implement plugin entry point in `src/index.ts`
+- [ ] Add `i18n/en.json` and `i18n/pt-BR.json` translations
 - [ ] Build plugin: `npm run build`
 - [ ] Test in dashboard
 
@@ -248,6 +249,9 @@ hay-plugin-myservice/
 │   └── index.ts             # Entry point
 ├── dist/
 │   └── index.js             # Compiled output
+├── i18n/                    # Translations (optional)
+│   ├── en.json             # English (fallback)
+│   └── pt-BR.json          # Brazilian Portuguese
 ├── mcp/                     # MCP server
 │   ├── index.js
 │   └── package.json
@@ -304,6 +308,42 @@ const message = await messageService.createAssistantMessageWithTestMode(
   metadata,
 );
 ```
+
+---
+
+## Internationalization (i18n)
+
+Add an `i18n/` directory to your plugin with one JSON file per locale. No manifest changes needed — the system discovers translations automatically.
+
+### Translation File (`i18n/en.json`)
+
+```json
+{
+  "name": "My Plugin",
+  "description": "What this plugin does",
+  "tools": {
+    "tool_name": {
+      "label": "Tool Display Name",
+      "description": "What this tool does"
+    }
+  },
+  "config": {
+    "apiKey": {
+      "label": "API Key",
+      "description": "Your API key for authentication"
+    }
+  }
+}
+```
+
+### Key Rules
+
+- `en.json` is **required** (fallback for all locales)
+- Tool keys must match MCP server tool names
+- Config keys must match `configSchema` / `ctx.register.config()` field names
+- Currently supported: `en`, `pt-BR`
+
+See the [API Reference](./api-reference/) for full details and examples.
 
 ---
 

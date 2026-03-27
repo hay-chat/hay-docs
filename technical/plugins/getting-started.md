@@ -279,6 +279,36 @@ Create a test conversation and verify:
 2. New conversations get tagged with timezone
 3. Logs show plugin activity
 
+### Step 9: Add Translations (Optional)
+
+Create an `i18n/` directory with translation files so your plugin's name, tool labels, and config labels display in the user's language.
+
+```bash
+mkdir i18n
+```
+
+Create `i18n/en.json`:
+
+```json
+{
+  "name": "Timezone Tagger",
+  "description": "Automatically tags conversations with customer timezone",
+  "tools": {},
+  "config": {
+    "enabled": {
+      "label": "Enabled",
+      "description": "Enable automatic timezone tagging"
+    },
+    "tagPrefix": {
+      "label": "Tag Prefix",
+      "description": "Prefix used for timezone tags"
+    }
+  }
+}
+```
+
+The system picks this up automatically — no manifest changes required. Add `pt-BR.json` (or any other locale) for additional languages. See the [API Reference](/docs/technical/plugins/api-reference/#internationalization-i18n) for the full i18n guide.
+
 ## Next Steps
 
 Now that you've built your first plugin, explore:
