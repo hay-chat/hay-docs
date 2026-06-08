@@ -32,7 +32,7 @@ Think of it like training a new employee by giving them all your company documen
 ### Step 1: Go to Documents
 
 1. Click **Documents** in the left sidebar
-2. Click **Import Documents**
+2. Click **Import Document**
 
 ### Step 2: Choose Your Method
 
@@ -46,21 +46,29 @@ Think of it like training a new employee by giving them all your company documen
 
 - PDF documents
 - Word documents (.doc, .docx)
+- PowerPoint presentations (.ppt, .pptx)
 - Text files (.txt)
 - Markdown files (.md)
-- CSV files (for data)
+- HTML files (.html)
+- CSV files (handled by text fallback processor)
+- JSON files (handled by text fallback processor)
 
-**Paste Text Directly**
+**Write Document**
 
-- Copy and paste content
-- Great for FAQs or quick information
-- No file needed
+Instead of uploading a file, you can write a document directly using the built-in rich text editor. This is a separate flow available at `/documents/new`:
+
+1. Click **Write Document** from the Documents page
+2. Enter a title and write your content using the rich text editor
+3. Click **Save**
+
+Great for FAQs, quick knowledge base entries, or content you want to author from scratch.
 
 **Import from URL**
 
-- Paste a webpage URL
-- Hay extracts the content
-- Perfect for existing help centers
+- Enter a root URL for your website or help center
+- Hay automatically detects the sitemap and crawls same-domain pages
+- Each discovered page is imported as a separate document
+- Perfect for importing existing help centers, documentation sites, or knowledge bases
 
 ### Step 3: Processing
 
@@ -75,12 +83,12 @@ Hay processes your documents:
 
 ### Step 4: Review and Organize
 
-After upload:
+After selecting your files, you'll be asked to fill in details for each document:
 
-- Give document a clear title
-- Add description (what information does it contain?)
-- Add tags for organization
-- Click **Save**
+- Set the **document name** (pre-filled from the file name)
+- Select a **category** (e.g., Product, FAQ, Legal, Technical)
+- Add a **description** (what information does it contain?)
+- Toggle **active** status (active documents are available to your agent immediately; inactive ones are saved as drafts)
 
 ## Types of Documents to Upload
 
@@ -252,11 +260,11 @@ Go to **Documents** to see all uploaded content.
 
 **What you'll see:**
 
-- Document title
-- Date uploaded
-- Size
-- Tags
-- Usage statistics (how often referenced)
+- Name
+- Type
+- Source
+- Status
+- Last Modified
 
 ### Editing Documents
 
@@ -275,8 +283,6 @@ Use the search bar to find specific documents:
 
 - Search by title
 - Search by content
-- Filter by tags
-- Sort by most-used
 
 ### Deleting Documents
 
@@ -290,20 +296,7 @@ To remove a document:
 
 ## Document Analytics
 
-See which documents are most valuable:
-
-**Usage Stats:**
-
-- How many times referenced
-- Which conversations used it
-- Success rate when used
-- Last used date
-
-**Find:**
-
-- Most helpful documents (high usage + good outcomes)
-- Unused documents (may need better tagging)
-- Documents that lead to escalations (may need clarification)
+> **Not yet available.** Document analytics features (usage stats, conversation references, success rates) are planned but not yet implemented.
 
 ## Advanced Features
 
@@ -321,22 +314,6 @@ This helps with:
 - Verifying accuracy
 - Finding outdated info
 - Tracking down errors
-
-### Document Priority
-
-Mark important documents as priority:
-
-- **High priority** = Search these first
-- **Normal** = Standard search
-- **Low priority** = Use only if needed
-
-### Version Control
-
-Keep track of document versions:
-
-- Upload new version
-- Old version archived automatically
-- Rollback if needed
 
 ## Common Scenarios
 

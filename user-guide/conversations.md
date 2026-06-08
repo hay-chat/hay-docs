@@ -23,12 +23,12 @@ Go to **Conversations** in the left sidebar to see all your interactions.
 
 **What you'll see:**
 
-- **Title** - Auto-generated summary of the conversation topic
+- **Conversation** - Title and conversation ID
 - **Status** - Current state (Open, Resolved, Closed, etc.)
-- **Customer** - Who you're talking with
-- **Channel** - Where the conversation came from (Web, WhatsApp, etc.)
-- **Agent** - Which AI agent handled it
-- **Last message** - When the last activity happened
+- **Assigned To** - Which agent or team member is handling it
+- **Duration** - How long the conversation has been active
+- **Satisfaction** - Customer satisfaction rating (if provided)
+- **Updated** - When the last activity happened
 
 ### Searching and Filtering
 
@@ -36,16 +36,13 @@ Find specific conversations quickly:
 
 **Search by:**
 
-- Customer name or email
-- Keywords in the conversation
+- Conversation title
 - Conversation ID
 
 **Filter by:**
 
-- **Status** - Open, Pending Human, Resolved, Closed
-- **Channel** - Web, WhatsApp, Email, etc.
-- **Agent** - Which AI agent handled it
-- **Date range** - When the conversation happened
+- **Status** - Active, Resolved, Escalated, Closed
+- **Timeframe** - Today, This Week, This Month, All Time
 
 ## Conversation Statuses
 
@@ -121,13 +118,13 @@ Sometimes you need to step in and handle a conversation yourself.
 
 When you're done:
 
-1. Click **Return to AI** or **Close Conversation**
-2. If you return to AI, the agent resumes handling messages
-3. If you close, the conversation is marked as resolved
+1. Click **Release Conversation**
+2. Choose **Return to AI** to let the agent resume handling messages
+3. Or choose **Return to Queue** to make the conversation available for other team members
 
-## Supervision Mode
+## Supervision Mode (Coming Soon)
 
-Want to watch the AI work without taking over? Use Supervision Mode.
+> **Coming Soon:** Supervision Mode is planned but not yet available. This section describes the intended functionality.
 
 ### What is Supervision Mode?
 
@@ -136,7 +133,7 @@ Want to watch the AI work without taking over? Use Supervision Mode.
 - Approve or edit responses
 - Step in only if needed
 
-### How to Use It
+### How It Will Work
 
 1. Open an active conversation
 2. Click **Supervise** at the top
@@ -181,7 +178,7 @@ Practice and test your agent without affecting real customers.
 Save a complete record:
 
 1. Click **Export** button
-2. Choose format (PDF or text)
+2. Choose format (PDF or CSV)
 3. Download includes all messages, timestamps, and metadata
 
 **Perfect for:**
@@ -190,36 +187,6 @@ Save a complete record:
 - Record keeping
 - Training materials
 - Compliance documentation
-
-### Add Notes
-
-Keep internal notes about a conversation:
-
-1. Click **Add Note** in the info panel
-2. Type your note (only visible to your team)
-3. Save for future reference
-
-**Use notes for:**
-
-- Special customer circumstances
-- Follow-up reminders
-- Context for other team members
-
-### Tag Conversations
-
-Organize conversations with tags:
-
-- Click **Add Tag**
-- Choose existing tag or create new one
-- Filter conversations by tags later
-
-**Tag ideas:**
-
-- "Urgent"
-- "Refund"
-- "Bug report"
-- "Feature request"
-- "VIP customer"
 
 ## Managing Customer Messages
 

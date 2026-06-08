@@ -48,7 +48,7 @@ Plans typically include:
 - Support level
 - Storage
 
-Check your specific plan details in **Settings** → **Billing**.
+Check your specific plan details with your account manager. Billing management within the dashboard is coming soon.
 
 ### What happens if I exceed my conversation limit?
 
@@ -98,7 +98,7 @@ Occasionally, yes. That's why Hay has confidence thresholds and escalates when u
 
 ### Can the AI access external systems?
 
-Yes, through integrations. For example, it can look up orders in Shopify or check tickets in Zendesk, if you've connected those integrations.
+Yes, through integrations. For example, it can look up tickets in Zendesk or pull customer data from HubSpot, if you've connected those integrations.
 
 ### Can I control what the AI says?
 
@@ -125,11 +125,11 @@ When a human takes over, the AI stops responding. The full conversation history 
 
 ### How long are conversations stored?
 
-Based on your data retention settings. Typically conversations are kept for 90 days to 1 year. Check **Settings** → **Privacy** for your specific retention policy.
+Based on your data retention settings. Typically conversations are kept for 90 days to 1 year. Check **Settings** → **Customer Privacy** for your specific retention policy.
 
 ### Can I delete conversations?
 
-Conversations are archived rather than deleted for compliance and learning. For privacy requests (GDPR), use the data deletion tool in **Settings** → **Privacy**.
+Yes, conversations can be permanently deleted. For bulk privacy requests (GDPR), use the data deletion tool in **Settings** → **Customer Privacy**.
 
 ## Integrations
 
@@ -140,10 +140,11 @@ Popular integrations include:
 - Web Chat (embed on your website)
 - WhatsApp Business
 - Email
-- Shopify
+- HubSpot
+- Atlassian (Jira)
+- Cal.com
 - WooCommerce
 - Zendesk
-- Magento
 
 Check **Integrations** → **Marketplace** for the complete list.
 
@@ -159,7 +160,7 @@ Most integrations are included in your plan. Some third-party services (like Wha
 
 Yes! Hay has an API for custom integrations. Contact support for developer documentation.
 
-### Will my Shopify/Zendesk data be secure?
+### Will my integration data be secure?
 
 Yes. Hay uses secure API connections and only requests the minimum permissions needed. Your data is encrypted and protected.
 
@@ -234,7 +235,7 @@ Simply edit or re-upload the correct version. Changes take effect immediately.
 
 ### Is there a limit to how many documents I can upload?
 
-Depends on your plan. Check **Settings** → **Billing** for your storage limits.
+Depends on your plan. Contact your account manager for storage limit details. In-dashboard billing management is coming soon.
 
 ## Queue & Escalations
 
@@ -260,12 +261,7 @@ Set your own SLAs based on your business needs.
 
 ### Can I automatically assign escalations to specific team members?
 
-Yes! Use routing rules to assign based on:
-
-- Topic or keywords
-- Time of day
-- Team member availability
-- Customer tier/value
+Automated routing is not currently available. Escalated conversations appear in the conversations list filtered by status (e.g., `pending-human`), and team members can manually take over conversations as needed.
 
 ### What if the queue gets too long?
 
@@ -289,7 +285,7 @@ Long term:
 Yes. Hay uses:
 
 - Encryption in transit and at rest
-- Secure authentication (passwords + 2FA)
+- Secure authentication (passwords + 2FA setup available, though server-side enforcement is still being finalized)
 - Regular security audits
 - Compliance with data protection regulations
 
@@ -300,14 +296,16 @@ Yes. Hay provides tools for:
 - Data access requests
 - Data deletion (right to be forgotten)
 - Data portability
-- Consent management
+- Storage consent via the webchat widget
 
 ### Can I control who accesses what?
 
 Yes! Use role-based access control:
 
-- Owner: Full access
+- Owner: Full access, organization management
 - Admin: Settings and management
+- Contributor: Can manage agents, documents, and playbooks
+- Member: Standard team member access
 - Agent: Conversations only
 - Viewer: Read-only access
 
@@ -324,7 +322,7 @@ Yes! You can export:
 - Analytics
 - Documents
 
-Go to **Settings** → **Privacy** or use the export feature in Analytics.
+Go to **Settings** → **Customer Privacy** or use the export feature in Analytics.
 
 ## Technical Questions
 
@@ -364,13 +362,15 @@ Contact support for API documentation.
 
 ## Billing & Account
 
+> **Note:** In-dashboard billing management is coming soon. For now, contact your account manager for all billing-related requests.
+
 ### How do I change my plan?
 
-Go to **Settings** → **Billing** → **Change Plan**. Changes typically take effect at your next billing cycle.
+Contact your account manager to change your plan. Changes typically take effect at your next billing cycle.
 
 ### How do I update my payment method?
 
-Go to **Settings** → **Billing** → **Payment Methods** and update your card information.
+Contact your account manager to update payment details.
 
 ### Can I get a refund?
 
@@ -382,7 +382,7 @@ You'll receive notifications to update your payment method. After a grace period
 
 ### How do I download invoices?
 
-Go to **Settings** → **Billing** → **Invoices** and download any invoice as PDF.
+Contact your account manager to request invoices.
 
 ## Support
 

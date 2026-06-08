@@ -18,6 +18,9 @@ Make sure you have:
 Hay works where your team already does. You can connect integrations now or skip this and come back later.
 
 1. Click **Integrations** in the left sidebar
+
+   > **Note:** The Integrations page is only visible to users with an **Admin** or **Owner** role.
+
 2. Browse available integrations (Shopify, WhatsApp, Zendesk, etc.)
 3. Click on an integration you want to add
 4. Follow the simple connection steps
@@ -35,13 +38,13 @@ Hay works where your team already does. You can connect integrations now or skip
 
 Your agent is your AI assistant. Give it a personality and purpose.
 
-1. Go to **Agents** in the left sidebar
+1. Go to **Settings > Agents** in the left sidebar
 2. Click **Create Agent**
 3. Fill in the basic information:
 
    - **Name:** Something descriptive like "Customer Support Agent"
    - **Description:** What this agent handles (e.g., "Handles order questions and product inquiries")
-   - **Tone:** Choose how your agent should communicate (Professional, Friendly, Casual, etc.)
+   - **Tone:** Choose how your agent should communicate (Professional, Casual, Enthusiastic)
 
 4. (Optional) Add specific instructions:
 
@@ -58,12 +61,18 @@ Your agent is your AI assistant. Give it a personality and purpose.
 Teach your agent by uploading your existing support materials.
 
 1. Go to **Documents** in the left sidebar
-2. Click **Import Documents**
-3. Upload files or paste text:
+2. Click **Import Document**
+3. Upload a file in any of the supported formats:
 
-   - **PDFs** - Product manuals, policy documents
-   - **Text files** - FAQs, support scripts
-   - **Direct text** - Paste in common questions and answers
+   - **PDF** - Product manuals, policy documents
+   - **TXT** - FAQs, support scripts
+   - **DOC / DOCX** - Word documents
+   - **PPT / PPTX** - Presentations
+   - **HTML** - Web pages
+   - **JSON / CSV** - Structured data
+   - **MD** - Markdown files
+
+> **Note:** To author documents directly in Hay, use the **Write Document** flow instead.
 
 4. Wait a few seconds while Hay processes and learns from your documents
 
@@ -97,7 +106,7 @@ Playbooks are step-by-step instructions for handling specific situations.
    If they need help with products, provide relevant information.
    ```
 
-5. Click **Save** and **Activate**
+5. Click **Create Playbook** (you can set the playbook status via the dropdown during creation)
 
 > **Common playbook examples:**
 >

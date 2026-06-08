@@ -306,7 +306,7 @@ Escalate to human if:
    - Collect their observations
    - Refine based on feedback
 
-## Queue Management
+## Escalation Management
 
 ### Response Time Targets
 
@@ -325,28 +325,30 @@ Set and communicate clear SLAs:
 - Staff appropriately
 - Celebrate hitting targets
 
-### Queue Workflow
+### Managing Escalated Conversations
+
+Escalated conversations are managed through the **Conversations** list page using status filters. Use filters like `pending-human` and `human-took-over` to find conversations that need attention. The `/queue` page is for background jobs only, not for conversation escalations.
 
 **Morning routine (5 minutes):**
 
-1. Check queue size
-2. Review any urgent (red) items
-3. Claim 1-2 you can handle immediately
+1. Filter conversations by `pending-human` status to see what needs attention
+2. Review any urgent items first
+3. Take over 1-2 conversations you can handle immediately
 4. Respond within target time
 
 **Throughout day:**
 
-- Check queue every 30-60 minutes
+- Check filtered conversation list every 30-60 minutes
 - Respond to new escalations quickly
-- Update status on longer issues
+- Update conversation status on longer issues
 - Keep customers informed
 
 **End of day:**
 
-- Review remaining queue items
-- Snooze items you're working on
+- Review remaining escalated conversations
+- Update conversation status for items still in progress
 - Note follow-ups needed
-- Set reminders for tomorrow
+- Use the takeover mechanism to keep ownership of ongoing cases
 
 ### Preventing Queue Buildup
 
@@ -431,7 +433,9 @@ Set and communicate clear SLAs:
    - Monitor impact over next week
    - Keep if it works, revert if it doesn't
 
-### A/B Testing
+### A/B Testing (Manual)
+
+> **Note:** Hay does not currently have native A/B testing or traffic-splitting features. The approach below describes a manual comparison strategy you can use today.
 
 Test changes before rolling out everywhere:
 
@@ -449,8 +453,8 @@ Test changes before rolling out everywhere:
 
 3. **Run for 1 week:**
 
-   - Split traffic 50/50
-   - Track metrics separately
+   - Assign each agent to a different channel or time window
+   - Track metrics separately using Analytics
 
 4. **Compare results:**
 
@@ -459,7 +463,7 @@ Test changes before rolling out everywhere:
    - Are escalations different?
 
 5. **Roll out winner:**
-   - Apply winning approach
+   - Apply winning approach to your primary agent
    - Measure continued performance
 
 ## Integration Strategy
@@ -474,7 +478,7 @@ Test changes before rolling out everywhere:
 
 **Examples:**
 
-- E-commerce → Shopify + Web Chat
+- E-commerce → WooCommerce + Web Chat
 - SaaS → In-app chat + Email
 - Local business → WhatsApp + Web Chat
 
@@ -536,7 +540,7 @@ Test changes before rolling out everywhere:
 
 **Week 1: Supervised Practice**
 
-- Use Supervision Mode
+- Use the Playground to test agent behavior before going live, and enable Test Mode (Message Approval) to require approval before AI messages are sent to real customers
 - Review and approve responses
 - Provide feedback
 - Share best practices
@@ -602,7 +606,7 @@ Test changes before rolling out everywhere:
 **Best practices:**
 
 - Create specific tokens for each integration
-- Name tokens clearly ("Shopify Prod", "Test API")
+- Name tokens clearly ("WooCommerce Prod", "Test API")
 - Rotate tokens quarterly
 - Delete unused tokens immediately
 - Never commit tokens to code

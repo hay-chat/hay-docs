@@ -7,19 +7,25 @@ section: user-guide
 
 ## Overview
 
-The dashboard shows you the most important metrics and activity at a glance. When you log in, you'll see:
+The dashboard shows you the most important metrics and activity at a glance. When you log in, you'll see four metric cards:
 
-- **Total conversations** today, this week, and this month
-- **Active conversations** currently being handled
-- **Resolution rate** - how many conversations were solved without human help
-- **Response time** - how quickly customers are getting answers
-- **Recent activity** - latest conversations and interactions
+- **Active Agents** - how many AI agents are currently deployed
+- **Total Conversations** - how many customer conversations have been handled (with resolved count as subtitle)
+- **Resolution Rate** - percentage of conversations solved without human help
+- **Avg Messages Per Conversation** - average number of messages exchanged per conversation
 
 ## Understanding Your Metrics
 
+### Active Agents
+
+Shows how many AI agents are currently deployed and handling conversations.
+
+- **Multiple agents?** Each agent can be configured for different use cases
+- **No active agents?** Check your agent settings to ensure at least one is enabled
+
 ### Total Conversations
 
-This shows how many customer conversations your Hay agent has handled.
+This shows how many customer conversations your Hay agent has handled, with the number of resolved conversations displayed as a subtitle.
 
 - **Increasing?** Great! Your agent is helping more customers
 - **Decreasing?** Check if integrations are working properly
@@ -34,26 +40,12 @@ The percentage of conversations solved completely by AI without human interventi
 - 80-90% is excellent after training and optimization
 - Below 50%? Your agent may need more training documents
 
-### Average Response Time
+### Avg Messages Per Conversation
 
-How quickly customers receive their first response.
+The average number of messages exchanged in each conversation. This helps you understand how efficiently issues are being resolved.
 
-**Hay typically responds in:**
-
-- ⚡ 1-3 seconds for simple questions
-- ⚡ 3-8 seconds for questions requiring document lookup
-- ⚡ 8-15 seconds for complex multi-step queries
-
-### Escalation Rate
-
-The percentage of conversations transferred to human agents.
-
-**Why do conversations escalate?**
-
-- Customer explicitly asks for a human
-- Agent isn't confident in its answer
-- Conversation requires actions the AI can't perform
-- Sentiment is negative or frustrated
+- **Low count (1-3)?** Issues are being resolved quickly
+- **High count (10+)?** Conversations may need better training or playbooks
 
 ## Quick Actions
 
@@ -84,13 +76,7 @@ See conversations waiting for human attention:
 
 ## Real-Time Updates
 
-Your dashboard updates automatically:
-
-- **Green pulse** next to metrics = activity happening now
-- **Notifications** appear for important events:
-  - Conversations needing urgent attention
-  - Customers waiting too long
-  - System alerts or issues
+> **Planned:** Real-time dashboard updates (live activity indicators and push notifications) are not yet implemented. Metrics are refreshed when you reload the page or change filters.
 
 ## Customizing Your View
 
@@ -98,11 +84,13 @@ Your dashboard updates automatically:
 
 Use the date selector to view metrics for:
 
-- Today
 - Last 7 days
 - Last 30 days
 - Last 90 days
-- Custom date range
+- This week
+- This month
+- This year
+- Custom range
 
 ## Dashboard Best Practices
 
@@ -126,14 +114,14 @@ Once per week, look at:
 
 When you notice patterns:
 
-**High escalation on specific topics?**
-→ Add more training documents about those topics
-
 **Low resolution rate?**
 → Review recent conversations to see where the agent struggles
 
-**Long response times?**
-→ Check if your knowledge base is organized efficiently
+**High avg messages per conversation?**
+→ Check if your knowledge base covers the most common questions
+
+**Many conversations pending human?**
+→ Add more training documents about those topics
 
 ## Common Dashboard Questions
 
@@ -141,14 +129,16 @@ When you notice patterns:
 
 Some metrics are calculated every few minutes, not instantly. Refresh your browser to see the latest data.
 
-### What's the difference between "open" and "active"?
+### What do the conversation statuses mean?
 
-- **Open** = conversation started but may be waiting for a response
-- **Active** = actively exchanging messages right now
+Conversations use the following statuses:
 
-### Can I export this data?
-
-Yes! Click **Export** in the analytics section to download reports in PDF or CSV format.
+- **Open** - conversation started, AI is handling it
+- **Processing** - AI is generating a response
+- **Pending Human** - waiting for a human agent
+- **Human Took Over** - a team member is responding
+- **Resolved** - issue was solved successfully
+- **Closed** - conversation ended, no further action needed
 
 ## Next Steps
 

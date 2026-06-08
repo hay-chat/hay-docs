@@ -55,15 +55,15 @@ enum SourceCategory {
 
 ### Register a New Source
 
-Use the `sources.register` tRPC endpoint:
+Use the `sources.register` tRPC endpoint on the plugin API router:
+
+> **Note**: The plugin-api `sources.register` endpoint is currently a stub/TODO and does **not** persist sources to the database. It validates the input and returns `{ success: true }` but does not create a Source entity. See `server/routes/v1/plugin-api/trpc.ts` for current status.
 
 ```typescript
 const source = await trpc.sources.register.mutate({
   id: 'whatsapp',                    // or 'my-plugin:whatsapp'
   name: 'WhatsApp Business',
-  description: 'WhatsApp Business API integration',
   category: 'messaging',
-  pluginId: 'whatsapp-plugin',
   icon: 'whatsapp',
   metadata: {
     apiVersion: '2.0',
@@ -71,6 +71,8 @@ const source = await trpc.sources.register.mutate({
   }
 });
 ```
+
+`pluginId` is **not** an input parameter -- it is automatically derived from the plugin's JWT auth context. `description` is also not part of the plugin-api input schema.
 
 ### Source ID Naming Convention
 
@@ -97,9 +99,7 @@ export async function registerWhatsAppSource(trpc: TRPCClient) {
   const source = await trpc.sources.register.mutate({
     id: 'whatsapp',
     name: 'WhatsApp Business',
-    description: 'Send and receive messages via WhatsApp Business API',
     category: 'messaging',
-    pluginId: 'whatsapp',
     icon: 'whatsapp',
     metadata: {
       apiVersion: 'v16.0',
@@ -129,9 +129,7 @@ export async function registerInstagramSource(trpc: TRPCClient) {
   const source = await trpc.sources.register.mutate({
     id: 'instagram',
     name: 'Instagram Direct',
-    description: 'Instagram Direct Messages integration',
     category: 'social',
-    pluginId: 'instagram',
     icon: 'instagram',
     metadata: {
       platform: 'instagram',
@@ -150,9 +148,7 @@ export async function registerZendeskSource(trpc: TRPCClient) {
   const source = await trpc.sources.register.mutate({
     id: 'zendesk:tickets',
     name: 'Zendesk Support Tickets',
-    description: 'Respond to Zendesk support tickets with AI',
     category: 'helpdesk',
-    pluginId: 'zendesk',
     icon: 'zendesk',
     metadata: {
       ticketFields: ['priority', 'status', 'tags'],
@@ -166,9 +162,12 @@ export async function registerZendeskSource(trpc: TRPCClient) {
 
 ## Source Management
 
+> **Important**: The endpoints below (`sources.deactivate`, `sources.activate`, `sources.list`, `sources.getByCategory`) are **internal admin endpoints** on the main tRPC router (`server/routes/v1/sources/`). They require scoped user authentication and are **not** available to plugins via the plugin API. Plugins should only use the `sources.register` endpoint on the plugin API router.
+
 ### Deactivate a Source
 
 ```typescript
+// Admin/dashboard only - not available via plugin API
 await trpc.sources.deactivate.mutate({
   id: 'whatsapp'
 });
@@ -179,6 +178,7 @@ await trpc.sources.deactivate.mutate({
 ### Activate a Source
 
 ```typescript
+// Admin/dashboard only - not available via plugin API
 await trpc.sources.activate.mutate({
   id: 'whatsapp'
 });
@@ -187,18 +187,22 @@ await trpc.sources.activate.mutate({
 ### List All Sources
 
 ```typescript
+// Admin/dashboard only - not available via plugin API
 const sources = await trpc.sources.list.query();
 ```
 
 ### Get Sources by Category
 
 ```typescript
+// Admin/dashboard only - not available via plugin API
 const messagingSources = await trpc.sources.getByCategory.query({
   category: 'messaging'
 });
 ```
 
 ## Test Mode Behavior
+
+Test mode only applies to **bot messages that are responses to customer messages** (i.e., messages created via `createAssistantMessageWithTestMode`). It does **not** apply to initial greetings, system messages, or customer-originated messages.
 
 ### Playground Source
 
@@ -214,7 +218,7 @@ Test mode is determined by:
 3. Default: `false` (no test mode)
 
 **When test mode is ON**:
-- Messages require approval before sending to customers
+- Bot response messages require approval before sending to customers
 - delivery_state = 'queued'
 - review_required = true
 - Messages only sent after explicit approval
@@ -230,12 +234,11 @@ Test mode is determined by:
 
 ```typescript
 export async function onInstall(context: PluginContext) {
-  // Register source
+  // Register source (pluginId is auto-derived from auth context)
   await context.trpc.sources.register.mutate({
     id: 'my-channel',
     name: 'My Channel',
     category: 'messaging',
-    pluginId: context.pluginId
   });
 }
 ```
@@ -256,8 +259,8 @@ export async function onUninstall(context: PluginContext) {
 When creating messages from your plugin, always specify the sourceId:
 
 ```typescript
-import { MessageService } from '@/services/core/message.service';
-import { DeliveryState } from '@/types/message-feedback.types';
+import { MessageService } from '@server/services/core/message.service';
+import { DeliveryState } from '@server/types/message-feedback.types';
 
 const messageService = new MessageService();
 
@@ -274,13 +277,17 @@ const message = await messageService.createAssistantMessageWithTestMode(
   }
 );
 
-// Check if message needs approval
+// Check delivery state before sending
 if (message.deliveryState === DeliveryState.QUEUED) {
   // Message is queued for approval
   // Don't send to external platform yet
   console.log('Message queued for approval');
+} else if (message.deliveryState === DeliveryState.BLOCKED) {
+  // Message was blocked (e.g., by moderation or policy)
+  // Do not send to external platform
+  console.log('Message blocked');
 } else {
-  // Message approved automatically
+  // Message approved automatically (DeliveryState.SENT)
   // Send to external platform
   await sendToWhatsApp(message);
 }
@@ -288,12 +295,15 @@ if (message.deliveryState === DeliveryState.QUEUED) {
 
 ## Validation Rules
 
-### Source Registration
+### Source Registration (plugin API)
 
-- **ID**: Required, must match `/^[a-z0-9_:-]+$/`, cannot be core source
-- **Name**: Required, 1-100 characters
-- **Category**: Required, must be valid SourceCategory enum value
-- **Plugin ID**: Optional but recommended, links source to plugin
+- **ID**: Required, string
+- **Name**: Required, string
+- **Category**: Required, one of `messaging`, `social`, `email`, `helpdesk`
+- **Icon**: Optional, string
+- **Metadata**: Optional, key-value object
+
+`pluginId` is automatically derived from the plugin's JWT auth context and should not be passed as input.
 
 ### Restrictions
 
@@ -309,7 +319,6 @@ try {
     id: 'my-source',
     name: 'My Source',
     category: 'messaging',
-    pluginId: 'my-plugin'
   });
 } catch (error) {
   if (error.message.includes('already exists')) {
@@ -329,10 +338,12 @@ try {
 1. **Use namespaced IDs** for custom channels: `my-plugin:my-channel`
 2. **Store plugin-specific config** in the `metadata` field
 3. **Deactivate (don't delete)** sources on plugin uninstall to preserve message history
-4. **Check delivery_state** before sending messages to external platforms
+4. **Check delivery_state** before sending messages to external platforms. The possible states are:
+   - `QUEUED` - message awaiting approval (test mode on)
+   - `SENT` - message approved and ready/sent
+   - `BLOCKED` - message blocked by moderation or policy; do not deliver
 5. **Use appropriate categories** for better organization and filtering
-6. **Provide clear descriptions** for users to understand each channel
-7. **Handle test mode properly** - respect queued messages
+6. **Handle test mode properly** - respect queued and blocked messages
 
 ## Future Enhancements
 

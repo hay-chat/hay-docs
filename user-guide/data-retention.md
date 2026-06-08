@@ -36,10 +36,10 @@ After anonymization, the conversation record remains with the title `[Anonymized
 ## Configuring Retention
 
 1. Go to **Settings** → **Customer Privacy**
-2. Under **Conversation Retention Period**, choose a timeframe: 30, 60, 90 days, or indefinite
+2. Under **Conversation Retention Period**, choose a timeframe: 30, 60, 90, 180, or 365 days, or disabled (keep forever)
 3. Save your changes
 
-The retention period counts from when a conversation was **closed**. Only conversations with status `closed` or `resolved` are eligible for anonymization. Open or in-progress conversations are never touched.
+The retention period counts from the conversation's `closed_at` timestamp when available, or falls back to `created_at` if no closed date is set. Only conversations with status `closed` or `resolved` are eligible for anonymization. Open or in-progress conversations are never touched.
 
 ## Legal Hold
 
@@ -77,7 +77,7 @@ Every retention cleanup is logged in the audit trail with:
 - The cutoff date used
 - The list of affected conversation IDs
 
-You can review these logs to verify that retention is operating as expected.
+Audit logs are accessible via the API only and are not currently exposed through the dashboard UI.
 
 ## FAQ
 
@@ -91,7 +91,7 @@ No. Anonymization permanently removes personal data. This is by design — GDPR 
 Aggregate analytics (conversation volume, resolution times, channel breakdown) are preserved. Per-conversation details and message content are not.
 
 **What about customer data exports?**
-Data exports (via **Settings** → **Privacy**) include all current data. If a conversation has already been anonymized, it will not appear in the export.
+Data exports (via **Settings** → **Customer Privacy**) include all current data. If a conversation has already been anonymized, it will not appear in the export.
 
 **Are embeddings cleaned up too?**
 Yes. All vector embeddings linked to anonymized conversations are deleted, ensuring no semantic traces of the conversation remain in the vector store.

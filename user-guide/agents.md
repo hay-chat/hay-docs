@@ -31,7 +31,7 @@ Fill in the essentials:
 **Agent Name**
 
 - Something descriptive: "Customer Support Agent", "Sales Assistant", "Technical Support Bot"
-- Visible to your team (not to customers)
+- Visible to customers in the webchat widget header, so choose a name that makes sense externally
 
 **Description** (Optional but recommended)
 
@@ -63,12 +63,11 @@ Important guidelines:
 
 Choose how your agent should communicate:
 
-| Tone             | When to Use                           | Example                                                                      |
-| ---------------- | ------------------------------------- | ---------------------------------------------------------------------------- |
-| **Professional** | B2B, enterprise customers             | "Thank you for contacting us. I'd be happy to assist you with that inquiry." |
-| **Friendly**     | Most customer service                 | "Hi there! I'd love to help you with that. Let me take a look!"              |
-| **Casual**       | Young audience, informal brand        | "Hey! No worries, I got you. Let's figure this out together."                |
-| **Empathetic**   | Support, complaints, sensitive issues | "I understand how frustrating this must be. Let me help make it right."      |
+| Tone               | When to Use                    | Example                                                                      |
+| ------------------ | ------------------------------ | ---------------------------------------------------------------------------- |
+| **Professional**   | B2B, enterprise customers      | "Thank you for contacting us. I'd be happy to assist you with that inquiry." |
+| **Casual**         | Young audience, informal brand | "Hey! No worries, I got you. Let's figure this out together."                |
+| **Enthusiastic**   | Engaging, high-energy brands   | "Great question! Let's get this sorted out right away!"                      |
 
 **Things to Avoid** (Optional)
 
@@ -80,6 +79,15 @@ List topics or phrases your agent should never use:
 - Never say "that's not possible" without offering alternatives
 - Don't make pricing decisions without approval
 ```
+
+**Language**
+
+Select the language your agent should respond in. Options include:
+
+- **Inherit from Organization** — Uses the organization-level default language.
+- English, Portugues, Espanol, Francais, Deutsch, Italiano, Nederlands, Japanese, Chinese, Korean, Arabic, Turkish, Polish, Russian.
+
+If your organization serves customers in multiple languages, you can create separate agents per language or let the organization default handle it.
 
 ### Step 4: Initial Greeting
 
@@ -112,7 +120,7 @@ What brings you in today?
 ### Step 5: Enable and Save
 
 - Toggle **Enabled** to activate your agent
-- Click **Save Agent**
+- Click **Create Agent**
 
 Your agent is now ready to start handling conversations!
 
@@ -123,34 +131,32 @@ Need to make changes? Easy!
 1. Go to **Agents** in the sidebar
 2. Click on the agent you want to edit
 3. Make your changes
-4. Click **Update Agent**
+4. Click **Save Changes**
 
 **Changes take effect immediately** for new conversations.
 
 ## Agent Settings
 
-### Test Mode
+### Message Approval
 
-Enable test mode when you want to review every response before it's sent.
+Control whether agent responses are sent automatically or held for human review.
 
-**When test mode is ON:**
+**Options:**
 
-- Agent generates responses as normal
-- You see responses before they're sent to customers
-- You can approve, edit, or reject each message
-- Perfect for training and quality assurance
+- **Inherit from Organization** — Uses whatever the organization-level default is.
+- **Require Approval** — Agent generates responses as normal, but you see them before they are sent. You can approve, edit, or reject each message. Perfect for training and quality assurance.
+- **Auto-Send** — Responses are sent to customers immediately without review.
 
-**How to enable:**
+**How to configure:**
 
 1. Open your agent settings
-2. Toggle **Test Mode** ON
-3. All conversations with this agent now require approval
+2. Under **Message Approval**, select the option that fits your needs
 
-### Human Handoff Instructions
+### Human Escalation
 
 Tell your agent exactly how to handle escalations:
 
-**When Human is Available:**
+**If any human agent is available:**
 
 ```
 Let the customer know that you'll connect them with a specialist
@@ -158,7 +164,7 @@ who can help. Transfer the conversation and provide a summary of
 what was discussed.
 ```
 
-**When Human is NOT Available:**
+**If all human agents are unavailable:**
 
 ```
 Apologize and let the customer know you'll have someone reach out
@@ -168,24 +174,15 @@ Ask if there's anything else you can help with while they wait.
 
 ### Trigger Conditions
 
-Set when this agent should be assigned to conversations:
+Describe when this agent should be assigned to conversations using a free-text field. Write conditions in plain English:
 
-**By Channel:**
+```
+Assign this agent when the customer asks about orders, shipping,
+or returns. Also trigger for any messages coming through the
+WhatsApp channel.
+```
 
-- Assign this agent to WhatsApp conversations
-- Different agent for website chat
-- Another for email
-
-**By Topic:**
-
-- Keywords: "order", "shipping", "tracking" → Order Support Agent
-- Keywords: "bug", "error", "not working" → Technical Support Agent
-- Keywords: "price", "plan", "upgrade" → Sales Agent
-
-**By Time:**
-
-- Business hours → Human + AI assist
-- After hours → AI only
+You can combine multiple conditions in a single description. The system uses this text to determine when the agent should handle a conversation.
 
 ## Multiple Agents Strategy
 
@@ -238,7 +235,7 @@ _Technical Support_
 
 ### Monitoring Your Agents
 
-Go to **Analytics** → **Agents** to see:
+Go to **Analytics** to see agent performance in the dedicated section:
 
 - **Conversations handled** - Total volume per agent
 - **Resolution rate** - How many issues they solved
@@ -338,7 +335,7 @@ Most businesses start with 1-2 agents. You only need more if you have truly diff
 
 ### Can I clone an agent?
 
-Yes! When creating a new agent, you can start with settings from an existing agent, then customize.
+Not yet — this feature is not currently implemented. For now, you need to create a new agent and manually configure it with similar settings.
 
 ## Next Steps
 

@@ -29,10 +29,12 @@ We believe that happy developers build better software.
 // Good: Clear, typed interface
 interface CreateConversationParams {
   customerId: string;
-  channel: 'email' | 'chat' | 'social';
+  channel: string; // varchar(64), default "web"
   subject?: string;
   initialMessage: string;
 }
+// Note: channel is a loose string (not a union) to support
+// dynamic plugin registration of new channels (e.g. WhatsApp, Telegram).
 
 // Bad: Unclear, any types
 function create(params: any) { ... }
@@ -51,11 +53,8 @@ Sensible defaults that work out of the box.
 
 ```typescript
 // Convention: Plugins auto-discovered from /plugins directory
-// Configuration: Override defaults only when needed
-{
-  pluginDirectory: './custom-plugins',  // optional
-  autoDiscovery: true                    // default
-}
+// PluginManagerService handles discovery and loading automatically.
+// No manual configuration needed.
 ```
 
 #### 3. Fail Fast, Fail Loud
@@ -70,34 +69,35 @@ Catch errors early and provide actionable feedback.
 - Detailed error messages
 
 ```typescript
-// Validation errors are clear and actionable
-throw new ValidationError({
-  field: "email",
-  message: "Invalid email format",
-  received: userInput,
-  expected: "user@example.com",
-});
+// tRPC procedures validate inputs with Zod schemas.
+// Invalid input is rejected automatically with clear, structured errors.
+const createUser = protectedProcedure
+  .input(z.object({
+    email: z.string().email("Invalid email format"),
+    name: z.string().min(1),
+  }))
+  .mutation(async ({ input }) => { ... });
 ```
 
-#### 4. Plugin-First Architecture
+#### 4. Plugins for External Integrations
 
-Everything is a plugin, including core features.
+Core features (conversations, analytics, agents) are regular services and routes in the server codebase. Plugins extend Hay with external integrations only.
 
 **Why:**
 
-- Forces modular design
-- Ensures extensibility
-- Dogfooding our own APIs
-- Easy to add/remove features
+- Keeps the core simple and cohesive
+- Plugins can be added or removed without touching core code
+- External services have their own lifecycle and configuration
 
 **In practice:**
 
 ```typescript
-// Core features implemented as plugins
-const corePlugins = ["hay-plugin-conversations", "hay-plugin-automation", "hay-plugin-analytics"];
+// Core features are services/routes in /server
+// e.g. ConversationService, AnalyticsService, AgentService
 
-// User plugins loaded the same way
-const userPlugins = ["@custom/slack-integration", "@custom/ai-responses"];
+// Plugins handle external integrations
+// e.g. plugins/stripe, plugins/zendesk, plugins/whatsapp
+// Loaded dynamically by PluginManagerService from /plugins directory
 ```
 
 #### 5. Data Ownership and Privacy
@@ -108,7 +108,7 @@ Users own their data, always.
 
 - Export functionality for all data
 - Clear data retention policies
-- Encryption by default
+- Encryption for sensitive plugin configuration
 - GDPR compliance built-in
 - Self-hosting option available
 
@@ -133,62 +133,52 @@ if (userNeedsFeature) {
 
 ### Design Patterns
 
-#### Event-Driven Architecture
+#### Hook-Driven Architecture
 
 **Why:** Decouples components and enables real-time features
 
 ```typescript
-// Emit events for major state changes
-eventBus.emit("conversation.resolved", {
+import { hookManager } from "@server/services/hooks/hook-manager";
+
+// Trigger hooks for major state changes
+await hookManager.trigger("conversation.resolved", {
+  organizationId,
   conversationId,
-  resolvedBy,
-  timestamp,
+  metadata: { resolvedBy },
 });
 
-// Plugins can react to any event
-plugin.on("conversation.resolved", async (event) => {
-  await sendSurvey(event.conversationId);
+// Register handlers to react to events
+hookManager.register("conversation.resolved", async (payload) => {
+  await sendSurvey(payload.conversationId);
 });
 ```
 
-#### Dependency Injection
+#### Direct Service Construction
 
-**Why:** Testability and flexibility
+Services construct their own dependencies via `new` in constructors or use singletons (e.g. `HookManager.getInstance()`). This keeps the codebase simple and avoids the overhead of a DI framework.
 
 ```typescript
-// Services injected, not imported
-class AutomationService {
-  constructor(
-    private db: Database,
-    private queue: Queue,
-    private events: EventBus
-  ) {}
+// Services self-construct dependencies
+class ConversationService {
+  private repository = new ConversationRepository();
+  private hookManager = HookManager.getInstance();
 }
-
-// Easy to mock in tests
-const mockDb = createMockDatabase();
-const service = new AutomationService(mockDb, ...);
 ```
 
 #### Repository Pattern
 
-**Why:** Abstracts data access, easy to swap databases
+**Why:** Abstracts data access with a consistent base class
 
 ```typescript
-interface ConversationRepository {
-  findById(id: string): Promise<Conversation>;
-  create(data: CreateConversationData): Promise<Conversation>;
-  update(id: string, data: Partial<Conversation>): Promise<Conversation>;
-}
+// All repositories extend BaseRepository<T>
+export class ConversationRepository extends BaseRepository<Conversation> {
+  constructor() {
+    super(Conversation);
+  }
 
-// PostgreSQL implementation
-class PostgresConversationRepository implements ConversationRepository {
-  // ...
-}
-
-// Could swap to MongoDB, etc.
-class MongoConversationRepository implements ConversationRepository {
-  // ...
+  async findByChannel(channel: string): Promise<Conversation[]> {
+    return this.getRepository().find({ where: { channel } });
+  }
 }
 ```
 
@@ -199,15 +189,15 @@ class MongoConversationRepository implements ConversationRepository {
 - **Strict mode enabled**: No implicit any
 - **Explicit return types**: For all public functions
 - **Discriminated unions**: For state management
-- **Branded types**: For IDs and sensitive data
+- **Plain string IDs**: All entity IDs are plain `string` (UUIDs)
 
 ```typescript
-// Branded type prevents mixing IDs
-type ConversationId = string & { __brand: 'ConversationId' };
-type UserId = string & { __brand: 'UserId' };
-
-// Compile error: can't pass UserId where ConversationId expected
-function getConversation(id: ConversationId) { ... }
+// IDs are plain strings (UUIDs generated by the database)
+interface Conversation {
+  id: string;
+  customerId: string;
+  channel: string;
+}
 ```
 
 #### Testing
@@ -215,7 +205,7 @@ function getConversation(id: ConversationId) { ... }
 - **Unit tests**: For business logic
 - **Integration tests**: For API endpoints
 - **E2E tests**: For critical user flows
-- **Minimum 80% coverage**: For new code
+- **Good coverage encouraged**: No hard threshold configured
 
 ```typescript
 describe("AutomationService", () => {
@@ -232,9 +222,8 @@ describe("AutomationService", () => {
 
 #### Documentation
 
-- **TSDoc comments**: On all public APIs
+- **TSDoc comments**: Encouraged on public APIs (not consistently enforced)
 - **README in each package**: Setup and usage
-- **Architecture Decision Records**: For major decisions
 - **Inline comments**: Only for "why", not "what"
 
 ````typescript

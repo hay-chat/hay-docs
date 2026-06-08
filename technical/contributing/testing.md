@@ -58,30 +58,31 @@ Tests automatically authenticate using saved auth state. No manual login require
 
 For debugging with Playwright MCP or manual testing:
 
-1. **Extract access token** from storage state file:
+1. **Extract tokens** from storage state file:
    ```bash
-   cat playwright/.auth/user.json | grep accessToken
+   cat playwright/.auth/user.json | grep -E '"accessToken"|"refreshToken"|"expiresAt"'
    ```
 
-2. **Navigate with token parameter**:
+2. **Navigate with query parameters**:
    ```
-   http://localhost:3000/?auth_token=YOUR_ACCESS_TOKEN
+   http://localhost:3000/?accessToken=TOKEN&refreshToken=TOKEN&expiresIn=SECONDS
    ```
 
-3. Browser validates token and logs you in automatically
+3. Browser validates tokens and logs you in automatically
 
 **Security notes:**
 - Only works in development (`NODE_ENV !== 'production'`)
-- Token removed from URL after validation
+- Tokens removed from URL after validation
 - Tokens expire after 15 minutes (JWT default)
 
 **Example:**
 ```bash
-# Extract token (macOS)
-TOKEN=$(cat playwright/.auth/user.json | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
+# Extract tokens (macOS)
+ACCESS=$(cat playwright/.auth/user.json | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
+REFRESH=$(cat playwright/.auth/user.json | grep -o '"refreshToken":"[^"]*"' | cut -d'"' -f4)
 
-# Open browser with auth
-open "http://localhost:3000/?auth_token=$TOKEN"
+# Open browser with auth (expiresIn in seconds)
+open "http://localhost:3000/?accessToken=$ACCESS&refreshToken=$REFRESH&expiresIn=900"
 ```
 
 ## Writing Tests
@@ -131,9 +132,16 @@ test("My test", async ({ page }) => {
 
 ### Test Files
 
-- [tests/plugin-health-check.spec.ts](../tests/plugin-health-check.spec.ts) - Plugin connection status tests
-- [tests/instructions-editor.spec.ts](../tests/instructions-editor.spec.ts) - Instructions editor functionality
+- [tests/atlassian-plugin.spec.ts](../tests/atlassian-plugin.spec.ts) - Atlassian plugin tests
+- [tests/email-plugin-installation.spec.ts](../tests/email-plugin-installation.spec.ts) - Email plugin installation tests
+- [tests/email-plugin.spec.ts](../tests/email-plugin.spec.ts) - Email plugin tests
+- [tests/hubspot-oauth-flow.spec.ts](../tests/hubspot-oauth-flow.spec.ts) - HubSpot OAuth flow tests
 - [tests/instructions-editor-paste-and-slash.spec.ts](../tests/instructions-editor-paste-and-slash.spec.ts) - Editor paste/slash tests
+- [tests/instructions-editor.spec.ts](../tests/instructions-editor.spec.ts) - Instructions editor functionality
+- [tests/plugin-health-check-and-settings.spec.ts](../tests/plugin-health-check-and-settings.spec.ts) - Plugin health check and settings tests
+- [tests/plugin-health-check.spec.ts](../tests/plugin-health-check.spec.ts) - Plugin connection status tests
+- [tests/url-token-auth.spec.ts](../tests/url-token-auth.spec.ts) - URL token authentication tests
+- [tests/webchat-consent-strict.spec.ts](../tests/webchat-consent-strict.spec.ts) - Webchat strict consent mode tests
 - [tests/webchat-plugin.spec.ts](../tests/webchat-plugin.spec.ts) - Webchat plugin tests
 - [tests/zendesk-plugin.spec.ts](../tests/zendesk-plugin.spec.ts) - Zendesk plugin tutorial tests
 
@@ -145,6 +153,9 @@ test("My test", async ({ page }) => {
   - `cleanupTestUsers()` - Delete old test users
   - `createTestUser()` - Create test user + org + tokens
   - `generateAuthState()` - Create Playwright storage state
+
+- [tests/helpers/login.ts](../tests/helpers/login.ts) - Login and navigation utilities
+  - `navigateWithAuth(page, path)` - Login via API and navigate to a page with URL token auth (`accessToken`, `refreshToken`, `expiresIn` query params)
 
 ### Global Setup
 
@@ -322,12 +333,12 @@ npx playwright install
 
 ### URL token auth not working
 
-**Problem**: Middleware not recognizing token
+**Problem**: Middleware not recognizing tokens
 
 **Checklist**:
 - Running in development (`NODE_ENV !== 'production'`)
-- Token is valid (check expiry)
-- Token passed correctly in URL: `?auth_token=xxx`
+- Tokens are valid (check expiry)
+- All three query params passed correctly: `?accessToken=TOKEN&refreshToken=TOKEN&expiresIn=SECONDS`
 - Check browser console for auth middleware logs
 
 ## CI/CD Integration

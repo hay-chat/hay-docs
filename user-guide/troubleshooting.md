@@ -17,8 +17,8 @@ section: user-guide
 
 **Check agent status:**
 
-1. Go to **Agents**
-2. Verify agent is **Enabled**
+1. Go to **Settings > Agents**
+2. Verify agent is **Active**
 3. Check if agent has required documents and playbooks
 
 **Check integration:**
@@ -30,7 +30,7 @@ section: user-guide
 **Check conversation status:**
 
 1. Open the conversation
-2. Check if status is "Open" (not "Closed" or "Human Took Over")
+2. Check if status is "Open" (not "Closed" or "Manual Control")
 3. Check for error messages in conversation
 
 **If still not working:**
@@ -59,7 +59,7 @@ section: user-guide
 
 **Improve agent instructions:**
 
-1. Go to **Agents** → Your agent
+1. Go to **Settings > Agents** → Your agent
 2. Review instructions
 3. Add specific examples
 4. Be more explicit about what to do/not do
@@ -114,7 +114,7 @@ section: user-guide
 
 **Adjust confidence threshold:**
 
-1. Go to **Settings** → **Agent Behavior**
+1. Go to **Settings** → **General**
 2. Lower confidence threshold slightly
 3. Monitor results
 4. Adjust as needed
@@ -128,7 +128,7 @@ section: user-guide
 1. **Re-authenticate:**
 
    - Go to **Integrations**
-   - Click **Reconnect**
+   - Remove the integration and add it again
    - Sign in again
    - Authorize permissions
 
@@ -347,7 +347,7 @@ section: user-guide
 
 1. **Check settings:**
 
-   - Go to **Settings** → **Notifications**
+   - Go to **Settings** → **General** and scroll to Notification Preferences
    - Verify email notifications are enabled
    - Check which events you're subscribed to
 
@@ -443,47 +443,6 @@ section: user-guide
    - Check connection
    - Try different network
 
-## Billing Issues
-
-### Payment Failed
-
-**Solutions:**
-
-1. **Check card details:**
-
-   - Verify card number
-   - Check expiration date
-   - Confirm CVV code
-   - Update billing address
-
-2. **Contact bank:**
-
-   - May have declined charge
-   - Verify international payments allowed
-   - Check spending limits
-
-3. **Try different card:**
-   - Use alternate payment method
-   - Contact support for help
-
-### Can't Change Plan
-
-**Solutions:**
-
-1. **Permission check:**
-
-   - Must be Owner or Admin
-   - Contact organization owner
-
-2. **Billing current:**
-
-   - Resolve outstanding invoices
-   - Update payment method
-
-3. **Timing:**
-   - Some changes only at renewal
-   - Note when change takes effect
-
 ## Getting More Help
 
 ### Before Contacting Support
@@ -513,12 +472,6 @@ section: user-guide
 
 - support@hay.ai
 - Include "URGENT" in subject if critical
-
-**In-App:**
-
-- Click **Help** icon
-- Start chat with support team
-- Available during business hours
 
 **What to include:**
 

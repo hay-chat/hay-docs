@@ -48,7 +48,7 @@ Before you start, think about:
 ### Step 2: Create New Playbook
 
 1. Click **Playbooks** in the sidebar
-2. Click **Create Playbook**
+2. Click the **+** icon button to create a playbook manually, or click **Generate Playbook** to use the AI-assisted wizard
 
 ### Step 3: Basic Information
 
@@ -59,11 +59,11 @@ Before you start, think about:
 
 **Trigger**
 
-- Keywords or phrases that activate this playbook
-- Examples:
-  - "hello", "hi", "hey" → Welcome playbook
-  - "refund", "money back", "return" → Refund playbook
-  - "where is my order", "track order" → Order tracking playbook
+- A free-text description of when the playbook should activate. The LLM uses this text to determine relevance based on the conversation context — it is not simple keyword matching.
+- Write a natural-language description of the situation, for example:
+  - "The customer is greeting us or starting a new conversation" → Welcome playbook
+  - "The customer is requesting a refund or asking for their money back" → Refund playbook
+  - "The customer wants to know the status or location of their order" → Order tracking playbook
 
 **Description** (Optional)
 
@@ -153,7 +153,9 @@ Once all information collected:
 **Active** - Live and ready to handle conversations
 **Archived** - No longer in use but kept for reference
 
-Click **Save Playbook**
+Click **Create Playbook** to save your new playbook.
+
+> **Draft/Publish workflow:** After creating a playbook, any changes you make to the instructions are auto-saved to a **draft** version. The draft does not affect live conversations until you click the **Publish** button. This lets you iterate on instructions safely before they go live.
 
 ## Playbook Instructions Best Practices
 
@@ -225,23 +227,14 @@ Escalate to human if:
 
 ## Assigning Playbooks to Agents
 
-You can assign playbooks to specific agents:
-
-### Option 1: From Playbook Settings
+You can assign playbooks to specific agents from the playbook editor:
 
 1. Open the playbook
 2. Go to **Assigned Agents**
 3. Select which agents should use this playbook
-4. Save
+4. Click **Save Changes**
 
-### Option 2: From Agent Settings
-
-1. Open the agent
-2. Go to **Playbooks**
-3. Select which playbooks this agent should use
-4. Save
-
-**If no agents assigned:** Playbook is available to all agents.
+**If no agents assigned:** The default agent is automatically assigned to the playbook.
 
 ## Managing Playbooks
 
@@ -249,9 +242,9 @@ You can assign playbooks to specific agents:
 
 1. Click on the playbook
 2. Make your changes
-3. Click **Update**
+3. Click **Save Changes**
 
-Changes apply immediately to new conversations.
+Instruction changes are auto-saved to a draft. To make them take effect in conversations, click **Publish**.
 
 ### Testing a Playbook
 
@@ -263,15 +256,6 @@ Before activating:
 4. See if agent follows the steps correctly
 5. Adjust instructions as needed
 6. Set to **Active** when ready
-
-### Viewing Playbook Performance
-
-Go to **Analytics** → **Playbooks** to see:
-
-- **Usage count** - How often this playbook triggered
-- **Success rate** - Conversations resolved using this playbook
-- **Average completion time** - How long conversations take
-- **Escalation rate** - How often human help was needed
 
 ### Deactivating a Playbook
 
@@ -287,7 +271,7 @@ Archived playbooks don't trigger but are saved for reference.
 
 ### 1. Welcome & Greeting
 
-**Trigger:** "hello", "hi", "hey", "help"
+**Trigger:** "The customer is greeting us, saying hello, or asking for help to get started"
 
 **Instructions:**
 
@@ -300,7 +284,7 @@ Archived playbooks don't trigger but are saved for reference.
 
 ### 2. Order Status Lookup
 
-**Trigger:** "where is my order", "track", "shipping status"
+**Trigger:** "The customer wants to know the status or location of their order, or is asking about shipping or tracking"
 
 **Instructions:**
 
@@ -316,7 +300,7 @@ Archived playbooks don't trigger but are saved for reference.
 
 ### 3. Product Recommendation
 
-**Trigger:** "looking for", "recommend", "what should I buy"
+**Trigger:** "The customer is looking for product suggestions or asking what to buy"
 
 **Instructions:**
 
@@ -333,7 +317,7 @@ Archived playbooks don't trigger but are saved for reference.
 
 ### 4. Technical Troubleshooting
 
-**Trigger:** "not working", "broken", "error", "bug"
+**Trigger:** "The customer is reporting something not working, encountering an error, or experiencing a technical issue"
 
 **Instructions:**
 
@@ -350,7 +334,7 @@ Archived playbooks don't trigger but are saved for reference.
 
 ### 5. Account Issues
 
-**Trigger:** "can't log in", "forgot password", "account locked"
+**Trigger:** "The customer is having trouble logging in, has forgotten their password, or their account is locked"
 
 **Instructions:**
 
