@@ -46,15 +46,12 @@ Think of it like training a new employee by giving them all your company documen
 
 - PDF documents
 - Word documents (.doc, .docx)
+- PowerPoint presentations (.ppt, .pptx)
 - Text files (.txt)
 - Markdown files (.md)
 - CSV files (for data)
-
-**Paste Text Directly**
-
-- Copy and paste content
-- Great for FAQs or quick information
-- No file needed
+- HTML files
+- JSON files
 
 **Import from URL**
 
@@ -79,7 +76,6 @@ After upload:
 
 - Give document a clear title
 - Add description (what information does it contain?)
-- Add tags for organization
 - Click **Save**
 
 ## Types of Documents to Upload
@@ -256,7 +252,6 @@ Go to **Documents** to see all uploaded content.
 - Date uploaded
 - Size
 - Tags
-- Usage statistics (how often referenced)
 
 ### Editing Documents
 
@@ -321,22 +316,6 @@ This helps with:
 - Verifying accuracy
 - Finding outdated info
 - Tracking down errors
-
-### Document Priority
-
-Mark important documents as priority:
-
-- **High priority** = Search these first
-- **Normal** = Standard search
-- **Low priority** = Use only if needed
-
-### Version Control
-
-Keep track of document versions:
-
-- Upload new version
-- Old version archived automatically
-- Rollback if needed
 
 ## Common Scenarios
 

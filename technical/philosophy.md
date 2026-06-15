@@ -52,10 +52,9 @@ Sensible defaults that work out of the box.
 ```typescript
 // Convention: Plugins auto-discovered from /plugins directory
 // Configuration: Override defaults only when needed
-{
-  pluginDirectory: './custom-plugins',  // optional
-  autoDiscovery: true                    // default
-}
+// (Note: pluginDirectory and autoDiscovery are illustrative —
+// these config keys do not exist in the actual codebase.
+// Plugin discovery is handled by the plugin manager service.)
 ```
 
 #### 3. Fail Fast, Fail Loud
@@ -93,10 +92,9 @@ Everything is a plugin, including core features.
 **In practice:**
 
 ```typescript
-// Core features implemented as plugins
-const corePlugins = ["hay-plugin-conversations", "hay-plugin-automation", "hay-plugin-analytics"];
-
-// User plugins loaded the same way
+// Core plugins live in plugins/core/* and are loaded dynamically
+// by the plugin manager service at startup — e.g. stripe, whatsapp, zendesk.
+// User plugins are loaded the same way from the plugins/ directory.
 const userPlugins = ["@custom/slack-integration", "@custom/ai-responses"];
 ```
 
@@ -150,6 +148,9 @@ plugin.on("conversation.resolved", async (event) => {
   await sendSurvey(event.conversationId);
 });
 ```
+
+> **Note:** The actual implementation uses `HookManager` or `conversationEventsService`
+> rather than a generic event bus. The pattern above is illustrative of the decoupling intent.
 
 #### Dependency Injection
 

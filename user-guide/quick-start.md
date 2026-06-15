@@ -17,7 +17,7 @@ Make sure you have:
 
 Hay works where your team already does. You can connect integrations now or skip this and come back later.
 
-1. Click **Integrations** in the left sidebar
+1. Click **Integrations** in the left sidebar (only visible to Admin or Owner roles)
 2. Browse available integrations (Shopify, WhatsApp, Zendesk, etc.)
 3. Click on an integration you want to add
 4. Follow the simple connection steps
@@ -58,7 +58,7 @@ Your agent is your AI assistant. Give it a personality and purpose.
 Teach your agent by uploading your existing support materials.
 
 1. Go to **Documents** in the left sidebar
-2. Click **Import Documents**
+2. Click **Import Document**
 3. Upload files or paste text:
 
    - **PDFs** - Product manuals, policy documents
@@ -110,7 +110,7 @@ Playbooks are step-by-step instructions for handling specific situations.
 Before going live with customers, test how your agent responds.
 
 1. Go to **Conversations** in the left sidebar
-2. Click **+ Conversation Playground**
+2. Click **Conversation Playground**
 3. Start typing messages like a customer would:
 
    - "Hi, I need help with my order"

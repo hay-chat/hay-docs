@@ -9,6 +9,8 @@ section: user-guide
 
 Click **Analytics** in the left sidebar to view your performance dashboard.
 
+> **Note:** Analytics data is currently displayed as sample/mock data pending live API integration. The metrics shown are illustrative and will be replaced with real data once the analytics backend is fully connected.
+
 ## Overview Dashboard
 
 Your analytics home shows the most important metrics at a glance.
@@ -37,18 +39,11 @@ Your analytics home shows the most important metrics at a glance.
 
 **Customer Satisfaction**
 
-- Based on customer ratings (👍 thumbs up/down)
-- Shown as percentage of positive ratings
-- **Excellent:** 90%+
-- **Good:** 75-90%
-- **Needs improvement:** Below 75%
-
-**Escalation Rate**
-
-- Percentage of conversations requiring human help
-- **Excellent:** Under 15%
-- **Good:** 15-30%
-- **High:** Over 30% (consider more training)
+- Based on customer numeric star ratings
+- Displayed as a rating out of 5 (e.g., "4.6/5")
+- **Excellent:** 4.5/5+
+- **Good:** 3.5-4.5/5
+- **Needs improvement:** Below 3.5/5
 
 ## Conversation Analytics
 
@@ -250,10 +245,7 @@ What do customers want?
 
 ### Rating System
 
-Customers can rate messages with:
-
-- 👍 Helpful/good response
-- 👎 Not helpful/poor response
+Customers can rate conversations with a numeric star rating (1-5 stars).
 
 ### Satisfaction Trends
 
@@ -274,13 +266,7 @@ When customers leave feedback:
 
 ### Net Promoter Score (NPS)
 
-If you ask "How likely are you to recommend us?":
-
-- Score of 9-10: Promoters
-- Score of 7-8: Passives
-- Score of 0-6: Detractors
-
-**NPS = % Promoters - % Detractors**
+> **Coming Soon:** NPS tracking is not yet implemented. This section describes planned functionality.
 
 ## Source Performance
 
@@ -353,6 +339,8 @@ Compare metrics across channels:
 5. Add filters (agent, channel, topic)
 6. Choose visualizations (charts, tables)
 7. Save and generate
+
+> **Note:** Report scheduling and export are not yet fully implemented. The features described below under "Scheduling Reports" and "Exporting Data" are planned but not currently available.
 
 ### Report Types
 

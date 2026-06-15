@@ -38,7 +38,7 @@ Click **Settings** in the left sidebar to access all configuration options.
 
 - Default language for dashboard
 - Doesn't affect customer-facing language
-- Available languages: English, Spanish, French, German, Portuguese
+- 33+ languages supported, including English, Spanish, French, German, Portuguese, Italian, Dutch, Japanese, Korean, Chinese, Arabic, and more
 
 **Time Zone**
 
@@ -51,6 +51,7 @@ Click **Settings** in the left sidebar to access all configuration options.
 - MM/DD/YYYY (US)
 - DD/MM/YYYY (International)
 - YYYY-MM-DD (ISO)
+- DD MMM YYYY (Readable, e.g., 15 Jun 2026)
 
 ## User Management
 
@@ -66,12 +67,14 @@ Click **Settings** in the left sidebar to access all configuration options.
 
 **User roles:**
 
-| Role       | Permissions                                     |
-| ---------- | ----------------------------------------------- |
-| **Owner**  | Full access, billing, delete organization       |
-| **Admin**  | Manage settings, users, integrations            |
-| **Agent**  | Handle conversations, view analytics            |
-| **Viewer** | Read-only access to conversations and analytics |
+| Role            | Permissions                                     |
+| --------------- | ----------------------------------------------- |
+| **Owner**       | Full access, billing, delete organization       |
+| **Admin**       | Manage settings, users, integrations            |
+| **Agent**       | Handle conversations, view analytics            |
+| **Member**      | Access conversations and documents              |
+| **Contributor** | Add and edit documents and playbooks            |
+| **Viewer**      | Read-only access to conversations and analytics |
 
 **Managing users:**
 
@@ -148,12 +151,15 @@ Create API keys for integrations and custom development.
 1. Go to **Settings** → **API Tokens**
 2. Click **Create Token**
 3. Enter token name (e.g., "Shopify Integration")
-4. Select permissions:
-   - Read conversations
-   - Write conversations
-   - Read analytics
-   - Manage agents
-   - Manage documents
+4. Select permission scopes:
+   - Conversations (read/write)
+   - Messages (read/write)
+   - Customers (read/write)
+   - Content (documents, playbooks, agents)
+   - Analytics (read)
+   - Privacy & DSAR (manage requests)
+   - Settings (read/write)
+   - Full Access (all scopes)
 5. Click **Generate Token**
 6. **Copy the token immediately** (you won't see it again!)
 7. Store securely
@@ -188,9 +194,9 @@ View security-related activity:
 ### Customer Data Privacy
 
 **Data retention:**
-Configure how long conversation data is stored. When a retention period is set, closed conversations past the window are automatically anonymized — messages and personal data are removed while analytics metadata is preserved.
+Configure how long conversation data is stored under **Settings** → **Customer Privacy**. When a retention period is set, closed conversations past the window are automatically anonymized — messages and personal data are removed while analytics metadata is preserved.
 
-- Conversations: 30, 60, 90 days, or indefinitely
+- Conversations: 30, 60, 90, 180, 365 days, or indefinitely
 - Customer information: Active until requested deletion
 
 > For full details on how anonymization works, legal holds, the cleanup schedule, and audit logging, see the [Data Retention & Privacy](/docs/user-guide/data-retention/) guide.

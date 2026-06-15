@@ -28,13 +28,14 @@ Add a live chat widget to your website.
 
 **How to set up:**
 
-1. Go to **Integrations** → **Marketplace**
-2. Find **Web Chat**
-3. Click **Install**
-4. Copy the embed code
-5. Paste it into your website (usually before closing `</body>` tag)
-6. Customize colors and position
-7. Save and test!
+> **Note:** Webchat is configured under **Settings** → **Webchat**, not installed from the marketplace.
+
+1. Go to **Settings** → **Webchat**
+2. Configure your webchat settings
+3. Copy the embed code
+4. Paste it into your website (usually before closing `</body>` tag)
+5. Customize colors and position
+6. Save and test!
 
 **Customization options:**
 
@@ -59,16 +60,16 @@ Handle WhatsApp messages with your AI agent.
 1. Go to **Integrations** → **Marketplace**
 2. Find **WhatsApp**
 3. Click **Connect**
-4. Sign in with Facebook Business account
-5. Select your WhatsApp Business number
-6. Authorize Hay
-7. Done!
+4. Enter your Twilio Account SID
+5. Enter your Twilio Auth Token
+6. Enter your WhatsApp-enabled Twilio phone number
+7. Save and test!
 
 **Requirements:**
 
-- WhatsApp Business account
-- Facebook Business Manager account
-- Phone number verified with WhatsApp
+- Twilio account
+- Twilio Auth Token and Account SID
+- WhatsApp-enabled Twilio phone number
 
 **Perfect for:**
 
@@ -77,39 +78,11 @@ Handle WhatsApp messages with your AI agent.
 - Markets where WhatsApp is popular
 - Quick, informal support
 
-### Shopify
+### Shopify (Coming Soon)
 
-Connect your Shopify store for e-commerce support.
+> **Note:** The Shopify integration is not yet available. It is planned for a future release.
 
-**What it does:**
-
-- Look up order information
-- Check product availability
-- Access customer purchase history
-- Provide tracking numbers
-
-**How to set up:**
-
-1. Go to **Integrations** → **Marketplace**
-2. Find **Shopify**
-3. Click **Install**
-4. You'll be redirected to Shopify
-5. Click **Install app** in your Shopify admin
-6. Authorize permissions
-7. Return to Hay - connection confirmed!
-
-**What your agent can do:**
-
-- "Where is my order?" → Look up order status
-- "When will it arrive?" → Provide tracking info
-- "I want to return this" → Check return eligibility
-- "Is this in stock?" → Check inventory
-
-**Permissions needed:**
-
-- Read orders
-- Read products
-- Read customers
+Shopify integration will allow you to connect your Shopify store for e-commerce support, including order lookups, product availability checks, and customer purchase history.
 
 ### Zendesk
 
@@ -128,9 +101,10 @@ Sync with your Zendesk help desk.
 2. Find **Zendesk**
 3. Click **Connect**
 4. Enter your Zendesk subdomain
-5. Enter API token (generate in Zendesk settings)
-6. Test connection
-7. Choose sync preferences
+5. Enter your Admin Email
+6. Enter API token (generate in Zendesk settings)
+7. Test connection
+8. Choose sync preferences
 
 **Sync options:**
 
@@ -151,12 +125,10 @@ Handle email support with AI.
 
 **How to set up:**
 
-1. Go to **Integrations** → **Email**
-2. Choose method:
-   - **Forwarding** - Forward emails to a Hay address
-   - **IMAP** - Connect directly to your mailbox
-3. Configure settings
-4. Test with a sample email
+1. Go to **Integrations** → **Marketplace**
+2. Find **Email** and click **Install**
+3. Configure your email recipients (comma-separated list)
+4. Save and test with a sample email
 
 **Best for:**
 
@@ -201,11 +173,7 @@ To remove an integration:
 ### Browsing Available Integrations
 
 1. Go to **Integrations** → **Marketplace**
-2. Browse categories:
-   - Communication Channels
-   - E-commerce
-   - CRM & Support
-   - Productivity Tools
+2. Browse available integrations
 3. Click any integration to learn more
 
 ### Installing from Marketplace
@@ -216,15 +184,6 @@ To remove an integration:
 4. Authorize necessary permissions
 5. Test the integration
 6. Start using it!
-
-### Suggesting New Integrations
-
-Don't see what you need?
-
-1. Click **Suggest an Integration**
-2. Tell us what tool you want to connect
-3. Explain your use case
-4. We'll consider it for future development
 
 ## Channel-Specific Features
 
@@ -340,7 +299,7 @@ You can assign different:
 
 ### Data Not Syncing
 
-For integrations like Shopify or Zendesk:
+For integrations like Zendesk:
 
 **Check:**
 
@@ -369,14 +328,8 @@ Each integration requests only what it needs:
 
 **WhatsApp:**
 
-- Access to WhatsApp Business account
+- Twilio account access
 - Send and receive messages
-
-**Shopify:**
-
-- Read orders
-- Read products
-- Read customer info (name, email only)
 
 **Zendesk:**
 

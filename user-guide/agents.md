@@ -63,12 +63,11 @@ Important guidelines:
 
 Choose how your agent should communicate:
 
-| Tone             | When to Use                           | Example                                                                      |
-| ---------------- | ------------------------------------- | ---------------------------------------------------------------------------- |
-| **Professional** | B2B, enterprise customers             | "Thank you for contacting us. I'd be happy to assist you with that inquiry." |
-| **Friendly**     | Most customer service                 | "Hi there! I'd love to help you with that. Let me take a look!"              |
-| **Casual**       | Young audience, informal brand        | "Hey! No worries, I got you. Let's figure this out together."                |
-| **Empathetic**   | Support, complaints, sensitive issues | "I understand how frustrating this must be. Let me help make it right."      |
+| Tone             | When to Use                    | Example                                                                      |
+| ---------------- | ------------------------------ | ---------------------------------------------------------------------------- |
+| **Professional** | B2B, enterprise customers      | "Thank you for contacting us. I'd be happy to assist you with that inquiry." |
+| **Casual**       | Young audience, informal brand | "Hey! No worries, I got you. Let's figure this out together."                |
+| **Enthusiastic** | Engaging, energetic brands     | "Awesome question! I'm excited to help you with that!"                       |
 
 **Things to Avoid** (Optional)
 
@@ -112,7 +111,7 @@ What brings you in today?
 ### Step 5: Enable and Save
 
 - Toggle **Enabled** to activate your agent
-- Click **Save Agent**
+- Click **Create Agent**
 
 Your agent is now ready to start handling conversations!
 
@@ -123,28 +122,25 @@ Need to make changes? Easy!
 1. Go to **Agents** in the sidebar
 2. Click on the agent you want to edit
 3. Make your changes
-4. Click **Update Agent**
+4. Click **Save Changes**
 
 **Changes take effect immediately** for new conversations.
 
 ## Agent Settings
 
-### Test Mode
+### Message Approval
 
-Enable test mode when you want to review every response before it's sent.
+Control whether agent responses require human approval before being sent to customers. There are three options:
 
-**When test mode is ON:**
+- **Inherit from Organization** - Uses the organization-level default setting
+- **Require Approval** - Agent generates responses, but you must approve, edit, or reject each message before it reaches the customer
+- **Auto-Send** - Agent sends responses automatically without requiring approval
 
-- Agent generates responses as normal
-- You see responses before they're sent to customers
-- You can approve, edit, or reject each message
-- Perfect for training and quality assurance
-
-**How to enable:**
+**How to configure:**
 
 1. Open your agent settings
-2. Toggle **Test Mode** ON
-3. All conversations with this agent now require approval
+2. Select the desired **Message Approval** option
+3. The setting applies to all new conversations with this agent
 
 ### Human Handoff Instructions
 
@@ -238,7 +234,7 @@ _Technical Support_
 
 ### Monitoring Your Agents
 
-Go to **Analytics** → **Agents** to see:
+Go to the **Analytics** page, scroll to the **Agent Performance** table to see:
 
 - **Conversations handled** - Total volume per agent
 - **Resolution rate** - How many issues they solved
@@ -338,7 +334,7 @@ Most businesses start with 1-2 agents. You only need more if you have truly diff
 
 ### Can I clone an agent?
 
-Yes! When creating a new agent, you can start with settings from an existing agent, then customize.
+Not yet -- agent cloning is a planned feature. For now, you'll need to create a new agent and manually configure its settings.
 
 ## Next Steps
 

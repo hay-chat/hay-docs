@@ -42,7 +42,7 @@ Find specific conversations quickly:
 
 **Filter by:**
 
-- **Status** - Open, Pending Human, Resolved, Closed
+- **Status** - Active, Resolved, Escalated, Closed
 - **Channel** - Web, WhatsApp, Email, etc.
 - **Agent** - Which AI agent handled it
 - **Date range** - When the conversation happened
@@ -121,7 +121,7 @@ Sometimes you need to step in and handle a conversation yourself.
 
 When you're done:
 
-1. Click **Return to AI** or **Close Conversation**
+1. Click **Release Conversation** or **Close Conversation**
 2. If you return to AI, the agent resumes handling messages
 3. If you close, the conversation is marked as resolved
 
@@ -139,7 +139,7 @@ Want to watch the AI work without taking over? Use Supervision Mode.
 ### How to Use It
 
 1. Open an active conversation
-2. Click **Supervise** at the top
+2. Click **Supervise** at the top (only available when conversation status is "open")
 3. When AI generates a response, you'll see it first
 4. **Approve** to send it, **Edit** to change it, or **Take Over** to respond yourself
 
@@ -181,7 +181,7 @@ Practice and test your agent without affecting real customers.
 Save a complete record:
 
 1. Click **Export** button
-2. Choose format (PDF or text)
+2. Choose format (PDF or CSV)
 3. Download includes all messages, timestamps, and metadata
 
 **Perfect for:**

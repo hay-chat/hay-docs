@@ -114,7 +114,7 @@ section: user-guide
 
 **Adjust confidence threshold:**
 
-1. Go to **Settings** → **Agent Behavior**
+1. Go to **Settings** → **General** and scroll to the **Confidence Thresholds** section
 2. Lower confidence threshold slightly
 3. Monitor results
 4. Adjust as needed
@@ -347,7 +347,7 @@ section: user-guide
 
 1. **Check settings:**
 
-   - Go to **Settings** → **Notifications**
+   - Go to **Settings** → **General** and scroll to the **Notification Preferences** section
    - Verify email notifications are enabled
    - Check which events you're subscribed to
 

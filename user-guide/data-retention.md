@@ -19,7 +19,7 @@ When a conversation passes the retention window, Hay **anonymizes** it rather th
 
 - All messages in the conversation
 - Customer link (who the conversation was with)
-- Conversation title
+- Conversation title (replaced with `[Anonymized]`)
 - Context and metadata
 - Linked document references
 - Associated vector embeddings
@@ -36,7 +36,7 @@ After anonymization, the conversation record remains with the title `[Anonymized
 ## Configuring Retention
 
 1. Go to **Settings** → **Customer Privacy**
-2. Under **Conversation Retention Period**, choose a timeframe: 30, 60, 90 days, or indefinite
+2. Under **Conversation Retention Period**, choose a timeframe: 30, 60, 90, 180, or 365 days (1 year), or indefinite
 3. Save your changes
 
 The retention period counts from when a conversation was **closed**. Only conversations with status `closed` or `resolved` are eligible for anonymization. Open or in-progress conversations are never touched.

@@ -153,7 +153,7 @@ Once all information collected:
 **Active** - Live and ready to handle conversations
 **Archived** - No longer in use but kept for reference
 
-Click **Save Playbook**
+Click **Create Playbook** (when creating a new playbook) or **Save Changes** (when editing an existing one)
 
 ## Playbook Instructions Best Practices
 
@@ -249,7 +249,7 @@ You can assign playbooks to specific agents:
 
 1. Click on the playbook
 2. Make your changes
-3. Click **Update**
+3. Click **Save Changes**
 
 Changes apply immediately to new conversations.
 
@@ -272,6 +272,8 @@ Go to **Analytics** → **Playbooks** to see:
 - **Success rate** - Conversations resolved using this playbook
 - **Average completion time** - How long conversations take
 - **Escalation rate** - How often human help was needed
+
+> **Note:** Playbook analytics are not yet fully implemented. The metrics shown above are currently placeholders and may not reflect actual data.
 
 ### Deactivating a Playbook
 

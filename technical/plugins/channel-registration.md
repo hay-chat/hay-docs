@@ -190,6 +190,8 @@ await trpc.sources.activate.mutate({
 const sources = await trpc.sources.list.query();
 ```
 
+> **Note:** This endpoint returns only active sources. Deactivated sources are excluded from the results.
+
 ### Get Sources by Category
 
 ```typescript
@@ -256,7 +258,7 @@ export async function onUninstall(context: PluginContext) {
 When creating messages from your plugin, always specify the sourceId:
 
 ```typescript
-import { MessageService } from '@/services/core/message.service';
+import { MessageService } from '@server/services/core/message.service';
 import { DeliveryState } from '@/types/message-feedback.types';
 
 const messageService = new MessageService();
@@ -290,7 +292,7 @@ if (message.deliveryState === DeliveryState.QUEUED) {
 
 ### Source Registration
 
-- **ID**: Required, must match `/^[a-z0-9_:-]+$/`, cannot be core source
+- **ID**: Required, must match `/^[a-z0-9_:-]+$/`, max 50 characters, cannot be core source
 - **Name**: Required, 1-100 characters
 - **Category**: Required, must be valid SourceCategory enum value
 - **Plugin ID**: Optional but recommended, links source to plugin

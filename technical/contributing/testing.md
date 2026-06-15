@@ -58,30 +58,32 @@ Tests automatically authenticate using saved auth state. No manual login require
 
 For debugging with Playwright MCP or manual testing:
 
-1. **Extract access token** from storage state file:
+1. **Extract tokens** from storage state file:
    ```bash
-   cat playwright/.auth/user.json | grep accessToken
+   cat playwright/.auth/user.json | grep -E 'accessToken|refreshToken|expiresIn'
    ```
 
-2. **Navigate with token parameter**:
+2. **Navigate with token parameters**:
    ```
-   http://localhost:3000/?auth_token=YOUR_ACCESS_TOKEN
+   http://localhost:3000/?accessToken=<token>&refreshToken=<token>&expiresIn=<seconds>
    ```
 
-3. Browser validates token and logs you in automatically
+3. Browser validates tokens and logs you in automatically
 
 **Security notes:**
 - Only works in development (`NODE_ENV !== 'production'`)
-- Token removed from URL after validation
+- Tokens removed from URL after validation
 - Tokens expire after 15 minutes (JWT default)
 
 **Example:**
 ```bash
-# Extract token (macOS)
-TOKEN=$(cat playwright/.auth/user.json | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
+# Extract tokens (macOS)
+ACCESS_TOKEN=$(cat playwright/.auth/user.json | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
+REFRESH_TOKEN=$(cat playwright/.auth/user.json | grep -o '"refreshToken":"[^"]*"' | cut -d'"' -f4)
+EXPIRES_IN=$(cat playwright/.auth/user.json | grep -o '"expiresIn":[0-9]*' | cut -d':' -f2)
 
 # Open browser with auth
-open "http://localhost:3000/?auth_token=$TOKEN"
+open "http://localhost:3000/?accessToken=$ACCESS_TOKEN&refreshToken=$REFRESH_TOKEN&expiresIn=$EXPIRES_IN"
 ```
 
 ## Writing Tests
@@ -136,6 +138,13 @@ test("My test", async ({ page }) => {
 - [tests/instructions-editor-paste-and-slash.spec.ts](../tests/instructions-editor-paste-and-slash.spec.ts) - Editor paste/slash tests
 - [tests/webchat-plugin.spec.ts](../tests/webchat-plugin.spec.ts) - Webchat plugin tests
 - [tests/zendesk-plugin.spec.ts](../tests/zendesk-plugin.spec.ts) - Zendesk plugin tutorial tests
+- [tests/atlassian-plugin.spec.ts](../tests/atlassian-plugin.spec.ts) - Atlassian plugin tests
+- [tests/email-plugin.spec.ts](../tests/email-plugin.spec.ts) - Email plugin tests
+- [tests/email-plugin-installation.spec.ts](../tests/email-plugin-installation.spec.ts) - Email plugin installation tests
+- [tests/hubspot-oauth-flow.spec.ts](../tests/hubspot-oauth-flow.spec.ts) - HubSpot OAuth flow tests
+- [tests/url-token-auth.spec.ts](../tests/url-token-auth.spec.ts) - URL token authentication tests
+- [tests/webchat-consent-strict.spec.ts](../tests/webchat-consent-strict.spec.ts) - Webchat strict consent tests
+- [tests/plugin-health-check-and-settings.spec.ts](../tests/plugin-health-check-and-settings.spec.ts) - Plugin health check and settings tests
 
 ### Test Helpers
 
@@ -327,7 +336,7 @@ npx playwright install
 **Checklist**:
 - Running in development (`NODE_ENV !== 'production'`)
 - Token is valid (check expiry)
-- Token passed correctly in URL: `?auth_token=xxx`
+- Tokens passed correctly in URL: `?accessToken=<token>&refreshToken=<token>&expiresIn=<seconds>`
 - Check browser console for auth middleware logs
 
 ## CI/CD Integration

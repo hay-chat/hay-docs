@@ -48,7 +48,7 @@ Plans typically include:
 - Support level
 - Storage
 
-Check your specific plan details in **Settings** → **Billing**.
+Check your specific plan details with your account manager.
 
 ### What happens if I exceed my conversation limit?
 
@@ -98,7 +98,7 @@ Occasionally, yes. That's why Hay has confidence thresholds and escalates when u
 
 ### Can the AI access external systems?
 
-Yes, through integrations. For example, it can look up orders in Shopify or check tickets in Zendesk, if you've connected those integrations.
+Yes, through integrations. For example, it can look up payment details in Stripe or check tickets in Zendesk, if you've connected those integrations.
 
 ### Can I control what the AI says?
 
@@ -140,10 +140,9 @@ Popular integrations include:
 - Web Chat (embed on your website)
 - WhatsApp Business
 - Email
-- Shopify
-- WooCommerce
+- Stripe
+- HubSpot
 - Zendesk
-- Magento
 
 Check **Integrations** → **Marketplace** for the complete list.
 
@@ -159,7 +158,7 @@ Most integrations are included in your plan. Some third-party services (like Wha
 
 Yes! Hay has an API for custom integrations. Contact support for developer documentation.
 
-### Will my Shopify/Zendesk data be secure?
+### Will my integration data be secure?
 
 Yes. Hay uses secure API connections and only requests the minimum permissions needed. Your data is encrypted and protected.
 
@@ -234,7 +233,7 @@ Simply edit or re-upload the correct version. Changes take effect immediately.
 
 ### Is there a limit to how many documents I can upload?
 
-Depends on your plan. Check **Settings** → **Billing** for your storage limits.
+Depends on your plan. Contact your account manager for your storage limits.
 
 ## Queue & Escalations
 
@@ -308,6 +307,8 @@ Yes! Use role-based access control:
 
 - Owner: Full access
 - Admin: Settings and management
+- Member: Standard team member access
+- Contributor: Limited collaboration access
 - Agent: Conversations only
 - Viewer: Read-only access
 
@@ -364,13 +365,7 @@ Contact support for API documentation.
 
 ## Billing & Account
 
-### How do I change my plan?
-
-Go to **Settings** → **Billing** → **Change Plan**. Changes typically take effect at your next billing cycle.
-
-### How do I update my payment method?
-
-Go to **Settings** → **Billing** → **Payment Methods** and update your card information.
+> **Note:** Billing features are not yet implemented in the dashboard. For all billing-related inquiries (plan changes, payment methods, invoices, refunds), please contact your account manager or support directly.
 
 ### Can I get a refund?
 
@@ -379,10 +374,6 @@ Refund policies vary by plan. Contact your account manager or support for specif
 ### What happens if my payment fails?
 
 You'll receive notifications to update your payment method. After a grace period, service may be suspended until payment is resolved.
-
-### How do I download invoices?
-
-Go to **Settings** → **Billing** → **Invoices** and download any invoice as PDF.
 
 ## Support
 

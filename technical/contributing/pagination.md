@@ -74,8 +74,8 @@ const result = await trpc.v1.documents.list.query({
     searchFields: ["title", "content"],
   },
   filters: {
-    type: "ARTICLE",
-    status: "PUBLISHED",
+    type: "article",
+    status: "published",
   },
   dateRange: {
     from: "2024-01-01T00:00:00Z",
@@ -217,7 +217,7 @@ All list endpoints return a consistent response structure:
 - `status`: Playbook status enum
 - `agentIds`: Array of UUID strings
 
-**Search Fields:** `["name", "description", "prompt_template"]`
+**Search Fields:** `["name", "description"]` (default). `"prompt_template"` is also available but not included by default.
 
 **Sort Fields:** `["created_at", "updated_at", "name", "status"]`
 

@@ -18,7 +18,7 @@ graph LR
   Clients["fa:fa-globe Clients<br/>Web / Mobile"]
   Gateway["fa:fa-shield-halved API Gateway<br/>Express"]
   Services["fa:fa-puzzle-piece Services<br/>Plugins"]
-  Queue["fa:fa-list-check Message Queue<br/>Bull"]
+  Queue["fa:fa-list-check Message Queue<br/>RabbitMQ"]
   DB["fa:fa-database Database<br/>PostgreSQL"]
 
   Clients --> Gateway --> Services
@@ -48,51 +48,36 @@ The entry point for all client requests:
 Business logic organized as modular services:
 
 - **Conversation Service**: Manages conversations and messages
-- **Automation Service**: Handles rules and workflows
-- **Integration Service**: Connects to external platforms
 - **Analytics Service**: Processes and stores metrics
 
 #### 3. Plugin System
 
-Hay's extensibility mechanism:
-
-```typescript
-interface Plugin {
-  name: string;
-  version: string;
-  init: (context: PluginContext) => Promise<void>;
-  hooks: {
-    [eventName: string]: HookFunction;
-  };
-}
-```
+Hay's extensibility mechanism. Plugins are defined by a `manifest.json` (specifically the `hay-plugin` block in each plugin's `package.json`) and communicate with the core platform via MCP (Model Context Protocol).
 
 Each plugin can:
-- Register event listeners
-- Extend the API
+- Expose tools and resources via MCP
 - Add new UI components
-- Access core services
+- Register communication channels
 
-#### 4. Event Bus
+#### 4. Hook System
 
-Central communication hub:
+The codebase uses `HookManager` for internal event-driven communication:
 
 ```typescript
-// Emit an event
-eventBus.emit('conversation.created', {
+// Trigger an event
+hookManager.trigger('conversation.created', {
   conversationId: '123',
   channel: 'email',
   customer: { ... }
 });
 
-// Listen for events
-eventBus.on('conversation.created', async (event) => {
+// Register a handler
+hookManager.register('conversation.created', async (payload) => {
   // Handle the event
 });
 ```
 
-Events flow through the system triggering:
-- Automation rules
+Hooks flow through the system triggering:
 - Real-time updates
 - Analytics tracking
 - Plugin hooks
@@ -103,17 +88,17 @@ Persistent storage with caching:
 
 - **PostgreSQL**: Primary data store for conversations, users, settings
 - **Redis**: Caching layer and pub/sub for real-time features
-- **Object Storage**: Attachments and media files
+- **Object Storage** (optional): Attachments and media files (S3 is optional; default is local filesystem)
 
 ### Data Flow
 
 #### Incoming Message
 
-1. Message arrives via integration (email, chat, etc.)
-2. Integration plugin emits `message.received` event
-3. Message is validated and stored in database
-4. Event bus notifies all listeners
-5. Automation rules are evaluated
+1. Message arrives via a channel plugin (e.g., webchat, WhatsApp, email)
+2. Channel plugin publishes the message to the RabbitMQ orchestrator queue
+3. `orchestratorWorker` picks up the message from the queue
+4. Message is validated and stored in the database
+5. AI execution layer processes the message and generates a response
 6. Real-time updates sent to connected clients
 
 #### Automation Execution
@@ -156,7 +141,7 @@ graph LR
 
 #### Message Queue
 
-Bull queue for reliable background processing:
+RabbitMQ queue for reliable background processing:
 
 - Retry failed jobs automatically
 - Priority queues for urgent tasks
@@ -200,12 +185,7 @@ Key metrics tracked:
 Structured logging with correlation IDs:
 
 ```typescript
-logger.info('Processing conversation', {
-  correlationId: req.id,
-  conversationId: '123',
-  action: 'create',
-  duration: 45
-});
+logger.info({ correlationId: req.id, conversationId: '123', action: 'create', duration: 45 }, 'Processing conversation');
 ```
 
 #### Tracing

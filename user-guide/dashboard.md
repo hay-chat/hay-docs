@@ -10,10 +10,9 @@ section: user-guide
 The dashboard shows you the most important metrics and activity at a glance. When you log in, you'll see:
 
 - **Total conversations** today, this week, and this month
-- **Active conversations** currently being handled
+- **Active Agents** - count of enabled agents
 - **Resolution rate** - how many conversations were solved without human help
-- **Response time** - how quickly customers are getting answers
-- **Recent activity** - latest conversations and interactions
+- **Avg Messages Per Conversation** - average number of messages exchanged per conversation
 
 ## Understanding Your Metrics
 
@@ -72,7 +71,7 @@ Click on any conversation to:
 
 See conversations waiting for human attention:
 
-- Click **Queue** to view pending conversations
+- Navigate to `/queue` in your browser (the Queue is not currently accessible from the sidebar)
 - Open any conversation to respond
 - Take over to chat directly with the customer
 
@@ -86,7 +85,6 @@ See conversations waiting for human attention:
 
 Your dashboard updates automatically:
 
-- **Green pulse** next to metrics = activity happening now
 - **Notifications** appear for important events:
   - Conversations needing urgent attention
   - Customers waiting too long
@@ -98,11 +96,10 @@ Your dashboard updates automatically:
 
 Use the date selector to view metrics for:
 
-- Today
 - Last 7 days
 - Last 30 days
 - Last 90 days
-- Custom date range
+- Custom Range
 
 ## Dashboard Best Practices
 
@@ -145,10 +142,6 @@ Some metrics are calculated every few minutes, not instantly. Refresh your brows
 
 - **Open** = conversation started but may be waiting for a response
 - **Active** = actively exchanging messages right now
-
-### Can I export this data?
-
-Yes! Click **Export** in the analytics section to download reports in PDF or CSV format.
 
 ## Next Steps
 
