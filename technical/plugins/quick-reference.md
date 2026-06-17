@@ -524,12 +524,12 @@ Follow semantic versioning:
 
 ## Resources
 
-- **Full Documentation**: [docs/PLUGIN_API.md](./PLUGIN_API.md)
-- **Generation Guide**: [.claude/PLUGIN_GENERATION_WORKFLOW.md](../.claude/PLUGIN_GENERATION_WORKFLOW.md)
-- **Channel Guide**: [docs/PLUGIN_CHANNEL_REGISTRATION.md](./PLUGIN_CHANNEL_REGISTRATION.md)
+- **Full Documentation**: `docs/PLUGIN_API.md`
+- **Generation Guide**: `.claude/PLUGIN_GENERATION_WORKFLOW.md`
+- **Channel Guide**: `docs/PLUGIN_CHANNEL_REGISTRATION.md`
 - **Example Plugins**: `plugins/core/` directory
 - **Schema**: `plugins/base/plugin-manifest.schema.json`
 
 ---
 
-**Need Help?** Check the full documentation at [docs/PLUGIN_API.md](./PLUGIN_API.md)
+**Need Help?** Check the full documentation at `docs/PLUGIN_API.md`

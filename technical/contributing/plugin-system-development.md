@@ -11,7 +11,7 @@ navOrder: 3
 
 > **Guide for extending and improving the Hay plugin system itself**
 
-This document is for developers working on the plugin system infrastructure, not for plugin authors. If you're building a plugin, see [PLUGIN_API.md](./PLUGIN_API.md) instead.
+This document is for developers working on the plugin system infrastructure, not for plugin authors. If you're building a plugin, see `PLUGIN_API.md` instead.
 
 ## Table of Contents
 

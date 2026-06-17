@@ -131,15 +131,15 @@ test("My test", async ({ page }) => {
 
 ### Test Files
 
-- [tests/plugin-health-check.spec.ts](../tests/plugin-health-check.spec.ts) - Plugin connection status tests
-- [tests/instructions-editor.spec.ts](../tests/instructions-editor.spec.ts) - Instructions editor functionality
-- [tests/instructions-editor-paste-and-slash.spec.ts](../tests/instructions-editor-paste-and-slash.spec.ts) - Editor paste/slash tests
-- [tests/webchat-plugin.spec.ts](../tests/webchat-plugin.spec.ts) - Webchat plugin tests
-- [tests/zendesk-plugin.spec.ts](../tests/zendesk-plugin.spec.ts) - Zendesk plugin tutorial tests
+- `tests/plugin-health-check.spec.ts` - Plugin connection status tests
+- `tests/instructions-editor.spec.ts` - Instructions editor functionality
+- `tests/instructions-editor-paste-and-slash.spec.ts` - Editor paste/slash tests
+- `tests/webchat-plugin.spec.ts` - Webchat plugin tests
+- `tests/zendesk-plugin.spec.ts` - Zendesk plugin tutorial tests
 
 ### Test Helpers
 
-- [tests/helpers/auth.ts](../tests/helpers/auth.ts) - Authentication utilities
+- `tests/helpers/auth.ts` - Authentication utilities
   - `getTestUserEmail()` - Generate test user email
   - `getTestOrgName()` - Generate test org name
   - `cleanupTestUsers()` - Delete old test users
@@ -148,7 +148,7 @@ test("My test", async ({ page }) => {
 
 ### Global Setup
 
-- [tests/global-setup.ts](../tests/global-setup.ts) - Runs before all tests
+- `tests/global-setup.ts` - Runs before all tests
   - Initializes database connection
   - Cleans up old test users (pattern: `hay-e2e-%@test.com`)
   - Creates fresh test user + organization
@@ -183,7 +183,7 @@ await AppDataSource.destroy();
 
 ### Playwright Config
 
-[playwright.config.ts](../playwright.config.ts) configuration:
+`playwright.config.ts` configuration:
 
 ```typescript
 {
@@ -200,7 +200,7 @@ await AppDataSource.destroy();
 
 ### TypeScript Config
 
-[tests/tsconfig.json](../tests/tsconfig.json) extends root config with:
+`tests/tsconfig.json` extends root config with:
 - CommonJS modules for Playwright compatibility
 - Playwright type definitions
 - Path aliases for server/dashboard imports
@@ -316,7 +316,7 @@ npx playwright install
 **Problem**: Storage state structure outdated
 
 **Solution**:
-1. Update `generateAuthState()` in [tests/helpers/auth.ts](../tests/helpers/auth.ts)
+1. Update `generateAuthState()` in `tests/helpers/auth.ts`
 2. Match new Pinia store structure
 3. Re-run global setup
 
@@ -409,6 +409,6 @@ jobs:
 
 For issues or questions:
 1. Check this documentation
-2. Review [playwright.config.ts](../playwright.config.ts)
+2. Review `playwright.config.ts`
 3. Check test examples in `/tests` directory
 4. Open an issue on GitHub

@@ -1131,7 +1131,7 @@ const messagingSources = await trpc.sources.getByCategory.query({
 });
 ```
 
-See [docs/PLUGIN_CHANNEL_REGISTRATION.md](./PLUGIN_CHANNEL_REGISTRATION.md) for detailed guide.
+See `docs/PLUGIN_CHANNEL_REGISTRATION.md` for detailed guide.
 
 ---
 

@@ -681,8 +681,8 @@ export class Source {
 
 ## References
 
-- [Plugin System Overview](./PLUGIN_API.md)
-- [Plugin Quick Reference](./PLUGIN_QUICK_REFERENCE.md)
-- [Channel Registration](./PLUGIN_CHANNEL_REGISTRATION.md)
-- [Conversation Entity](../server/database/entities/conversation.entity.ts)
-- [Source System](../server/routes/v1/sources/index.ts)
+- Plugin System Overview (`PLUGIN_API.md`)
+- Plugin Quick Reference (`PLUGIN_QUICK_REFERENCE.md`)
+- Channel Registration (`PLUGIN_CHANNEL_REGISTRATION.md`)
+- Conversation Entity (`server/database/entities/conversation.entity.ts`)
+- Source System (`server/routes/v1/sources/index.ts`)
