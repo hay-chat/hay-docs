@@ -343,7 +343,7 @@ Add an `i18n/` directory to your plugin with one JSON file per locale. No manife
 - Config keys must match `configSchema` / `ctx.register.config()` field names
 - Currently supported: `en`, `pt-BR`
 
-See the [API Reference](./api-reference/) for full details and examples.
+See the [API Reference](/docs/technical/plugins/api-reference/) for full details and examples.
 
 ---
 
