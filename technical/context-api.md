@@ -29,15 +29,20 @@ Common use cases:
 
 Data that goes into the AI's prompt. The AI can read and reference it in conversation.
 
-```js
-HayChat.init({
-  organizationId: "org_xxx",
-  context: {
-    userName: "Sarah Chen",
-    plan: "pro",
-    currentPage: "/dashboard",
-  },
-});
+```html
+<script>
+  window.HayChat = {
+    config: {
+      organizationId: "org_xxx",
+      context: {
+        userName: "Sarah Chen",
+        plan: "pro",
+        currentPage: "/dashboard",
+      },
+    },
+  };
+</script>
+<script src="https://cdn.hay.chat/widget.js" async></script>
 ```
 
 Public context is sanitized structurally before it reaches the LLM — it is wrapped in delimiters and the model is instructed to treat it as data, not instructions. You should still avoid passing anything sensitive here.
@@ -63,25 +68,35 @@ Secrets must be attached from your backend, not the browser. See [Attaching secr
 
 No server involvement. Good for passing page state, user-facing metadata, or anything you're comfortable the AI seeing.
 
+```html
+<script>
+  window.HayChat = {
+    config: {
+      organizationId: "org_xxx",
+      baseUrl: "https://app.hay.so",
+      context: {
+        userName: "Sarah Chen",
+        plan: "pro",
+      },
+    },
+  };
+</script>
+<script src="https://cdn.hay.chat/widget.js" async></script>
+```
+
+After the widget script loads, you can also update context dynamically:
+
 ```js
-HayChat.init({
-  organizationId: "org_xxx",
-  baseUrl: "https://api.hay.chat",
-  context: {
-    userName: "Sarah Chen",
-    plan: "pro",
+// OR — set config without context, then call addContext after script loads
+window.HayChat = {
+  config: {
+    organizationId: "org_xxx",
+    baseUrl: "https://app.hay.so",
   },
-});
-
-// OR
-
-HayChat.init({
-  organizationId: "org_xxx",
-  baseUrl: "https://api.hay.chat",
-});
-
-HayChat.addContext("username", "Sarah Chen");
-HayChat.addContext("plan", "pro");
+};
+// After the widget script loads:
+window.HayChat.addContext("username", "Sarah Chen");
+window.HayChat.addContext("plan", "pro");
 ```
 
 **When to use**: Passing non-sensitive user info (names, plan tiers, etc). Do not use this for auth tokens, internal IDs, or anything you would not want appearing in an LLM prompt.
@@ -94,23 +109,28 @@ Use this when your MCP tools need to authenticate as the specific user (e.g. OAu
 
 **Step 1: Add the `onConversationStarted` callback to your widget init**
 
-```js
-HayChat.init({
-  organizationId: "org_xxx",
-  baseUrl: "https://api.hay.chat",
+```html
+<script>
+  window.HayChat = {
+    config: {
+      organizationId: "org_xxx",
+      baseUrl: "https://app.hay.so",
 
-  onConversationStarted: async (conversation) => {
-    // Notify your backend that a conversation started for this user.
-    // Await this if you want to guarantee secrets are attached before
-    // the user can send their first message.
-    await myApi.authenticateHay(conversation.id);
-  },
+      onConversationStarted: async (conversation) => {
+        // Notify your backend that a conversation started for this user.
+        // Await this if you want to guarantee secrets are attached before
+        // the user can send their first message.
+        await myApi.authenticateHay(conversation.id);
+      },
 
-  // You can still pass non-sensitive public context client-side
-  context: {
-    plan: "pro",
-  },
-});
+      // You can still pass non-sensitive public context client-side
+      context: {
+        plan: "pro",
+      },
+    },
+  };
+</script>
+<script src="https://cdn.hay.chat/widget.js" async></script>
 ```
 
 If you return a Promise, the widget input stays disabled until it resolves. If you don't return a Promise, the secrets are attached in parallel and the widget opens immediately — the race window is negligible in practice since the user takes several seconds to type their first message.
@@ -155,10 +175,13 @@ Use this when you want public context to survive across conversations. Instead o
 Call this on user login, signup, or whenever the user's profile changes.
 
 ```js
-await hay.customers.addContext("ext_usr_456", {
-  name: "Sarah Chen",
-  plan: "pro",
-  accountCreated: "2024-01-15",
+await hay.customers.addContext({
+  externalId: "ext_usr_456",
+  context: {
+    name: "Sarah Chen",
+    plan: "pro",
+    accountCreated: "2024-01-15",
+  },
 });
 ```
 
@@ -168,30 +191,40 @@ The `externalId` ("ext_usr_456") is your own user ID — whatever you use in you
 
 Inject the user's external ID server-side into your page and pass it to the widget. Hay looks up the customer record and loads their stored context automatically.
 
-```js
-HayChat.init({
-  organizationId: "org_xxx",
-  baseUrl: "https://api.hay.chat",
-  customerExternalId: "ext_usr_456", // inject this from your server, not from user input
-});
+```html
+<script>
+  window.HayChat = {
+    config: {
+      organizationId: "org_xxx",
+      baseUrl: "https://app.hay.so",
+      customerExternalId: "ext_usr_456", // inject this from your server, not from user input
+    },
+  };
+</script>
+<script src="https://cdn.hay.chat/widget.js" async></script>
 ```
 
 You can still layer in ephemeral context client-side and attach per-conversation secrets via `onConversationStarted`:
 
-```js
-HayChat.init({
-  organizationId: "org_xxx",
-  customerExternalId: "ext_usr_456",
+```html
+<script>
+  window.HayChat = {
+    config: {
+      organizationId: "org_xxx",
+      customerExternalId: "ext_usr_456",
 
-  context: {
-    currentPage: window.location.pathname, // ephemeral, this conversation only
-  },
+      context: {
+        currentPage: window.location.pathname, // ephemeral, this conversation only
+      },
 
-  onConversationStarted: async (conversation) => {
-    // Attach auth secrets for this specific conversation
-    await myApi.authenticateHay(conversation.id);
-  },
-});
+      onConversationStarted: async (conversation) => {
+        // Attach auth secrets for this specific conversation
+        await myApi.authenticateHay(conversation.id);
+      },
+    },
+  };
+</script>
+<script src="https://cdn.hay.chat/widget.js" async></script>
 ```
 
 **When to use**: When user profile data rarely changes and you don't want to re-supply it on every conversation. Best combined with Path B for apps that also need per-conversation secrets.
@@ -220,33 +253,35 @@ All secret operations are server-to-server, authenticated with your Hay API key.
 
 The conversation must already exist. Use `onConversationStarted` to get the ID.
 
-```
-POST https://api.hay.chat/v1/conversations/{conversationId}/secrets
-Authorization: Bearer hay_sk_...
-X-Organization-Id: org_xxx
-Content-Type: application/json
+Secrets are attached via the tRPC mutation `conversations.addSecrets` with input `{ id: conversationId, secrets: Record<string, string> }`:
 
-{
-  "auth": "Bearer eyJhbGciOiJIUzI1NiJ9..."
-}
+```js
+await hay.conversations.addSecrets({
+  id: conversationId,
+  secrets: {
+    auth: "Bearer eyJhbGciOiJIUzI1NiJ9...",
+  },
+});
 ```
 
-Conversation secrets are ephemeral — stored in memory, scoped to the conversation, and discarded when the conversation closes. They are never written to long-term storage.
+Conversation secrets are stored in Redis with a 24-hour TTL, scoped to the conversation. They are never written to long-term storage.
 
 ### Customer context (Path C)
 
 Public context is stored against the customer record using the customer's `externalId`. This is not a secrets endpoint — only non-sensitive data you're comfortable the AI seeing.
 
-```
-POST https://api.hay.chat/v1/customers/{externalId}/context
-Authorization: Bearer hay_sk_...
-X-Organization-Id: org_xxx
-Content-Type: application/json
+Customer context is stored in the `external_metadata` JSONB column on the customer record (not a dedicated `context` column).
 
-{
-  "name": "Sarah Chen",
-  "plan": "pro"
-}
+Context is attached via the tRPC mutation `customers.addContext` with input `{ externalId, context: Record<string, unknown> }`:
+
+```js
+await hay.customers.addContext({
+  externalId: "ext_usr_456",
+  context: {
+    name: "Sarah Chen",
+    plan: "pro",
+  },
+});
 ```
 
 ---
@@ -317,7 +352,7 @@ Available secrets: auth, userId
 
 - **Public context is sanitized structurally** — values are wrapped in prompt delimiters with instructions to treat them as data. Avoid passing untrusted user input (e.g. values from form fields that a user might intentionally craft) as public context keys you rely on for access control.
 - **Secrets never reach the LLM** — the model is told a secret exists under a name but never sees its value. Do not use public context for auth tokens.
-- **Conversation-scoped secrets are ephemeral** — stored in memory, never written to the database. If the user opens a new conversation (e.g. after closing the browser), your `onConversationStarted` callback fires again and you re-attach fresh secrets.
+- **Conversation-scoped secrets are ephemeral** — stored in Redis with a 24-hour TTL, scoped to the conversation, never written to the database. If the user opens a new conversation (e.g. after closing the browser), your `onConversationStarted` callback fires again and you re-attach fresh secrets.
 - **Customer records store only public context** — no secrets are ever written to the database. If you need per-user credentials, attach them per-conversation via `onConversationStarted`.
 - **`conversation.id` is not sensitive** — passing it from the browser to your backend (Path B) does not expose anything meaningful. The DPoP keypair is what authenticates the conversation.
 - **`customerExternalId` should come from your server** — inject it into the page server-side rather than deriving it from user input. If a user tampers with it in the browser console, they can only affect their own AI session context (no secrets, no conversation history access).
@@ -333,7 +368,7 @@ Available secrets: auth, userId
   window.HayChat = {
     config: {
       organizationId: "org_xxx",
-      baseUrl: "https://api.hay.chat",
+      baseUrl: "https://app.hay.so",
       widgetTitle: "Support",
 
       context: {
@@ -356,9 +391,9 @@ Available secrets: auth, userId
 
 ```js
 // your-server.js
-import Hay from "@hay-chat/sdk";
+import { Hay } from "@hay/server-sdk";
 
-const hay = new Hay({ apiKey: process.env.HAY_API_KEY });
+const hay = new Hay({ apiKey: process.env.HAY_API_KEY, organizationId: process.env.HAY_ORG_ID });
 
 app.post("/api/hay/authenticate", requireAuth, async (req, res) => {
   const { conversationId } = req.body;

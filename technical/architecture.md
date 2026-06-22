@@ -18,7 +18,7 @@ graph LR
   Clients["fa:fa-globe Clients<br/>Web / Mobile"]
   Gateway["fa:fa-shield-halved API Gateway<br/>Express"]
   Services["fa:fa-puzzle-piece Services<br/>Plugins"]
-  Queue["fa:fa-list-check Message Queue<br/>Bull"]
+  Queue["fa:fa-list-check Message Queue<br/>RabbitMQ + Redis"]
   DB["fa:fa-database Database<br/>PostgreSQL"]
 
   Clients --> Gateway --> Services
@@ -48,24 +48,15 @@ The entry point for all client requests:
 Business logic organized as modular services:
 
 - **Conversation Service**: Manages conversations and messages
-- **Automation Service**: Handles rules and workflows
-- **Integration Service**: Connects to external platforms
+- **Playbook Service**: Handles playbook-based workflows and automation
+- **Plugin Manager Service**: Connects to external platforms via plugin instances
 - **Analytics Service**: Processes and stores metrics
 
 #### 3. Plugin System
 
 Hay's extensibility mechanism:
 
-```typescript
-interface Plugin {
-  name: string;
-  version: string;
-  init: (context: PluginContext) => Promise<void>;
-  hooks: {
-    [eventName: string]: HookFunction;
-  };
-}
-```
+Plugins are defined using `defineHayPlugin()` from `@hay/plugin-sdk`. The plugin contract is `HayPluginManifest` in `/server/types/plugin-sdk.types.ts`, exposing capabilities via a runtime `/metadata` endpoint and interacting with the platform via `PluginContext`.
 
 Each plugin can:
 - Register event listeners
@@ -75,27 +66,7 @@ Each plugin can:
 
 #### 4. Event Bus
 
-Central communication hub:
-
-```typescript
-// Emit an event
-eventBus.emit('conversation.created', {
-  conversationId: '123',
-  channel: 'email',
-  customer: { ... }
-});
-
-// Listen for events
-eventBus.on('conversation.created', async (event) => {
-  // Handle the event
-});
-```
-
-Events flow through the system triggering:
-- Automation rules
-- Real-time updates
-- Analytics tracking
-- Plugin hooks
+Real-time events are published to Redis pub/sub channels via `ConversationEventsService`. Background processing tasks are queued via RabbitMQ (`rabbitmqService`) and a Redis-backed `JobQueueService`.
 
 #### 5. Data Layer
 
@@ -200,12 +171,7 @@ Key metrics tracked:
 Structured logging with correlation IDs:
 
 ```typescript
-logger.info('Processing conversation', {
-  correlationId: req.id,
-  conversationId: '123',
-  action: 'create',
-  duration: 45
-});
+logger.info({ conversationId: '123', action: 'create', duration: 45 }, 'Processing conversation');
 ```
 
 #### Tracing

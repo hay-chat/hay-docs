@@ -71,12 +71,7 @@ Catch errors early and provide actionable feedback.
 
 ```typescript
 // Validation errors are clear and actionable
-throw new ValidationError({
-  field: "email",
-  message: "Invalid email format",
-  received: userInput,
-  expected: "user@example.com",
-});
+throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid email format' });
 ```
 
 #### 4. Plugin-First Architecture
@@ -92,13 +87,7 @@ Everything is a plugin, including core features.
 
 **In practice:**
 
-```typescript
-// Core features implemented as plugins
-const corePlugins = ["hay-plugin-conversations", "hay-plugin-automation", "hay-plugin-analytics"];
-
-// User plugins loaded the same way
-const userPlugins = ["@custom/slack-integration", "@custom/ai-responses"];
-```
+Plugins are discovered dynamically from the `plugins/` directory. The core source code never hardcodes plugin IDs.
 
 #### 5. Data Ownership and Privacy
 
@@ -137,60 +126,19 @@ if (userNeedsFeature) {
 
 **Why:** Decouples components and enables real-time features
 
-```typescript
-// Emit events for major state changes
-eventBus.emit("conversation.resolved", {
-  conversationId,
-  resolvedBy,
-  timestamp,
-});
-
-// Plugins can react to any event
-plugin.on("conversation.resolved", async (event) => {
-  await sendSurvey(event.conversationId);
-});
-```
+Events are emitted via `ConversationEventsService` and WebSocket service, not a general event bus.
 
 #### Dependency Injection
 
 **Why:** Testability and flexibility
 
-```typescript
-// Services injected, not imported
-class AutomationService {
-  constructor(
-    private db: Database,
-    private queue: Queue,
-    private events: EventBus
-  ) {}
-}
-
-// Easy to mock in tests
-const mockDb = createMockDatabase();
-const service = new AutomationService(mockDb, ...);
-```
+Services use singleton exports and direct module imports (e.g., `export const myService = new MyService()`).
 
 #### Repository Pattern
 
 **Why:** Abstracts data access, easy to swap databases
 
-```typescript
-interface ConversationRepository {
-  findById(id: string): Promise<Conversation>;
-  create(data: CreateConversationData): Promise<Conversation>;
-  update(id: string, data: Partial<Conversation>): Promise<Conversation>;
-}
-
-// PostgreSQL implementation
-class PostgresConversationRepository implements ConversationRepository {
-  // ...
-}
-
-// Could swap to MongoDB, etc.
-class MongoConversationRepository implements ConversationRepository {
-  // ...
-}
-```
+Repositories extend `BaseRepository<T>` (a generic TypeORM wrapper) — no interface abstraction layer.
 
 ### Code Quality Standards
 
@@ -199,16 +147,7 @@ class MongoConversationRepository implements ConversationRepository {
 - **Strict mode enabled**: No implicit any
 - **Explicit return types**: For all public functions
 - **Discriminated unions**: For state management
-- **Branded types**: For IDs and sensitive data
-
-```typescript
-// Branded type prevents mixing IDs
-type ConversationId = string & { __brand: 'ConversationId' };
-type UserId = string & { __brand: 'UserId' };
-
-// Compile error: can't pass UserId where ConversationId expected
-function getConversation(id: ConversationId) { ... }
-```
+- **Branded types**: For IDs and sensitive data (aspirational pattern — not yet implemented in the codebase; IDs are currently plain strings)
 
 #### Testing
 
@@ -273,7 +212,7 @@ When contributing to Hay:
 
 ### Learning Resources
 
-- **[Architecture Guide](/docs/technical/architecture/)** - System design details
+- **[Architecture Guide](/docs/technical/architecture)** - System design details
 - **[Plugin Development](/docs/technical/plugins/getting-started/)** - Build your first plugin
 - **[Contributing Guide](/docs/technical/)** - How to contribute
 

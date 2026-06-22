@@ -40,7 +40,7 @@ flowchart TD
   end
 
   D -->|"High ≥0.8"| DEL2["fa:fa-paper-plane Deliver"]
-  D -->|"Medium 0.5–0.8"| REC["fa:fa-rotate Recheck"]
+  D -->|"Medium 0.5–&lt;0.8"| REC["fa:fa-rotate Recheck"]
   D -->|"Low <0.5"| ESC2["fa:fa-user Escalate"]
 
   style A fill:#e8f3ff,stroke:#568aff,color:#0a155c
@@ -415,8 +415,8 @@ conversation.messages.forEach(message => {
 
 ### Prompts
 - `execution/company-interest-check` - Stage 1 evaluation (EN, PT, ES)
-- `execution/confidence-grounding` - Stage 2 grounding (updated)
-- `execution/confidence-certainty` - Stage 2 certainty
+- `execution/confidence-grounding` - Stage 2 grounding (EN, PT, ES)
+- `execution/confidence-certainty` - Stage 2 certainty (EN, PT, ES)
 
 ### Files
 - `/server/services/core/company-interest-guardrail.service.ts`
