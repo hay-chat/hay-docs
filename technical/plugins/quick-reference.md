@@ -13,12 +13,12 @@ navOrder: 5
 
 ## Quick Start Checklist
 
-- [ ] Create plugin directory in `plugins/core/` or `plugins/custom/{organizationId}/`
+- [ ] Create plugin directory in `plugins/core/`
 - [ ] Create `manifest.json` following schema
 - [ ] Create `package.json` with dependencies
 - [ ] Create `tsconfig.json` for TypeScript
 - [ ] Implement plugin entry point in `src/index.ts`
-- [ ] Add `i18n/en.json` and `i18n/pt-BR.json` translations
+- [ ] Add `i18n/en.json` translation (required; additional locales auto-discovered)
 - [ ] Build plugin: `npm run build`
 - [ ] Test in dashboard
 
@@ -28,15 +28,12 @@ navOrder: 5
 
 ```json
 {
-  "$schema": "../base/plugin-manifest.schema.json",
   "id": "hay-plugin-myservice",
   "name": "My Service",
   "version": "1.0.0",
   "description": "Integration with My Service",
-  "author": "Your Name",
   "type": ["mcp-connector"],
   "entry": "./dist/index.js",
-  "enabled": true,
   "category": "integration",
   "capabilities": {
     "mcp": {
@@ -183,26 +180,16 @@ await Hay.plugins.enable.mutate({
   },
 });
 
-// Get configuration
-const config = await Hay.plugins.getConfig.query({
+// Get plugin details (includes configuration)
+const plugin = await Hay.plugins.get.query({
   pluginId: "hay-plugin-myservice",
 });
 
 // Update configuration
-await Hay.plugins.updateConfig.mutate({
+await Hay.plugins.configure.mutate({
   pluginId: "hay-plugin-myservice",
   configuration: {
     apiKey: "new_key",
-  },
-});
-
-// Invoke tool
-const result = await Hay.plugins.invokeTool.mutate({
-  pluginId: "hay-plugin-myservice",
-  toolName: "create_resource",
-  arguments: {
-    name: "My Resource",
-    amount: 1000,
   },
 });
 
@@ -228,12 +215,13 @@ import { pluginInstanceManagerService } from "@server/services/plugin-instance-m
 await pluginInstanceManagerService.ensureInstanceRunning(organizationId, "hay-plugin-myservice");
 await pluginInstanceManagerService.updateActivityTimestamp(organizationId, "hay-plugin-myservice");
 
-// Process Manager
-import { processManagerService } from "@server/services/process-manager.service";
+// Plugin Runner
+import { getPluginRunnerService } from "@server/services/plugin-runner.service";
 
-await processManagerService.startPlugin(organizationId, "hay-plugin-myservice");
-await processManagerService.stopPlugin(organizationId, "hay-plugin-myservice");
-const isRunning = processManagerService.isRunning(organizationId, "hay-plugin-myservice");
+const pluginRunnerService = getPluginRunnerService();
+await pluginRunnerService.startPluginWorker(organizationId, "hay-plugin-myservice");
+await pluginRunnerService.stopPluginWorker(organizationId, "hay-plugin-myservice");
+const isRunning = pluginRunnerService.isRunning(organizationId, "hay-plugin-myservice");
 ```
 
 ---
@@ -341,7 +329,7 @@ Add an `i18n/` directory to your plugin with one JSON file per locale. No manife
 - `en.json` is **required** (fallback for all locales)
 - Tool keys must match MCP server tool names
 - Config keys must match `configSchema` / `ctx.register.config()` field names
-- Currently supported: `en`, `pt-BR`
+- Any locale filename is automatically discovered (e.g., `es.json`, `fr.json`, `de.json`)
 
 See the [API Reference](/docs/technical/plugins/api-reference/) for full details and examples.
 
@@ -390,11 +378,9 @@ interface HayPluginManifest {
   id: string;
   name: string;
   version: string;
-  description: string;
-  author: string;
+  description?: string;
   type: PluginType[];
   entry: string;
-  enabled?: boolean;
   capabilities?: PluginCapabilities;
   configSchema?: Record<string, ConfigField>;
   permissions?: PluginPermissions;
@@ -461,17 +447,14 @@ npm run dev
 ## Useful Commands
 
 ```bash
-# Validate manifest against schema
-npx ajv validate -s plugins/base/plugin-manifest.schema.json -d plugins/core/my-plugin/manifest.json
+# Validate manifest JSON is well-formed
+node -e "JSON.parse(require('fs').readFileSync('plugins/core/my-plugin/manifest.json', 'utf8'))"
 
 # Build plugin
 cd plugins/core/my-plugin && npm run build
 
 # Check running processes
 ps aux | grep "node mcp"
-
-# View plugin logs
-tail -f server/logs/plugins/my-plugin.log
 
 # Install all plugin dependencies
 cd plugins/core/my-plugin && npm install && cd mcp && npm install
@@ -524,12 +507,11 @@ Follow semantic versioning:
 
 ## Resources
 
-- **Full Documentation**: `docs/PLUGIN_API.md`
+- **Full Documentation**: `docs/technical/plugins/api-reference.md`
 - **Generation Guide**: `.claude/PLUGIN_GENERATION_WORKFLOW.md`
-- **Channel Guide**: `docs/PLUGIN_CHANNEL_REGISTRATION.md`
+- **Channel Guide**: `docs/technical/plugins/channel-registration.md`
 - **Example Plugins**: `plugins/core/` directory
-- **Schema**: `plugins/base/plugin-manifest.schema.json`
 
 ---
 
-**Need Help?** Check the full documentation at `docs/PLUGIN_API.md`
+**Need Help?** Check the full documentation at `docs/technical/plugins/api-reference.md`

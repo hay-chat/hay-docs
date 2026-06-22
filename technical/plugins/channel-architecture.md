@@ -40,11 +40,11 @@ Channel plugins enable bidirectional communication between Hay and external mess
 flowchart TD
   Platform["fa:fa-comments External Platform<br/>WhatsApp · Slack · Instagram"]
 
-  Platform -->|"Webhook"| Receiver["fa:fa-satellite-dish Webhook Receiver<br/>/v1/webhooks/:plugin"]
-  Platform <-->|"API Calls"| MCP["fa:fa-wrench MCP Tools<br/>send-message · send-template"]
+  Platform -->|"Webhook"| Receiver["fa:fa-satellite-dish Webhook Receiver<br/>/plugins/webhooks/:pluginName/:webhookPath"]
+  Platform <-->|"HTTP POST"| Deliver["fa:fa-paper-plane Outbound Delivery<br/>POST /deliver"]
 
   Receiver -->|"Validates & Maps"| Core
-  MCP -->|"Called by AI"| Core
+  Deliver -->|"Called by AI"| Core
 
   subgraph Core["fa:fa-cube  Hay Core System"]
     Conv["fa:fa-message Conversation<br/>Service"]
@@ -70,18 +70,11 @@ flowchart TD
 plugins/core/whatsapp/
 ├── manifest.json                    # Plugin configuration
 ├── package.json                     # Dependencies
-├── mcp/
-│   ├── index.js                    # MCP server (tools)
-│   ├── tools/
-│   │   ├── send-message.js
-│   │   ├── send-template.js
-│   │   └── get-media.js
-│   └── services/
-│       └── whatsapp-api.js         # WhatsApp API client
-├── webhooks/
-│   ├── handler.ts                  # Webhook receiver logic
-│   ├── validator.ts                # Signature verification
-│   └── mapper.ts                   # Message format conversion
+├── src/
+│   ├── index.ts                    # Plugin entry point
+│   ├── webhook.ts                  # Webhook receiver logic
+│   ├── deliver.ts                  # Outbound message delivery (POST /deliver)
+│   └── signature.ts                # Twilio HMAC signature verification
 └── components/                      # UI components
     └── settings/
         └── WhatsAppSettings.vue    # Channel configuration UI
@@ -90,11 +83,15 @@ plugins/core/whatsapp/
 ### 2. Webhook Flow (Inbound Messages)
 
 ```typescript
-// Route: /v1/webhooks/whatsapp/:organizationId
-export async function handleWhatsAppWebhook(
+// Route: /plugins/webhooks/whatsapp/:webhookPath
+// Organization ID passed via ?org=<id> query param or x-organization-id header
+export async function webhookHandler(
   req: Request,
-  organizationId: string
+  res: Response,
+  ctx: PluginContext
 ) {
+  const organizationId = req.query.org as string || req.headers['x-organization-id'] as string;
+
   // 1. Get plugin instance for this organization
   const pluginInstance = await pluginInstanceRepository.findByPlugin(
     organizationId,
@@ -105,11 +102,11 @@ export async function handleWhatsAppWebhook(
     throw new Error('WhatsApp plugin not enabled');
   }
 
-  // 2. Validate webhook signature (platform-specific)
-  const isValid = await validateWhatsAppSignature(
+  // 2. Validate Twilio HMAC signature
+  const isValid = await validateTwilioSignature(
     req.body,
-    req.headers['x-hub-signature-256'],
-    pluginInstance.config.webhookVerifyToken
+    req.headers['x-twilio-signature'] as string,
+    pluginInstance.config.authToken
   );
 
   if (!isValid) {
@@ -211,13 +208,7 @@ interface Organization {
   // ... existing fields
   settings: {
     // ... existing settings
-    channelAgents?: {
-      whatsapp?: string;      // agent ID
-      instagram?: string;
-      telegram?: string;
-      slack?: string;
-      [key: string]: string | undefined;
-    };
+    channelAgents?: Record<string, string>;
   };
 }
 
@@ -244,72 +235,45 @@ async function getAgentForChannel(
 }
 ```
 
-### 5. MCP Tools (Outbound Messages)
+### 5. Outbound Delivery (POST /deliver)
+
+Outbound messages are sent via an HTTP `POST /deliver` route exposed by the plugin, not via MCP tools. The AI calls this route to dispatch messages to the external platform.
 
 ```typescript
-// mcp/tools/send-message.js
-export const sendMessageTool = {
-  name: 'send-message',
-  description: 'Send a WhatsApp message to a customer',
-  input_schema: {
-    type: 'object',
-    properties: {
-      to: {
-        type: 'string',
-        description: 'Recipient phone number (E.164 format: +1234567890)'
-      },
-      message: {
-        type: 'string',
-        description: 'Message text to send'
-      },
-      conversation_id: {
-        type: 'string',
-        description: 'Hay conversation ID (optional, for tracking)'
-      }
-    },
-    required: ['to', 'message']
-  },
+// src/deliver.ts
+import twilio from 'twilio';
 
-  async execute(args: any, context: MCPContext) {
-    const { to, message, conversation_id } = args;
-    const config = context.config;  // Plugin instance config
+export async function deliverHandler(
+  req: Request,
+  res: Response,
+  ctx: PluginContext
+) {
+  const { to, message, conversation_id } = req.body;
+  const config = ctx.config;  // Plugin instance config
 
-    // Call WhatsApp API
-    const response = await fetch(
-      `https://graph.facebook.com/v18.0/${config.phoneNumberId}/messages`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${config.accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          messaging_product: 'whatsapp',
-          to: to.replace('+', ''),
-          type: 'text',
-          text: { body: message }
-        })
-      }
-    );
+  // Call Twilio API
+  const client = twilio(config.accountSid, config.authToken);
+  const result = await client.messages.create({
+    from: `whatsapp:${config.whatsappNumber}`,
+    to: `whatsapp:${to}`,
+    body: message
+  });
 
-    const result = await response.json();
-
-    // Optional: Track message in Hay DB
-    if (conversation_id) {
-      await trackOutboundMessage({
-        conversationId: conversation_id,
-        externalMessageId: result.messages[0].id,
-        status: 'sent'
-      });
-    }
-
-    return {
-      success: true,
-      message_id: result.messages[0].id,
-      timestamp: new Date().toISOString()
-    };
+  // Optional: Track message in Hay DB
+  if (conversation_id) {
+    await trackOutboundMessage({
+      conversationId: conversation_id,
+      externalMessageId: result.sid,
+      status: 'sent'
+    });
   }
-};
+
+  return res.json({
+    success: true,
+    message_id: result.sid,
+    timestamp: new Date().toISOString()
+  });
+}
 ```
 
 ### 6. Webhook Signature Validation
@@ -317,19 +281,16 @@ export const sendMessageTool = {
 Each platform has its own validation:
 
 ```typescript
-// WhatsApp
-async function validateWhatsAppSignature(
+// WhatsApp via Twilio (src/signature.ts)
+import twilio from 'twilio';
+
+async function validateTwilioSignature(
   body: any,
   signature: string,
-  verifyToken: string
+  authToken: string
 ): Promise<boolean> {
-  const crypto = require('crypto');
-  const expectedSignature = crypto
-    .createHmac('sha256', verifyToken)
-    .update(JSON.stringify(body))
-    .digest('hex');
-
-  return signature === `sha256=${expectedSignature}`;
+  // Twilio uses its own HMAC-SHA1 validation via x-twilio-signature header
+  return twilio.validateRequest(authToken, signature, body.url, body);
 }
 
 // Slack
@@ -370,12 +331,8 @@ async function validateTelegramWebhook(
 ```typescript
 @Entity("conversations")
 export class Conversation {
-  // Already has channel field
-  @Column({
-    type: "enum",
-    enum: ["web", "whatsapp", "instagram", "telegram", "sms", "email"],
-    default: "web",
-  })
+  // Free-form string — not an enum, so new channels don't require migrations
+  @Column({ type: "varchar", length: 64, default: "web" })
   channel!: string;
 
   // Customer relationship
@@ -417,13 +374,7 @@ interface ExternalMetadata {
 // Add to settings
 interface OrganizationSettings {
   // ... existing settings
-  channelAgents?: {
-    whatsapp?: string;
-    instagram?: string;
-    telegram?: string;
-    slack?: string;
-    [key: string]: string | undefined;
-  };
+  channelAgents?: Record<string, string>;
 }
 ```
 
@@ -454,17 +405,16 @@ export class Source {
 
 ### Phase 1: Core Infrastructure
 - [ ] Create webhook router service (`ChannelWebhookService`)
-- [ ] Add webhook routes (`/v1/webhooks/:pluginId/:organizationId`)
+- [ ] Add webhook routes (`/plugins/webhooks/:pluginName/:webhookPath`, org via `?org=<id>` or `x-organization-id` header)
 - [ ] Implement `getAgentForChannel()` helper
 - [ ] Add `channelAgents` to Organization settings
 - [ ] Update `findOrCreate` logic in CustomerService for external IDs
 
 ### Phase 2: WhatsApp Plugin
-- [ ] Create plugin directory structure
-- [ ] Implement webhook handler with signature validation
+- [ ] Create plugin directory structure (`src/index.ts`, `src/webhook.ts`, `src/deliver.ts`, `src/signature.ts`)
+- [ ] Implement webhook handler with Twilio HMAC signature validation (`x-twilio-signature`)
 - [ ] Implement message parser/mapper
-- [ ] Create MCP tools (send-message, send-template)
-- [ ] Add OAuth flow for Meta Business
+- [ ] Implement outbound delivery via `POST /deliver` using Twilio client
 - [ ] Create settings UI component
 
 ### Phase 3: UI for Agent Mapping
@@ -473,10 +423,10 @@ export class Source {
 - [ ] Display active channels and their configurations
 
 ### Phase 4: Testing & Documentation
-- [ ] Test webhook validation
+- [ ] Test webhook validation (Twilio HMAC signature)
 - [ ] Test conversation creation/reuse
 - [ ] Test agent routing
-- [ ] Test MCP tool execution
+- [ ] Test outbound delivery via `POST /deliver`
 - [ ] Document webhook URLs for each platform
 
 ---
@@ -528,87 +478,46 @@ export class Source {
   "icon": "whatsapp",
 
   "capabilities": {
-    "webhooks": {
-      "path": "/whatsapp",
-      "events": ["message.received", "message.status", "message.read"]
-    },
-
-    "mcp": {
-      "connection": { "type": "local" },
-      "serverPath": "./mcp/index.js",
-      "tools": [
-        {
-          "name": "send-message",
-          "description": "Send a WhatsApp message",
-          "input_schema": {
-            "type": "object",
-            "properties": {
-              "to": { "type": "string" },
-              "message": { "type": "string" }
-            },
-            "required": ["to", "message"]
-          }
-        },
-        {
-          "name": "send-template",
-          "description": "Send a WhatsApp message template",
-          "input_schema": {
-            "type": "object",
-            "properties": {
-              "to": { "type": "string" },
-              "template_name": { "type": "string" },
-              "language": { "type": "string" },
-              "components": { "type": "array" }
-            },
-            "required": ["to", "template_name", "language"]
-          }
-        }
-      ],
-      "transport": "stdio",
-      "installCommand": "npm install",
-      "startCommand": "node mcp/index.js"
+    "chat_connector": {
+      "webhooks": {
+        "path": "/whatsapp",
+        "events": ["message.received", "message.status", "message.read"]
+      }
     }
   },
 
   "configSchema": {
-    "accessToken": {
+    "accountSid": {
       "type": "string",
-      "label": "Access Token",
-      "description": "WhatsApp Business API access token",
+      "label": "Account SID",
+      "description": "Twilio Account SID",
       "required": true,
       "encrypted": true,
-      "env": "WHATSAPP_ACCESS_TOKEN"
+      "env": "TWILIO_ACCOUNT_SID"
     },
-    "wabaId": {
+    "authToken": {
       "type": "string",
-      "label": "WhatsApp Business Account ID",
+      "label": "Auth Token",
+      "description": "Twilio Auth Token (used for HMAC signature validation)",
       "required": true,
       "encrypted": true,
-      "env": "WHATSAPP_WABA_ID"
+      "env": "TWILIO_AUTH_TOKEN"
     },
-    "phoneNumberId": {
+    "whatsappNumber": {
       "type": "string",
-      "label": "Phone Number ID",
+      "label": "WhatsApp Number",
+      "description": "Twilio WhatsApp-enabled phone number (e.g. +14155238886)",
       "required": true,
-      "encrypted": true,
-      "env": "WHATSAPP_PHONE_NUMBER_ID"
-    },
-    "webhookVerifyToken": {
-      "type": "string",
-      "label": "Webhook Verify Token",
-      "description": "Token for webhook verification",
-      "required": true,
-      "encrypted": true,
-      "env": "WHATSAPP_WEBHOOK_VERIFY_TOKEN"
+      "encrypted": false,
+      "env": "TWILIO_WHATSAPP_NUMBER"
     }
   },
 
   "permissions": {
     "env": [
-      "WHATSAPP_ACCESS_TOKEN",
-      "WHATSAPP_WABA_ID",
-      "WHATSAPP_PHONE_NUMBER_ID",
-      "WHATSAPP_WEBHOOK_VERIFY_TOKEN"
+      "TWILIO_ACCOUNT_SID",
+      "TWILIO_AUTH_TOKEN",
+      "TWILIO_WHATSAPP_NUMBER"
     ]
   },
 
@@ -625,10 +534,10 @@ export class Source {
 
 ## Platform-Specific Considerations
 
-### WhatsApp Business API
-- **Webhook**: Meta webhook with signature validation
-- **Authentication**: OAuth via Meta Business (embedded signup)
-- **Rate Limits**: Tiered based on phone number quality
+### WhatsApp Business API (via Twilio)
+- **Webhook**: Twilio webhook with HMAC signature validation (`x-twilio-signature`)
+- **Authentication**: Twilio `accountSid` + `authToken`
+- **Rate Limits**: Tiered based on Twilio account and phone number
 - **Message Types**: Text, media, templates (for notifications)
 - **External ID**: Phone number (E.164 format)
 

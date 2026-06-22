@@ -190,6 +190,14 @@ await trpc.sources.activate.mutate({
 const sources = await trpc.sources.list.query();
 ```
 
+> **Note**: `sources.list` only returns active sources (where `isActive = true`).
+
+### Get Source by ID
+
+```typescript
+const source = await trpc.sources.get.query({ id: 'whatsapp' });
+```
+
 ### Get Sources by Category
 
 ```typescript
@@ -224,19 +232,27 @@ Test mode is determined by:
 - delivery_state = 'sent'
 - review_required = false
 
+**When message is blocked**:
+- delivery_state = 'blocked'
+- Message will not be delivered (e.g., failed validation or policy block)
+
 ## Plugin Lifecycle
 
 ### On Plugin Install
 
 ```typescript
 export async function onInstall(context: PluginContext) {
-  // Register source
-  await context.trpc.sources.register.mutate({
-    id: 'my-channel',
-    name: 'My Channel',
-    category: 'messaging',
-    pluginId: context.pluginId
-  });
+  // Register source via the plugin API
+  // Note: PluginContext does not have a `trpc` property.
+  // Source registration must be done via the plugin API endpoint provided
+  // by the platform (e.g., an HTTP call to the sources registration route).
+  // Example:
+  // await pluginApi.sources.register({
+  //   id: 'my-channel',
+  //   name: 'My Channel',
+  //   category: 'messaging',
+  //   pluginId: context.pluginId
+  // });
 }
 ```
 
@@ -245,9 +261,11 @@ export async function onInstall(context: PluginContext) {
 ```typescript
 export async function onUninstall(context: PluginContext) {
   // Deactivate source (don't delete - preserve message history)
-  await context.trpc.sources.deactivate.mutate({
-    id: 'my-channel'
-  });
+  // Note: PluginContext does not have a `trpc` property.
+  // Source deactivation must be done via the plugin API endpoint provided
+  // by the platform (e.g., an HTTP call to the sources deactivation route).
+  // Example:
+  // await pluginApi.sources.deactivate({ id: 'my-channel' });
 }
 ```
 
@@ -256,8 +274,8 @@ export async function onUninstall(context: PluginContext) {
 When creating messages from your plugin, always specify the sourceId:
 
 ```typescript
-import { MessageService } from '@/services/core/message.service';
-import { DeliveryState } from '@/types/message-feedback.types';
+import { MessageService } from '@server/services/core/message.service';
+import { DeliveryState } from '@server/types/message-feedback.types';
 
 const messageService = new MessageService();
 
@@ -290,7 +308,7 @@ if (message.deliveryState === DeliveryState.QUEUED) {
 
 ### Source Registration
 
-- **ID**: Required, must match `/^[a-z0-9_:-]+$/`, cannot be core source
+- **ID**: Required, must match `/^[a-z0-9_:-]+$/`, max 50 characters, cannot be core source
 - **Name**: Required, 1-100 characters
 - **Category**: Required, must be valid SourceCategory enum value
 - **Plugin ID**: Optional but recommended, links source to plugin

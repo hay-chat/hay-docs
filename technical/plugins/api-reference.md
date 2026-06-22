@@ -57,17 +57,24 @@ The Hay plugin system is a dynamic, modular architecture that allows extending p
 
 ```
 plugins/
-├── base/
-│   └── plugin-manifest.schema.json    # JSON schema for manifests
-├── core/                              # Core plugins (all orgs)
-│   ├── shopify/
-│   ├── stripe/
-│   ├── zendesk/
-│   └── ...
-└── custom/                            # Custom plugins (org-specific)
-    └── {organizationId}/
-        └── {pluginId}/
+└── core/                              # Core plugins (all orgs)
+    ├── atlassian/
+    ├── calcom/
+    ├── chatwoot/
+    ├── email/
+    ├── hubspot/
+    ├── klaviyo/
+    ├── magento/
+    ├── notion/
+    ├── stripe/
+    ├── twenty/
+    ├── whatsapp/
+    ├── woocommerce/
+    ├── zendesk/
+    └── ...
 ```
+
+> **Note**: Plugin discovery now uses `package.json` with a `hay-plugin` block rather than a separate `plugins/base/plugin-manifest.schema.json` schema file.
 
 ### Plugin Structure
 
@@ -121,9 +128,9 @@ Handles:
 - Pool limits and queueing
 - Activity tracking
 
-#### 3. Process Manager Service
+#### 3. Plugin Runner Service
 
-**Location**: `server/services/process-manager.service.ts`
+**Location**: `server/services/plugin-runner.service.ts`
 
 Manages:
 
@@ -147,7 +154,7 @@ Provides:
 
 ## Plugin Manifest Reference
 
-The manifest.json file is the heart of every plugin. It must conform to the schema at `plugins/base/plugin-manifest.schema.json`.
+The manifest.json file is the heart of every plugin. Plugin discovery uses `package.json` with a `hay-plugin` block to register and configure each plugin.
 
 ### Required Fields
 
@@ -400,14 +407,14 @@ Plugins can have multiple types for categorization:
 
 ### Available Types
 
-| Type            | Description                       | Use Case                     |
-| --------------- | --------------------------------- | ---------------------------- |
-| `channel`       | Communication channel integration | WhatsApp, Telegram, Email    |
-| `mcp-connector` | Connects to MCP servers           | Stripe, Shopify, remote APIs |
-| `retriever`     | Data retrieval capabilities       | Knowledge bases, search      |
-| `playbook`      | Workflow automation               | Pre-defined workflows        |
-| `workflow`      | Advanced workflow capabilities    | Complex automation           |
-| `analytics`     | Analytics and reporting           | Dashboards, metrics          |
+| Type                | Description                       | Use Case                     |
+| ------------------- | --------------------------------- | ---------------------------- |
+| `channel`           | Communication channel integration | WhatsApp, Telegram, Email    |
+| `mcp-connector`     | Connects to MCP servers           | Stripe, Zendesk, remote APIs |
+| `retriever`         | Data retrieval capabilities       | Knowledge bases, search      |
+| `playbook`          | Workflow automation               | Pre-defined workflows        |
+| `document_importer` | Document import capabilities      | Notion, Google Docs, CMS     |
+| `system`            | Core system plugins               | Internal platform features   |
 
 ### Categories
 
@@ -637,7 +644,7 @@ await Hay.plugins.disable.mutate({
 #### Update Configuration
 
 ```typescript
-await Hay.plugins.updateConfig.mutate({
+await Hay.plugins.configure.mutate({
   pluginId: "hay-plugin-shopify",
   configuration: {
     shopifyAccessToken: "new-token",
@@ -645,38 +652,25 @@ await Hay.plugins.updateConfig.mutate({
 });
 ```
 
-#### Get Configuration
+#### Get Plugin Details (includes configuration)
 
 ```typescript
-const config = await Hay.plugins.getConfig.query({
+const plugin = await Hay.plugins.get.query({
   pluginId: "hay-plugin-shopify",
 });
 
-// Returns decrypted configuration
+// Returns plugin details including current configuration
 ```
 
-#### Invoke MCP Tool
+#### Test Connection
 
 ```typescript
-const result = await Hay.plugins.invokeTool.mutate({
-  pluginId: "hay-plugin-shopify",
-  toolName: "get-products",
-  arguments: {
-    searchTitle: "T-Shirt",
-    limit: 10,
-  },
-});
-```
-
-#### Health Check
-
-```typescript
-const health = await Hay.plugins.healthCheck.query({
+const result = await Hay.plugins.testConnection.query({
   pluginId: "hay-plugin-shopify",
 });
 
 // Returns:
-interface HealthCheck {
+interface TestConnectionResult {
   success: boolean;
   status: "healthy" | "unhealthy" | "unconfigured";
   message?: string;
@@ -689,7 +683,7 @@ interface HealthCheck {
 
 ```typescript
 const formData = new FormData();
-formData.append("file", zipFile);
+formData.append("plugin", zipFile);
 
 const result = await fetch("/v1/plugins/upload", {
   method: "POST",
@@ -743,22 +737,24 @@ const stats = await pluginInstanceManagerService.getStatistics();
 await pluginInstanceManagerService.stopAllForOrganization(organizationId);
 ```
 
-#### Process Manager
+#### Plugin Runner
 
 ```typescript
-import { processManagerService } from "@server/services/process-manager.service";
+import { getPluginRunnerService } from "@server/services/plugin-runner.service";
 
-// Start plugin process
-await processManagerService.startPlugin(organizationId, "hay-plugin-shopify");
+const pluginRunnerService = getPluginRunnerService();
 
-// Stop plugin process
-await processManagerService.stopPlugin(organizationId, "hay-plugin-shopify");
+// Start plugin worker
+await pluginRunnerService.startWorker(organizationId, "hay-plugin-shopify");
+
+// Stop plugin worker
+await pluginRunnerService.stopWorker(organizationId, "hay-plugin-shopify");
 
 // Check if running
-const isRunning = processManagerService.isRunning(organizationId, "hay-plugin-shopify");
+const isRunning = pluginRunnerService.isRunning(organizationId, "hay-plugin-shopify");
 
-// Get running processes
-const processes = processManagerService.getRunningProcesses();
+// Get all workers
+const workers = pluginRunnerService.getAllWorkers();
 ```
 
 ---
@@ -770,7 +766,7 @@ const processes = processManagerService.getRunningProcesses();
 1. **User Input**: User enters configuration in dashboard
 2. **Validation**: Backend validates against configSchema
 3. **Encryption**: Sensitive fields (encrypted: true) are encrypted
-4. **Storage**: Stored in plugin_instances.configuration JSONB
+4. **Storage**: Stored in plugin_instances.config JSONB
 5. **Environment Variables**: Mapped to env vars when starting MCP server
 
 ### Encryption
@@ -859,13 +855,12 @@ Your Vue components have access to:
 ```vue
 <script setup lang="ts">
 import { Hay } from "@/utils/api";
-import { usePluginStore } from "@/stores/plugin";
 
-// Access plugin configuration
-const config = await Hay.plugins.getConfig.query({ pluginId: "hay-plugin-myplugin" });
+// Access plugin details (includes configuration)
+const plugin = await Hay.plugins.get.query({ pluginId: "hay-plugin-myplugin" });
 
 // Update configuration
-await Hay.plugins.updateConfig.mutate({
+await Hay.plugins.configure.mutate({
   pluginId: "hay-plugin-myplugin",
   configuration: { newValue: "updated" },
 });
@@ -1131,7 +1126,7 @@ const messagingSources = await trpc.sources.getByCategory.query({
 });
 ```
 
-See `docs/PLUGIN_CHANNEL_REGISTRATION.md` for detailed guide.
+See `docs/technical/plugins/channel-registration.md` for detailed guide.
 
 ---
 
@@ -1183,14 +1178,14 @@ See `docs/PLUGIN_CHANNEL_REGISTRATION.md` for detailed guide.
 
 ### Adding a New Plugin Type
 
-1. **Update Schema**: Add new type to `plugins/base/plugin-manifest.schema.json`
+1. **Update Schema**: Add new type to the plugin types definition in `server/types/plugin.types.ts`
 2. **Update Types**: Add to TypeScript types in `server/types/plugin.types.ts`
 3. **Handle in Code**: Update plugin manager to handle new type
 4. **Document**: Add to this documentation
 
 ### Adding New Plugin Capabilities
 
-1. **Define Schema**: Add capability to manifest schema
+1. **Define Schema**: Add capability to the plugin manifest structure
 2. **Implement Handler**: Create service to handle the capability
 3. **Add API**: Expose via tRPC if needed
 4. **Test**: Create test plugin using the capability
@@ -1201,7 +1196,7 @@ See `docs/PLUGIN_CHANNEL_REGISTRATION.md` for detailed guide.
 The `permissions.api` field uses the Plugin API pattern - plugins can only access platform APIs they explicitly declare:
 
 1. **Define API**: Create the API service (e.g., EmailService)
-2. **Add to Schema**: Add to `permissions.api` enum in manifest schema
+2. **Add to Schema**: Add to `permissions.api` enum in plugin types
 3. **Check Permission**: Verify plugin has permission before allowing access
 4. **Document**: Add to API reference
 
@@ -1345,7 +1340,7 @@ export const router = trpcRouter({
 ## Additional Resources
 
 - **Plugin Generation**: See `.claude/PLUGIN_GENERATION_WORKFLOW.md`
-- **Channel Registration**: See `docs/PLUGIN_CHANNEL_REGISTRATION.md`
+- **Channel Registration**: See `docs/technical/plugins/channel-registration.md`
 - **Database Conventions**: See `server/database/DATABASE_CONVENTIONS.md`
 - **Frontend Guidelines**: See `.claude/FRONTEND.md`
 - **Example Plugins**: Browse `plugins/core/` directory
