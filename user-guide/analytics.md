@@ -7,13 +7,22 @@ section: user-guide
 
 ## Accessing Analytics
 
-Click **Analytics** in the left sidebar to view your performance dashboard.
+Analytics does not have a dedicated sidebar link. Access it directly at `/analytics` or from the main dashboard.
 
 ## Overview Dashboard
 
 Your analytics home shows the most important metrics at a glance.
 
 ### Key Performance Indicators (KPIs)
+
+**Date Filter**
+
+Use the date selector to filter all metrics. Available options:
+
+- Last 7 days
+- Last 30 days
+- Last 90 days
+- Custom Range
 
 **Total Conversations**
 
@@ -37,11 +46,10 @@ Your analytics home shows the most important metrics at a glance.
 
 **Customer Satisfaction**
 
-- Based on customer ratings (👍 thumbs up/down)
-- Shown as percentage of positive ratings
-- **Excellent:** 90%+
-- **Good:** 75-90%
-- **Needs improvement:** Below 75%
+- Based on customer star ratings (out of 5)
+- **Excellent:** 4.5+/5
+- **Good:** 3.75–4.5/5
+- **Needs improvement:** Below 3.75/5
 
 **Escalation Rate**
 
@@ -250,10 +258,7 @@ What do customers want?
 
 ### Rating System
 
-Customers can rate messages with:
-
-- 👍 Helpful/good response
-- 👎 Not helpful/poor response
+Customers can rate messages using a star rating out of 5.
 
 ### Satisfaction Trends
 
@@ -272,56 +277,19 @@ When customers leave feedback:
 - Address common complaints
 - Learn from praise
 
-### Net Promoter Score (NPS)
-
-If you ask "How likely are you to recommend us?":
-
-- Score of 9-10: Promoters
-- Score of 7-8: Passives
-- Score of 0-6: Detractors
-
-**NPS = % Promoters - % Detractors**
-
 ## Source Performance
 
-### Document Usage
+### Document Usage (Planned)
 
-Which documents are referenced most?
+> **Planned:** Document usage analytics are not yet available.
 
-- High usage = Very valuable
-- Zero usage = Maybe not needed or poorly tagged
-- High usage + low ratings = Needs improvement
+Planned metrics include: times referenced, success rate when used, customer satisfaction, and last used date.
 
-**For each document:**
+### Playbook Performance (Planned)
 
-- Times referenced
-- Success rate when used
-- Customer satisfaction
-- Last used date
+> **Planned:** Playbook performance analytics are not yet available.
 
-**Use this to:**
-
-- Identify valuable documents
-- Find gaps in coverage
-- Update or remove unused docs
-- Improve unclear documents
-
-### Playbook Performance
-
-For each playbook:
-
-- Times triggered
-- Completion rate
-- Resolution rate
-- Average duration
-- Customer satisfaction
-
-**Insights:**
-
-- Which playbooks work best?
-- Which need improvement?
-- Which are underutilized?
-- Should any be retired?
+Planned metrics include: times triggered, completion rate, resolution rate, average duration, and customer satisfaction.
 
 ## Channel Performance
 
@@ -344,9 +312,11 @@ Compare metrics across channels:
 
 ## Custom Reports
 
+> **Note:** Analytics → Reports is accessible directly at `/analytics/reports`, not via sidebar navigation.
+
 ### Creating a Custom Report
 
-1. Go to **Analytics** → **Reports**
+1. Go to `/analytics/reports`
 2. Click **Create Report**
 3. Choose metrics to include
 4. Select date range
@@ -382,51 +352,11 @@ Compare metrics across channels:
 
 ### Scheduling Reports
 
-Set up automatic reports:
+> **Coming soon:** Scheduled/automatic reports are not yet implemented.
 
-1. Create your custom report
-2. Click **Schedule**
-3. Choose frequency (daily, weekly, monthly)
-4. Select recipients
-5. Choose format (PDF, CSV, dashboard link)
-6. Save schedule
+### Exporting Data
 
-**Common schedules:**
-
-- Daily summary report (every morning)
-- Weekly performance review (Monday mornings)
-- Monthly executive summary (first of month)
-
-## Exporting Data
-
-### Export Options
-
-**PDF Report:**
-
-- Professional formatted document
-- Charts and graphs included
-- Great for presentations
-
-**CSV Export:**
-
-- Raw data for analysis
-- Import into Excel/Google Sheets
-- Custom calculations
-
-**Interactive Dashboard:**
-
-- Share live dashboard link
-- Updates automatically
-- Collaborative analysis
-
-### What You Can Export
-
-- All conversations (with filters)
-- Performance metrics
-- Customer satisfaction data
-- Agent statistics
-- Topic analysis
-- Time-based data
+> **Coming soon:** Data export (PDF, CSV) is not yet implemented.
 
 ## Interpreting Your Data
 

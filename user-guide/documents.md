@@ -49,18 +49,19 @@ Think of it like training a new employee by giving them all your company documen
 - Text files (.txt)
 - Markdown files (.md)
 - CSV files (for data)
+- HTML files (.html)
+- PowerPoint presentations (.ppt, .pptx)
+- JSON files (.json)
 
-**Paste Text Directly**
+> **File size limit:** The maximum upload size is 10 MB per file (configurable via the `UPLOAD_MAX_SIZE_MB` environment variable).
 
-- Copy and paste content
-- Great for FAQs or quick information
-- No file needed
+> **Write a document from scratch:** To compose a document directly in Hay without uploading a file, go to **/documents/new** and use the **Write Document** editor.
 
 **Import from URL**
 
-- Paste a webpage URL
-- Hay extracts the content
-- Perfect for existing help centers
+- Paste a website URL and Hay will crawl the entire site — it follows the sitemap and discovers same-domain pages automatically
+- Useful for importing an existing help center or documentation site
+- All discovered pages are processed and added as separate documents
 
 ### Step 3: Processing
 
@@ -78,8 +79,9 @@ Hay processes your documents:
 After upload:
 
 - Give document a clear title
-- Add description (what information does it contain?)
-- Add tags for organization
+- Add a description (what information does it contain?)
+- Select a **category** from the dropdown: product, api, faq, legal, training, technical, or other
+- Set the document status: **active** (used by the agent) or **inactive** (excluded from search)
 - Click **Save**
 
 ## Types of Documents to Upload
@@ -208,25 +210,15 @@ Refunds: 30 days. See mgr for exceptions.
 
 ### Organizing Documents
 
-Use tags to categorize:
+Use the **category** dropdown when uploading or editing a document to keep your knowledge base organized:
 
-**By Topic:**
-
-- #shipping
-- #returns
-- #products
-- #billing
-- #technical-support
-
-**By Product:**
-
-- #product-line-A
-- #product-line-B
-
-**By Urgency:**
-
-- #critical-info
-- #policy
+- **faq** - Frequently asked questions
+- **product** - Product descriptions and specs
+- **api** - API references and developer docs
+- **legal** - Terms of service, privacy policy, etc.
+- **training** - Internal training and onboarding content
+- **technical** - Troubleshooting guides and technical docs
+- **other** - Everything else
 
 ### Keep Documents Updated
 
@@ -252,11 +244,11 @@ Go to **Documents** to see all uploaded content.
 
 **What you'll see:**
 
-- Document title
-- Date uploaded
-- Size
-- Tags
-- Usage statistics (how often referenced)
+- **Name** - Document title
+- **Type** - File format (PDF, DOCX, etc.)
+- **Source** - Where the document came from (upload, URL crawl, etc.)
+- **Status** - Active or inactive
+- **Last Modified** - When the document was last updated
 
 ### Editing Documents
 
@@ -275,8 +267,6 @@ Use the search bar to find specific documents:
 
 - Search by title
 - Search by content
-- Filter by tags
-- Sort by most-used
 
 ### Deleting Documents
 
@@ -287,23 +277,6 @@ To remove a document:
 3. Confirm
 
 > ⚠️ **Warning:** Deleting is permanent. Agent will no longer have access to this information.
-
-## Document Analytics
-
-See which documents are most valuable:
-
-**Usage Stats:**
-
-- How many times referenced
-- Which conversations used it
-- Success rate when used
-- Last used date
-
-**Find:**
-
-- Most helpful documents (high usage + good outcomes)
-- Unused documents (may need better tagging)
-- Documents that lead to escalations (may need clarification)
 
 ## Advanced Features
 
@@ -321,22 +294,6 @@ This helps with:
 - Verifying accuracy
 - Finding outdated info
 - Tracking down errors
-
-### Document Priority
-
-Mark important documents as priority:
-
-- **High priority** = Search these first
-- **Normal** = Standard search
-- **Low priority** = Use only if needed
-
-### Version Control
-
-Keep track of document versions:
-
-- Upload new version
-- Old version archived automatically
-- Rollback if needed
 
 ## Common Scenarios
 

@@ -7,15 +7,23 @@ section: user-guide
 
 ## Overview
 
-The dashboard shows you the most important metrics and activity at a glance. When you log in, you'll see:
+The dashboard shows you the most important metrics and activity at a glance. When you log in, you'll see four KPI cards at the top:
 
-- **Total conversations** today, this week, and this month
-- **Active conversations** currently being handled
-- **Resolution rate** - how many conversations were solved without human help
-- **Response time** - how quickly customers are getting answers
+- **Active Agents** - how many agents are currently configured and active
+- **Total Conversations** - total conversations handled
+- **Resolution Rate** - how many conversations were solved without human help
+- **Avg Messages per Conversation** - average number of messages exchanged per conversation
+
+Below the KPI cards you'll also find:
+
+- **Escalation Rate** - percentage of conversations transferred to a human agent
 - **Recent activity** - latest conversations and interactions
 
 ## Understanding Your Metrics
+
+### Active Agents
+
+The number of agents currently configured and active in your workspace.
 
 ### Total Conversations
 
@@ -34,19 +42,13 @@ The percentage of conversations solved completely by AI without human interventi
 - 80-90% is excellent after training and optimization
 - Below 50%? Your agent may need more training documents
 
-### Average Response Time
+### Avg Messages per Conversation
 
-How quickly customers receive their first response.
-
-**Hay typically responds in:**
-
-- ⚡ 1-3 seconds for simple questions
-- ⚡ 3-8 seconds for questions requiring document lookup
-- ⚡ 8-15 seconds for complex multi-step queries
+The average number of messages exchanged across all conversations. Lower values typically indicate faster resolution.
 
 ### Escalation Rate
 
-The percentage of conversations transferred to human agents.
+Displayed as a widget below the top KPI cards. Shows the percentage of conversations transferred to human agents.
 
 **Why do conversations escalate?**
 
@@ -70,9 +72,9 @@ Click on any conversation to:
 
 ### Check the Queue
 
-See conversations waiting for human attention:
+See conversations waiting for human attention. The Queue is accessible at `/queue` but does not appear in the main sidebar navigation.
 
-- Click **Queue** to view pending conversations
+- Navigate to `/queue` to view pending conversations
 - Open any conversation to respond
 - Take over to chat directly with the customer
 
@@ -86,7 +88,6 @@ See conversations waiting for human attention:
 
 Your dashboard updates automatically:
 
-- **Green pulse** next to metrics = activity happening now
 - **Notifications** appear for important events:
   - Conversations needing urgent attention
   - Customers waiting too long
@@ -96,13 +97,7 @@ Your dashboard updates automatically:
 
 ### Filter by Date Range
 
-Use the date selector to view metrics for:
-
-- Today
-- Last 7 days
-- Last 30 days
-- Last 90 days
-- Custom date range
+Use the custom date picker to select any date range for the displayed metrics.
 
 ## Dashboard Best Practices
 
@@ -148,7 +143,7 @@ Some metrics are calculated every few minutes, not instantly. Refresh your brows
 
 ### Can I export this data?
 
-Yes! Click **Export** in the analytics section to download reports in PDF or CSV format.
+Data export from the dashboard is not yet implemented.
 
 ## Next Steps
 

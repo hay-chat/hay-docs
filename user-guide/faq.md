@@ -125,7 +125,7 @@ When a human takes over, the AI stops responding. The full conversation history 
 
 ### How long are conversations stored?
 
-Based on your data retention settings. Typically conversations are kept for 90 days to 1 year. Check **Settings** → **Privacy** for your specific retention policy.
+By default, conversations are kept indefinitely. If a retention period is configured, conversations are anonymized (messages and personal data removed) after the specified number of days. Check **Settings** → **Privacy** for your specific retention policy.
 
 ### Can I delete conversations?
 
@@ -141,9 +141,7 @@ Popular integrations include:
 - WhatsApp Business
 - Email
 - Shopify
-- WooCommerce
 - Zendesk
-- Magento
 
 Check **Integrations** → **Marketplace** for the complete list.
 
@@ -308,6 +306,8 @@ Yes! Use role-based access control:
 
 - Owner: Full access
 - Admin: Settings and management
+- Member: Standard team access
+- Contributor: Contribute content (documents, playbooks)
 - Agent: Conversations only
 - Viewer: Read-only access
 

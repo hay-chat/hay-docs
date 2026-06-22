@@ -17,7 +17,7 @@ Make sure you have:
 
 Hay works where your team already does. You can connect integrations now or skip this and come back later.
 
-1. Click **Integrations** in the left sidebar
+1. Go to **Integrations** → **Marketplace** in the left sidebar _(admin/owner only)_
 2. Browse available integrations (Shopify, WhatsApp, Zendesk, etc.)
 3. Click on an integration you want to add
 4. Follow the simple connection steps
@@ -35,13 +35,13 @@ Hay works where your team already does. You can connect integrations now or skip
 
 Your agent is your AI assistant. Give it a personality and purpose.
 
-1. Go to **Agents** in the left sidebar
+1. Go to **Settings** → **Agents**
 2. Click **Create Agent**
 3. Fill in the basic information:
 
    - **Name:** Something descriptive like "Customer Support Agent"
    - **Description:** What this agent handles (e.g., "Handles order questions and product inquiries")
-   - **Tone:** Choose how your agent should communicate (Professional, Friendly, Casual, etc.)
+   - **Tone:** Choose how your agent should communicate (Professional, Casual, or Enthusiastic)
 
 4. (Optional) Add specific instructions:
 
@@ -51,19 +51,19 @@ Your agent is your AI assistant. Give it a personality and purpose.
 
 5. Click **Create Agent**
 
-> **Example:** "Support Agent" with a "Friendly" tone that "helps customers with orders, shipping, and product questions"
+> **Example:** "Support Agent" with a "Casual" tone that "helps customers with orders, shipping, and product questions"
 
 ## Step 3: Upload Training Documents
 
 Teach your agent by uploading your existing support materials.
 
 1. Go to **Documents** in the left sidebar
-2. Click **Import Documents**
-3. Upload files or paste text:
+2. Click **Import Document**
+3. Upload files or create content:
 
    - **PDFs** - Product manuals, policy documents
    - **Text files** - FAQs, support scripts
-   - **Direct text** - Paste in common questions and answers
+   - **Write Document** - Create a document from scratch at `/documents/new`
 
 4. Wait a few seconds while Hay processes and learns from your documents
 
@@ -82,7 +82,7 @@ Teach your agent by uploading your existing support materials.
 Playbooks are step-by-step instructions for handling specific situations.
 
 1. Go to **Playbooks** in the left sidebar
-2. Click **Create Playbook**
+2. Click the **+ icon** or **Generate Playbook**
 3. Set up the basics:
 
    - **Title:** "Welcome New Customers"
@@ -97,7 +97,7 @@ Playbooks are step-by-step instructions for handling specific situations.
    If they need help with products, provide relevant information.
    ```
 
-5. Click **Save** and **Activate**
+5. Click **Create Playbook**
 
 > **Common playbook examples:**
 >
@@ -110,7 +110,7 @@ Playbooks are step-by-step instructions for handling specific situations.
 Before going live with customers, test how your agent responds.
 
 1. Go to **Conversations** in the left sidebar
-2. Click **+ Conversation Playground**
+2. Click **Conversation Playground**
 3. Start typing messages like a customer would:
 
    - "Hi, I need help with my order"
@@ -139,8 +139,8 @@ Your Hay agent is now ready to start helping customers!
 
 Now that you're up and running:
 
-1. **Monitor the Queue** - Check for conversations that need human attention
-2. **Review Analytics** - See how your agent is performing
+1. **Monitor the Queue** - Visit `/queue` to check for conversations that need human attention
+2. **Review Dashboard** - See how your agent is performing at a glance
 3. **Add More Documents** - Keep training your agent with new information
 4. **Create More Playbooks** - Automate more types of requests
 

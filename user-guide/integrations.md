@@ -13,11 +13,13 @@ Integrations connect Hay with:
 - **Business tools** - Your e-commerce, CRM, help desk systems
 - **Data sources** - Access to order info, customer data, inventory
 
+> **Access:** Integrations are accessible only to users with the **Admin** or **Owner** role.
+
 ## Available Integrations
 
-### Web Chat (Webchat Plugin)
+### Web Chat
 
-Add a live chat widget to your website.
+Add a live chat widget to your website. Web Chat is a built-in Hay feature, not a marketplace plugin.
 
 **What it does:**
 
@@ -28,13 +30,11 @@ Add a live chat widget to your website.
 
 **How to set up:**
 
-1. Go to **Integrations** → **Marketplace**
-2. Find **Web Chat**
-3. Click **Install**
-4. Copy the embed code
-5. Paste it into your website (usually before closing `</body>` tag)
-6. Customize colors and position
-7. Save and test!
+1. Go to **Settings** → **Webchat**
+2. Copy the embed code
+3. Paste it into your website (usually before the closing `</body>` tag)
+4. Customize colors, position, and welcome message
+5. Save and test!
 
 **Customization options:**
 
@@ -59,16 +59,16 @@ Handle WhatsApp messages with your AI agent.
 1. Go to **Integrations** → **Marketplace**
 2. Find **WhatsApp**
 3. Click **Connect**
-4. Sign in with Facebook Business account
-5. Select your WhatsApp Business number
-6. Authorize Hay
+4. Enter your Twilio **Account SID** and **Auth Token**
+5. Enter your Twilio **WhatsApp number** (e.g. `whatsapp:+14155238886`)
+6. Authorize and save
 7. Done!
 
 **Requirements:**
 
-- WhatsApp Business account
-- Facebook Business Manager account
-- Phone number verified with WhatsApp
+- Twilio account with WhatsApp sender enabled
+- Twilio Account SID and Auth Token
+- WhatsApp-enabled phone number in Twilio
 
 **Perfect for:**
 
@@ -77,9 +77,9 @@ Handle WhatsApp messages with your AI agent.
 - Markets where WhatsApp is popular
 - Quick, informal support
 
-### Shopify
+### WooCommerce
 
-Connect your Shopify store for e-commerce support.
+Connect your WooCommerce store for e-commerce support.
 
 **What it does:**
 
@@ -91,12 +91,12 @@ Connect your Shopify store for e-commerce support.
 **How to set up:**
 
 1. Go to **Integrations** → **Marketplace**
-2. Find **Shopify**
+2. Find **WooCommerce**
 3. Click **Install**
-4. You'll be redirected to Shopify
-5. Click **Install app** in your Shopify admin
+4. Enter your WooCommerce store URL
+5. Enter your WooCommerce REST API key and secret
 6. Authorize permissions
-7. Return to Hay - connection confirmed!
+7. Return to Hay — connection confirmed!
 
 **What your agent can do:**
 
@@ -138,31 +138,28 @@ Sync with your Zendesk help desk.
 - Two-way sync → Updates flow both ways
 - One-way sync → Hay creates tickets in Zendesk
 
-### Email Integration
+### Email
 
-Handle email support with AI.
+Send outbound email notifications from Hay to your customers.
 
 **What it does:**
 
-- Monitor support email inbox
-- AI responds to emails automatically
-- Escalate when needed
-- Maintain email thread history
+- Sends transactional and notification emails on behalf of your organization
+- Used for conversation follow-ups, agent-triggered messages, and system notifications
+- Does not monitor an inbox or respond to inbound email
 
 **How to set up:**
 
 1. Go to **Integrations** → **Email**
-2. Choose method:
-   - **Forwarding** - Forward emails to a Hay address
-   - **IMAP** - Connect directly to your mailbox
-3. Configure settings
-4. Test with a sample email
+2. Enter your SMTP server credentials (host, port, username, password)
+3. Set the sender name and "from" address
+4. Send a test email to verify the connection
 
 **Best for:**
 
-- Existing support email addresses
-- Customers who prefer email
-- Detailed, non-urgent questions
+- Sending follow-up messages after conversations
+- Transactional notifications triggered by agent actions
+- Organizations that need a custom sender domain
 
 ## Managing Integrations
 
@@ -201,12 +198,10 @@ To remove an integration:
 ### Browsing Available Integrations
 
 1. Go to **Integrations** → **Marketplace**
-2. Browse categories:
-   - Communication Channels
-   - E-commerce
-   - CRM & Support
-   - Productivity Tools
+2. Browse the available integrations
 3. Click any integration to learn more
+
+> **Note:** Category filtering is not currently available in the UI. All integrations are listed together.
 
 ### Installing from Marketplace
 
@@ -216,15 +211,6 @@ To remove an integration:
 4. Authorize necessary permissions
 5. Test the integration
 6. Start using it!
-
-### Suggesting New Integrations
-
-Don't see what you need?
-
-1. Click **Suggest an Integration**
-2. Tell us what tool you want to connect
-3. Explain your use case
-4. We'll consider it for future development
 
 ## Channel-Specific Features
 
@@ -340,7 +326,7 @@ You can assign different:
 
 ### Data Not Syncing
 
-For integrations like Shopify or Zendesk:
+For integrations like WooCommerce or Zendesk:
 
 **Check:**
 
@@ -372,7 +358,7 @@ Each integration requests only what it needs:
 - Access to WhatsApp Business account
 - Send and receive messages
 
-**Shopify:**
+**WooCommerce:**
 
 - Read orders
 - Read products

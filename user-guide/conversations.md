@@ -42,7 +42,7 @@ Find specific conversations quickly:
 
 **Filter by:**
 
-- **Status** - Open, Pending Human, Resolved, Closed
+- **Status** - All, Active, Resolved, Escalated, Closed. The "Active" filter covers conversations in open and processing states.
 - **Channel** - Web, WhatsApp, Email, etc.
 - **Agent** - Which AI agent handled it
 - **Date range** - When the conversation happened
@@ -77,9 +77,6 @@ The main area shows all messages in chronological order:
 
 For each AI response, you can see:
 
-- ✅ **Confidence score** - How sure the AI was about its answer
-- 📚 **Sources** - Which documents were used to generate the response
-- ⏱️ **Response time** - How long it took to generate
 - 👍 👎 **Feedback** - Rate the quality of the response
 
 ### Conversation Info Panel
@@ -90,7 +87,6 @@ On the right side, view:
 - **Conversation metadata** - Channel, start time, duration
 - **Agent info** - Which agent handled this
 - **Playbook used** - If any workflow was triggered
-- **Tags** - Categorize conversations for later analysis
 
 ## Taking Over a Conversation
 
@@ -121,9 +117,11 @@ Sometimes you need to step in and handle a conversation yourself.
 
 When you're done:
 
-1. Click **Return to AI** or **Close Conversation**
-2. If you return to AI, the agent resumes handling messages
-3. If you close, the conversation is marked as resolved
+1. Click **Release Conversation**
+2. A dialog will appear with three options:
+   - **Return to AI** - The agent resumes handling messages automatically
+   - **Return to Queue** - The conversation is placed back in the queue for another team member to pick up
+   - **Close Conversation** - The conversation is marked as resolved and ended
 
 ## Supervision Mode
 
@@ -136,9 +134,11 @@ Want to watch the AI work without taking over? Use Supervision Mode.
 - Approve or edit responses
 - Step in only if needed
 
+> **Note:** Supervision Mode is only available for conversations with an `open` status.
+
 ### How to Use It
 
-1. Open an active conversation
+1. Open an active conversation with `open` status
 2. Click **Supervise** at the top
 3. When AI generates a response, you'll see it first
 4. **Approve** to send it, **Edit** to change it, or **Take Over** to respond yourself
@@ -181,7 +181,7 @@ Practice and test your agent without affecting real customers.
 Save a complete record:
 
 1. Click **Export** button
-2. Choose format (PDF or text)
+2. Choose format (PDF or CSV)
 3. Download includes all messages, timestamps, and metadata
 
 **Perfect for:**
@@ -190,36 +190,6 @@ Save a complete record:
 - Record keeping
 - Training materials
 - Compliance documentation
-
-### Add Notes
-
-Keep internal notes about a conversation:
-
-1. Click **Add Note** in the info panel
-2. Type your note (only visible to your team)
-3. Save for future reference
-
-**Use notes for:**
-
-- Special customer circumstances
-- Follow-up reminders
-- Context for other team members
-
-### Tag Conversations
-
-Organize conversations with tags:
-
-- Click **Add Tag**
-- Choose existing tag or create new one
-- Filter conversations by tags later
-
-**Tag ideas:**
-
-- "Urgent"
-- "Refund"
-- "Bug report"
-- "Feature request"
-- "VIP customer"
 
 ## Managing Customer Messages
 

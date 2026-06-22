@@ -19,18 +19,12 @@ Click **Settings** in the left sidebar to access all configuration options.
 - Visible to your team members
 - Used in reports and exports
 
-**Business Details**
+**Organization Details**
 
-- Industry
-- Company size
-- Primary use case
-- Helps us provide better support
-
-**Contact Information**
-
-- Primary contact email
-- Phone number (optional)
-- Support escalation contacts
+- Description
+- About
+- Website
+- Contact email
 
 ### Preferences
 
@@ -38,7 +32,7 @@ Click **Settings** in the left sidebar to access all configuration options.
 
 - Default language for dashboard
 - Doesn't affect customer-facing language
-- Available languages: English, Spanish, French, German, Portuguese
+- 33 languages available, including English, Spanish, French, German, Portuguese, Italian, Dutch, and many more
 
 **Time Zone**
 
@@ -51,6 +45,7 @@ Click **Settings** in the left sidebar to access all configuration options.
 - MM/DD/YYYY (US)
 - DD/MM/YYYY (International)
 - YYYY-MM-DD (ISO)
+- DD MMM YYYY (Readable)
 
 ## User Management
 
@@ -66,12 +61,14 @@ Click **Settings** in the left sidebar to access all configuration options.
 
 **User roles:**
 
-| Role       | Permissions                                     |
-| ---------- | ----------------------------------------------- |
-| **Owner**  | Full access, billing, delete organization       |
-| **Admin**  | Manage settings, users, integrations            |
-| **Agent**  | Handle conversations, view analytics            |
-| **Viewer** | Read-only access to conversations and analytics |
+| Role            | Permissions                                     |
+| --------------- | ----------------------------------------------- |
+| **Owner**       | Full access, billing, delete organization       |
+| **Admin**       | Manage settings, users, integrations            |
+| **Member**      | Standard team access to conversations and tools |
+| **Contributor** | Contribute content (documents, playbooks)       |
+| **Agent**       | Handle conversations, view analytics            |
+| **Viewer**      | Read-only access to conversations and analytics |
 
 **Managing users:**
 
@@ -148,12 +145,17 @@ Create API keys for integrations and custom development.
 1. Go to **Settings** → **API Tokens**
 2. Click **Create Token**
 3. Enter token name (e.g., "Shopify Integration")
-4. Select permissions:
-   - Read conversations
-   - Write conversations
-   - Read analytics
-   - Manage agents
-   - Manage documents
+4. Select permission scopes:
+   - `conversations:read` / `conversations:write`
+   - `messages:read` / `messages:write`
+   - `customers:read` / `customers:write`
+   - `documents:read` / `documents:write`
+   - `agents:read`
+   - `playbooks:read`
+   - `analytics:read`
+   - `privacy:read` / `privacy:write` / `privacy:export` / `privacy:delete`
+   - `settings:read` / `settings:write`
+   - `*:*` (full access)
 5. Click **Generate Token**
 6. **Copy the token immediately** (you won't see it again!)
 7. Store securely
@@ -190,7 +192,7 @@ View security-related activity:
 **Data retention:**
 Configure how long conversation data is stored. When a retention period is set, closed conversations past the window are automatically anonymized — messages and personal data are removed while analytics metadata is preserved.
 
-- Conversations: 30, 60, 90 days, or indefinitely
+- Conversations: any number of days (not limited to preset values), or indefinitely
 - Customer information: Active until requested deletion
 
 > For full details on how anonymization works, legal holds, the cleanup schedule, and audit logging, see the [Data Retention & Privacy](/docs/user-guide/data-retention/) guide.

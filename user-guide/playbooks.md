@@ -50,6 +50,8 @@ Before you start, think about:
 1. Click **Playbooks** in the sidebar
 2. Click **Create Playbook**
 
+> **Tip:** You can also use the AI **Generate Playbook** wizard to create a playbook automatically. Click the **Generate** option when creating a new playbook, describe the scenario in plain language, and the wizard will produce a draft you can review and edit.
+
 ### Step 3: Basic Information
 
 **Title**
@@ -59,11 +61,12 @@ Before you start, think about:
 
 **Trigger**
 
-- Keywords or phrases that activate this playbook
+- A natural-language description of when this playbook should activate
+- Describe the situation or intent in plain English — the AI uses this description to decide when to apply the playbook
 - Examples:
-  - "hello", "hi", "hey" → Welcome playbook
-  - "refund", "money back", "return" → Refund playbook
-  - "where is my order", "track order" → Order tracking playbook
+  - "Activate when the customer sends a greeting or first message"
+  - "Use when the customer mentions wanting a refund, return, or money back"
+  - "Apply when the customer asks about the status or location of an order"
 
 **Description** (Optional)
 
@@ -72,7 +75,7 @@ Before you start, think about:
 
 ### Step 4: Write Instructions
 
-This is where the magic happens! Write clear, step-by-step instructions in plain English.
+This is where the magic happens! The **Instructions** field is a rich-text editor (powered by Tiptap) that supports formatting such as bold, bullet lists, and headings. You can also use **@mention** to reference other playbooks or agents inline within the instructions.
 
 **Example 1: Welcome Playbook**
 
@@ -153,7 +156,9 @@ Once all information collected:
 **Active** - Live and ready to handle conversations
 **Archived** - No longer in use but kept for reference
 
-Click **Save Playbook**
+Click **Save Changes**
+
+> **Draft/Publish versioning:** Clicking **Save Changes** creates or updates a draft of the playbook. To make a version live, publish it — publishing creates an immutable snapshot of the playbook at that point in time. Subsequent edits start a new draft without affecting the published version.
 
 ## Playbook Instructions Best Practices
 
@@ -230,7 +235,7 @@ You can assign playbooks to specific agents:
 ### Option 1: From Playbook Settings
 
 1. Open the playbook
-2. Go to **Assigned Agents**
+2. Go to **Agents**
 3. Select which agents should use this playbook
 4. Save
 
@@ -241,7 +246,7 @@ You can assign playbooks to specific agents:
 3. Select which playbooks this agent should use
 4. Save
 
-**If no agents assigned:** Playbook is available to all agents.
+**If no agents assigned:** The playbook defaults to the organization's default agent.
 
 ## Managing Playbooks
 
@@ -249,9 +254,9 @@ You can assign playbooks to specific agents:
 
 1. Click on the playbook
 2. Make your changes
-3. Click **Update**
+3. Click **Save Changes**
 
-Changes apply immediately to new conversations.
+Saving creates a new draft. Publish to make the updated version live.
 
 ### Testing a Playbook
 
@@ -259,19 +264,14 @@ Before activating:
 
 1. Set playbook to **Draft**
 2. Create a test conversation
-3. Use trigger words/phrases
+3. Send messages that match the trigger scenario
 4. See if agent follows the steps correctly
 5. Adjust instructions as needed
-6. Set to **Active** when ready
+6. Publish when ready
 
 ### Viewing Playbook Performance
 
-Go to **Analytics** → **Playbooks** to see:
-
-- **Usage count** - How often this playbook triggered
-- **Success rate** - Conversations resolved using this playbook
-- **Average completion time** - How long conversations take
-- **Escalation rate** - How often human help was needed
+> **Coming Soon:** Playbook-level analytics (usage count, success rate, completion time, escalation rate) are not yet available. Monitor playbook effectiveness by reviewing conversations manually in the **Conversations** section.
 
 ### Deactivating a Playbook
 
@@ -287,7 +287,7 @@ Archived playbooks don't trigger but are saved for reference.
 
 ### 1. Welcome & Greeting
 
-**Trigger:** "hello", "hi", "hey", "help"
+**Trigger:** Activate when the customer sends a greeting or initial message
 
 **Instructions:**
 
@@ -300,7 +300,7 @@ Archived playbooks don't trigger but are saved for reference.
 
 ### 2. Order Status Lookup
 
-**Trigger:** "where is my order", "track", "shipping status"
+**Trigger:** Use when the customer asks about the location, status, or tracking of an order
 
 **Instructions:**
 
@@ -316,7 +316,7 @@ Archived playbooks don't trigger but are saved for reference.
 
 ### 3. Product Recommendation
 
-**Trigger:** "looking for", "recommend", "what should I buy"
+**Trigger:** Use when the customer is looking for a product recommendation or asks what to buy
 
 **Instructions:**
 
@@ -333,7 +333,7 @@ Archived playbooks don't trigger but are saved for reference.
 
 ### 4. Technical Troubleshooting
 
-**Trigger:** "not working", "broken", "error", "bug"
+**Trigger:** Apply when the customer reports something not working, a broken feature, or an error
 
 **Instructions:**
 
@@ -350,7 +350,7 @@ Archived playbooks don't trigger but are saved for reference.
 
 ### 5. Account Issues
 
-**Trigger:** "can't log in", "forgot password", "account locked"
+**Trigger:** Use when the customer mentions login problems, a forgotten password, or a locked account
 
 **Instructions:**
 
