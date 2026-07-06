@@ -9,6 +9,8 @@ section: user-guide
 
 Analytics does not have a dedicated sidebar link. Access it directly at `/analytics` or from the main dashboard.
 
+> **Note:** The analytics page currently displays demo data. Real-time metrics are available on the main Dashboard page.
+
 ## Overview Dashboard
 
 Your analytics home shows the most important metrics at a glance.
@@ -46,7 +48,7 @@ Use the date selector to filter all metrics. Available options:
 
 **Customer Satisfaction**
 
-- Based on customer star ratings (out of 5)
+- Based on message feedback (thumbs up/down ratings)
 - **Excellent:** 4.5+/5
 - **Good:** 3.75–4.5/5
 - **Needs improvement:** Below 3.75/5
@@ -258,7 +260,7 @@ What do customers want?
 
 ### Rating System
 
-Customers can rate messages using a star rating out of 5.
+Customers can rate messages using thumbs up/down feedback.
 
 ### Satisfaction Trends
 

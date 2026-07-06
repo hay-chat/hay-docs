@@ -217,7 +217,7 @@ All list endpoints return a consistent response structure:
 - `status`: Playbook status enum
 - `agentIds`: Array of UUID strings
 
-**Search Fields:** `["name", "description"]`
+**Search Fields:** `["name", "description", "prompt_template"]`
 
 **Sort Fields:** `["created_at", "updated_at", "name", "status"]`
 
@@ -310,8 +310,6 @@ The system provides clear error messages for:
 
 ## Testing
 
-See `server/tests/pagination.test.example.ts` for comprehensive test examples covering all pagination features.
-
 ## Migration from Legacy Endpoints
 
 To migrate existing list endpoints:
@@ -321,4 +319,4 @@ To migrate existing list endpoints:
 3. Remove custom pagination response building
 4. Update client-side code to use new response structure
 
-The system maintains backward compatibility where possible, but the new consistent structure provides better type safety and feature completeness.
+The new structure replaces legacy patterns; update client-side code accordingly.

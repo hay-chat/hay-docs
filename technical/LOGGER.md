@@ -38,7 +38,7 @@ logger.info("Server started");
 | `info`  | Important state changes, startup, success      |
 | `debug` | Diagnostic detail, request tracing, dev output |
 
-Configure via `LOG_LEVEL` environment variable (default: `debug` in development, `info` in production).
+Configure via `LOG_LEVEL` environment variable (default: `debug` (configure via LOG_LEVEL env var)).
 
 ## PII Redaction
 
@@ -75,7 +75,7 @@ logger.info("Call +1-555-123-4567 for support");
 
 | Variable        | Default       | Description                          |
 | --------------- | ------------- | ------------------------------------ |
-| `LOG_LEVEL`     | `debug`/`info`| Log level (debug in dev, info in prod) |
+| `LOG_LEVEL`     | `debug`       | Log level (configure via LOG_LEVEL env var) |
 | `DEBUG_MODULES` | `*`           | Module filter for legacy `debugLog`  |
 
 ## ESLint Enforcement
@@ -95,24 +95,8 @@ This is configured at the infrastructure level:
 - **Docker/K8s**: Configure log driver `max-size`/`max-file` or use a log aggregation service with 30-day retention
 - **Self-hosted**: Use `logrotate` with 30-day maximum
 
-## Migration from debugLog
-
-`debugLog` from `@server/lib/debug-logger` is deprecated. It now delegates to the Pino logger internally, so existing callers get PII redaction automatically. For new code, use `createLogger()` directly:
-
-```typescript
-// Before (deprecated):
-import { debugLog } from "@server/lib/debug-logger";
-debugLog("perception", "Analyzing intent", { messageId: "123" });
-
-// After:
-import { createLogger } from "@server/lib/logger";
-const logger = createLogger("perception");
-logger.info({ messageId: "123" }, "Analyzing intent");
-```
-
 ## Files
 
 - `server/lib/logger/index.ts` — Root logger and `createLogger()` factory
 - `server/lib/logger/redaction.ts` — PII redaction patterns and string sanitizer
-- `server/lib/debug-logger.ts` — Legacy bridge (deprecated)
 - `server/tests/lib/logger.test.ts` — Redaction unit tests

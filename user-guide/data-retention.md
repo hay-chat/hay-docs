@@ -36,10 +36,10 @@ After anonymization, the conversation record remains with the title `[Anonymized
 ## Configuring Retention
 
 1. Go to **Settings** → **Customer Privacy**
-2. Under **Conversation Retention Period**, choose a timeframe: 30, 60, 90 days, or indefinite
+2. Under **Conversation Retention Period**, choose a timeframe: 30, 60, 90, 180 days, 1 year, or indefinite
 3. Save your changes
 
-The retention period counts from when a conversation was **closed**. Only conversations with status `closed` or `resolved` are eligible for anonymization. Open or in-progress conversations are never touched.
+The retention period counts from when a conversation was **closed**. If a conversation has no explicit closed date, the creation date is used instead. Only conversations with status `closed` or `resolved` are eligible for anonymization. Open or in-progress conversations are never touched.
 
 ## Legal Hold
 

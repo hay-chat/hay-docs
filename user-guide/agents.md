@@ -71,7 +71,7 @@ Choose how your agent should communicate:
 
 **Language**
 
-Select the language your agent should respond in. Hay supports 15+ languages, allowing you to serve customers in their preferred language.
+Select the language your agent should respond in. Hay supports 30+ languages, allowing you to serve customers in their preferred language.
 
 **Things to Avoid** (Optional)
 
@@ -152,7 +152,7 @@ Control whether the agent's responses are sent automatically or require human re
 
 Tell your agent exactly how to handle escalations:
 
-**When Human is Available:**
+**If any human agent is available:**
 
 ```
 Let the customer know that you'll connect them with a specialist
@@ -160,7 +160,7 @@ who can help. Transfer the conversation and provide a summary of
 what was discussed.
 ```
 
-**When Human is NOT Available:**
+**If all human agents are unavailable:**
 
 ```
 Apologize and let the customer know you'll have someone reach out

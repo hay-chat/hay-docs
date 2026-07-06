@@ -48,7 +48,7 @@ Before you start, think about:
 ### Step 2: Create New Playbook
 
 1. Click **Playbooks** in the sidebar
-2. Click **Create Playbook**
+2. Click the **+** button
 
 > **Tip:** You can also use the AI **Generate Playbook** wizard to create a playbook automatically. Click the **Generate** option when creating a new playbook, describe the scenario in plain language, and the wizard will produce a draft you can review and edit.
 
@@ -75,7 +75,7 @@ Before you start, think about:
 
 ### Step 4: Write Instructions
 
-This is where the magic happens! The **Instructions** field is a rich-text editor (powered by Tiptap) that supports formatting such as bold, bullet lists, and headings. You can also use **@mention** to reference other playbooks or agents inline within the instructions.
+This is where the magic happens! The **Instructions** field is a rich-text editor (powered by Tiptap) that supports formatting such as bold, bullet lists, and headings. You can also use **@mention** to reference actions (integrations) and documents inline within the instructions.
 
 **Example 1: Welcome Playbook**
 

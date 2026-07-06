@@ -32,7 +32,7 @@ Think of it like training a new employee by giving them all your company documen
 ### Step 1: Go to Documents
 
 1. Click **Documents** in the left sidebar
-2. Click **Import Documents**
+2. Click **Import Document**
 
 ### Step 2: Choose Your Method
 
@@ -69,7 +69,7 @@ Hay processes your documents:
 
 1. Extracts text and content
 2. Breaks into searchable chunks
-3. Creates smart connections
+3. Generates vector embeddings for semantic search
 4. Makes it instantly available
 
 **Usually takes:** 5-30 seconds depending on size
@@ -81,7 +81,7 @@ After upload:
 - Give document a clear title
 - Add a description (what information does it contain?)
 - Select a **category** from the dropdown: product, api, faq, legal, training, technical, or other
-- Set the document status: **active** (used by the agent) or **inactive** (excluded from search)
+- Set the document status: **draft** (still being prepared), **published** (used by the agent), or **archived** (excluded from search)
 - Click **Save**
 
 ## Types of Documents to Upload
@@ -245,7 +245,7 @@ Go to **Documents** to see all uploaded content.
 **What you'll see:**
 
 - **Name** - Document title
-- **Type** - File format (PDF, DOCX, etc.)
+- **Type** - Content category (article, guide, faq, tutorial, reference, policy)
 - **Source** - Where the document came from (upload, URL crawl, etc.)
 - **Status** - Active or inactive
 - **Last Modified** - When the document was last updated

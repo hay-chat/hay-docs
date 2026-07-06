@@ -145,15 +145,19 @@ app.post("/authenticate-hay", async (req, res) => {
   const { conversationId } = req.body;
   const user = req.user; // your authenticated user from session/JWT
 
-  await hay.conversations.addSecrets(conversationId, {
-    auth: user.accessToken,
+  await hay.conversations.addSecrets({
+    id: conversationId,
+    secrets: { auth: user.accessToken },
   });
 
   // Optionally attach trusted public context server-side too
-  await hay.conversations.addContext(conversationId, {
-    userId: user.id,
-    plan: user.plan,
-    name: user.name,
+  await hay.conversations.addContext({
+    id: conversationId,
+    context: {
+      userId: user.id,
+      plan: user.plan,
+      name: user.name,
+    },
   });
 
   res.sendStatus(200);
@@ -304,7 +308,7 @@ Your MCP tool schema declares which parameters it expects. When the AI determine
 {
   "name": "remove-item-from-list",
   "description": "Removes an item from a list owned by the authenticated user",
-  "inputSchema": {
+  "input_schema": {
     "type": "object",
     "properties": {
       "listId": { "type": "string" },
@@ -399,15 +403,19 @@ app.post("/api/hay/authenticate", requireAuth, async (req, res) => {
   const { conversationId } = req.body;
   const user = req.user;
 
-  await hay.conversations.addSecrets(conversationId, {
-    auth: user.accessToken,
+  await hay.conversations.addSecrets({
+    id: conversationId,
+    secrets: { auth: user.accessToken },
   });
 
-  await hay.conversations.addContext(conversationId, {
-    userId: user.id,
-    name: user.displayName,
-    plan: user.subscriptionTier,
-    organizationName: user.org.name,
+  await hay.conversations.addContext({
+    id: conversationId,
+    context: {
+      userId: user.id,
+      name: user.displayName,
+      plan: user.subscriptionTier,
+      organizationName: user.org.name,
+    },
   });
 
   res.sendStatus(200);

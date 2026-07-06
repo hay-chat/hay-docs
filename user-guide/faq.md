@@ -125,11 +125,11 @@ When a human takes over, the AI stops responding. The full conversation history 
 
 ### How long are conversations stored?
 
-By default, conversations are kept indefinitely. If a retention period is configured, conversations are anonymized (messages and personal data removed) after the specified number of days. Check **Settings** → **Privacy** for your specific retention policy.
+By default, conversations are kept indefinitely. If a retention period is configured, conversations are anonymized (messages and personal data removed) after the specified number of days. Check **Settings** → **Customer Privacy** for your specific retention policy.
 
 ### Can I delete conversations?
 
-Conversations are archived rather than deleted for compliance and learning. For privacy requests (GDPR), use the data deletion tool in **Settings** → **Privacy**.
+Conversations can be deleted. Expired conversations are automatically anonymized based on your retention policy. For privacy requests (GDPR), use the data deletion tool in **Settings** → **Customer Privacy**.
 
 ## Integrations
 
@@ -305,7 +305,7 @@ Yes. Hay provides tools for:
 Yes! Use role-based access control:
 
 - Owner: Full access
-- Admin: Settings and management
+- Admin: Full access (same as Owner, except cannot delete the organization)
 - Member: Standard team access
 - Contributor: Contribute content (documents, playbooks)
 - Agent: Conversations only

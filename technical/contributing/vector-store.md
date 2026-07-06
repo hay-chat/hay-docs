@@ -102,7 +102,7 @@ For large-scale deployments:
 ```sql
 CREATE INDEX embeddings_embedding_hnsw_org_xyz
 ON embeddings USING hnsw (embedding vector_cosine_ops)
-WHERE "organizationId" = 'specific-org-uuid';
+WHERE "organization_id" = 'specific-org-uuid';
 ```
 
 2. **LIST partitioning** for massive scale (see migration comments)
@@ -139,23 +139,23 @@ Delete all embeddings for a document.
 
 - Returns: Number of deleted rows
 
-#### `deleteByOrganizationId(organizationId)`
+#### `deleteByOrganizationId(organizationId, manager?)`
 
 Delete all embeddings for an organization (GDPR compliance).
 
-#### `deleteByConversationIds(conversationIds)`
+#### `deleteByConversationIds(orgId, conversationIds, manager?)`
 
 Delete all embeddings associated with the given conversation IDs (GDPR compliance).
 
-#### `deleteByMessageIds(messageIds)`
+#### `deleteByMessageIds(orgId, messageIds, manager?)`
 
 Delete all embeddings associated with the given message IDs (GDPR compliance).
 
-#### `findByConversationIds(conversationIds)`
+#### `findByConversationIds(orgId, conversationIds)`
 
 Find all embeddings associated with the given conversation IDs.
 
-#### `findByMessageIds(messageIds)`
+#### `findByMessageIds(orgId, messageIds)`
 
 Find all embeddings associated with the given message IDs.
 

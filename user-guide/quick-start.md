@@ -61,8 +61,7 @@ Teach your agent by uploading your existing support materials.
 2. Click **Import Document**
 3. Upload files or create content:
 
-   - **PDFs** - Product manuals, policy documents
-   - **Text files** - FAQs, support scripts
+   - **Supported formats:** PDFs, Word documents (DOCX), PowerPoint (PPTX), HTML, Markdown, text files, CSV, and JSON
    - **Write Document** - Create a document from scratch at `/documents/new`
 
 4. Wait a few seconds while Hay processes and learns from your documents

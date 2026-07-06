@@ -114,7 +114,7 @@ section: user-guide
 
 **Adjust confidence threshold:**
 
-1. Go to **Settings** → **Agent Behavior**
+1. Go to **Settings** → **General**
 2. Lower confidence threshold slightly
 3. Monitor results
 4. Adjust as needed
@@ -144,7 +144,7 @@ section: user-guide
 
 ### Messages Not Syncing
 
-**For channel integrations (WhatsApp, Email, etc.):**
+**For channel integrations (WhatsApp, Instagram, Chatwoot, etc.):**
 
 1. **Check webhook status:**
 
@@ -347,7 +347,7 @@ section: user-guide
 
 1. **Check settings:**
 
-   - Go to **Settings** → **Notifications**
+   - Go to **Settings** → **General** (Notifications section)
    - Verify email notifications are enabled
    - Check which events you're subscribed to
 

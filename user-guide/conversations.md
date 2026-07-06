@@ -55,8 +55,8 @@ Understanding what each status means:
 | ------------------- | ---------------------------------------- | ---------------------------- |
 | **Open**            | AI is actively handling the conversation | Agent responds automatically |
 | **Processing**      | AI is thinking and preparing a response  | Wait a few seconds           |
-| **Pending Human**   | Customer needs human help                | Appears in your Queue        |
-| **Human Took Over** | A team member is now handling it         | AI stops responding          |
+| **Pending Human**   | Customer needs human help (displayed as "Needs Attention" in the UI) | Appears in your Queue        |
+| **Human Took Over** | A team member is now handling it (displayed as "Manual Control" in the UI) | AI stops responding          |
 | **Resolved**        | Issue was solved successfully            | Conversation is complete     |
 | **Closed**          | Conversation ended                       | No further action needed     |
 
@@ -157,7 +157,7 @@ Practice and test your agent without affecting real customers.
 ### Starting a Test
 
 1. Go to **Conversations**
-2. Click **New Test Conversation** or enter **Playground mode**
+2. Click **Conversation Playground** or enter **Playground mode**
 3. Chat with your agent like a customer would
 
 ### What's Different in Test Mode
