@@ -16,8 +16,15 @@ The dashboard shows you the most important metrics and activity at a glance. Whe
 
 Below the KPI cards you'll also find:
 
-- **Escalation Rate** - percentage of conversations transferred to a human agent
-- **Recent activity** - latest conversations and interactions
+- **Activity** - a line chart of conversation volume over time
+- **Top Performing Agents** - your agents ranked by conversation volume and resolution rate
+- **Recent Conversations** - the latest conversations across your organization
+- **Active Conversations (live)** - conversations currently in progress, across Hay and human agents
+- **Human escalations** - escalation counts for today and this week
+- **Attention Needed** - conversations awaiting a human response
+- **Sentiment Score Gauge** - an overall sentiment score for the selected period
+- **Sentiment Breakdown** - the split of positive, neutral, and negative conversations
+- **Document Status Overview** - your knowledge base documents grouped by status
 
 ## Understanding Your Metrics
 
@@ -46,9 +53,9 @@ The percentage of conversations solved completely by AI without human interventi
 
 The average number of messages exchanged across all conversations. Lower values typically indicate faster resolution.
 
-### Escalation Rate
+### Human escalations
 
-Displayed as a widget below the top KPI cards. Shows the percentage of conversations transferred to human agents.
+Displayed as a widget below the top KPI cards. Shows the number of conversations escalated to a human agent, broken out as **Today** and **This week**, with the percentage of conversations that escalated shown as a secondary detail under each count.
 
 **Why do conversations escalate?**
 
@@ -83,6 +90,8 @@ See conversations waiting for human attention. The Queue is accessible at `/queu
 - View which agents are handling the most conversations
 - See performance per agent
 - Check if any agents need adjustments
+
+> **Note:** The resolution rate shown in the Top Performing Agents widget is currently sample/demo data. Real per-agent analytics are still being developed.
 
 ## Real-Time Updates
 
@@ -143,7 +152,7 @@ Some metrics are calculated every few minutes, not instantly. Refresh your brows
 
 ### Can I export this data?
 
-Data export from the dashboard is not yet implemented.
+Exporting data isn't available from the Dashboard page itself. You can export data from **Analytics > Reports** using the **CSV Export** option.
 
 ## Next Steps
 

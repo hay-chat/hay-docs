@@ -375,7 +375,7 @@ The new two-stage system:
 
 ```typescript
 // Get conversation with guardrail data
-const conversation = await Hay.conversations.get(conversationId);
+const conversation = await Hay.conversations.get.query({ id: conversationId });
 
 // Access guardrail information
 conversation.messages.forEach(message => {

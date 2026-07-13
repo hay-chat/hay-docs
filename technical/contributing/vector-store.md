@@ -13,7 +13,7 @@ navOrder: 4
 
 This implementation provides pgvector support with multi-tenant vector storage and similarity search for your TypeORM + PostgreSQL application.
 
-This document describes the pgvector and LangChain integration for embedding storage and similarity search.
+This document describes the pgvector integration for embedding storage and similarity search, implemented via raw SQL through TypeORM's `AppDataSource.query` and a custom `llmProviderFactory` for generating embeddings.
 
 ## Setup
 
@@ -102,10 +102,10 @@ For large-scale deployments:
 ```sql
 CREATE INDEX embeddings_embedding_hnsw_org_xyz
 ON embeddings USING hnsw (embedding vector_cosine_ops)
-WHERE "organizationId" = 'specific-org-uuid';
+WHERE "organization_id" = 'specific-org-uuid';
 ```
 
-2. **LIST partitioning** for massive scale (see migration comments)
+2. **LIST partitioning** for massive scale
 
 ## API Reference
 
@@ -139,23 +139,23 @@ Delete all embeddings for a document.
 
 - Returns: Number of deleted rows
 
-#### `deleteByOrganizationId(organizationId)`
+#### `deleteByOrganizationId(orgId: string, manager?: EntityManager)`
 
 Delete all embeddings for an organization (GDPR compliance).
 
-#### `deleteByConversationIds(conversationIds)`
+#### `deleteByConversationIds(orgId: string, conversationIds: string[], manager?: EntityManager)`
 
 Delete all embeddings associated with the given conversation IDs (GDPR compliance).
 
-#### `deleteByMessageIds(messageIds)`
+#### `deleteByMessageIds(orgId: string, messageIds: string[], manager?: EntityManager)`
 
 Delete all embeddings associated with the given message IDs (GDPR compliance).
 
-#### `findByConversationIds(conversationIds)`
+#### `findByConversationIds(orgId: string, conversationIds: string[])`
 
 Find all embeddings associated with the given conversation IDs.
 
-#### `findByMessageIds(messageIds)`
+#### `findByMessageIds(orgId: string, messageIds: string[])`
 
 Find all embeddings associated with the given message IDs.
 
@@ -249,5 +249,4 @@ cd server && npm test -- tests/integration/vector-store.test.ts
 ## Resources
 
 - [pgvector documentation](https://github.com/pgvector/pgvector)
-- [LangChain TypeORM integration](https://js.langchain.com/docs/integrations/vectorstores/typeorm)
 - [OpenAI embeddings](https://platform.openai.com/docs/guides/embeddings)

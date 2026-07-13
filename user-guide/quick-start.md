@@ -58,12 +58,12 @@ Your agent is your AI assistant. Give it a personality and purpose.
 Teach your agent by uploading your existing support materials.
 
 1. Go to **Documents** in the left sidebar
-2. Click **Import Document**
-3. Upload files or create content:
+2. Add content using one of two buttons:
 
-   - **PDFs** - Product manuals, policy documents
-   - **Text files** - FAQs, support scripts
+   - **Import Document** - Upload files (PDFs, text files) or import content directly from a website URL
    - **Write Document** - Create a document from scratch at `/documents/new`
+
+3. When importing from a website, use the **Import from Website** option to auto-crawl the site or provide a sitemap and pull in multiple pages at once
 
 4. Wait a few seconds while Hay processes and learns from your documents
 

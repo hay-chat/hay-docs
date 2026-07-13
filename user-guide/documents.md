@@ -81,7 +81,7 @@ After upload:
 - Give document a clear title
 - Add a description (what information does it contain?)
 - Select a **category** from the dropdown: product, api, faq, legal, training, technical, or other
-- Set the document status: **active** (used by the agent) or **inactive** (excluded from search)
+- Set the document status: **Draft**, **Published**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually.
 - Click **Save**
 
 ## Types of Documents to Upload
@@ -210,7 +210,7 @@ Refunds: 30 days. See mgr for exceptions.
 
 ### Organizing Documents
 
-Use the **category** dropdown when uploading or editing a document to keep your knowledge base organized:
+Use the **category** dropdown when uploading a document to keep your knowledge base organized:
 
 - **faq** - Frequently asked questions
 - **product** - Product descriptions and specs
@@ -245,9 +245,9 @@ Go to **Documents** to see all uploaded content.
 **What you'll see:**
 
 - **Name** - Document title
-- **Type** - File format (PDF, DOCX, etc.)
+- **Type** - The document's content type (Article, Guide, FAQ, Tutorial, Reference, Policy)
 - **Source** - Where the document came from (upload, URL crawl, etc.)
-- **Status** - Active or inactive
+- **Status** - Draft, Published, Archived, Processing, or Error
 - **Last Modified** - When the document was last updated
 
 ### Editing Documents
@@ -268,6 +268,12 @@ Use the search bar to find specific documents:
 - Search by title
 - Search by content
 
+### Archiving Documents
+
+You can mark a document as **Archived** from the documents list without deleting it, using the archive action on each row or in bulk.
+
+> ⚠️ **Note:** Archiving from the documents list is not yet fully functional — the action currently only updates what you see on screen and does not persist to the backend. Don't rely on it yet to keep a document out of use.
+
 ### Deleting Documents
 
 To remove a document:
@@ -284,10 +290,7 @@ To remove a document:
 
 Hay remembers where information comes from:
 
-When agent answers a question, you can see:
-
-- "📄 Source: Shipping Policy, page 2"
-- "📄 Source: Product Manual - Setup Guide"
+When the agent uses a document to answer a question, the conversation shows a document icon with "Agent is using a document to provide the answer" and a link to the source document's title, for example "Shipping Policy" or "Product Manual - Setup Guide". There are no page numbers — the citation points to the document itself.
 
 This helps with:
 
