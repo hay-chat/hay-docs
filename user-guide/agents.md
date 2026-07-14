@@ -71,7 +71,7 @@ Choose how your agent should communicate:
 
 **Language**
 
-Select the language your agent should respond in. Hay supports 15+ languages, allowing you to serve customers in their preferred language.
+Select the language your agent should respond in. Hay supports 14 languages, allowing you to serve customers in their preferred language.
 
 **Things to Avoid** (Optional)
 
@@ -170,24 +170,40 @@ Ask if there's anything else you can help with while they wait.
 
 ### Trigger Conditions
 
-Set when this agent should be assigned to conversations:
+The **Trigger** field is a free-text description of when this agent should be selected for a conversation. Rather than matching exact keywords, Hay uses an LLM to semantically compare the incoming message against each enabled agent's trigger (along with its name and description) and picks the best match.
 
-**By Channel:**
+Write it like you're briefing a teammate on when to step in:
 
-- Assign this agent to WhatsApp conversations
-- Different agent for website chat
-- Another for email
+```
+Handles order questions, shipping inquiries, and delivery tracking.
+Also covers returns and refund requests.
+```
 
-**By Topic:**
+```
+Handles bug reports, error messages, and anything related to the
+product not working as expected.
+```
 
-- Keywords: "order", "shipping", "tracking" → Order Support Agent
-- Keywords: "bug", "error", "not working" → Technical Support Agent
-- Keywords: "price", "plan", "upgrade" → Sales Agent
+```
+Handles pricing questions, plan comparisons, and upgrade/downgrade requests.
+```
 
-**By Time:**
+Since matching is semantic, you don't need to enumerate every possible keyword — a clear, descriptive sentence works better than a long list of exact phrases.
 
-- Business hours → Human + AI assist
-- After hours → AI only
+> **Note:** Trigger conditions currently don't support scheduling (e.g., business hours vs. after hours). This is a potential future feature.
+
+Assigning an agent to specific channels (WhatsApp, website chat, email, etc.) is configured separately in the **Channels** section of the agent form, not through the trigger field.
+
+### Default Agent
+
+Every organization needs a fallback for conversations that don't clearly match any agent's trigger. Mark one agent as the **Default Agent** and Hay will assign it to those conversations automatically.
+
+**To set an agent as default:**
+
+1. Open the agent you want to use as the fallback
+2. Click **Set as Default Agent**
+
+Only one agent can be the default at a time — setting a new one automatically replaces the previous default.
 
 ## Multiple Agents Strategy
 
@@ -247,6 +263,8 @@ Go to **Analytics** → **Agents** to see:
 - **Average response time** - Speed of responses
 - **Escalation rate** - How often they need human help
 - **Customer satisfaction** - Ratings from customers
+
+> **Note:** Agent performance analytics currently display sample data while this feature is being developed. Live per-agent metrics are coming soon.
 
 ### Improving Agent Performance
 

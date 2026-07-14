@@ -56,35 +56,34 @@ Tests automatically authenticate using saved auth state. No manual login require
 
 ### Manual Browser Access (URL Token Auth)
 
-For debugging with Playwright MCP or manual testing:
+For debugging with Playwright MCP or manual testing, prefer `navigateWithAuth()` over
+extracting tokens from the storage state file by hand:
 
-1. **Extract access token** from storage state file:
-   ```bash
-   cat playwright/.auth/user.json | grep -E "accessToken|refreshToken|expiresIn"
+1. **Use the login helper** in a test or Playwright MCP script:
+   ```typescript
+   import { navigateWithAuth } from "./tests/helpers/login";
+
+   await navigateWithAuth(page, "/plugins");
    ```
 
-2. **Navigate with token parameters**:
-   ```
-   http://localhost:3000/?accessToken=TOKEN&refreshToken=REFRESH_TOKEN&expiresIn=SECONDS
-   ```
+   `navigateWithAuth()` (in `tests/helpers/login.ts`) logs in as the test user via the
+   `auth.login` API to get a fresh `accessToken`/`refreshToken`/`expiresIn`, then navigates
+   with those as URL params. This avoids the storage state file entirely, so there's no
+   risk of using a stale or expired token.
 
-3. Browser validates token and logs you in automatically
+2. Browser validates token and logs you in automatically
 
 **Security notes:**
 - Only works in development (`NODE_ENV !== 'production'`)
 - Token removed from URL after validation
 - Tokens expire after 15 minutes (JWT default)
 
-**Example:**
-```bash
-# Extract tokens (macOS)
-ACCESS_TOKEN=$(cat playwright/.auth/user.json | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
-REFRESH_TOKEN=$(cat playwright/.auth/user.json | grep -o '"refreshToken":"[^"]*"' | cut -d'"' -f4)
-EXPIRES_IN=$(cat playwright/.auth/user.json | grep -o '"expiresIn":[0-9]*' | cut -d':' -f2)
-
-# Open browser with auth
-open "http://localhost:3000/?accessToken=$ACCESS_TOKEN&refreshToken=$REFRESH_TOKEN&expiresIn=$EXPIRES_IN"
-```
+**Note on the storage state file:** `playwright/.auth/user.json` stores the token inside a
+JSON-stringified `pinia:auth` localStorage entry, and the expiry field there is `expiresAt`
+(an absolute epoch-ms timestamp), not `expiresIn` (a relative seconds value). If you need to
+navigate manually with the `?accessToken=&refreshToken=&expiresIn=` URL params, call the
+`POST /v1/auth.login` endpoint directly (the same thing `navigateWithAuth()` does) to get a
+fresh `expiresIn` value instead of trying to derive it from the storage state file.
 
 ## Writing Tests
 
@@ -291,9 +290,11 @@ await page.goto("/plugins");  // Direct navigation, ~0 seconds for auth
 
 **Problem**: `playwright/.auth/user.json` doesn't exist
 
-**Solution**: Run global setup manually
+**Solution**: Global setup (`tests/global-setup.ts`) runs automatically on every invocation
+of `npx playwright test` — there's no separate `@setup` tag or command to trigger it on its
+own. Just re-run the test command and it will regenerate the file:
 ```bash
-npx playwright test --grep @setup
+npx playwright test
 ```
 
 ### "Authentication failed"
@@ -310,7 +311,7 @@ npx playwright test
 **Problem**: PostgreSQL not running or `.env` misconfigured
 
 **Solution**:
-1. Start PostgreSQL: `brew services start postgresql@14`
+1. Start PostgreSQL: `brew services start postgresql@16`
 2. Check `.env` has correct database credentials
 3. Verify database exists: `psql -l`
 
@@ -346,6 +347,14 @@ npx playwright install
 
 ### GitHub Actions Example
 
+> **Note:** This is a simplified illustration. For the actual workflow this project runs,
+> see [`.github/workflows/playwright.yml`](../../../.github/workflows/playwright.yml).
+> Key differences from the simplified example below: the real workflow is triggered by
+> `workflow_dispatch` only (manual run from the Actions tab — it is **not** a merge gate
+> and does not run on push/PR), it also spins up a Redis service and runs database
+> migrations before the tests, and it configures the database via `DB_HOST`/`DB_PORT`/
+> `DB_USERNAME`/`DB_PASSWORD`/`DB_NAME` env vars rather than a single `DATABASE_URL`.
+
 ```yaml
 name: E2E Tests
 
@@ -357,7 +366,7 @@ jobs:
 
     services:
       postgres:
-        image: pgvector/pgvector:pg14
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_PASSWORD: postgres
         options: >-
@@ -367,12 +376,12 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 'lts/*'
           cache: 'npm'
 
       - name: Install dependencies
@@ -388,7 +397,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: playwright-report/

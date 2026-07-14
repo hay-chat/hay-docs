@@ -258,12 +258,7 @@ Set your own SLAs based on your business needs.
 
 ### Can I automatically assign escalations to specific team members?
 
-Yes! Use routing rules to assign based on:
-
-- Topic or keywords
-- Time of day
-- Team member availability
-- Customer tier/value
+Today, assignment is manual: a team member can take over a conversation from the queue and it's assigned to them. Automatic routing rules (by topic, time of day, availability, or customer tier) are not yet available — coming soon.
 
 ### What if the queue gets too long?
 
@@ -287,7 +282,7 @@ Long term:
 Yes. Hay uses:
 
 - Encryption in transit and at rest
-- Secure authentication (passwords + 2FA)
+- Secure password-based authentication (2FA coming soon)
 - Regular security audits
 - Compliance with data protection regulations
 

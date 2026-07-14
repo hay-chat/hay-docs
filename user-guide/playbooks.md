@@ -48,7 +48,7 @@ Before you start, think about:
 ### Step 2: Create New Playbook
 
 1. Click **Playbooks** in the sidebar
-2. Click **Create Playbook**
+2. Click the **+** button to create a new playbook
 
 > **Tip:** You can also use the AI **Generate Playbook** wizard to create a playbook automatically. Click the **Generate** option when creating a new playbook, describe the scenario in plain language, and the wizard will produce a draft you can review and edit.
 
@@ -75,7 +75,7 @@ Before you start, think about:
 
 ### Step 4: Write Instructions
 
-This is where the magic happens! The **Instructions** field is a rich-text editor (powered by Tiptap) that supports formatting such as bold, bullet lists, and headings. You can also use **@mention** to reference other playbooks or agents inline within the instructions.
+This is where the magic happens! The **Instructions** field is a rich-text editor (powered by Tiptap) that supports formatting such as bold, bullet lists, and headings. You can also use **@mention** to reference Actions (MCP tools) or Documents inline within the instructions.
 
 **Example 1: Welcome Playbook**
 
@@ -152,13 +152,16 @@ Once all information collected:
 
 ### Step 5: Set Status and Save
 
+Status is set when you create the playbook:
+
 **Draft** - Still working on it, not active yet
 **Active** - Live and ready to handle conversations
-**Archived** - No longer in use but kept for reference
 
 Click **Save Changes**
 
-> **Draft/Publish versioning:** Clicking **Save Changes** creates or updates a draft of the playbook. To make a version live, publish it — publishing creates an immutable snapshot of the playbook at that point in time. Subsequent edits start a new draft without affecting the published version.
+> **Draft/Publish versioning:** Clicking **Save Changes** creates or updates a draft of the playbook. To make a version live, publish it — publishing sets the playbook's status to **Active** and creates an immutable snapshot of the playbook at that point in time. Subsequent edits start a new draft without affecting the published version.
+>
+> **Coming Soon:** There is currently no UI control to archive a playbook after creation. This capability is planned.
 
 ## Playbook Instructions Best Practices
 
@@ -230,20 +233,11 @@ Escalate to human if:
 
 ## Assigning Playbooks to Agents
 
-You can assign playbooks to specific agents:
-
-### Option 1: From Playbook Settings
+You can assign playbooks to specific agents from the playbook editor:
 
 1. Open the playbook
 2. Go to **Agents**
 3. Select which agents should use this playbook
-4. Save
-
-### Option 2: From Agent Settings
-
-1. Open the agent
-2. Go to **Playbooks**
-3. Select which playbooks this agent should use
 4. Save
 
 **If no agents assigned:** The playbook defaults to the organization's default agent.
@@ -275,13 +269,7 @@ Before activating:
 
 ### Deactivating a Playbook
 
-To stop using a playbook without deleting it:
-
-1. Open the playbook
-2. Change status to **Archived**
-3. Save
-
-Archived playbooks don't trigger but are saved for reference.
+> **Coming Soon:** There is currently no UI control to archive a playbook after creation. Status is set when the playbook is created (**Draft**) and moves to **Active** when published. Until archiving is available, keep a playbook's trigger narrow or remove its instructions to stop it from being used.
 
 ## Common Playbook Templates
 
@@ -433,7 +421,7 @@ Every 2-4 weeks:
 If a playbook hasn't been used in 90 days:
 
 - Consider if it's still needed
-- Archive or delete if obsolete
+- Delete if obsolete
 - Update triggers if it should be used more
 
 ### Version Control

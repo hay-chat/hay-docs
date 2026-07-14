@@ -42,10 +42,12 @@ Find specific conversations quickly:
 
 **Filter by:**
 
-- **Status** - All, Active, Resolved, Escalated, Closed. The "Active" filter covers conversations in open and processing states.
+- **Status** - All, Active, Resolved, Escalated, Closed
 - **Channel** - Web, WhatsApp, Email, etc.
 - **Agent** - Which AI agent handled it
 - **Date range** - When the conversation happened
+
+> **Note:** The "Active" and "Escalated" status filters are not yet functional.
 
 ## Conversation Statuses
 
@@ -55,8 +57,8 @@ Understanding what each status means:
 | ------------------- | ---------------------------------------- | ---------------------------- |
 | **Open**            | AI is actively handling the conversation | Agent responds automatically |
 | **Processing**      | AI is thinking and preparing a response  | Wait a few seconds           |
-| **Pending Human**   | Customer needs human help                | Appears in your Queue        |
-| **Human Took Over** | A team member is now handling it         | AI stops responding          |
+| **Pending Human** (shown in the UI as "Needs Attention") | Customer needs human help | Appears in your Queue        |
+| **Human Took Over** (shown in the UI as "Manual Control") | A team member is now handling it | AI stops responding          |
 | **Resolved**        | Issue was solved successfully            | Conversation is complete     |
 | **Closed**          | Conversation ended                       | No further action needed     |
 
@@ -108,7 +110,7 @@ Sometimes you need to step in and handle a conversation yourself.
 
 > **What happens when you take over:**
 >
-> - Status changes to "Human Took Over"
+> - Status changes to "Human Took Over" (shown in the UI as "Manual Control")
 > - AI stops generating responses
 > - You can chat directly with the customer
 > - All your messages are logged
@@ -117,11 +119,10 @@ Sometimes you need to step in and handle a conversation yourself.
 
 When you're done:
 
-1. Click **Release Conversation**
-2. A dialog will appear with three options:
-   - **Return to AI** - The agent resumes handling messages automatically
-   - **Return to Queue** - The conversation is placed back in the queue for another team member to pick up
-   - **Close Conversation** - The conversation is marked as resolved and ended
+- Click **Release Conversation** to hand the conversation off. A dialog appears with two options:
+  - **Return to AI** - The agent resumes handling messages automatically
+  - **Return to Queue** - The conversation is placed back in the queue for another team member to pick up
+- Click **Close Conversation** (a separate button) to mark the conversation as resolved and ended
 
 ## Supervision Mode
 

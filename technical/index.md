@@ -35,19 +35,21 @@ Hay is built with modern, production-tested technologies:
 
 ```
 Frontend:
-- React 18+ with TypeScript
+- Nuxt 3 (Vue 3) with TypeScript
 - TailwindCSS for styling
-- Zustand for state management
+- Pinia for state management
 
 Backend:
 - Node.js with Express
+- tRPC for type-safe APIs
+- TypeORM for database access
 - PostgreSQL for data persistence
 - Redis for caching and real-time features
-- Bull for job queues
+- RabbitMQ (amqplib) for message queues
+- OpenAI for embeddings and chat
 
 Infrastructure:
 - Docker for containerization
-- Kubernetes for orchestration
 - GitHub Actions for CI/CD
 ```
 
@@ -87,14 +89,17 @@ Choose your path:
 
 Join our developer community:
 
-- **GitHub**: [github.com/hay-chat/hay](https://github.com)
 - **Discord**: Developer channel for technical discussions
-- **Contributing**: See our [contribution guide](/docs/technical/)
+- **Contributing**: See our contribution guides:
+  - **[Orchestrator](/docs/technical/contributing/orchestrator/)** - AI conversation orchestration
+  - **[Plugin System](/docs/technical/contributing/plugin-system-development/)** - Building and extending plugins
+  - **[Pagination](/docs/technical/contributing/pagination/)** - API pagination conventions
+  - **[Vector Store](/docs/technical/contributing/vector-store/)** - Embeddings and similarity search
+  - **[Testing](/docs/technical/contributing/testing/)** - Testing strategy and conventions
 
 ### Support
 
 Need help with something technical?
 
-- Open an issue on [GitHub](https://github.com)
 - Join our Discord server
 - Email us at [{{ site.email }}](mailto:{{ site.email }})

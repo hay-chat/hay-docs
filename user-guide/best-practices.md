@@ -306,11 +306,22 @@ Escalate to human if:
    - Collect their observations
    - Refine based on feedback
 
-## Queue Management
+## Managing Escalated Conversations
 
-### Response Time Targets
+Hay doesn't have a separate SLA-based escalation queue. Instead, escalated conversations live in the regular **Conversations** list, distinguished by status. (Note: the `/queue` page in the dashboard is unrelated — it tracks background job processing like document uploads, emails, and exports, not customer conversations.)
 
-Set and communicate clear SLAs:
+### Finding Conversations That Need You
+
+Go to **Conversations** in the left sidebar and filter by **Status**:
+
+| Status                                     | What It Means                    |
+| ------------------------------------------- | --------------------------------- |
+| **Pending Human** (shown as "Needs Attention") | Customer needs human help — nobody has picked it up yet |
+| **Human Took Over** (shown as "Manual Control") | A team member is actively handling it |
+
+Sort by **Last message** (oldest first) to see which conversations have been waiting longest.
+
+**Set your own response time targets:**
 
 | Urgency                | Target Response |
 | ---------------------- | --------------- |
@@ -318,37 +329,32 @@ Set and communicate clear SLAs:
 | 🟡 Standard Escalation | 30 minutes      |
 | 🟢 Low Priority        | 4 hours         |
 
-**Track and improve:**
+Since there's no built-in SLA tracking, these targets are something your team agrees on and self-monitors — check the "Needs Attention" filter regularly rather than relying on the dashboard to flag overdue items.
 
-- Monitor average response times
-- Identify bottlenecks
-- Staff appropriately
-- Celebrate hitting targets
-
-### Queue Workflow
+### Daily Workflow
 
 **Morning routine (5 minutes):**
 
-1. Check queue size
-2. Review any urgent (red) items
-3. Claim 1-2 you can handle immediately
-4. Respond within target time
+1. Filter Conversations by "Needs Attention"
+2. Sort by oldest first and scan for urgent cases
+3. Open one and click **Take Over** to start handling it
+4. Respond within your target time
 
 **Throughout day:**
 
-- Check queue every 30-60 minutes
-- Respond to new escalations quickly
-- Update status on longer issues
+- Re-check the "Needs Attention" filter every 30-60 minutes
+- Take over new escalations promptly
+- Use **Release Conversation → Return to Queue** if you need to hand a conversation to another team member (it goes back to "Needs Attention" for someone else to pick up)
 - Keep customers informed
 
 **End of day:**
 
-- Review remaining queue items
-- Snooze items you're working on
+- Review remaining "Needs Attention" conversations
+- Leave conversations you're mid-way through in "Manual Control" so teammates know they're owned
 - Note follow-ups needed
 - Set reminders for tomorrow
 
-### Preventing Queue Buildup
+### Preventing Escalation Buildup
 
 **Proactive prevention:**
 
@@ -403,6 +409,7 @@ Set and communicate clear SLAs:
    - Target: Under 5 seconds for AI
    - Should be consistent
    - Review: Weekly
+   - **Note:** Response time analytics aren't available in the dashboard yet — the backend currently returns placeholder data. Treat this as an aspirational target you track manually until in-app reporting ships.
 
 ### Weekly Review Ritual
 

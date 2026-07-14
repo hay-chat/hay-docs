@@ -17,6 +17,8 @@ Integrations connect Hay with:
 
 ## Available Integrations
 
+> **Note:** This guide covers a subset of available integrations. Additional plugins (Shopify, HubSpot, Stripe, Instagram, and more) are available in the **Marketplace** — go to **Integrations** → **Marketplace** to browse the full list.
+
 ### Web Chat
 
 Add a live chat widget to your website. Web Chat is a built-in Hay feature, not a marketplace plugin.
@@ -60,7 +62,7 @@ Handle WhatsApp messages with your AI agent.
 2. Find **WhatsApp**
 3. Click **Connect**
 4. Enter your Twilio **Account SID** and **Auth Token**
-5. Enter your Twilio **WhatsApp number** (e.g. `whatsapp:+14155238886`)
+5. Enter your Twilio **WhatsApp number** in E.164 format (e.g. `+14155238886`) — Hay prepends the `whatsapp:` prefix automatically
 6. Authorize and save
 7. Done!
 
@@ -128,38 +130,31 @@ Sync with your Zendesk help desk.
 2. Find **Zendesk**
 3. Click **Connect**
 4. Enter your Zendesk subdomain
-5. Enter API token (generate in Zendesk settings)
-6. Test connection
-7. Choose sync preferences
-
-**Sync options:**
-
-- Import all tickets → Hay learns from ticket history
-- Two-way sync → Updates flow both ways
-- One-way sync → Hay creates tickets in Zendesk
+5. Enter the Zendesk admin email address
+6. Enter API token (generate in Zendesk settings)
+7. Test connection
 
 ### Email
 
-Send outbound email notifications from Hay to your customers.
+Send internal notification emails to a fixed set of recipients.
 
 **What it does:**
 
-- Sends transactional and notification emails on behalf of your organization
-- Used for conversation follow-ups, agent-triggered messages, and system notifications
+- Sends plain-text notification emails to a configured list of recipients (e.g. alerts for your team)
+- Not customer-facing — it's not used for conversation follow-ups or replying to customers
 - Does not monitor an inbox or respond to inbound email
+- Uses the platform's SMTP configuration; SMTP is a platform-level setting, not something you configure per-integration
 
 **How to set up:**
 
 1. Go to **Integrations** → **Email**
-2. Enter your SMTP server credentials (host, port, username, password)
-3. Set the sender name and "from" address
-4. Send a test email to verify the connection
+2. Enter a comma-separated list of recipient email addresses
+3. Send a test email to verify the connection
 
 **Best for:**
 
-- Sending follow-up messages after conversations
-- Transactional notifications triggered by agent actions
-- Organizations that need a custom sender domain
+- Internal alerts (e.g. escalations, errors, agent-triggered notifications)
+- System notifications sent to a fixed team distribution list
 
 ## Managing Integrations
 
@@ -225,19 +220,20 @@ To remove an integration:
 
 ### WhatsApp Features
 
-- ✅ Rich media (images, videos, documents)
-- ✅ Quick reply buttons
-- ✅ Message templates (for notifications)
-- ✅ Read receipts
-- ✅ Delivered status
+- ✅ Plain-text message sending
+- ✅ Plain-text message receiving
+- 🔜 Rich media (images, videos, documents) — planned
+- 🔜 Quick reply buttons — planned
+- 🔜 Message templates — planned
+- 🔜 Read receipts — planned
 
 ### Email Features
 
-- ✅ HTML emails
-- ✅ Attachments
-- ✅ CC/BCC support
-- ✅ Thread continuity
-- ✅ Signature management
+- ✅ Plain-text emails
+- 🔜 HTML emails — planned
+- 🔜 Attachments — planned
+- 🔜 CC/BCC support — planned
+- 🔜 Signature management — planned
 
 ## Best Practices
 

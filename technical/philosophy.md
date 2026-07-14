@@ -154,7 +154,7 @@ Repositories extend `BaseRepository<T>` (a generic TypeORM wrapper) — no inter
 - **Unit tests**: For business logic
 - **Integration tests**: For API endpoints
 - **E2E tests**: For critical user flows
-- **Minimum 80% coverage**: For new code
+- **Minimum 80% coverage**: For new code (aspirational target — not currently enforced via CI)
 
 ```typescript
 describe("AutomationService", () => {

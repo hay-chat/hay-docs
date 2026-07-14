@@ -175,13 +175,10 @@ Use this when you want public context to survive across conversations. Instead o
 Call this on user login, signup, or whenever the user's profile changes.
 
 ```js
-await hay.customers.addContext({
-  externalId: "ext_usr_456",
-  context: {
-    name: "Sarah Chen",
-    plan: "pro",
-    accountCreated: "2024-01-15",
-  },
+await hay.customers.addContext("ext_usr_456", {
+  name: "Sarah Chen",
+  plan: "pro",
+  accountCreated: "2024-01-15",
 });
 ```
 
@@ -275,12 +272,9 @@ Customer context is stored in the `external_metadata` JSONB column on the custom
 Context is attached via the tRPC mutation `customers.addContext` with input `{ externalId, context: Record<string, unknown> }`:
 
 ```js
-await hay.customers.addContext({
-  externalId: "ext_usr_456",
-  context: {
-    name: "Sarah Chen",
-    plan: "pro",
-  },
+await hay.customers.addContext("ext_usr_456", {
+  name: "Sarah Chen",
+  plan: "pro",
 });
 ```
 

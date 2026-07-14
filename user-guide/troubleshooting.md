@@ -114,7 +114,7 @@ section: user-guide
 
 **Adjust confidence threshold:**
 
-1. Go to **Settings** → **Agent Behavior**
+1. Go to **Settings** → **General**
 2. Lower confidence threshold slightly
 3. Monitor results
 4. Adjust as needed
@@ -146,11 +146,11 @@ section: user-guide
 
 **For channel integrations (WhatsApp, Email, etc.):**
 
-1. **Check webhook status:**
+1. **Check the integration status:**
 
    - Go to **Integrations** → Your integration
-   - View webhook logs
-   - Look for failed deliveries
+   - Confirm the connection shows **Connected**
+   - Reconnect if the status looks off
 
 2. **Test connection:**
 
@@ -321,23 +321,7 @@ section: user-guide
 
 ### Can't Export Data
 
-**Solutions:**
-
-1. **Check permissions:**
-
-   - Verify you have export permission
-   - Contact admin if needed
-
-2. **File size limits:**
-
-   - Large exports may timeout
-   - Try smaller date range
-   - Export in batches
-
-3. **Browser issues:**
-   - Try different browser
-   - Disable pop-up blockers
-   - Check downloads folder
+**Note:** Exporting data from Analytics is not yet available. The export button is currently a placeholder and does not produce a file. This feature is planned for a future release.
 
 ## Notifications Not Working
 
@@ -347,7 +331,7 @@ section: user-guide
 
 1. **Check settings:**
 
-   - Go to **Settings** → **Notifications**
+   - Go to **Settings** → **General**
    - Verify email notifications are enabled
    - Check which events you're subscribed to
 
@@ -442,47 +426,6 @@ section: user-guide
    - Retry upload
    - Check connection
    - Try different network
-
-## Billing Issues
-
-### Payment Failed
-
-**Solutions:**
-
-1. **Check card details:**
-
-   - Verify card number
-   - Check expiration date
-   - Confirm CVV code
-   - Update billing address
-
-2. **Contact bank:**
-
-   - May have declined charge
-   - Verify international payments allowed
-   - Check spending limits
-
-3. **Try different card:**
-   - Use alternate payment method
-   - Contact support for help
-
-### Can't Change Plan
-
-**Solutions:**
-
-1. **Permission check:**
-
-   - Must be Owner or Admin
-   - Contact organization owner
-
-2. **Billing current:**
-
-   - Resolve outstanding invoices
-   - Update payment method
-
-3. **Timing:**
-   - Some changes only at renewal
-   - Note when change takes effect
 
 ## Getting More Help
 

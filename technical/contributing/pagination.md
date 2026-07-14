@@ -199,6 +199,16 @@ All list endpoints return a consistent response structure:
 
 **Sort Fields:** `["created_at", "updated_at", "title", "status"]`
 
+### Customers
+
+**Available Filters:**
+
+- `email`: String
+- `externalId`: String
+- `hasConversations`: Boolean
+
+This is a real, working pagination endpoint — `customers.list` uses `createListProcedure` with `customerListInputSchema` (defined in `server/routes/v1/customers/index.ts`) and returns the standard paginated response.
+
 ### Agents
 
 **Available Filters:**
@@ -210,6 +220,8 @@ All list endpoints return a consistent response structure:
 
 **Sort Fields:** `["created_at", "updated_at", "name", "enabled"]`
 
+> ⚠️ **Not yet wired up:** This schema exists in `entity-list-inputs.ts`, but `agents.list` currently returns an unpaginated array (`agentService.getAgents`) with no pagination, filtering, search, or sorting applied. Treat the above as a planned/target shape, not current behavior.
+
 ### Playbooks
 
 **Available Filters:**
@@ -220,6 +232,8 @@ All list endpoints return a consistent response structure:
 **Search Fields:** `["name", "description"]`
 
 **Sort Fields:** `["created_at", "updated_at", "name", "status"]`
+
+> ⚠️ **Not yet wired up:** This schema exists in `entity-list-inputs.ts`, but `playbooks.list` currently returns an unpaginated array (`playbookService.getPlaybooks`) with no pagination, filtering, search, or sorting applied. Treat the above as a planned/target shape, not current behavior.
 
 ## Implementation Guide
 
@@ -310,7 +324,9 @@ The system provides clear error messages for:
 
 ## Testing
 
-See `server/tests/pagination.test.example.ts` for comprehensive test examples covering all pagination features.
+See `server/tests/pagination.test.example.ts` for example usage covering all pagination features.
+
+> **Note:** Despite the `.test.ts` naming, this is not a Jest test — it's a standalone manual script that makes real HTTP requests (via `axios`) to a running server at `http://localhost:3000/trpc`. It is not run by `npm test` / `npm run test:server`; execute it directly (e.g. `ts-node`) against a live server to try out the examples.
 
 ## Migration from Legacy Endpoints
 

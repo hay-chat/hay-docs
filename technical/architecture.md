@@ -56,7 +56,7 @@ Business logic organized as modular services:
 
 Hay's extensibility mechanism:
 
-Plugins are defined using `defineHayPlugin()` from `@hay/plugin-sdk`. The plugin contract is `HayPluginManifest` in `/server/types/plugin-sdk.types.ts`, exposing capabilities via a runtime `/metadata` endpoint and interacting with the platform via `PluginContext`.
+Plugins are defined using `defineHayPlugin()` from `@hay/plugin-sdk`. The plugin contract is `HayPluginManifest` in `/server/types/plugin-sdk.types.ts`, exposing capabilities via a runtime `/metadata` endpoint and interacting with the platform via `HayGlobalContext`.
 
 Each plugin can:
 - Register event listeners
@@ -64,9 +64,9 @@ Each plugin can:
 - Add new UI components
 - Access core services
 
-#### 4. Event Bus
+#### 4. Real-Time & Background Messaging
 
-Real-time events are published to Redis pub/sub channels via `ConversationEventsService`. Background processing tasks are queued via RabbitMQ (`rabbitmqService`) and a Redis-backed `JobQueueService`.
+There is no single event bus module. Real-time events are published to Redis pub/sub channels via `ConversationEventsService`. Background processing tasks are queued via RabbitMQ (`rabbitmqService`) and a Redis-backed `JobQueueService`.
 
 #### 5. Data Layer
 
@@ -121,17 +121,17 @@ graph LR
 ```
 
 - **Client**: Browser cache for static assets
-- **CDN**: Edge caching for global delivery
+- **CDN**: Configurable asset-domain URL helper for serving static assets from a separate domain, not an integrated CDN caching layer
 - **Redis**: In-memory cache for hot data
 - **Database**: Source of truth
 
 #### Message Queue
 
-Bull queue for reliable background processing:
+RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-backed job queue (using `SKIP LOCKED`) coordinated through Redis pub/sub handles background jobs:
 
-- Retry failed jobs automatically
-- Priority queues for urgent tasks
-- Rate limiting per job type
+- Failed jobs are marked as `FAILED` by `JobQueueService.failJob()`; there is no automatic retry
+- Job priority is ordered via a SQL column, not a Bull-style priority queue
+- No rate limiting per job type
 - Monitoring and alerting
 
 ### Security Architecture
