@@ -9,509 +9,457 @@ navOrder: 5
 
 # Plugin Development Quick Reference
 
-> **Fast reference for common plugin development tasks**
+> **Copy-paste cheat sheet for common plugin tasks. Full details in the [API Reference](/docs/technical/plugins/api-reference/).**
 
 ## Quick Start Checklist
 
-- [ ] Create plugin directory in `plugins/core/`
-- [ ] Create `manifest.json` following schema
-- [ ] Create `package.json` with dependencies
-- [ ] Create `tsconfig.json` for TypeScript
-- [ ] Implement plugin entry point in `src/index.ts`
-- [ ] Add `i18n/en.json` translation (required; additional locales auto-discovered)
-- [ ] Build plugin: `npm run build`
-- [ ] Test in dashboard
+- [ ] Create plugin directory in `plugins/core/<name>/`
+- [ ] Create `package.json` with a `hay-plugin` block (the package `name` IS the plugin ID — there is **no** `manifest.json`)
+- [ ] Create `tsconfig.json` (ESM, `strict: true`, exclude `mcp/` and `dist/`)
+- [ ] Implement `src/index.ts` — default export `defineHayPlugin(...)`
+- [ ] Add a `thumbnail.svg`, `thumbnail.png`, or `thumbnail.jpg` in the plugin root (core serves the first match, priority svg > png > jpg)
+- [ ] Add `i18n/en.json` (additional locales auto-discovered)
+- [ ] Build: `npm --workspace=plugins/core/<name> run build` from the repo root
+- [ ] Enable in dashboard and test
 
 ---
 
-## Minimal manifest.json
+## Minimal package.json
 
 ```json
 {
-  "id": "hay-plugin-myservice",
-  "name": "My Service",
+  "name": "hay-plugin-myservice",
   "version": "1.0.0",
-  "description": "Integration with My Service",
-  "type": ["mcp-connector"],
-  "entry": "./dist/index.js",
-  "category": "integration",
-  "capabilities": {
-    "mcp": {
-      "connection": { "type": "local" },
-      "tools": [],
-      "transport": "stdio",
-      "auth": ["apiKey"],
-      "installCommand": "npm install",
-      "startCommand": "node mcp/index.js"
-    }
+  "type": "module",
+  "main": "dist/index.js",
+  "hay-plugin": {
+    "entry": "./dist/index.js",
+    "displayName": "My Service",
+    "category": "integration",
+    "capabilities": ["mcp", "auth"]
   },
-  "configSchema": {
-    "apiKey": {
-      "type": "string",
-      "label": "API Key",
-      "required": true,
-      "encrypted": true,
-      "env": "MYSERVICE_API_KEY"
-    }
+  "scripts": {
+    "build": "tsc"
   },
-  "permissions": {
-    "env": ["MYSERVICE_API_KEY"],
-    "scopes": ["org:<organizationId>:mcp:invoke"]
+  "dependencies": {
+    "@hay/plugin-sdk": "file:../../../packages/plugin-sdk"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
   }
 }
 ```
+
+- **Categories**: `integration | channel | tool | analytics | products` (document importers are marked separately via `"documentImporter": true` in the `hay-plugin` block, not a category)
+- **Capabilities**: `mcp | auth | config | routes | ui | cron | products` (+ `messages | customers | sources` for channels)
+- **SDK path** is `file:../../../packages/plugin-sdk` — note `packages/`
+- Channel plugins add `"channel": "<slug>"` and (if needed) `"env": ["VAR_A", "VAR_B"]` — the allow-list for host env fallbacks
+
+---
+
+## Minimal Entry Point (`src/index.ts`)
+
+```typescript
+import { defineHayPlugin } from "@hay/plugin-sdk";
+
+export default defineHayPlugin((globalCtx) => ({
+  name: "My Service",
+
+  onInitialize(ctx) {
+    // Descriptor-only: register.* calls, no network, no org data
+    ctx.register.config({
+      apiKey: {
+        type: "string",
+        label: "API Key",
+        required: true,
+        encrypted: true,
+      },
+    });
+
+    ctx.register.auth.apiKey({
+      id: "myservice-apikey",
+      label: "My Service API Key",
+      configField: "apiKey",
+    });
+  },
+
+  async onStart(ctx) {
+    // Per-org runtime start — gate on credentials, never crash the worker
+    const authState = ctx.auth.get();
+    if (!authState) {
+      ctx.logger.info("Not configured yet — enabled without tools");
+      return;
+    }
+    // ... start MCP servers etc.
+  },
+}));
+```
+
+`name` is the only required field. Real example: `plugins/core/klaviyo/src/index.ts`.
+
+---
+
+## Lifecycle Hooks
+
+| Hook                  | When                            | Notes                                           |
+| --------------------- | ------------------------------- | ----------------------------------------------- |
+| `onInitialize(ctx)`   | Once per worker boot            | `register.*` only — no I/O                      |
+| `onStart(ctx)`        | Per-org start/restart           | Read `ctx.config`/`ctx.auth`, start MCP         |
+| `onValidateAuth(ctx)` | Credentials change              | Return `true` or throw a user-facing `Error`    |
+| `onConnected(ctx)`    | Right after OAuth tokens stored | Return `{ routingKeys }` for shared webhooks    |
+| `onConfigUpdate(ctx)` | Settings saved                  | Platform restarts registered MCP servers itself |
+| `onDisable(ctx)`      | Disable/uninstall               | Tear down pollers/clients                       |
+
+`onEnable` exists in the types but **the runner never calls it** — don't rely on it.
 
 ---
 
 ## Common Patterns
 
-### Local MCP Server
+### Local Bundled MCP Server (Archetype A)
 
-```json
-{
-  "capabilities": {
-    "mcp": {
-      "connection": { "type": "local" },
-      "serverPath": "./mcp/index.js",
-      "transport": "sse|websocket|http",
-      "startCommand": "node mcp/index.js"
-    }
-  }
+```typescript
+async onStart(ctx) {
+  const apiKey = ctx.config.get<string>("apiKey");
+  if (!apiKey) return;
+
+  await ctx.mcp.startLocalStdio({
+    id: "myservice-mcp",
+    command: "node",
+    args: ["index.js"],
+    cwd: "./mcp", // relative to plugin dir
+    env: { PRIVATE_API_KEY: apiKey },
+  });
 }
 ```
 
-### Remote MCP Server
+`mcp/index.js` is a stdio server using `@modelcontextprotocol/sdk` that reads credentials from `process.env`. Gold-standard reference: `plugins/core/klaviyo/mcp/index.js`.
 
-```json
-{
-  "capabilities": {
-    "mcp": {
-      "connection": {
-        "type": "remote",
-        "url": "https://mcp.service.com"
-      },
-      "transport": "http"
-    }
-  }
+> **Gotcha:** nothing runs `npm install` inside `mcp/` — either commit a pruned `mcp/node_modules` (like klaviyo) or use zero dependencies beyond the MCP SDK.
+
+### Remote Hosted MCP Server (Archetype B)
+
+```typescript
+async onStart(ctx) {
+  const authState = ctx.auth.get();
+  if (!authState) return;
+
+  await ctx.mcp.startExternal({
+    id: "stripe-mcp",
+    url: "https://mcp.stripe.com",
+    authHeaders: { Authorization: `Bearer ${authState.credentials.apiKey}` },
+  });
 }
 ```
 
-### OAuth Authentication
+References: `plugins/core/stripe` (API key), `plugins/core/hubspot` (OAuth access token).
 
-```json
-{
-  "capabilities": {
-    "mcp": {
-      "auth": {
-        "methods": ["oauth2", "apiKey"],
-        "oauth": {
-          "authorizationUrl": "https://service.com/oauth/authorize",
-          "tokenUrl": "https://service.com/oauth/token",
-          "scopes": ["read", "write"],
-          "pkce": true,
-          "clientIdEnvVar": "SERVICE_CLIENT_ID",
-          "clientSecretEnvVar": "SERVICE_CLIENT_SECRET"
-        }
-      }
-    }
-  }
-}
+### OAuth2 Authentication
+
+```typescript
+ctx.register.auth.oauth2({
+  id: "myservice-oauth",
+  label: "Connect My Service",
+  authorizationUrl: "https://service.com/oauth/authorize",
+  tokenUrl: "https://service.com/oauth/token",
+  scopes: ["read", "write"],
+  clientId: ctx.config.field("clientId"), // ConfigFieldReference
+  clientSecret: ctx.config.field("clientSecret"),
+});
 ```
 
-### API Key Authentication
+The platform runs the entire OAuth dance and auto-refreshes tokens — plugins never touch OAuth endpoints. For non-standard flows, add declarative `tokenExchange`/`tokenRefresh` ops and `scopeSeparator` (see `plugins/core/instagram/src/index.ts` for Instagram's `ig_exchange_token`/`ig_refresh_token`).
 
-```json
-{
-  "configSchema": {
-    "apiKey": {
-      "type": "string",
-      "label": "API Key",
-      "placeholder": "sk_live_...",
-      "required": true,
-      "encrypted": true,
-      "env": "SERVICE_API_KEY"
-    }
-  }
-}
+### Reading Config & Auth at Runtime
+
+```typescript
+const apiKey = ctx.config.get<string>("apiKey"); // throws if missing
+const region = ctx.config.getOptional<string>("region");
+
+const authState = ctx.auth.get(); // { methodId, credentials } | null
+// apiKey method → credentials.apiKey
+// oauth2 method → credentials.accessToken / refreshToken? / expiresAt?
 ```
 
-### MCP Tool Definition
+Config/auth arrive via `HAY_ORG_CONFIG`/`HAY_ORG_AUTH` env injected by core — never read secrets from raw `process.env` in the entry. A config field's `env:` property is only a host-env _fallback_, gated by the `hay-plugin.env` allow-list.
 
-```json
-{
-  "name": "create_resource",
-  "label": "Create Resource",
-  "description": "Creates a new resource",
-  "input_schema": {
-    "type": "object",
-    "properties": {
-      "name": {
-        "type": "string",
-        "description": "Resource name"
-      },
-      "amount": {
-        "type": "number",
-        "description": "Amount in cents",
-        "minimum": 0
-      }
-    },
-    "required": ["name"]
-  }
-}
+### HTTP Routes (Webhooks, Delivery)
+
+```typescript
+ctx.register.route("POST", "/webhook", async (req, res) => {
+  // verify, then forward to core via plugin-api
+  res.status(200).json({ received: true });
+});
 ```
+
+### Cron Jobs
+
+```typescript
+ctx.register.cron({
+  name: "refresh_token", // [a-z0-9_-]+
+  schedule: "0 */20 * * *", // 5-field cron
+  handler: async (ctx) => {
+    const token = await refresh(/* ... */);
+    ctx.auth.update({ accessToken: token.accessToken, expiresAt: token.expiresAt });
+  },
+  retryPolicy: { maxRetries: 3, backoff: "exponential" },
+});
+```
+
+Crons are scheduled by **core**, not the worker (workers are idle-killed after ~5 min). Never use `setInterval`/`node-cron` inside a plugin. `ctx.auth.update()` persists refreshed credentials encrypted and restarts the worker. Reference: `plugins/core/shopify`.
+
+### Shared Webhook Routing (No Org ID in the URL)
+
+```typescript
+ctx.register.webhookRouting({
+  signature: {
+    header: "x-hub-signature-256",
+    format: "sha256-hmac", // only supported format
+    secretEnv: "META_APP_SECRET",
+  },
+  verificationChallenge: {
+    modeParam: "hub.mode",
+    verifyTokenParam: "hub.verify_token",
+    challengeParam: "hub.challenge",
+    verifyTokenEnv: "META_VERIFY_TOKEN",
+  },
+  routeKeyPath: { itemsPath: "entry", keyPath: "id" },
+});
+```
+
+Core verifies the HMAC, answers the GET challenge, extracts routing keys, resolves key → org using the keys returned by `onConnected`, and fans out to each org's worker `POST /webhook`. Reference: `plugins/core/instagram`.
+
+### UI Page (Settings Extension)
+
+```typescript
+ctx.register.ui.page({
+  id: "setup-guide",
+  title: "Setup Guide",
+  component: "./components/settings/AfterSettings.vue",
+  slot: "after-settings", // or "before-settings" | "standalone"
+  icon: "book",
+});
+```
+
+Requires the `ui` capability and a `vite.config.ui.ts` that builds `components/` into `dist/ui.js` (UMD, Vue externalized).
 
 ---
 
-## API Usage
+## Channel Plugins
 
-### Frontend (Dashboard)
+`package.json`: `"category": "channel"`, `"channel": "<slug>"`, `"capabilities": ["messages", "customers"]`.
+
+### Inbound: Forward a Message to Core
+
+The worker gets `HAY_API_URL` + `HAY_API_TOKEN` env vars; call the plugin-api tRPC endpoints over HTTP (copy the small `PluginApiClient` from `plugins/core/instagram/src/plugin-api.ts` — it is not yet an SDK export):
+
+```typescript
+const result = await apiClient.mutation<{
+  messageId: string;
+  conversationId: string;
+  processed: boolean;
+}>("messages.receive", {
+  from: `instagram:${senderPsid}`, // external customer id
+  content: text,
+  channel: "instagram",
+  senderType: "customer", // or "human_agent"
+  metadata: { mid: message.mid }, // mid enables core-side dedupe (Redis SETNX)
+});
+```
+
+Core finds/creates the Customer (keyed on `external_id` per channel) and the conversation. Without `metadata.mid` you get **no** inbound dedupe.
+
+### Outbound: Implement `/deliver`
+
+Core POSTs `{ to, content, messageId, conversationId, conversationMetadata, messageMetadata }` to your registered `POST /deliver` route:
+
+```typescript
+ctx.register.route("POST", "/deliver", async (req, res) => {
+  const { to, content } = req.body;
+  const providerMessageId = await sendToProvider(to, content);
+  res.status(200).json({ success: true, providerMessageId });
+});
+```
+
+Convention: non-retryable provider errors return **HTTP 200 with `success: false`** (e.g. `{ success: false, error: "24h_window_expired" }`) to avoid retry storms. See `plugins/core/instagram/src/deliver.ts`.
+
+Optional: implement `POST /escalate` for human-handoff notifications — core tolerates a 404 if you don't.
+
+### Plugin → Core Callback Surface
+
+All under `pluginApi.*`, capability-gated via the worker JWT (`server/routes/v1/plugin-api/trpc.ts`):
+
+`messages.receive` · `messages.send` · `messages.getByConversation` · `conversations.updateStatusByExternalId` · `customers.get` · `customers.findByExternalId` · `customers.upsert` · `sources.register` · `mcp.registerLocal` · `mcp.registerRemote` · `products.upsertMany` · `products.delete`
+
+---
+
+## Dashboard API Usage (tRPC)
 
 ```typescript
 import { Hay } from "@/utils/api";
 
-// Get all plugins
+// Queries
 const plugins = await Hay.plugins.getAll.query();
+const plugin = await Hay.plugins.get.query({ pluginId: "hay-plugin-myservice" });
+const tools = await Hay.plugins.getMCPTools.query(); // all enabled plugins for the org — no input
+const status = await Hay.plugins.testConnection.query({ pluginId: "hay-plugin-myservice" });
 
-// Enable plugin
-await Hay.plugins.enable.mutate({
-  pluginId: "hay-plugin-myservice",
-  configuration: {
-    apiKey: "sk_test_123",
-  },
-});
-
-// Get plugin details (includes configuration)
-const plugin = await Hay.plugins.get.query({
-  pluginId: "hay-plugin-myservice",
-});
-
-// Update configuration
+// Mutations
+await Hay.plugins.enable.mutate({ pluginId: "hay-plugin-myservice" });
 await Hay.plugins.configure.mutate({
   pluginId: "hay-plugin-myservice",
-  configuration: {
-    apiKey: "new_key",
-  },
+  configuration: { apiKey: "new_key" },
 });
+await Hay.plugins.refreshMCPTools.mutate({ pluginId: "hay-plugin-myservice" });
+await Hay.plugins.restart.mutate({ pluginId: "hay-plugin-myservice" });
+await Hay.plugins.disable.mutate({ pluginId: "hay-plugin-myservice" });
 
-// Disable plugin
-await Hay.plugins.disable.mutate({
-  pluginId: "hay-plugin-myservice",
-});
+// OAuth
+await Hay.plugins.oauth.initiate.mutate({ pluginId: "hay-plugin-myservice" });
+const oauthStatus = await Hay.plugins.oauth.status.query({ pluginId: "hay-plugin-myservice" });
 ```
 
-### Backend (Services)
-
-```typescript
-// Plugin Manager
-import { pluginManagerService } from "@server/services/plugin-manager.service";
-
-const plugin = pluginManagerService.getPlugin("hay-plugin-myservice");
-await pluginManagerService.installPlugin("hay-plugin-myservice");
-await pluginManagerService.buildPlugin("hay-plugin-myservice");
-
-// Plugin Instance Manager
-import { pluginInstanceManagerService } from "@server/services/plugin-instance-manager.service";
-
-await pluginInstanceManagerService.ensureInstanceRunning(organizationId, "hay-plugin-myservice");
-await pluginInstanceManagerService.updateActivityTimestamp(organizationId, "hay-plugin-myservice");
-
-// Plugin Runner
-import { getPluginRunnerService } from "@server/services/plugin-runner.service";
-
-const pluginRunnerService = getPluginRunnerService();
-await pluginRunnerService.startPluginWorker(organizationId, "hay-plugin-myservice");
-await pluginRunnerService.stopPluginWorker(organizationId, "hay-plugin-myservice");
-const isRunning = pluginRunnerService.isRunning(organizationId, "hay-plugin-myservice");
-```
+Router: `server/routes/v1/plugins/index.ts`; handlers in `server/routes/v1/plugins/plugins.handler.ts`.
 
 ---
 
 ## File Structure
 
 ```
-hay-plugin-myservice/
-├── manifest.json              # Plugin configuration
-├── package.json              # NPM dependencies
-├── tsconfig.json             # TypeScript config
+plugins/core/myservice/
+├── package.json          # name = plugin ID; "type":"module"; hay-plugin block
+├── tsconfig.json         # ESM, strict, exclude ["node_modules","dist","mcp"]
+├── thumbnail.jpg         # plugin icon (svg > png > jpg priority)
 ├── src/
-│   └── index.ts             # Entry point
-├── dist/
-│   └── index.js             # Compiled output
-├── i18n/                    # Translations (optional)
-│   ├── en.json             # English (fallback)
-│   └── pt-BR.json          # Brazilian Portuguese
-├── mcp/                     # MCP server
+│   └── index.ts          # default export = defineHayPlugin(...)
+├── mcp/                  # local stdio MCP server (archetype A only)
 │   ├── index.js
 │   └── package.json
-└── components/              # Vue components (optional)
-    └── settings/
-        └── CustomSettings.vue
-```
-
----
-
-## Environment Variables
-
-Configuration fields automatically map to environment variables:
-
-```json
-{
-  "configSchema": {
-    "apiKey": {
-      "env": "SERVICE_API_KEY"
-    }
-  }
-}
-```
-
-When MCP server starts:
-
-```bash
-SERVICE_API_KEY=decrypted_value node mcp/index.js
-```
-
----
-
-## Channel Registration
-
-```typescript
-// Register a communication channel
-await trpc.sources.register.mutate({
-  id: "whatsapp",
-  name: "WhatsApp Business",
-  category: "messaging",
-  pluginId: "my-plugin",
-  metadata: { version: "1.0" },
-});
-
-// Create messages with source
-import { MessageService } from "@server/services/core/message.service";
-
-const message = await messageService.createAssistantMessageWithTestMode(
-  conversation,
-  "Hello!",
-  "whatsapp", // sourceId
-  agent,
-  organization,
-  metadata,
-);
+├── components/           # Vue UI (capability "ui")
+│   ├── index.ts          # barrel export
+│   └── settings/*.vue
+├── vite.config.ui.ts     # builds components → dist/ui.js
+├── i18n/
+│   ├── en.json           # required fallback
+│   └── pt-BR.json        # extra locales auto-discovered
+└── dist/                 # gitignored build output
 ```
 
 ---
 
 ## Internationalization (i18n)
 
-Add an `i18n/` directory to your plugin with one JSON file per locale. No manifest changes needed — the system discovers translations automatically.
-
-### Translation File (`i18n/en.json`)
+`i18n/en.json` — keys must match MCP tool names and `register.config()` field names:
 
 ```json
 {
   "name": "My Plugin",
   "description": "What this plugin does",
   "tools": {
-    "tool_name": {
-      "label": "Tool Display Name",
-      "description": "What this tool does"
-    }
+    "tool_name": { "label": "Tool Display Name", "description": "What this tool does" }
   },
   "config": {
-    "apiKey": {
-      "label": "API Key",
-      "description": "Your API key for authentication"
-    }
+    "apiKey": { "label": "API Key", "description": "Your API key for authentication" }
   }
 }
 ```
 
-### Key Rules
-
-- `en.json` is **required** (fallback for all locales)
-- Tool keys must match MCP server tool names
-- Config keys must match `configSchema` / `ctx.register.config()` field names
-- Any locale filename is automatically discovered (e.g., `es.json`, `fr.json`, `de.json`)
-
-See the [API Reference](/docs/technical/plugins/api-reference/) for full details and examples.
-
 ---
 
-## UI Extensions
-
-### Add Settings Section
-
-```json
-{
-  "settingsExtensions": [
-    {
-      "slot": "after-settings",
-      "component": "components/settings/Instructions.vue"
-    }
-  ]
-}
-```
-
-### Add Settings Tab
-
-```json
-{
-  "settingsExtensions": [
-    {
-      "slot": "tab",
-      "component": "components/settings/Advanced.vue",
-      "tabName": "Advanced Settings",
-      "tabOrder": 1
-    }
-  ]
-}
-```
-
----
-
-## TypeScript Types
+## Config Field Descriptor
 
 ```typescript
-// Import plugin types
-import type { HayPluginManifest } from "@server/types/plugin.types";
-
-// Plugin manifest type
-interface HayPluginManifest {
-  id: string;
-  name: string;
-  version: string;
-  description?: string;
-  type: PluginType[];
-  entry: string;
-  capabilities?: PluginCapabilities;
-  configSchema?: Record<string, ConfigField>;
-  permissions?: PluginPermissions;
-}
-
-// Configuration field type
-interface ConfigField {
-  type: "string" | "number" | "boolean" | "array" | "object";
-  description: string;
-  label: string;
-  placeholder?: string;
-  required?: boolean;
-  encrypted?: boolean;
-  env?: string;
-  regex?: string;
-  default?: any;
-}
+ctx.register.config({
+  apiKey: {
+    type: "string", // "string" | "number" | "boolean" | "json"
+    label: "API Key",
+    description: "Your API key",
+    required: true,
+    encrypted: true, // mandatory for secrets — encrypted at rest, masked in UI
+    default: undefined,
+    env: "SERVICE_API_KEY", // host env fallback; name must be in hay-plugin.env
+  },
+});
 ```
 
 ---
 
-## Testing Plugins
-
-### Local Testing
+## Build & Test
 
 ```bash
-# Install dependencies
-cd plugins/core/my-plugin
-npm install
+# Build one plugin (from repo root — plugins are npm workspaces)
+npm --workspace=plugins/core/myservice run build
 
-# Build plugin
-npm run build
+# Batch-build all plugins
+./scripts/build-plugins.sh
 
-# Test MCP server directly
-cd mcp
-SERVICE_API_KEY=test_key node index.js
+# Test a local MCP server directly
+cd plugins/core/myservice/mcp
+PRIVATE_API_KEY=test_key node index.js
+
+# Run a worker manually (what core does per org)
+node packages/plugin-sdk/dist/runner/index.js \
+  --plugin-path=plugins/core/myservice --org-id=<orgId> --port=4001
 ```
 
-### Integration Testing
-
-```bash
-# Run server
-npm run dev
-
-# Enable plugin in dashboard
-# Test tool invocations
-# Check logs for errors
-```
+Workers expose: `GET /health`, `GET /metadata`, `POST /validate-auth`, `POST /on-connected`, `POST /config-update`, `POST /disable`, `POST /cron/:name`, `POST /mcp/call-tool`, `GET /mcp/list-tools`, plus your registered routes.
 
 ---
 
 ## Common Issues
 
-| Issue                 | Solution                                               |
-| --------------------- | ------------------------------------------------------ |
-| Plugin not appearing  | Check manifest.json is valid, check console for errors |
-| Install failed        | Verify installCommand, check network, review logs      |
-| MCP won't start       | Check startCommand, verify env vars, check ports       |
-| Tool invocation fails | Verify tool name, check input schema, ensure running   |
-| Config not working    | Restart instance, verify env mapping                   |
-
----
-
-## Useful Commands
-
-```bash
-# Validate manifest JSON is well-formed
-node -e "JSON.parse(require('fs').readFileSync('plugins/core/my-plugin/manifest.json', 'utf8'))"
-
-# Build plugin
-cd plugins/core/my-plugin && npm run build
-
-# Check running processes
-ps aux | grep "node mcp"
-
-# Install all plugin dependencies
-cd plugins/core/my-plugin && npm install && cd mcp && npm install
-```
+| Issue                       | Solution                                                                                       |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| Plugin not appearing        | `package.json` must contain a `hay-plugin` key — dirs without it are skipped                   |
+| Worker won't start          | Check `hay-plugin.entry` points at built output; package must be ESM (`"type": "module"`)      |
+| MCP tools missing           | `onStart` gates on credentials — configure the plugin first, then check worker logs            |
+| MCP server crashes on spawn | Missing deps in `mcp/` — nothing runs `npm install` there; vendor or zero-dep it               |
+| Config changes not applied  | Platform restarts MCP servers on config update; re-init closure state in `onConfigUpdate`      |
+| Duplicate inbound messages  | Pass a provider message id as `metadata.mid` in `messages.receive`                             |
+| Cron never fires            | Use `register.cron` — core owns the schedule; in-worker timers die with the idle-kill (~5 min) |
 
 ---
 
 ## Plugin ID Naming
 
-- Format: `hay-plugin-{service-name}`
-- Use lowercase and hyphens
-- Match pattern: `/^[a-z0-9-]+$/`
-- Examples: `hay-plugin-shopify`, `hay-plugin-stripe`
+- The plugin ID is the npm package `name`
+- Integrations: `hay-plugin-<service>` (e.g. `hay-plugin-klaviyo`)
+- Channels: `hay-channel-<name>` also seen (e.g. `hay-channel-instagram-meta`)
+- Lowercase and hyphens only
 
 ---
 
-## Version Management
+## Reference Plugins
 
-Follow semantic versioning:
+| Want to build…                     | Copy from                                                                 |
+| ---------------------------------- | ------------------------------------------------------------------------- |
+| Local MCP over a REST API          | `plugins/core/klaviyo` (single-file), `plugins/core/zendesk` (many tools) |
+| Remote hosted MCP                  | `plugins/core/stripe` (API key), `plugins/core/hubspot` (OAuth)           |
+| Channel with per-instance webhooks | `plugins/core/chatwoot` (signature verification done right)               |
+| Channel with a shared webhook URL  | `plugins/core/instagram` (webhook routing + declarative token ops)        |
+| Cron-based token refresh           | `plugins/core/shopify`                                                    |
 
-- **MAJOR**: Breaking changes (2.0.0)
-- **MINOR**: New features (1.1.0)
-- **PATCH**: Bug fixes (1.0.1)
+Avoid copying: `email`, `email-imap`, `magento`, `woocommerce`, `whatsapp` — known anti-patterns (mock paths, missing sources, broken mcp deps, no idempotency).
 
 ---
 
 ## Security Checklist
 
-- [ ] Mark sensitive fields as `encrypted: true`
-- [ ] Validate all user input
-- [ ] Use HTTPS for remote servers
+- [ ] Mark sensitive config fields `encrypted: true`
+- [ ] Verify webhook signatures over **raw bytes** with `timingSafeEqual`
 - [ ] Request minimal OAuth scopes
-- [ ] Never log secrets
-- [ ] Sanitize error messages
-- [ ] Implement rate limiting
-- [ ] Use secure dependencies
-
----
-
-## Performance Tips
-
-- Keep tool execution under 5 seconds
-- Cache expensive operations
-- Optimize MCP server startup time
-- Handle concurrent requests
-- Monitor memory usage
-- Clean up resources on shutdown
+- [ ] Never log secrets or tokens
+- [ ] Let the platform handle OAuth — don't hand-roll token exchange
+- [ ] Treat webhook payloads as untrusted input
 
 ---
 
 ## Resources
 
-- **Full Documentation**: `docs/technical/plugins/api-reference.md`
-- **Generation Guide**: `.claude/PLUGIN_GENERATION_WORKFLOW.md`
-- **Channel Guide**: `docs/technical/plugins/channel-registration.md`
-- **Example Plugins**: `plugins/core/` directory
-
----
-
-**Need Help?** Check the full documentation at `docs/technical/plugins/api-reference.md`
+- **Getting Started**: [getting-started](/docs/technical/plugins/getting-started/)
+- **Full API Reference**: [api-reference](/docs/technical/plugins/api-reference/)
+- **Channel Guide**: [channel-registration](/docs/technical/plugins/channel-registration/)
+- **Channel Architecture**: [channel-architecture](/docs/technical/plugins/channel-architecture/)
+- **Canonical build guide**: `.claude/skills/build-plugin/` in the hay-core repo
+- **SDK source**: `packages/plugin-sdk/types/` (hook and register signatures)
