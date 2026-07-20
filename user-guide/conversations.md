@@ -124,32 +124,34 @@ When you're done:
   - **Return to Queue** - The conversation is placed back in the queue for another team member to pick up
 - Click **Close Conversation** (a separate button) to mark the conversation as resolved and ended
 
-## Supervision Mode
+## Response Approval (Test Mode)
 
-Want to watch the AI work without taking over? Use Supervision Mode.
+Want to review AI responses before they're sent? Use **Test Mode** — an agent-level setting that holds every AI response for your approval.
 
-### What is Supervision Mode?
+### What is Test Mode?
 
-- Watch the conversation in real-time
 - See what the AI is about to say BEFORE it sends
-- Approve or edit responses
-- Step in only if needed
+- Approve or edit responses before delivery
+- Step in and take over if needed
 
-> **Note:** Supervision Mode is only available for conversations with an `open` status.
+### How to Enable It
 
-### How to Use It
+Test Mode is configured per agent (or as an organization default), not per conversation:
 
-1. Open an active conversation with `open` status
-2. Click **Supervise** at the top
-3. When AI generates a response, you'll see it first
-4. **Approve** to send it, **Edit** to change it, or **Take Over** to respond yourself
+1. Go to **Settings** → **Agents** → select your agent
+2. Under **Message Approval**, choose **Require Approval**
+3. All new conversations with this agent will now hold responses for review
+
+When a response is held, you'll see **Approve & Send** and **Edit** options in the conversation view.
 
 **Perfect for:**
 
 - Training new agents
 - High-value customers
 - Sensitive topics
-- Testing and quality control
+- Quality control
+
+> **Note:** The first greeting message is always sent immediately, even when Test Mode is on.
 
 ## Test Conversations (Playground)
 
@@ -158,7 +160,7 @@ Practice and test your agent without affecting real customers.
 ### Starting a Test
 
 1. Go to **Conversations**
-2. Click **New Test Conversation** or enter **Playground mode**
+2. Click **Conversation Playground**
 3. Chat with your agent like a customer would
 
 ### What's Different in Test Mode

@@ -1,17 +1,17 @@
 ---
 layout: docs.njk
 title: Guardrails
-description: Two-stage guardrail system for AI response quality
+description: Three-stage guardrail system for AI response quality
 section: technical
 navGroup: Core Systems
 navOrder: 2
 ---
 
-# Two-Stage Guardrail System
+# Three-Stage Guardrail System
 
 ## Overview
 
-Hay uses a sophisticated two-stage guardrail system to ensure AI responses serve company interests while maintaining factual accuracy. This system replaces the previous single-stage confidence guardrail with a more pragmatic, company-focused approach.
+Hay uses a sophisticated three-stage guardrail system to ensure AI responses serve company interests while maintaining factual accuracy. Stage 0 checks action-claim consistency, Stage 1 protects company interests, and Stage 2 verifies factual grounding.
 
 ## Architecture
 
@@ -50,6 +50,23 @@ flowchart TD
   style DEL2 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
   style REC fill:#fffbeb,stroke:#fbbf24,color:#78350f
   style C fill:#fff,stroke:#568aff,color:#0a155c
+```
+
+## Stage 0: Action-Claim Consistency
+
+### Purpose
+Before evaluating company interest or factual accuracy, Stage 0 checks whether the AI's response claims to have performed actions (e.g., "I've cancelled your order") that are actually backed by tool calls in the conversation. This prevents the AI from fabricating action outcomes.
+
+### How It Works
+`ActionClaimGuardrailService` analyzes the response for action claims and cross-references them against the tool calls that were actually executed. If a claim is not backed by a corresponding tool call, the system triggers a corrective re-plan (up to `maxRetries` attempts) or escalates to a human agent.
+
+### Configuration
+```typescript
+"actionClaimGuardrail": {
+  "enabled": true,
+  "maxRetries": 1,
+  "escalateOnFailure": true
+}
 ```
 
 ## Stage 1: Company Interest Protection
@@ -213,6 +230,13 @@ When Medium confidence:
 ```typescript
 {
   "companyDomain": "e-commerce", // Optional: helps Stage 1 understand context
+
+  // Stage 0: Action-Claim Consistency
+  "actionClaimGuardrail": {
+    "enabled": true,
+    "maxRetries": 1,
+    "escalateOnFailure": true
+  },
 
   // Stage 1: Company Interest Protection
   "companyInterestGuardrail": {
@@ -410,15 +434,18 @@ conversation.messages.forEach(message => {
 ## Technical Details
 
 ### Services
+- `ActionClaimGuardrailService` - Stage 0 implementation
 - `CompanyInterestGuardrailService` - Stage 1 implementation
 - `ConfidenceGuardrailService` - Stage 2 implementation (refactored)
 
 ### Prompts
+- `execution/action-claim-check` - Stage 0 action-claim verification (EN, PT, ES)
 - `execution/company-interest-check` - Stage 1 evaluation (EN, PT, ES)
 - `execution/confidence-grounding` - Stage 2 grounding (EN, PT, ES)
 - `execution/confidence-certainty` - Stage 2 certainty (EN, PT, ES)
 
 ### Files
+- `/server/services/core/action-claim-guardrail.service.ts`
 - `/server/services/core/company-interest-guardrail.service.ts`
 - `/server/services/core/confidence-guardrail.service.ts`
 - `/server/orchestrator/execution.layer.ts`

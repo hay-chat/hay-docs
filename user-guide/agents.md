@@ -114,7 +114,7 @@ What brings you in today?
 
 ### Step 5: Enable and Save
 
-- Toggle **Enabled** to activate your agent
+- Toggle **Enable agent** to activate your agent
 - Click **Create Agent**
 
 Your agent is now ready to start handling conversations!
@@ -148,11 +148,11 @@ Control whether the agent's responses are sent automatically or require human re
 2. Under **Message Approval**, select the desired option
 3. Changes take effect for all new conversations with this agent
 
-### Human Handoff Instructions
+### Human Escalation
 
 Tell your agent exactly how to handle escalations:
 
-**When Human is Available:**
+**If any human agent is available:**
 
 ```
 Let the customer know that you'll connect them with a specialist
@@ -160,7 +160,7 @@ who can help. Transfer the conversation and provide a summary of
 what was discussed.
 ```
 
-**When Human is NOT Available:**
+**If all human agents are unavailable:**
 
 ```
 Apologize and let the customer know you'll have someone reach out
@@ -201,7 +201,7 @@ Every organization needs a fallback for conversations that don't clearly match a
 **To set an agent as default:**
 
 1. Open the agent you want to use as the fallback
-2. Click **Set as Default Agent**
+2. Click **Set as Default**
 
 Only one agent can be the default at a time — setting a new one automatically replaces the previous default.
 
@@ -256,12 +256,11 @@ _Technical Support_
 
 ### Monitoring Your Agents
 
-Go to **Analytics** → **Agents** to see:
+Go to the **Analytics** page and scroll to the **Agent Performance** table to see:
 
 - **Conversations handled** - Total volume per agent
 - **Resolution rate** - How many issues they solved
 - **Average response time** - Speed of responses
-- **Escalation rate** - How often they need human help
 - **Customer satisfaction** - Ratings from customers
 
 > **Note:** Agent performance analytics currently display sample data while this feature is being developed. Live per-agent metrics are coming soon.

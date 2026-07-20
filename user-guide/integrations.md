@@ -40,10 +40,10 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 
 **Customization options:**
 
-- Button position (bottom-right, bottom-left, etc.)
-- Brand colors
-- Welcome message
-- Chat window size
+- Widget position (right or left)
+- Theme preset (blue, green, purple, or black)
+- Welcome message and greeting toggle
+- Widget title and subtitle
 
 ### WhatsApp Business
 
@@ -160,12 +160,7 @@ Send internal notification emails to a fixed set of recipients.
 
 ### Viewing Installed Integrations
 
-Go to **Integrations** in the sidebar to see:
-
-- All installed integrations
-- Connection status (✅ Connected or ⚠️ Issue)
-- Last sync time
-- Usage statistics
+Go to **Integrations** in the sidebar to see a list of enabled plugins. Click any plugin to view its settings page, where you can use **Test Connection** to verify connectivity.
 
 ### Configuring an Integration
 
@@ -182,7 +177,7 @@ To adjust settings:
 To remove an integration:
 
 1. Go to the integration
-2. Click **Disconnect** or **Uninstall**
+2. Click **Disable Plugin** (or **Disconnect** for OAuth-connected plugins to revoke the token)
 3. Confirm the action
 4. Integration is removed
 
@@ -212,11 +207,11 @@ To remove an integration:
 ### Web Chat Features
 
 - ✅ Typing indicators
-- ✅ Read receipts
-- ✅ File uploads
-- ✅ Emoji support
 - ✅ Conversation history
-- ✅ Proactive chat (trigger by page, time on site, etc.)
+- 🔜 Read receipts (planned)
+- 🔜 File uploads (planned)
+- 🔜 Emoji picker (planned)
+- 🔜 Proactive chat triggers (planned)
 
 ### WhatsApp Features
 

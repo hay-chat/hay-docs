@@ -156,12 +156,13 @@ Status is set when you create the playbook:
 
 **Draft** - Still working on it, not active yet
 **Active** - Live and ready to handle conversations
+**Archived** - No longer in use (also selectable at creation time)
 
 Click **Save Changes**
 
-> **Draft/Publish versioning:** Clicking **Save Changes** creates or updates a draft of the playbook. To make a version live, publish it — publishing sets the playbook's status to **Active** and creates an immutable snapshot of the playbook at that point in time. Subsequent edits start a new draft without affecting the published version.
+> **Draft/Publish versioning:** Clicking **Save Changes** persists identity fields (title, trigger, description, assigned agents). Instructions are auto-saved separately as you type in the editor. To make a version live, publish it — publishing sets the playbook's status to **Active** and creates an immutable snapshot. Subsequent edits start a new draft without affecting the published version.
 >
-> **Coming Soon:** There is currently no UI control to archive a playbook after creation. This capability is planned.
+> **Note:** Archiving is available when creating a playbook but cannot yet be changed after creation for existing playbooks. This capability is planned.
 
 ## Playbook Instructions Best Practices
 

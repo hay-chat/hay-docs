@@ -81,7 +81,7 @@ Persistent storage with caching:
 #### Incoming Message
 
 1. Message arrives via integration (email, chat, etc.)
-2. Integration plugin emits `message.received` event
+2. Integration plugin emits `message_received` event
 3. Message is validated and stored in database
 4. Event bus notifies all listeners
 5. Automation rules are evaluated
@@ -141,7 +141,7 @@ RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-b
 Multiple security layers:
 
 1. **Network**: TLS/SSL encryption for all traffic
-2. **Authentication**: JWT with short expiration
+2. **Authentication**: JWT access tokens (default 7d, configurable via `JWT_EXPIRES_IN`) with longer-lived refresh tokens (default 30d)
 3. **Authorization**: Role-based access control (RBAC)
 4. **Input Validation**: Sanitize all user input
 5. **Output Encoding**: Prevent XSS attacks
@@ -149,9 +149,9 @@ Multiple security layers:
 
 #### Data Privacy
 
-- **Encryption at rest**: Database encryption enabled
-- **Encryption in transit**: TLS 1.3 required
-- **PII handling**: Separate tables with restricted access
+- **Encryption at rest**: Database-level encryption (deployment/infrastructure concern, not enforced in application code)
+- **Encryption in transit**: TLS termination at load balancer/proxy level
+- **PII handling**: In-place anonymization via `privacy.service.ts` on data-deletion/export requests
 - **Audit logs**: All data access logged
 
 ### Monitoring and Observability

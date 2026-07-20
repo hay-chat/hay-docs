@@ -42,7 +42,7 @@ Data that goes into the AI's prompt. The AI can read and reference it in convers
     },
   };
 </script>
-<script src="https://cdn.hay.chat/widget.js" async></script>
+<script src="https://app.hay.so/v1/webchat/widget.js" async></script>
 ```
 
 Public context is sanitized structurally before it reaches the LLM — it is wrapped in delimiters and the model is instructed to treat it as data, not instructions. You should still avoid passing anything sensitive here.
@@ -81,7 +81,7 @@ No server involvement. Good for passing page state, user-facing metadata, or any
     },
   };
 </script>
-<script src="https://cdn.hay.chat/widget.js" async></script>
+<script src="https://app.hay.so/v1/webchat/widget.js" async></script>
 ```
 
 After the widget script loads, you can also update context dynamically:
@@ -130,7 +130,7 @@ Use this when your MCP tools need to authenticate as the specific user (e.g. OAu
     },
   };
 </script>
-<script src="https://cdn.hay.chat/widget.js" async></script>
+<script src="https://app.hay.so/v1/webchat/widget.js" async></script>
 ```
 
 If you return a Promise, the widget input stays disabled until it resolves. If you don't return a Promise, the secrets are attached in parallel and the widget opens immediately — the race window is negligible in practice since the user takes several seconds to type their first message.
@@ -198,7 +198,7 @@ Inject the user's external ID server-side into your page and pass it to the widg
     },
   };
 </script>
-<script src="https://cdn.hay.chat/widget.js" async></script>
+<script src="https://app.hay.so/v1/webchat/widget.js" async></script>
 ```
 
 You can still layer in ephemeral context client-side and attach per-conversation secrets via `onConversationStarted`:
@@ -221,7 +221,7 @@ You can still layer in ephemeral context client-side and attach per-conversation
     },
   };
 </script>
-<script src="https://cdn.hay.chat/widget.js" async></script>
+<script src="https://app.hay.so/v1/webchat/widget.js" async></script>
 ```
 
 **When to use**: When user profile data rarely changes and you don't want to re-supply it on every conversation. Best combined with Path B for apps that also need per-conversation secrets.
@@ -253,11 +253,8 @@ The conversation must already exist. Use `onConversationStarted` to get the ID.
 Secrets are attached via the tRPC mutation `conversations.addSecrets` with input `{ id: conversationId, secrets: Record<string, string> }`:
 
 ```js
-await hay.conversations.addSecrets({
-  id: conversationId,
-  secrets: {
-    auth: "Bearer eyJhbGciOiJIUzI1NiJ9...",
-  },
+await hay.conversations.addSecrets(conversationId, {
+  auth: "Bearer eyJhbGciOiJIUzI1NiJ9...",
 });
 ```
 
@@ -380,7 +377,7 @@ Available secrets: auth, userId
     },
   };
 </script>
-<script src="https://cdn.hay.chat/widget.js" async></script>
+<script src="https://app.hay.so/v1/webchat/widget.js" async></script>
 ```
 
 ```js

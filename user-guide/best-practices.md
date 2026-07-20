@@ -543,8 +543,8 @@ Test changes before rolling out everywhere:
 
 **Week 1: Supervised Practice**
 
-- Use Supervision Mode
-- Review and approve responses
+- Use Test Mode (agent-level setting) to review and approve responses
+- Monitor conversations as the AI handles them
 - Provide feedback
 - Share best practices
 
@@ -590,7 +590,7 @@ Test changes before rolling out everywhere:
 
 **Do:**
 
-- ✅ Use strong passwords and 2FA
+- ✅ Use strong passwords (2FA coming soon)
 - ✅ Limit access to what each person needs
 - ✅ Review user access quarterly
 - ✅ Log out when leaving computer

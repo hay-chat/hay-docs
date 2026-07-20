@@ -63,7 +63,17 @@ Think of it like training a new employee by giving them all your company documen
 - Useful for importing an existing help center or documentation site
 - All discovered pages are processed and added as separate documents
 
-### Step 3: Processing
+### Step 3: Document Details
+
+Before processing begins, fill in the document metadata:
+
+- Give document a clear title
+- Select a **category** from the dropdown (product, api, faq, legal, training, technical, or other) — this maps to the document's **type** (Article, Guide, FAQ, etc.) for internal organization
+- Add a description (what information does it contain?)
+- Toggle **Active** to make the document available immediately after processing
+- Click **Continue**
+
+### Step 4: Processing
 
 Hay processes your documents:
 
@@ -73,16 +83,6 @@ Hay processes your documents:
 4. Makes it instantly available
 
 **Usually takes:** 5-30 seconds depending on size
-
-### Step 4: Review and Organize
-
-After upload:
-
-- Give document a clear title
-- Add a description (what information does it contain?)
-- Select a **category** from the dropdown: product, api, faq, legal, training, technical, or other
-- Set the document status: **Draft**, **Published**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually.
-- Click **Save**
 
 ## Types of Documents to Upload
 
@@ -210,15 +210,9 @@ Refunds: 30 days. See mgr for exceptions.
 
 ### Organizing Documents
 
-Use the **category** dropdown when uploading a document to keep your knowledge base organized:
+The **category** you select during import maps to the document's **Type** (Article, Guide, FAQ, Tutorial, Reference, or Policy). You can filter documents by Type on the documents list page.
 
-- **faq** - Frequently asked questions
-- **product** - Product descriptions and specs
-- **api** - API references and developer docs
-- **legal** - Terms of service, privacy policy, etc.
-- **training** - Internal training and onboarding content
-- **technical** - Troubleshooting guides and technical docs
-- **other** - Everything else
+> **Note:** Category/Type is set during import only and cannot be changed afterward from the document detail page.
 
 ### Keep Documents Updated
 
