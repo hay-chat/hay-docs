@@ -41,9 +41,8 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 **Customization options:**
 
 - Button position (bottom-right, bottom-left, etc.)
-- Brand colors
+- Theme color (4 presets: blue, green, purple, black)
 - Welcome message
-- Chat window size
 
 ### WhatsApp Business
 
@@ -212,11 +211,11 @@ To remove an integration:
 ### Web Chat Features
 
 - ✅ Typing indicators
-- ✅ Read receipts
-- ✅ File uploads
-- ✅ Emoji support
 - ✅ Conversation history
-- ✅ Proactive chat (trigger by page, time on site, etc.)
+- 🔜 Read receipts — planned
+- 🔜 File uploads — planned
+- 🔜 Emoji picker — planned
+- 🔜 Proactive chat (trigger by page, time on site, etc.) — planned
 
 ### WhatsApp Features
 

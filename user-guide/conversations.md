@@ -36,18 +36,15 @@ Find specific conversations quickly:
 
 **Search by:**
 
-- Customer name or email
-- Keywords in the conversation
+- Conversation title
 - Conversation ID
 
 **Filter by:**
 
 - **Status** - All, Active, Resolved, Escalated, Closed
-- **Channel** - Web, WhatsApp, Email, etc.
-- **Agent** - Which AI agent handled it
-- **Date range** - When the conversation happened
+- **Timeframe** - Today, This Week, This Month, All Time
 
-> **Note:** The "Active" and "Escalated" status filters are not yet functional.
+> **Note:** The "Active" and "Escalated" status filters are not yet functional. The Timeframe filter is also pending implementation. Search by customer name/email and message content is not yet available.
 
 ## Conversation Statuses
 
@@ -124,25 +121,23 @@ When you're done:
   - **Return to Queue** - The conversation is placed back in the queue for another team member to pick up
 - Click **Close Conversation** (a separate button) to mark the conversation as resolved and ended
 
-## Supervision Mode
+## Message Approval (Test Mode)
 
-Want to watch the AI work without taking over? Use Supervision Mode.
+Want to review AI responses before they reach customers? Use the agent's **Test Mode** setting.
 
-### What is Supervision Mode?
+### What is Test Mode?
 
-- Watch the conversation in real-time
 - See what the AI is about to say BEFORE it sends
-- Approve or edit responses
-- Step in only if needed
+- Approve, edit, or block responses
+- Applies per-agent or organization-wide
 
-> **Note:** Supervision Mode is only available for conversations with an `open` status.
+### How to Enable It
 
-### How to Use It
+1. Go to **Agents** → select your agent
+2. Under **Message Approval**, choose **Require Approval**
+3. Save the agent
 
-1. Open an active conversation with `open` status
-2. Click **Supervise** at the top
-3. When AI generates a response, you'll see it first
-4. **Approve** to send it, **Edit** to change it, or **Take Over** to respond yourself
+When enabled, AI-generated responses are held with a "Pending" status. You can then **Approve** to send, **Edit** to change, or **Block** to prevent delivery.
 
 **Perfect for:**
 
@@ -151,6 +146,8 @@ Want to watch the AI work without taking over? Use Supervision Mode.
 - Sensitive topics
 - Testing and quality control
 
+> **Note:** The "Supervise" button visible in the conversation header is not yet functional. Use the agent-level Test Mode setting described above instead.
+
 ## Test Conversations (Playground)
 
 Practice and test your agent without affecting real customers.
@@ -158,7 +155,7 @@ Practice and test your agent without affecting real customers.
 ### Starting a Test
 
 1. Go to **Conversations**
-2. Click **New Test Conversation** or enter **Playground mode**
+2. Click **Conversation Playground**
 3. Chat with your agent like a customer would
 
 ### What's Different in Test Mode

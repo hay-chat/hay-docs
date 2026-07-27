@@ -1,17 +1,17 @@
 ---
 layout: docs.njk
 title: Guardrails
-description: Two-stage guardrail system for AI response quality
+description: Three-stage guardrail system for AI response quality
 section: technical
 navGroup: Core Systems
 navOrder: 2
 ---
 
-# Two-Stage Guardrail System
+# Three-Stage Guardrail System
 
 ## Overview
 
-Hay uses a sophisticated two-stage guardrail system to ensure AI responses serve company interests while maintaining factual accuracy. This system replaces the previous single-stage confidence guardrail with a more pragmatic, company-focused approach.
+Hay uses a sophisticated three-stage guardrail system to ensure AI responses are consistent with tool-call results, serve company interests, and maintain factual accuracy.
 
 ## Architecture
 
@@ -19,7 +19,15 @@ Hay uses a sophisticated two-stage guardrail system to ensure AI responses serve
 flowchart TD
   A["fa:fa-robot AI Response Generated"]
 
-  A --> B
+  A --> Z
+
+  subgraph Z["fa:fa-gears  Stage 0: Action-Claim Consistency"]
+    direction TB
+    Z1["Do claims in the response match<br/>actual tool-call results?"]
+  end
+
+  Z -->|"fa:fa-xmark MISMATCH"| RETRY["fa:fa-rotate Retry / Escalate"]
+  Z -->|"fa:fa-check PASS"| B
 
   subgraph B["fa:fa-shield-halved  Stage 1: Interest Protection"]
     direction TB
@@ -44,6 +52,7 @@ flowchart TD
   D -->|"Low <0.5"| ESC2["fa:fa-user Escalate"]
 
   style A fill:#e8f3ff,stroke:#568aff,color:#0a155c
+  style RETRY fill:#fffbeb,stroke:#fbbf24,color:#78350f
   style ESC fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
   style ESC2 fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
   style DEL1 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
@@ -51,6 +60,28 @@ flowchart TD
   style REC fill:#fffbeb,stroke:#fbbf24,color:#78350f
   style C fill:#fff,stroke:#568aff,color:#0a155c
 ```
+
+## Stage 0: Action-Claim Consistency
+
+### Purpose
+Verify that the AI's natural-language claims about actions it took (e.g., "I've cancelled your order") are consistent with the actual tool-call results. This runs **before** Stage 1 and can trigger a corrective retry or escalation to a human agent.
+
+### How It Works
+1. After the AI generates a response that references tool calls, the `ActionClaimGuardrailService` compares the response text against the actual tool-call results
+2. If a mismatch is detected (e.g., the AI claims success but the tool returned an error), the system retries with corrective context
+3. If retries are exhausted (`maxRetries`, default 1), the conversation is escalated to a human agent
+
+### Configuration
+
+```typescript
+"actionClaimGuardrail": {
+  "enabled": true,        // default: true
+  "maxRetries": 1,        // default: 1
+  "escalateOnFailure": true  // default: true — escalate if retries exhausted
+}
+```
+
+> **Note:** Stage 0 assessment results are not currently persisted to message metadata or the guardrail log. Only Stage 1 and Stage 2 results appear in metadata.
 
 ## Stage 1: Company Interest Protection
 
@@ -213,6 +244,13 @@ When Medium confidence:
 ```typescript
 {
   "companyDomain": "e-commerce", // Optional: helps Stage 1 understand context
+
+  // Stage 0: Action-Claim Consistency
+  "actionClaimGuardrail": {
+    "enabled": true,
+    "maxRetries": 1,
+    "escalateOnFailure": true
+  },
 
   // Stage 1: Company Interest Protection
   "companyInterestGuardrail": {
@@ -410,15 +448,18 @@ conversation.messages.forEach(message => {
 ## Technical Details
 
 ### Services
+- `ActionClaimGuardrailService` - Stage 0 implementation
 - `CompanyInterestGuardrailService` - Stage 1 implementation
 - `ConfidenceGuardrailService` - Stage 2 implementation (refactored)
 
 ### Prompts
+- `execution/action-claim-check` - Stage 0 action-claim verification (EN, PT, ES)
 - `execution/company-interest-check` - Stage 1 evaluation (EN, PT, ES)
 - `execution/confidence-grounding` - Stage 2 grounding (EN, PT, ES)
 - `execution/confidence-certainty` - Stage 2 certainty (EN, PT, ES)
 
 ### Files
+- `/server/services/core/action-claim-guardrail.service.ts`
 - `/server/services/core/company-interest-guardrail.service.ts`
 - `/server/services/core/confidence-guardrail.service.ts`
 - `/server/orchestrator/execution.layer.ts`

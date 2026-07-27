@@ -176,16 +176,24 @@ OPENAI_EMBEDDING_MODEL=text-embedding-3-large
 EMBEDDING_DIM=3072  # For large model
 ```
 
+> **Important:** pgvector's HNSW and IVFFlat index types only support up to **2000 dimensions**. If using `text-embedding-3-large` at native 3072 dimensions, the existing HNSW index must be dropped and cannot be recreated at that size. Consider using OpenAI's `dimensions` parameter to truncate to ≤2000 (e.g., 1536) to retain HNSW indexing.
+
 2. Create a new migration to update the vector dimension:
 
 ```sql
+-- Drop the existing HNSW index (required if new dimension > 2000)
+DROP INDEX IF EXISTS embeddings_embedding_hnsw_idx;
+
 ALTER TABLE embeddings
 ALTER COLUMN embedding TYPE vector(3072);
+
+-- HNSW index CANNOT be rebuilt at 3072 dims (pgvector limit: 2000)
+-- Either truncate embeddings to ≤2000 dims or use sequential scan
 ```
 
 ## Switching Distance Metrics
 
-Currently using cosine distance (default). To switch:
+Currently using cosine distance (default). To switch, you must update **both** the SQL index and the TypeScript code in `server/services/vector-store.service.ts` — the `search()` and `searchDocuments()` methods hardcode the `<=>` (cosine) operator and `1 - distance` similarity formula:
 
 ### For L2 (Euclidean) distance:
 
@@ -218,7 +226,7 @@ WITH (m = 16, ef_construction = 64);
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS vector;
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 ```
 
 ### Performance issues

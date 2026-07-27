@@ -42,7 +42,7 @@ Fill in the essentials:
 
 **Instructions**
 
-Tell your agent how to behave. Write in plain English:
+Tell your agent how to behave. The instructions field uses a rich block editor — type `/` to insert structured blocks and `@` to mention documents or MCP tools your agent can reference:
 
 ```
 You are a helpful customer support agent for an online store.
@@ -256,7 +256,7 @@ _Technical Support_
 
 ### Monitoring Your Agents
 
-Go to **Analytics** → **Agents** to see:
+Go to **Analytics** and scroll to the **Agent Performance** section to see:
 
 - **Conversations handled** - Total volume per agent
 - **Resolution rate** - How many issues they solved

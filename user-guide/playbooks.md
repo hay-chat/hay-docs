@@ -156,12 +156,13 @@ Status is set when you create the playbook:
 
 **Draft** - Still working on it, not active yet
 **Active** - Live and ready to handle conversations
+**Archived** - No longer in use
 
 Click **Save Changes**
 
 > **Draft/Publish versioning:** Clicking **Save Changes** creates or updates a draft of the playbook. To make a version live, publish it — publishing sets the playbook's status to **Active** and creates an immutable snapshot of the playbook at that point in time. Subsequent edits start a new draft without affecting the published version.
 >
-> **Coming Soon:** There is currently no UI control to archive a playbook after creation. This capability is planned.
+> **Note:** Status can be set at creation time (including Archived). After creation, the status transitions via publishing (Draft → Active). To remove a playbook, use the **Delete** button in the editor sidebar.
 
 ## Playbook Instructions Best Practices
 
@@ -236,7 +237,7 @@ Escalate to human if:
 You can assign playbooks to specific agents from the playbook editor:
 
 1. Open the playbook
-2. Go to **Agents**
+2. In the right sidebar, find the **Assigned Agents** panel
 3. Select which agents should use this playbook
 4. Save
 
@@ -267,9 +268,13 @@ Before activating:
 
 > **Coming Soon:** Playbook-level analytics (usage count, success rate, completion time, escalation rate) are not yet available. Monitor playbook effectiveness by reviewing conversations manually in the **Conversations** section.
 
-### Deactivating a Playbook
+### Deleting a Playbook
 
-> **Coming Soon:** There is currently no UI control to archive a playbook after creation. Status is set when the playbook is created (**Draft**) and moves to **Active** when published. Until archiving is available, keep a playbook's trigger narrow or remove its instructions to stop it from being used.
+To remove a playbook you no longer need:
+
+1. Open the playbook
+2. Click the **Delete** button in the right sidebar
+3. Confirm the deletion in the dialog
 
 ## Common Playbook Templates
 
@@ -418,11 +423,11 @@ Every 2-4 weeks:
 
 ### Retire Unused Playbooks
 
-If a playbook hasn't been used in 90 days:
+Periodically review your playbooks:
 
-- Consider if it's still needed
+- Consider if each playbook is still needed
 - Delete if obsolete
-- Update triggers if it should be used more
+- Update triggers if a playbook should be matching more conversations
 
 ### Version Control
 
@@ -454,7 +459,7 @@ Hay chooses the best match based on trigger relevance and context.
 
 ### Can I use the same playbook across multiple channels?
 
-Yes! Playbooks work across all channels unless you specify otherwise.
+Yes! Playbooks work across all channels. There is currently no per-channel restriction — all active playbooks are available regardless of channel.
 
 ## Next Steps
 

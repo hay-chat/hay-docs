@@ -543,8 +543,8 @@ Test changes before rolling out everywhere:
 
 **Week 1: Supervised Practice**
 
-- Use Supervision Mode
-- Review and approve responses
+- Enable Test Mode on your agent (Agents → select agent → Message Approval → Require Approval)
+- Review and approve responses before they are sent
 - Provide feedback
 - Share best practices
 

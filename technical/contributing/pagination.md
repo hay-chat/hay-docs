@@ -229,11 +229,25 @@ This is a real, working pagination endpoint — `customers.list` uses `createLis
 - `status`: Playbook status enum
 - `agentIds`: Array of UUID strings
 
-**Search Fields:** `["name", "description"]`
+**Search Fields:** `["name", "description", "prompt_template"]`
 
 **Sort Fields:** `["created_at", "updated_at", "name", "status"]`
 
 > ⚠️ **Not yet wired up:** This schema exists in `entity-list-inputs.ts`, but `playbooks.list` currently returns an unpaginated array (`playbookService.getPlaybooks`) with no pagination, filtering, search, or sorting applied. Treat the above as a planned/target shape, not current behavior.
+
+### Messages
+
+**Available Filters:**
+
+- `conversationId`: UUID string
+- `type`: Message type enum
+- `sender`: Sender identifier
+
+**Search Fields:** `["content"]`
+
+**Sort Fields:** `["created_at", "updated_at", "type"]`
+
+> ⚠️ **Not yet wired up:** This schema exists in `entity-list-inputs.ts` as `messageListInputSchema`, but no route currently uses `createListProcedure` for messages. Treat the above as a planned/target shape, not current behavior.
 
 ## Implementation Guide
 

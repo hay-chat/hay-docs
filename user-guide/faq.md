@@ -312,14 +312,12 @@ Data is stored in secure, encrypted databases. Contact your account manager for 
 
 ### Can I export my data?
 
-Yes! You can export:
+Yes! Currently available exports:
 
-- All conversations
-- Customer data
-- Analytics
-- Documents
+- **Per-customer GDPR export** — Go to **Settings** → **Customer Privacy**, search by email/phone/external ID, and request a data export or deletion
+- **Per-conversation export** — Open any conversation and use the export option to download as PDF or CSV
 
-Go to **Settings** → **Privacy** or use the export feature in Analytics.
+Bulk export of all conversations, analytics, and documents is not yet available.
 
 ## Technical Questions
 

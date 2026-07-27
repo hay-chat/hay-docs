@@ -250,14 +250,11 @@ All secret operations are server-to-server, authenticated with your Hay API key.
 
 The conversation must already exist. Use `onConversationStarted` to get the ID.
 
-Secrets are attached via the tRPC mutation `conversations.addSecrets` with input `{ id: conversationId, secrets: Record<string, string> }`:
+Secrets are attached via the `@hay/server-sdk` method `conversations.addSecrets(conversationId, secrets)`:
 
 ```js
-await hay.conversations.addSecrets({
-  id: conversationId,
-  secrets: {
-    auth: "Bearer eyJhbGciOiJIUzI1NiJ9...",
-  },
+await hay.conversations.addSecrets(conversationId, {
+  auth: "Bearer eyJhbGciOiJIUzI1NiJ9...",
 });
 ```
 

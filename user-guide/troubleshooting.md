@@ -30,7 +30,7 @@ section: user-guide
 **Check conversation status:**
 
 1. Open the conversation
-2. Check if status is "Open" (not "Closed" or "Human Took Over")
+2. Check if status is "Open" (not "Closed" or "Manual Control")
 3. Check for error messages in conversation
 
 **If still not working:**
@@ -88,8 +88,8 @@ section: user-guide
 
 **Identify why escalations happen:**
 
-1. Go to **Queue**
-2. Review escalation reasons
+1. Go to **Conversations** and filter by **Needs Attention** status
+2. Review escalation reasons in individual conversations
 3. Look for patterns
 
 **Common causes and fixes:**
@@ -231,7 +231,7 @@ section: user-guide
    - Contact organization admin
    - Verify email is verified
 
-4. **2FA issues:**
+4. **2FA issues:** (2FA is not yet available — this section will apply once the feature ships)
    - Ensure time is correct on device
    - Try backup codes
    - Contact support to reset 2FA

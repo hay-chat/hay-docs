@@ -79,8 +79,7 @@ Hay processes your documents:
 After upload:
 
 - Give document a clear title
-- Add a description (what information does it contain?)
-- Select a **category** from the dropdown: product, api, faq, legal, training, technical, or other
+- Select a **type** from the dropdown: product, api, faq, legal, training, technical, or other (this sets the document's Type — see "Viewing Documents" below for how types display)
 - Set the document status: **Draft**, **Published**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually.
 - Click **Save**
 
@@ -210,15 +209,17 @@ Refunds: 30 days. See mgr for exceptions.
 
 ### Organizing Documents
 
-Use the **category** dropdown when uploading a document to keep your knowledge base organized:
+Use the **type** dropdown when uploading a document to keep your knowledge base organized:
 
-- **faq** - Frequently asked questions
-- **product** - Product descriptions and specs
-- **api** - API references and developer docs
-- **legal** - Terms of service, privacy policy, etc.
-- **training** - Internal training and onboarding content
-- **technical** - Troubleshooting guides and technical docs
-- **other** - Everything else
+- **faq** - Frequently asked questions → stored as type **FAQ**
+- **product** - Product descriptions and specs → stored as type **Guide**
+- **api** - API references and developer docs → stored as type **Reference**
+- **legal** - Terms of service, privacy policy, etc. → stored as type **Policy**
+- **training** - Internal training and onboarding content → stored as type **Tutorial**
+- **technical** - Troubleshooting guides and technical docs → stored as type **Reference**
+- **other** - Everything else → stored as type **Article**
+
+> **Note:** The upload dropdown labels differ from the stored type names shown in the document list. "api" and "technical" both map to **Reference**.
 
 ### Keep Documents Updated
 

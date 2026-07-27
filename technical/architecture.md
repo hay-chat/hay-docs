@@ -80,21 +80,19 @@ Persistent storage with caching:
 
 #### Incoming Message
 
-1. Message arrives via integration (email, chat, etc.)
-2. Integration plugin emits `message.received` event
-3. Message is validated and stored in database
-4. Event bus notifies all listeners
-5. Automation rules are evaluated
-6. Real-time updates sent to connected clients
+1. Message arrives via integration plugin (webchat, WhatsApp, etc.)
+2. Plugin calls the `messages.receive` endpoint on the Plugin API
+3. Message is validated and stored in database; customer is resolved or created
+4. `conversation.service` publishes a job to the RabbitMQ `PROCESS` queue via `orchestratorQueueService`
+5. `OrchestratorWorker` consumes the job and runs the orchestrator pipeline (perception → retrieval → execution)
+6. Real-time updates broadcast through `ConversationEventsService` / Redis pub/sub → WebSocket clients
 
-#### Automation Execution
+#### Orchestration Pipeline
 
-1. Rule trigger conditions evaluated
-2. If matched, rule added to job queue
-3. Worker picks up job from queue
-4. Actions executed in sequence
-5. Results logged and stored
-6. Completion event emitted
+1. **Perception**: Analyze user intent, sentiment, and language via LLM
+2. **Retrieval**: Find relevant documents (vector search) and matching playbooks (LLM scoring)
+3. **Execution**: Generate AI response in an iterative tool-calling loop, with guardrail checks (action-claim, company-interest, confidence/fact-grounding)
+4. Response stored and delivered to the customer's channel via `ChannelDeliveryService`
 
 ### Scalability Considerations
 
@@ -141,7 +139,7 @@ RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-b
 Multiple security layers:
 
 1. **Network**: TLS/SSL encryption for all traffic
-2. **Authentication**: JWT with short expiration
+2. **Authentication**: JWT with configurable expiration (default 7 days access, 30 days refresh)
 3. **Authorization**: Role-based access control (RBAC)
 4. **Input Validation**: Sanitize all user input
 5. **Output Encoding**: Prevent XSS attacks
@@ -149,10 +147,9 @@ Multiple security layers:
 
 #### Data Privacy
 
-- **Encryption at rest**: Database encryption enabled
-- **Encryption in transit**: TLS 1.3 required
+- **Encryption in transit**: TLS/SSL for database connections (configurable via `DB_SSL`)
 - **PII handling**: Separate tables with restricted access
-- **Audit logs**: All data access logged
+- **Audit logs**: Authentication and account-security events logged (login, password/email changes, invitations, role changes) via `AuditLogService`
 
 ### Monitoring and Observability
 
