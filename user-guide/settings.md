@@ -116,25 +116,12 @@ Choose what emails you receive:
 - Special characters recommended
 
 **Two-Factor Authentication (2FA)**
-Add extra security to your account:
 
-1. Go to **Settings** → **Security**
-2. Click **Enable 2FA**
-3. Scan QR code with authenticator app
-4. Enter verification code
-5. Save backup codes
-
-**Recommended authenticator apps:**
-
-- Google Authenticator
-- Authy
-- Microsoft Authenticator
+> **Coming soon:** 2FA is not yet implemented.
 
 **Session Management**
 
-- View active sessions
-- See last login time and location
-- Sign out of all other sessions
+> **Coming soon:** Session management UI is not yet accessible from the sidebar.
 
 ### API Tokens
 
@@ -192,7 +179,7 @@ View security-related activity:
 **Data retention:**
 Configure how long conversation data is stored. When a retention period is set, closed conversations past the window are automatically anonymized — messages and personal data are removed while analytics metadata is preserved.
 
-- Conversations: any number of days (not limited to preset values), or indefinitely
+- Conversations: preset retention periods (30, 60, 90, 180, or 365 days), or indefinitely (disabled)
 - Customer information: Active until requested deletion
 
 > For full details on how anonymization works, legal holds, the cleanup schedule, and audit logging, see the [Data Retention & Privacy](/docs/user-guide/data-retention/) guide.
@@ -209,20 +196,21 @@ Handle GDPR and privacy requests:
 
 **Customer Data Export:**
 
-1. Go to **Settings** → **Privacy**
+1. Go to **Settings** → **Customer Privacy**
 2. Click **Data Export**
-3. Enter customer email
-4. Select data types to export
-5. Click **Generate Export**
-6. Download when ready
+3. Enter customer identifier (email, phone, or external ID)
+4. Click **Generate Export**
+5. Download when ready
 
 **Customer Data Deletion:**
 
-1. Go to **Settings** → **Privacy**
+1. Go to **Settings** → **Customer Privacy**
 2. Click **Data Deletion Request**
-3. Enter customer email
+3. Enter customer identifier (email, phone, or external ID)
 4. Confirm deletion
 5. Request processed within 30 days
+
+> **Note:** **Settings** → **Privacy** handles your own personal data (export/delete account). Customer data operations are in **Settings** → **Customer Privacy**.
 
 > ⚠️ **Note:** Deletion is permanent and cannot be undone.
 
@@ -243,78 +231,6 @@ Hay helps you comply with GDPR:
 - View security certifications
 - Access compliance reports
 
-## Billing & Subscription
-
-### Current Plan
-
-View your subscription details:
-
-- Plan name and features
-- Number of conversations included
-- Current usage
-- Billing cycle
-- Next billing date
-
-### Usage
-
-Track your consumption:
-
-- **Conversations this month:** 1,450 / 2,000
-- **Team members:** 3 / 10
-- **Agents:** 2 / 5
-- **Storage used:** 450 MB / 5 GB
-
-**Approaching limits?**
-
-- Get notified at 80% usage
-- Consider upgrading plan
-- Or optimize to reduce usage
-
-### Payment Methods
-
-**Adding a payment method:**
-
-1. Go to **Settings** → **Billing**
-2. Click **Add Payment Method**
-3. Enter card information
-4. Click **Save**
-
-**Updating payment:**
-
-- Update card details
-- Change billing address
-- Switch payment methods
-
-### Invoices
-
-**Viewing invoices:**
-
-- See all past invoices
-- Download as PDF
-- Email to accounting
-
-**Invoice details include:**
-
-- Date and amount
-- Services used
-- Tax information
-- Payment method
-
-### Upgrading/Downgrading
-
-**To change your plan:**
-
-1. Go to **Settings** → **Billing**
-2. Click **Change Plan**
-3. Compare available plans
-4. Select new plan
-5. Confirm change
-
-**Prorated billing:**
-
-- Upgrades: Charged difference immediately
-- Downgrades: Credit applied to next bill
-
 ## Integrations Settings
 
 ### Manage Integrations
@@ -333,29 +249,6 @@ View and configure all connected integrations:
 - API credentials
 - Sync preferences
 - Notification settings
-
-### Webhooks
-
-Set up webhooks to notify your systems:
-
-**Creating a webhook:**
-
-1. Go to **Settings** → **Integrations** → **Webhooks**
-2. Click **Add Webhook**
-3. Enter webhook URL
-4. Select events to trigger:
-   - New conversation
-   - Conversation resolved
-   - Message received
-   - Escalation created
-5. Save
-
-**Testing webhooks:**
-
-- Send test payload
-- View delivery history
-- Check failure logs
-- Retry failed deliveries
 
 ## Advanced Settings
 

@@ -48,10 +48,10 @@ Think of it like training a new employee by giving them all your company documen
 - Word documents (.doc, .docx)
 - Text files (.txt)
 - Markdown files (.md)
-- CSV files (for data)
+- CSV files (treated as plain text)
 - HTML files (.html)
 - PowerPoint presentations (.ppt, .pptx)
-- JSON files (.json)
+- JSON files (.json, treated as plain text)
 
 > **File size limit:** The maximum upload size is 10 MB per file (configurable via the `UPLOAD_MAX_SIZE_MB` environment variable).
 

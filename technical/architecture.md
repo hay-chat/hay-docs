@@ -80,21 +80,12 @@ Persistent storage with caching:
 
 #### Incoming Message
 
-1. Message arrives via integration (email, chat, etc.)
-2. Integration plugin emits `message.received` event
-3. Message is validated and stored in database
-4. Event bus notifies all listeners
-5. Automation rules are evaluated
+1. Message arrives via integration (webhook from channel plugin)
+2. Server processes the webhook and stores the message in database
+3. `message_received` event published via Redis pub/sub
+4. WebSocket and channel delivery services notified
+5. Orchestrator processes conversation via RabbitMQ worker
 6. Real-time updates sent to connected clients
-
-#### Automation Execution
-
-1. Rule trigger conditions evaluated
-2. If matched, rule added to job queue
-3. Worker picks up job from queue
-4. Actions executed in sequence
-5. Results logged and stored
-6. Completion event emitted
 
 ### Scalability Considerations
 
@@ -132,16 +123,14 @@ RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-b
 - Failed jobs are marked as `FAILED` by `JobQueueService.failJob()`; there is no automatic retry
 - Job priority is ordered via a SQL column, not a Bull-style priority queue
 - No rate limiting per job type
-- Monitoring and alerting
-
 ### Security Architecture
 
 #### Defense in Depth
 
 Multiple security layers:
 
-1. **Network**: TLS/SSL encryption for all traffic
-2. **Authentication**: JWT with short expiration
+1. **Network**: TLS/SSL via reverse proxy (not terminated at application level)
+2. **Authentication**: JWT with configurable expiration (default 7 days, refresh 30 days)
 3. **Authorization**: Role-based access control (RBAC)
 4. **Input Validation**: Sanitize all user input
 5. **Output Encoding**: Prevent XSS attacks
@@ -149,37 +138,21 @@ Multiple security layers:
 
 #### Data Privacy
 
-- **Encryption at rest**: Database encryption enabled
-- **Encryption in transit**: TLS 1.3 required
-- **PII handling**: Separate tables with restricted access
-- **Audit logs**: All data access logged
+- **PII redaction**: Automatic redaction in logs via Pino logger (see [Logger Guide](/docs/technical/LOGGER/))
+- **Privacy service**: GDPR compliance with data export and deletion
+- **Audit logs**: Data access logged
 
 ### Monitoring and Observability
 
-#### Metrics
-
-Key metrics tracked:
-
-- API response times
-- Error rates
-- Queue lengths
-- Database query performance
-- Cache hit rates
-
 #### Logging
 
-Structured logging with correlation IDs:
+Structured logging via Pino with automatic PII redaction:
 
 ```typescript
 logger.info({ conversationId: '123', action: 'create', duration: 45 }, 'Processing conversation');
 ```
 
-#### Tracing
-
-Distributed tracing for debugging:
-- Request flows across services
-- Performance bottleneck identification
-- Error source pinpointing
+See the [Logger Guide](/docs/technical/LOGGER/) for details on log levels, redaction, and configuration.
 
 ## Next Steps
 

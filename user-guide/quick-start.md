@@ -41,7 +41,7 @@ Your agent is your AI assistant. Give it a personality and purpose.
 
    - **Name:** Something descriptive like "Customer Support Agent"
    - **Description:** What this agent handles (e.g., "Handles order questions and product inquiries")
-   - **Tone:** Choose how your agent should communicate (Professional, Casual, or Enthusiastic)
+   - **Tone:** Choose a preset (Professional, Casual, or Enthusiastic) which pre-fills a description, or write your own custom tone instructions
 
 4. (Optional) Add specific instructions:
 
@@ -58,10 +58,11 @@ Your agent is your AI assistant. Give it a personality and purpose.
 Teach your agent by uploading your existing support materials.
 
 1. Go to **Documents** in the left sidebar
-2. Add content using one of two buttons:
+2. Add content using one of three buttons:
 
+   - **Connected Sources** - View and manage external document sources
    - **Import Document** - Upload files (PDFs, text files) or import content directly from a website URL
-   - **Write Document** - Create a document from scratch at `/documents/new`
+   - **Write Document** - Create a document from scratch
 
 3. When importing from a website, use the **Import from Website** option to auto-crawl the site or provide a sitemap and pull in multiple pages at once
 
@@ -82,7 +83,7 @@ Teach your agent by uploading your existing support materials.
 Playbooks are step-by-step instructions for handling specific situations.
 
 1. Go to **Playbooks** in the left sidebar
-2. Click the **+ icon** or **Generate Playbook**
+2. Click the **+ icon** to create manually, or **Generate Playbook** to open a multi-step wizard that guides you through purpose, actions, documents, and boundaries
 3. Set up the basics:
 
    - **Title:** "Welcome New Customers"

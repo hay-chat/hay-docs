@@ -38,7 +38,7 @@ logger.info("Server started");
 | `info`  | Important state changes, startup, success      |
 | `debug` | Diagnostic detail, request tracing, dev output |
 
-Configure via `LOG_LEVEL` environment variable (default: `debug` in development, `info` in production).
+Configure via `LOG_LEVEL` environment variable (default: `debug` for all environments unless explicitly set).
 
 ## PII Redaction
 
@@ -48,14 +48,16 @@ All logs are automatically redacted at two layers:
 
 Sensitive fields are replaced with `[REDACTED]` before serialization:
 
-- **Credentials**: `password`, `token`, `accessToken`, `refreshToken`, `apiKey`, `secret`, `clientSecret`
-- **Personal data**: `email`, `phone`, `phoneNumber`, `ssn`, `creditCard`, `bankAccount`
+- **Credentials**: `password`, `token`, `accessToken`, `refreshToken`, `apiKey`, `secret`, `clientSecret`, `key`, `webhookSecret`
+- **Personal data**: `email`, `phone`, `phoneNumber`, `ssn`, `creditCard`, `bankAccount`, `firstName`, `lastName`, `name`, `address`, `ipAddress`, `ip`, `userAgent`
+- **Email fields**: `newEmail`, `oldEmail`, `userEmail`, `toEmail`, `fromEmail`, `to`, `from`, `fromAddress`, `replyTo`, `cc`, `bcc`
+- **URLs**: `verificationUrl`, `resetUrl`, `callbackUrl`
 - **Headers**: `headers.authorization`, `headers.cookie`
-- **Nested**: All of the above at one level of nesting (`*.email`, `*.token`, etc.)
+- **Nested**: All of the above at two levels of nesting (`*.email`, `*.*.email`, etc.)
 
 ### Layer 2: Regex-based string redaction (log messages)
 
-Email addresses and phone numbers embedded in freeform text are automatically caught:
+Sensitive patterns embedded in freeform text are automatically caught:
 
 ```typescript
 logger.info("User john@example.com signed up");
@@ -64,6 +66,8 @@ logger.info("User john@example.com signed up");
 logger.info("Call +1-555-123-4567 for support");
 // Output: "Call [PHONE_REDACTED] for support"
 ```
+
+Additional patterns detected: JWT tokens (`[TOKEN_REDACTED]`), Bearer/Basic auth tokens, IPv4 addresses (`[IP_REDACTED]`), credit card numbers (`[CREDIT_CARD_REDACTED]`), SSNs (`[SSN_REDACTED]`), and API key prefixes (`[API_KEY_REDACTED]`).
 
 ## Output Format
 
@@ -75,8 +79,8 @@ logger.info("Call +1-555-123-4567 for support");
 
 | Variable        | Default       | Description                          |
 | --------------- | ------------- | ------------------------------------ |
-| `LOG_LEVEL`     | `debug`/`info`| Log level (debug in dev, info in prod) |
-| `DEBUG_MODULES` | `*`           | Module filter for legacy `debugLog`  |
+| `LOG_LEVEL`     | `debug`       | Log level (default: debug for all environments) |
+| `DEBUG_MODULES` | `*`           | Module filter for debug output       |
 
 ## ESLint Enforcement
 
@@ -95,24 +99,8 @@ This is configured at the infrastructure level:
 - **Docker/K8s**: Configure log driver `max-size`/`max-file` or use a log aggregation service with 30-day retention
 - **Self-hosted**: Use `logrotate` with 30-day maximum
 
-## Migration from debugLog
-
-`debugLog` from `@server/lib/debug-logger` is deprecated. It now delegates to the Pino logger internally, so existing callers get PII redaction automatically. For new code, use `createLogger()` directly:
-
-```typescript
-// Before (deprecated):
-import { debugLog } from "@server/lib/debug-logger";
-debugLog("perception", "Analyzing intent", { messageId: "123" });
-
-// After:
-import { createLogger } from "@server/lib/logger";
-const logger = createLogger("perception");
-logger.info({ messageId: "123" }, "Analyzing intent");
-```
-
 ## Files
 
 - `server/lib/logger/index.ts` — Root logger and `createLogger()` factory
 - `server/lib/logger/redaction.ts` — PII redaction patterns and string sanitizer
-- `server/lib/debug-logger.ts` — Legacy bridge (deprecated)
 - `server/tests/lib/logger.test.ts` — Redaction unit tests

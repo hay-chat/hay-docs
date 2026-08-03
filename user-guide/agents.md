@@ -21,7 +21,7 @@ You can have multiple agents, each specialized for different needs.
 
 ### Step 1: Navigate to Agents
 
-1. Click **Agents** in the left sidebar
+1. Go to **Settings** → **Agents** in the left sidebar
 2. Click **Create Agent** button
 
 ### Step 2: Basic Information
@@ -256,15 +256,9 @@ _Technical Support_
 
 ### Monitoring Your Agents
 
-Go to **Analytics** → **Agents** to see:
+The Dashboard page includes a **Top Performing Agents** widget showing per-agent resolution rates and conversation counts.
 
-- **Conversations handled** - Total volume per agent
-- **Resolution rate** - How many issues they solved
-- **Average response time** - Speed of responses
-- **Escalation rate** - How often they need human help
-- **Customer satisfaction** - Ratings from customers
-
-> **Note:** Agent performance analytics currently display sample data while this feature is being developed. Live per-agent metrics are coming soon.
+> **Note:** Dedicated per-agent analytics are not yet available. The Dashboard widget provides basic agent performance data while a full analytics view is being developed.
 
 ### Improving Agent Performance
 

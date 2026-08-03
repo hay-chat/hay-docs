@@ -48,7 +48,7 @@ Plans typically include:
 - Support level
 - Storage
 
-Check your specific plan details in **Settings** → **Billing**.
+Check your specific plan details with your account administrator.
 
 ### What happens if I exceed my conversation limit?
 
@@ -125,11 +125,11 @@ When a human takes over, the AI stops responding. The full conversation history 
 
 ### How long are conversations stored?
 
-By default, conversations are kept indefinitely. If a retention period is configured, conversations are anonymized (messages and personal data removed) after the specified number of days. Check **Settings** → **Privacy** for your specific retention policy.
+By default, conversations are kept indefinitely. If a retention period is configured, conversations are anonymized (messages and personal data removed) after the specified number of days. Check **Settings** → **Customer Privacy** for your specific retention policy.
 
 ### Can I delete conversations?
 
-Conversations are archived rather than deleted for compliance and learning. For privacy requests (GDPR), use the data deletion tool in **Settings** → **Privacy**.
+Conversations are archived rather than deleted for compliance and learning. For privacy requests (GDPR), use the data deletion tool in **Settings** → **Customer Privacy**.
 
 ## Integrations
 
@@ -282,7 +282,7 @@ Long term:
 Yes. Hay uses:
 
 - Encryption in transit and at rest
-- Secure password-based authentication (2FA coming soon)
+- Secure password-based authentication
 - Regular security audits
 - Compliance with data protection regulations
 
@@ -319,7 +319,7 @@ Yes! You can export:
 - Analytics
 - Documents
 
-Go to **Settings** → **Privacy** or use the export feature in Analytics.
+Go to **Settings** → **Customer Privacy** for customer data exports.
 
 ## Technical Questions
 
@@ -356,28 +356,6 @@ Yes! Hay has a full API for:
 - Managing agents and documents
 
 Contact support for API documentation.
-
-## Billing & Account
-
-### How do I change my plan?
-
-Go to **Settings** → **Billing** → **Change Plan**. Changes typically take effect at your next billing cycle.
-
-### How do I update my payment method?
-
-Go to **Settings** → **Billing** → **Payment Methods** and update your card information.
-
-### Can I get a refund?
-
-Refund policies vary by plan. Contact your account manager or support for specific refund requests.
-
-### What happens if my payment fails?
-
-You'll receive notifications to update your payment method. After a grace period, service may be suspended until payment is resolved.
-
-### How do I download invoices?
-
-Go to **Settings** → **Billing** → **Invoices** and download any invoice as PDF.
 
 ## Support
 

@@ -543,8 +543,8 @@ Test changes before rolling out everywhere:
 
 **Week 1: Supervised Practice**
 
-- Use Supervision Mode
-- Review and approve responses
+- Review conversations manually in the Conversations list
+- Use test mode (message approval) for quality control
 - Provide feedback
 - Share best practices
 

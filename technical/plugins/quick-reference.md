@@ -24,39 +24,23 @@ navOrder: 5
 
 ---
 
-## Minimal manifest.json
+## Plugin Metadata (package.json)
+
+> **Note:** Plugins no longer use a separate `manifest.json` file. Plugin metadata is defined in the `hay-plugin` block of `package.json`, and config/auth are registered programmatically in the `onInitialize` lifecycle hook via the plugin SDK.
 
 ```json
 {
-  "id": "hay-plugin-myservice",
-  "name": "My Service",
+  "name": "hay-plugin-myservice",
   "version": "1.0.0",
   "description": "Integration with My Service",
-  "type": ["mcp-connector"],
-  "entry": "./dist/index.js",
-  "category": "integration",
-  "capabilities": {
-    "mcp": {
-      "connection": { "type": "local" },
-      "tools": [],
-      "transport": "stdio",
-      "auth": ["apiKey"],
-      "installCommand": "npm install",
-      "startCommand": "node mcp/index.js"
+  "hay-plugin": {
+    "entry": "./dist/index.js",
+    "displayName": "My Service",
+    "category": "integration",
+    "capabilities": ["mcp"],
+    "env": {
+      "MYSERVICE_API_KEY": { "required": true }
     }
-  },
-  "configSchema": {
-    "apiKey": {
-      "type": "string",
-      "label": "API Key",
-      "required": true,
-      "encrypted": true,
-      "env": "MYSERVICE_API_KEY"
-    }
-  },
-  "permissions": {
-    "env": ["MYSERVICE_API_KEY"],
-    "scopes": ["org:<organizationId>:mcp:invoke"]
   }
 }
 ```
@@ -219,8 +203,8 @@ await pluginInstanceManagerService.updateActivityTimestamp(organizationId, "hay-
 import { getPluginRunnerService } from "@server/services/plugin-runner.service";
 
 const pluginRunnerService = getPluginRunnerService();
-await pluginRunnerService.startPluginWorker(organizationId, "hay-plugin-myservice");
-await pluginRunnerService.stopPluginWorker(organizationId, "hay-plugin-myservice");
+await pluginRunnerService.startWorker(organizationId, "hay-plugin-myservice");
+await pluginRunnerService.stopWorker(organizationId, "hay-plugin-myservice");
 const isRunning = pluginRunnerService.isRunning(organizationId, "hay-plugin-myservice");
 ```
 
@@ -388,7 +372,7 @@ interface HayPluginManifest {
 
 // Configuration field type
 interface ConfigField {
-  type: "string" | "number" | "boolean" | "array" | "object";
+  type: "string" | "number" | "boolean" | "json";
   description: string;
   label: string;
   placeholder?: string;

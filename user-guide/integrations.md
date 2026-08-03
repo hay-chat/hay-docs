@@ -96,7 +96,7 @@ Connect your WooCommerce store for e-commerce support.
 2. Find **WooCommerce**
 3. Click **Install**
 4. Enter your WooCommerce store URL
-5. Enter your WooCommerce REST API key and secret
+5. Enter your WooCommerce Consumer Key and Consumer Secret
 6. Authorize permissions
 7. Return to Hay — connection confirmed!
 
@@ -147,8 +147,8 @@ Send internal notification emails to a fixed set of recipients.
 
 **How to set up:**
 
-1. Go to **Integrations** → **Email**
-2. Enter a comma-separated list of recipient email addresses
+1. Go to the **Marketplace** and install the **Email** plugin
+2. Enter a comma-separated list of recipient email addresses in the plugin settings
 3. Send a test email to verify the connection
 
 **Best for:**
@@ -216,7 +216,7 @@ To remove an integration:
 - ✅ File uploads
 - ✅ Emoji support
 - ✅ Conversation history
-- ✅ Proactive chat (trigger by page, time on site, etc.)
+- 🔜 Proactive chat (trigger by page, time on site, etc.) — planned
 
 ### WhatsApp Features
 

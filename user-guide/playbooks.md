@@ -156,12 +156,13 @@ Status is set when you create the playbook:
 
 **Draft** - Still working on it, not active yet
 **Active** - Live and ready to handle conversations
+**Archived** - No longer in use
 
 Click **Save Changes**
 
 > **Draft/Publish versioning:** Clicking **Save Changes** creates or updates a draft of the playbook. To make a version live, publish it — publishing sets the playbook's status to **Active** and creates an immutable snapshot of the playbook at that point in time. Subsequent edits start a new draft without affecting the published version.
 >
-> **Coming Soon:** There is currently no UI control to archive a playbook after creation. This capability is planned.
+> **Note:** Status can be set at creation time but cannot be changed afterward in the editor. Archiving must be done at creation.
 
 ## Playbook Instructions Best Practices
 
@@ -236,8 +237,8 @@ Escalate to human if:
 You can assign playbooks to specific agents from the playbook editor:
 
 1. Open the playbook
-2. Go to **Agents**
-3. Select which agents should use this playbook
+2. Scroll to the **Agents** section on the editor page
+3. Check or uncheck agents to assign this playbook
 4. Save
 
 **If no agents assigned:** The playbook defaults to the organization's default agent.

@@ -1,17 +1,21 @@
 ---
 layout: docs.njk
 title: Guardrails
-description: Two-stage guardrail system for AI response quality
+description: Three-stage guardrail system for AI response quality
 section: technical
 navGroup: Core Systems
 navOrder: 2
 ---
 
-# Two-Stage Guardrail System
+# Three-Stage Guardrail System
 
 ## Overview
 
-Hay uses a sophisticated two-stage guardrail system to ensure AI responses serve company interests while maintaining factual accuracy. This system replaces the previous single-stage confidence guardrail with a more pragmatic, company-focused approach.
+Hay uses a sophisticated three-stage guardrail system to ensure AI responses serve company interests while maintaining factual accuracy and action integrity. The stages are:
+
+- **Stage 0: Action Claim Guard** — Blocks RESPOND messages that claim a state-changing action was performed without a backing tool call.
+- **Stage 1: Company Interest Protection** — Blocks responses that harm company interests (off-topic, competitor info, fabrications). On block, attempts corrective re-plan (up to `maxRetries`) before escalating.
+- **Stage 2: Fact Grounding** — Verifies company-specific claims are grounded in retrieved documents.
 
 ## Architecture
 
@@ -19,14 +23,24 @@ Hay uses a sophisticated two-stage guardrail system to ensure AI responses serve
 flowchart TD
   A["fa:fa-robot AI Response Generated"]
 
-  A --> B
+  A --> A0
+
+  subgraph A0["fa:fa-gavel  Stage 0: Action Claim Guard"]
+    direction TB
+    A01["Does this response claim an action<br/>without a backing tool call?"]
+  end
+
+  A0 -->|"fa:fa-xmark BLOCK"| RETRY0["fa:fa-rotate Retry (up to maxRetries)"]
+  RETRY0 -->|"Still blocked"| ESC0["fa:fa-user Escalate to Human"]
+  A0 -->|"fa:fa-check PASS"| B
 
   subgraph B["fa:fa-shield-halved  Stage 1: Interest Protection"]
     direction TB
     B1["Does this response harm<br/>company interests?"]
   end
 
-  B -->|"fa:fa-xmark BLOCK"| ESC["fa:fa-user Escalate to Human"]
+  B -->|"fa:fa-xmark BLOCK"| RETRY1["fa:fa-rotate Corrective Re-plan"]
+  RETRY1 -->|"Retries exhausted"| ESC["fa:fa-user Escalate to Human"]
   B -->|"fa:fa-check PASS"| C{"Requires<br/>Fact Check?"}
 
   C -->|"No"| DEL1["fa:fa-paper-plane Deliver Response"]
@@ -44,6 +58,8 @@ flowchart TD
   D -->|"Low <0.5"| ESC2["fa:fa-user Escalate"]
 
   style A fill:#e8f3ff,stroke:#568aff,color:#0a155c
+  style A0 fill:#f0f0ff,stroke:#8888cc,color:#2a2a6a
+  style ESC0 fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
   style ESC fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
   style ESC2 fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
   style DEL1 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
@@ -52,10 +68,27 @@ flowchart TD
   style C fill:#fff,stroke:#568aff,color:#0a155c
 ```
 
+## Stage 0: Action Claim Guard
+
+### Purpose
+Blocks RESPOND messages that claim a state-changing action was performed (e.g., "I've cancelled your order") without a backing tool call in the execution history. This prevents the AI from fabricating action outcomes.
+
+### Configuration
+
+```typescript
+"actionClaimGuardrail": {
+  "enabled": true,        // Default: true
+  "maxRetries": 1,        // Default: 1
+  "escalateOnFailure": true // Default: true
+}
+```
+
+Implemented in `ActionClaimGuardrailService` at `server/services/core/action-claim-guardrail.service.ts`. Runs **before** the intent exemption check and Stage 1.
+
 ## Stage 1: Company Interest Protection
 
 ### Purpose
-Block responses that harm company interests while allowing helpful, on-topic assistance. This is the **primary** guardrail - pragmatic and business-focused.
+Block responses that harm company interests while allowing helpful, on-topic assistance. This is the **primary** guardrail - pragmatic and business-focused. When a response is blocked, the system first attempts corrective re-planning (up to `maxRetries`, default 1) with the reviewer's reasoning injected as feedback, only escalating when retries are exhausted.
 
 ### What Gets Blocked
 
@@ -214,13 +247,21 @@ When Medium confidence:
 {
   "companyDomain": "e-commerce", // Optional: helps Stage 1 understand context
 
+  // Stage 0: Action Claim Guard
+  "actionClaimGuardrail": {
+    "enabled": true,
+    "maxRetries": 1,
+    "escalateOnFailure": true
+  },
+
   // Stage 1: Company Interest Protection
   "companyInterestGuardrail": {
     "enabled": true,
     "blockOffTopic": true,
     "blockCompetitorInfo": true,
     "blockFabrications": true,
-    "allowClarifications": true
+    "allowClarifications": true,
+    "maxRetries": 1              // Corrective re-plan attempts before escalation
   },
 
   // Stage 2: Fact Grounding
@@ -251,8 +292,12 @@ Every bot response includes guardrail information:
     severity: "none",
     shouldBlock: false,
     requiresFactCheck: false,
-    reasoning: "Clarifying terminology"
+    reasoning: "Clarifying terminology",
+    retryAttempted: false
   },
+
+  // Execution rationale (if present)
+  executionRationale: "...",
 
   // Stage 2: Fact Grounding (if ran)
   confidence: 0.85,

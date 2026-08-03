@@ -36,18 +36,15 @@ Find specific conversations quickly:
 
 **Search by:**
 
-- Customer name or email
-- Keywords in the conversation
+- Conversation title
 - Conversation ID
 
 **Filter by:**
 
 - **Status** - All, Active, Resolved, Escalated, Closed
-- **Channel** - Web, WhatsApp, Email, etc.
-- **Agent** - Which AI agent handled it
-- **Date range** - When the conversation happened
+- **Timeframe** - Today, This Week, This Month, All Time
 
-> **Note:** The "Active" and "Escalated" status filters are not yet functional.
+> **Note:** The "Active" and "Escalated" status filters are not yet functional. Channel and Agent filters are planned but not yet available in the UI.
 
 ## Conversation Statuses
 

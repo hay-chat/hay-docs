@@ -229,7 +229,7 @@ This is a real, working pagination endpoint — `customers.list` uses `createLis
 - `status`: Playbook status enum
 - `agentIds`: Array of UUID strings
 
-**Search Fields:** `["name", "description"]`
+**Search Fields:** `["name", "description"]` (also supports `"prompt_template"`)
 
 **Sort Fields:** `["created_at", "updated_at", "name", "status"]`
 

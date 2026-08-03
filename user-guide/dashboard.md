@@ -152,7 +152,7 @@ Some metrics are calculated every few minutes, not instantly. Refresh your brows
 
 ### Can I export this data?
 
-Exporting data isn't available from the Dashboard page itself. You can export data from **Analytics > Reports** using the **CSV Export** option.
+Exporting data isn't available from the Dashboard page itself. Analytics pages exist but are not yet accessible from the sidebar navigation.
 
 ## Next Steps
 

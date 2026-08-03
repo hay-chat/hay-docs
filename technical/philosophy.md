@@ -76,7 +76,7 @@ throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid email format' });
 
 #### 4. Plugin-First Architecture
 
-Everything is a plugin, including core features.
+New features should be plugins where possible; core features (auth, conversations, customers) remain native server routes.
 
 **Why:**
 
@@ -173,7 +173,7 @@ describe("AutomationService", () => {
 
 - **TSDoc comments**: On all public APIs
 - **README in each package**: Setup and usage
-- **Architecture Decision Records**: For major decisions
+- **Architecture Decision Records**: For major decisions (planned, not yet established)
 - **Inline comments**: Only for "why", not "what"
 
 ````typescript

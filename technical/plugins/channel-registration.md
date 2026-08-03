@@ -11,7 +11,7 @@ navOrder: 4
 
 ## Overview
 
-Plugins can register custom communication channels (sources) in the Hey! platform. This allows plugins to handle messages from various platforms like WhatsApp, Instagram, Zendesk, and more.
+Plugins can register custom communication channels (sources) in the Hay platform. This allows plugins to handle messages from various platforms like WhatsApp, Instagram, Zendesk, and more.
 
 ## Architecture
 
@@ -366,4 +366,4 @@ try {
 For questions or issues with source registration:
 - Check the tRPC API documentation
 - Review existing plugin examples
-- Open an issue on the Hey! GitHub repository
+- Open an issue on the Hay GitHub repository

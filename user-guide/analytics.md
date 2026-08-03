@@ -46,17 +46,12 @@ Use the date selector to filter all metrics. Available options:
 
 **Customer Satisfaction**
 
-- Based on customer star ratings (out of 5)
+- Displayed as a percentage on the main KPI card, and as a rating out of 5 in per-agent and per-channel tables
 - **Excellent:** 4.5+/5
 - **Good:** 3.75–4.5/5
 - **Needs improvement:** Below 3.75/5
 
-**Escalation Rate**
-
-- Percentage of conversations requiring human help
-- **Excellent:** Under 15%
-- **Good:** 15-30%
-- **High:** Over 30% (consider more training)
+> **Note:** Escalation Rate is available as a metric in custom reports but is not shown as a KPI card on the main analytics dashboard.
 
 ## Conversation Analytics
 
@@ -301,7 +296,7 @@ Compare metrics across channels:
 | ------------ | -------- | -------- | ------- |
 | Volume       | 500/day  | 200/day  | 100/day |
 | Resolution   | 82%      | 75%      | 88%     |
-| Satisfaction | 89%      | 85%      | 92%     |
+| Satisfaction | 4.5/5    | 4.3/5    | 4.6/5   |
 | Avg Response | 3s       | 4s       | 2s      |
 
 **Insights:**
@@ -356,7 +351,7 @@ Compare metrics across channels:
 
 ### Exporting Data
 
-> **Coming soon:** Data export (PDF, CSV) is not yet implemented.
+> **Coming soon:** The UI shows export format options (PDF, CSV, Excel) but export functionality is not yet wired up.
 
 ## Interpreting Your Data
 
