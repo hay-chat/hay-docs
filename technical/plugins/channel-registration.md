@@ -11,7 +11,7 @@ navOrder: 4
 
 ## Overview
 
-Plugins can register custom communication channels (sources) in the Hey! platform. This allows plugins to handle messages from various platforms like WhatsApp, Instagram, Zendesk, and more.
+Plugins can register custom communication channels (sources) in the Hay platform. This allows plugins to handle messages from various platforms like WhatsApp, Instagram, Zendesk, and more.
 
 ## Architecture
 
@@ -198,6 +198,8 @@ const sources = await trpc.sources.list.query();
 const source = await trpc.sources.get.query({ id: 'whatsapp' });
 ```
 
+> **Note**: `sources.get` also only returns active sources (same filter as `sources.list`).
+
 ### Get Sources by Category
 
 ```typescript
@@ -233,8 +235,7 @@ Test mode is determined by:
 - review_required = false
 
 **When message is blocked**:
-- delivery_state = 'blocked'
-- Message will not be delivered (e.g., failed validation or policy block)
+- When a reviewer rejects a queued message, delivery_state is set to 'blocked' and the message will not be delivered
 
 ## Plugin Lifecycle
 
@@ -366,4 +367,4 @@ try {
 For questions or issues with source registration:
 - Check the tRPC API documentation
 - Review existing plugin examples
-- Open an issue on the Hey! GitHub repository
+- Open an issue on the Hay GitHub repository

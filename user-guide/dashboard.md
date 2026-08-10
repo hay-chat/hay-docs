@@ -24,7 +24,7 @@ Below the KPI cards you'll also find:
 - **Attention Needed** - conversations awaiting a human response
 - **Sentiment Score Gauge** - an overall sentiment score for the selected period
 - **Sentiment Breakdown** - the split of positive, neutral, and negative conversations
-- **Document Status Overview** - your knowledge base documents grouped by status
+- **Knowledge Base** - your knowledge base documents grouped by status
 
 ## Understanding Your Metrics
 
@@ -77,13 +77,12 @@ Click on any conversation to:
 - Take over if needed
 - Review customer feedback
 
-### Check the Queue
+### Check Conversations Needing Attention
 
-See conversations waiting for human attention. The Queue is accessible at `/queue` but does not appear in the main sidebar navigation.
+The `/queue` page is a background jobs queue for document processing, not a conversations queue. To find conversations that need human attention:
 
-- Navigate to `/queue` to view pending conversations
-- Open any conversation to respond
-- Take over to chat directly with the customer
+- Check the **Attention Needed** widget on the dashboard for conversations awaiting a human response
+- Go to **Conversations** in the sidebar and use the status filter to find open or escalated conversations
 
 ### Monitor Agents
 
@@ -95,12 +94,7 @@ See conversations waiting for human attention. The Queue is accessible at `/queu
 
 ## Real-Time Updates
 
-Your dashboard updates automatically:
-
-- **Notifications** appear for important events:
-  - Conversations needing urgent attention
-  - Customers waiting too long
-  - System alerts or issues
+Some dashboard widgets auto-refresh via polling to keep data up to date without requiring a manual page reload.
 
 ## Customizing Your View
 
@@ -152,7 +146,7 @@ Some metrics are calculated every few minutes, not instantly. Refresh your brows
 
 ### Can I export this data?
 
-Exporting data isn't available from the Dashboard page itself. You can export data from **Analytics > Reports** using the **CSV Export** option.
+CSV export is not currently available. This feature is planned for a future release.
 
 ## Next Steps
 

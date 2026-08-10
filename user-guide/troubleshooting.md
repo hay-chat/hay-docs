@@ -88,7 +88,7 @@ section: user-guide
 
 **Identify why escalations happen:**
 
-1. Go to **Queue**
+1. Go to **Conversations**, filter by "Escalated" or "Pending Human" status
 2. Review escalation reasons
 3. Look for patterns
 
@@ -334,6 +334,7 @@ section: user-guide
    - Go to **Settings** → **General**
    - Verify email notifications are enabled
    - Check which events you're subscribed to
+   - **Note:** Granular email notification settings are not yet available in the UI. This feature is planned for a future release.
 
 2. **Check spam:**
 

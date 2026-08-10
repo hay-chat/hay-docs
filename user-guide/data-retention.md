@@ -39,7 +39,7 @@ After anonymization, the conversation record remains with the title `[Anonymized
 2. Under **Conversation Retention Period**, choose a timeframe: Disabled (keep forever), 30, 60, 90, 180, or 365 days
 3. Save your changes
 
-The retention period counts from when a conversation was **closed**. Only conversations with status `closed` or `resolved` are eligible for anonymization. Open or in-progress conversations are never touched.
+The retention period counts from when a conversation was **closed** (its `closed_at` date). If a conversation has a `resolved` status but no explicit close date, the creation date is used as a fallback. Only conversations with status `closed` or `resolved` are eligible for anonymization. Open or in-progress conversations are never touched.
 
 ## Legal Hold
 

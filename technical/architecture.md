@@ -80,21 +80,20 @@ Persistent storage with caching:
 
 #### Incoming Message
 
-1. Message arrives via integration (email, chat, etc.)
-2. Integration plugin emits `message.received` event
+1. Message arrives via channel plugin (email, chat, etc.)
+2. Channel plugin calls server plugin API to deliver the message
 3. Message is validated and stored in database
-4. Event bus notifies all listeners
-5. Automation rules are evaluated
-6. Real-time updates sent to connected clients
+4. Redis pub/sub broadcasts `message_received` event
+5. WebSocket delivers real-time updates to connected clients
+6. Orchestrator processes the message via RabbitMQ queue
 
-#### Automation Execution
+#### Orchestrator Processing
 
-1. Rule trigger conditions evaluated
-2. If matched, rule added to job queue
-3. Worker picks up job from queue
-4. Actions executed in sequence
-5. Results logged and stored
-6. Completion event emitted
+The orchestrator processes messages through three layers:
+
+1. **Perception**: Analyzes user input to determine intent, sentiment, and context
+2. **Retrieval**: Finds relevant documents, knowledge base entries, and matching playbooks
+3. **Execution**: Generates AI responses, executes playbook actions, and invokes plugin tools
 
 ### Scalability Considerations
 
@@ -104,7 +103,6 @@ Hay is designed to scale horizontally:
 
 - **Stateless API servers**: Scale by adding more instances
 - **Background workers**: Scale job processing independently
-- **Database read replicas**: Distribute read load
 
 #### Caching Strategy
 
@@ -132,7 +130,6 @@ RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-b
 - Failed jobs are marked as `FAILED` by `JobQueueService.failJob()`; there is no automatic retry
 - Job priority is ordered via a SQL column, not a Bull-style priority queue
 - No rate limiting per job type
-- Monitoring and alerting
 
 ### Security Architecture
 
@@ -141,7 +138,7 @@ RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-b
 Multiple security layers:
 
 1. **Network**: TLS/SSL encryption for all traffic
-2. **Authentication**: JWT with short expiration
+2. **Authentication**: JWT with configurable expiration (default 7 days)
 3. **Authorization**: Role-based access control (RBAC)
 4. **Input Validation**: Sanitize all user input
 5. **Output Encoding**: Prevent XSS attacks
@@ -149,16 +146,16 @@ Multiple security layers:
 
 #### Data Privacy
 
-- **Encryption at rest**: Database encryption enabled
-- **Encryption in transit**: TLS 1.3 required
-- **PII handling**: Separate tables with restricted access
-- **Audit logs**: All data access logged
+- **Encryption at rest**: Infrastructure concern (configure at the database/disk level, not an application-level feature)
+- **Encryption in transit**: Handled at the infrastructure/proxy level (e.g., reverse proxy or load balancer terminates TLS)
+- **PII handling**: Privacy service provides GDPR capabilities (data export, anonymization, deletion); logger redacts PII from log output
+- **Audit logs**: Key administrative and security events logged via AuditLogService
 
 ### Monitoring and Observability
 
 #### Metrics
 
-Key metrics tracked:
+The application does not currently track these metrics internally. The following are aspirational and would need to be implemented via external monitoring tools:
 
 - API response times
 - Error rates
@@ -168,7 +165,7 @@ Key metrics tracked:
 
 #### Logging
 
-Structured logging with correlation IDs:
+Structured logging:
 
 ```typescript
 logger.info({ conversationId: '123', action: 'create', duration: 45 }, 'Processing conversation');
@@ -176,10 +173,7 @@ logger.info({ conversationId: '123', action: 'create', duration: 45 }, 'Processi
 
 #### Tracing
 
-Distributed tracing for debugging:
-- Request flows across services
-- Performance bottleneck identification
-- Error source pinpointing
+Distributed tracing is not currently implemented. This is an aspirational capability that could be added in the future for debugging request flows across services.
 
 ## Next Steps
 

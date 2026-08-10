@@ -32,7 +32,7 @@ Think of it like training a new employee by giving them all your company documen
 ### Step 1: Go to Documents
 
 1. Click **Documents** in the left sidebar
-2. Click **Import Documents**
+2. Click **Import Document**
 
 ### Step 2: Choose Your Method
 
@@ -45,7 +45,7 @@ Think of it like training a new employee by giving them all your company documen
 **Supported formats:**
 
 - PDF documents
-- Word documents (.doc, .docx)
+- Word documents (.doc, .docx, .docm, .dotx)
 - Text files (.txt)
 - Markdown files (.md)
 - CSV files (for data)
@@ -53,13 +53,15 @@ Think of it like training a new employee by giving them all your company documen
 - PowerPoint presentations (.ppt, .pptx)
 - JSON files (.json)
 
+> **Note:** CSV and JSON files are processed as plain text (no structured parsing).
+
 > **File size limit:** The maximum upload size is 10 MB per file (configurable via the `UPLOAD_MAX_SIZE_MB` environment variable).
 
 > **Write a document from scratch:** To compose a document directly in Hay without uploading a file, go to **/documents/new** and use the **Write Document** editor.
 
 **Import from URL**
 
-- Paste a website URL and Hay will crawl the entire site — it follows the sitemap and discovers same-domain pages automatically
+- Paste a website URL to connect it as a synced document source. Hay checks for a sitemap, crawls same-domain pages, and keeps them synchronized over time.
 - Useful for importing an existing help center or documentation site
 - All discovered pages are processed and added as separate documents
 
@@ -81,7 +83,7 @@ After upload:
 - Give document a clear title
 - Add a description (what information does it contain?)
 - Select a **category** from the dropdown: product, api, faq, legal, training, technical, or other
-- Set the document status: **Draft**, **Published**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually.
+- Set the document status: **Draft**, **Published**, **Under Review**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually.
 - Click **Save**
 
 ## Types of Documents to Upload

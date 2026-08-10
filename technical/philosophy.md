@@ -29,9 +29,8 @@ We believe that happy developers build better software.
 // Good: Clear, typed interface
 interface CreateConversationParams {
   customerId: string;
-  channel: 'email' | 'chat' | 'social';
+  channel: string; // defaults to 'web'; real values include 'web', 'whatsapp', 'instagram', 'telegram', 'sms', 'email'
   subject?: string;
-  initialMessage: string;
 }
 
 // Bad: Unclear, any types
@@ -49,14 +48,7 @@ Sensible defaults that work out of the box.
 - Automatic discovery of plugins
 - Intelligent defaults that can be overridden
 
-```typescript
-// Convention: Plugins auto-discovered from /plugins directory
-// Configuration: Override defaults only when needed
-{
-  pluginDirectory: './custom-plugins',  // optional
-  autoDiscovery: true                    // default
-}
-```
+Plugins are discovered automatically from the `plugins/` directory. No additional configuration is needed to get started.
 
 #### 3. Fail Fast, Fail Loud
 
@@ -76,7 +68,7 @@ throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid email format' });
 
 #### 4. Plugin-First Architecture
 
-Everything is a plugin, including core features.
+Hay uses a plugin-first architecture for integrations and extensibility.
 
 **Why:**
 
@@ -157,12 +149,15 @@ Repositories extend `BaseRepository<T>` (a generic TypeORM wrapper) — no inter
 - **Minimum 80% coverage**: For new code (aspirational target — not currently enforced via CI)
 
 ```typescript
-describe("AutomationService", () => {
+// Illustrative example — does not match a specific service in the codebase.
+// See /server/tests/ for real test patterns against services like
+// ConversationService or PlaybookService.
+describe("SomeService", () => {
   it("should trigger rule when conditions match", async () => {
     const service = setupService();
     const rule = createTestRule();
 
-    const result = await service.evaluate(rule, testConversation);
+    const result = await service.evaluate(rule, testContext);
 
     expect(result.triggered).toBe(true);
   });
@@ -177,10 +172,13 @@ describe("AutomationService", () => {
 - **Inline comments**: Only for "why", not "what"
 
 ````typescript
+// Illustrative example of TSDoc style — AutomationRule and EvaluationResult
+// are not real types in the codebase. See actual services (e.g.,
+// PlaybookService, ConversationService) for real patterns.
 /**
- * Evaluates automation rules against a conversation.
+ * Evaluates rules against a conversation context.
  *
- * @param rule - The automation rule to evaluate
+ * @param rule - The rule to evaluate
  * @param conversation - The conversation context
  * @returns Evaluation result with actions to execute
  *
@@ -195,7 +193,7 @@ describe("AutomationService", () => {
  * ```
  */
 async function evaluate(
-  rule: AutomationRule,
+  rule: Rule,
   conversation: Conversation,
 ): Promise<EvaluationResult>;
 ````

@@ -11,7 +11,7 @@ Hay is a smart customer support platform that uses AI to handle repetitive suppo
 
 - **Never sleeps** - Provides instant responses to customers at any time of day
 - **Never forgets** - Remembers every piece of documentation and training you provide
-- **Learns quickly** - Gets smarter as you add more information and feedback
+- **Improves quickly** - Gets better as you add more documentation and refine your playbooks
 - **Works everywhere** - Connects to your existing tools like Shopify, WhatsApp, and Zendesk
 
 ## How Does Hay Work?
@@ -32,7 +32,7 @@ Create simple workflows that tell Hay how to handle specific situations - like p
 
 ### 4. Watch It Work
 
-Hay starts handling conversations automatically, learning and improving with every interaction.
+Hay starts handling conversations automatically, and you can continuously improve it by adding documents and refining playbooks.
 
 ## Who Is Hay For?
 

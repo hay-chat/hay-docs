@@ -32,7 +32,7 @@ Click **Settings** in the left sidebar to access all configuration options.
 
 - Default language for dashboard
 - Doesn't affect customer-facing language
-- 33 languages available, including English, Spanish, French, German, Portuguese, Italian, Dutch, and many more
+- Currently 2 languages are selectable in the UI: English and Portuguese
 
 **Time Zone**
 
@@ -63,11 +63,11 @@ Click **Settings** in the left sidebar to access all configuration options.
 
 | Role            | Permissions                                     |
 | --------------- | ----------------------------------------------- |
-| **Owner**       | Full access, billing, delete organization       |
-| **Admin**       | Manage settings, users, integrations            |
+| **Owner**       | Full access, delete organization                |
+| **Admin**       | Full access (same scopes as Owner)              |
 | **Member**      | Standard team access to conversations and tools |
-| **Contributor** | Contribute content (documents, playbooks)       |
-| **Agent**       | Handle conversations, view analytics            |
+| **Contributor** | Broader permissions including conversations, customers, agents, and analytics access |
+| **Agent**       | Handle conversations                            |
 | **Viewer**      | Read-only access to conversations and analytics |
 
 **Managing users:**
@@ -84,7 +84,6 @@ Click **Settings** in the left sidebar to access all configuration options.
 - Name
 - Email
 - Profile picture
-- Contact preferences
 
 **Change Password**
 
@@ -116,6 +115,9 @@ Choose what emails you receive:
 - Special characters recommended
 
 **Two-Factor Authentication (2FA)**
+
+> **Note:** The 2FA UI exists in the dashboard but backend implementation may be limited. Verify that 2FA is fully functional in your deployment before relying on it.
+
 Add extra security to your account:
 
 1. Go to **Settings** → **Security**
@@ -131,6 +133,8 @@ Add extra security to your account:
 - Microsoft Authenticator
 
 **Session Management**
+
+> **Note:** Session management (viewing active sessions, remote logout) is not yet available.
 
 - View active sessions
 - See last login time and location
@@ -245,6 +249,8 @@ Hay helps you comply with GDPR:
 
 ## Billing & Subscription
 
+> **Note:** Billing and subscription features are not yet available. The section below describes planned functionality that has not been implemented.
+
 ### Current Plan
 
 View your subscription details:
@@ -336,6 +342,8 @@ View and configure all connected integrations:
 
 ### Webhooks
 
+> **Note:** Webhook settings are not yet available. The section below describes planned functionality.
+
 Set up webhooks to notify your systems:
 
 **Creating a webhook:**
@@ -388,7 +396,7 @@ Set up webhooks to notify your systems:
 - How confident agent must be to answer
 - Lower = answers more, may be less accurate
 - Higher = answers less, but more accurate
-- Default: 75%
+- Default: 80% (high) and 50% (medium)
 
 **Escalation triggers:**
 
@@ -403,6 +411,8 @@ Set up webhooks to notify your systems:
 - Formatting preferences
 
 ### Notifications
+
+> **Note:** Notification preferences are not yet available. The options below describe planned functionality.
 
 **System notifications:**
 

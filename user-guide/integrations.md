@@ -40,10 +40,9 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 
 **Customization options:**
 
-- Button position (bottom-right, bottom-left, etc.)
-- Brand colors
+- Button position (right or left)
+- Theme (blue, green, purple, or black)
 - Welcome message
-- Chat window size
 
 ### WhatsApp Business
 
@@ -95,8 +94,8 @@ Connect your WooCommerce store for e-commerce support.
 1. Go to **Integrations** → **Marketplace**
 2. Find **WooCommerce**
 3. Click **Install**
-4. Enter your WooCommerce store URL
-5. Enter your WooCommerce REST API key and secret
+4. Enter your WordPress Site URL
+5. Enter your Consumer Key and Consumer Secret
 6. Authorize permissions
 7. Return to Hay — connection confirmed!
 
@@ -147,9 +146,10 @@ Send internal notification emails to a fixed set of recipients.
 
 **How to set up:**
 
-1. Go to **Integrations** → **Email**
-2. Enter a comma-separated list of recipient email addresses
-3. Send a test email to verify the connection
+1. Go to **Integrations** → **Marketplace** and install the **Email** plugin
+2. Go to **Integrations** → **Email**
+3. Enter a comma-separated list of recipient email addresses
+4. Click **Test Connection** to verify the plugin is working
 
 **Best for:**
 
@@ -212,11 +212,12 @@ To remove an integration:
 ### Web Chat Features
 
 - ✅ Typing indicators
-- ✅ Read receipts
-- ✅ File uploads
 - ✅ Emoji support
 - ✅ Conversation history
-- ✅ Proactive chat (trigger by page, time on site, etc.)
+
+**Planned:**
+
+- 🔜 Proactive chat (trigger by page, time on site, etc.)
 
 ### WhatsApp Features
 

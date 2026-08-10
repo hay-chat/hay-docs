@@ -48,7 +48,7 @@ Plans typically include:
 - Support level
 - Storage
 
-Check your specific plan details in **Settings** → **Billing**.
+Billing and plan management are coming soon. Contact your account manager for specific plan details.
 
 ### What happens if I exceed my conversation limit?
 
@@ -125,7 +125,7 @@ When a human takes over, the AI stops responding. The full conversation history 
 
 ### How long are conversations stored?
 
-By default, conversations are kept indefinitely. If a retention period is configured, conversations are anonymized (messages and personal data removed) after the specified number of days. Check **Settings** → **Privacy** for your specific retention policy.
+By default, conversations are kept indefinitely. If a retention period is configured, conversations are anonymized (messages and personal data removed) after the specified number of days. Check **Settings** → **Customer Privacy** for your specific retention policy.
 
 ### Can I delete conversations?
 
@@ -232,7 +232,7 @@ Simply edit or re-upload the correct version. Changes take effect immediately.
 
 ### Is there a limit to how many documents I can upload?
 
-Depends on your plan. Check **Settings** → **Billing** for your storage limits.
+Depends on your plan. Billing and plan management are coming soon. Contact your account manager for storage limit details.
 
 ## Queue & Escalations
 
@@ -282,7 +282,7 @@ Long term:
 Yes. Hay uses:
 
 - Encryption in transit and at rest
-- Secure password-based authentication (2FA coming soon)
+- Secure password-based authentication with 2FA (configurable under **Settings** → **Security**)
 - Regular security audits
 - Compliance with data protection regulations
 
@@ -319,7 +319,7 @@ Yes! You can export:
 - Analytics
 - Documents
 
-Go to **Settings** → **Privacy** or use the export feature in Analytics.
+Go to **Settings** → **Privacy**.
 
 ## Technical Questions
 
@@ -361,11 +361,11 @@ Contact support for API documentation.
 
 ### How do I change my plan?
 
-Go to **Settings** → **Billing** → **Change Plan**. Changes typically take effect at your next billing cycle.
+Billing and plan management are coming soon. Contact your account manager to discuss plan changes.
 
 ### How do I update my payment method?
 
-Go to **Settings** → **Billing** → **Payment Methods** and update your card information.
+Billing and plan management are coming soon. Contact your account manager to update your payment method.
 
 ### Can I get a refund?
 
@@ -377,7 +377,7 @@ You'll receive notifications to update your payment method. After a grace period
 
 ### How do I download invoices?
 
-Go to **Settings** → **Billing** → **Invoices** and download any invoice as PDF.
+Billing and plan management are coming soon. Contact your account manager for invoice requests.
 
 ## Support
 

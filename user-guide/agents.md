@@ -21,17 +21,17 @@ You can have multiple agents, each specialized for different needs.
 
 ### Step 1: Navigate to Agents
 
-1. Click **Agents** in the left sidebar
+1. Expand **Settings** in the left sidebar, then click **Agents**
 2. Click **Create Agent** button
 
 ### Step 2: Basic Information
 
 Fill in the essentials:
 
-**Agent Name**
+**Name**
 
 - Something descriptive: "Customer Support Agent", "Sales Assistant", "Technical Support Bot"
-- Visible to your team (not to customers)
+- Visible to your team and also shown to customers in the web chat widget
 
 **Description** (Optional but recommended)
 
@@ -71,7 +71,7 @@ Choose how your agent should communicate:
 
 **Language**
 
-Select the language your agent should respond in. Hay supports 14 languages, allowing you to serve customers in their preferred language.
+Select the language your agent should respond in. Hay supports 33 languages, allowing you to serve customers in their preferred language.
 
 **Things to Avoid** (Optional)
 
@@ -84,7 +84,7 @@ List topics or phrases your agent should never use:
 - Don't make pricing decisions without approval
 ```
 
-### Step 4: Initial Greeting
+### Step 4: Initial Greeting Message
 
 Set a welcoming first message customers see:
 
@@ -148,9 +148,11 @@ Control whether the agent's responses are sent automatically or require human re
 2. Under **Message Approval**, select the desired option
 3. Changes take effect for all new conversations with this agent
 
-### Human Handoff Instructions
+### Human Escalation
 
 Tell your agent exactly how to handle escalations:
+
+> **Note:** The human handoff instructions field uses a rich text editor, so you can format your instructions with headings, lists, bold/italic text, and other formatting options rather than plain text.
 
 **When Human is Available:**
 
@@ -201,7 +203,7 @@ Every organization needs a fallback for conversations that don't clearly match a
 **To set an agent as default:**
 
 1. Open the agent you want to use as the fallback
-2. Click **Set as Default Agent**
+2. Click **Set as Default**
 
 Only one agent can be the default at a time — setting a new one automatically replaces the previous default.
 
@@ -256,13 +258,7 @@ _Technical Support_
 
 ### Monitoring Your Agents
 
-Go to **Analytics** → **Agents** to see:
-
-- **Conversations handled** - Total volume per agent
-- **Resolution rate** - How many issues they solved
-- **Average response time** - Speed of responses
-- **Escalation rate** - How often they need human help
-- **Customer satisfaction** - Ratings from customers
+Agent performance metrics are shown on the main **Analytics** page, which provides an overview of conversation volume, resolution rates, and agent activity.
 
 > **Note:** Agent performance analytics currently display sample data while this feature is being developed. Live per-agent metrics are coming soon.
 

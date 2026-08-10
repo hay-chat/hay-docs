@@ -123,9 +123,9 @@ Add text chunks to the vector store.
 
 #### `searchDocuments(organizationId, query, k)`
 
-Search for similar documents within an organization.
+Search for similar documents within an organization. Groups results by document and returns the best (highest) similarity score per document.
 
-- Returns: Array of results with similarity scores
+- Returns: `Array<{ documentId, similarity }>`
 
 #### `search(organizationId, query, k)`
 
@@ -133,7 +133,7 @@ Search for similar content within an organization.
 
 - Returns: Array of results with similarity scores
 
-#### `deleteByDocumentId(organizationId, docId, manager?: EntityManager)`
+#### `deleteByDocumentId(orgId, docId, manager?: EntityManager)`
 
 Delete all embeddings for a document.
 
@@ -159,7 +159,7 @@ Find all embeddings associated with the given conversation IDs.
 
 Find all embeddings associated with the given message IDs.
 
-#### `getStatistics(organizationId)`
+#### `getStatistics(orgId)`
 
 Get embedding statistics for an organization.
 
@@ -239,6 +239,8 @@ Run the integration tests:
 ```bash
 cd server && npm test -- tests/integration/vector-store.test.ts
 ```
+
+There is also `tests/services/vector-store-embedding.test.ts` which covers embedding-specific unit tests.
 
 ## Security Considerations
 

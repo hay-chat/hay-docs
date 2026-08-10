@@ -64,7 +64,7 @@ Hay uses an event-driven architecture to enable:
 
 #### Plugin System
 
-Everything in Hay is a plugin, including core features. This allows for:
+Hay's plugin architecture enables maximum extensibility, allowing integrations and custom features to be added modularly. This allows for:
 - Maximum flexibility
 - Easy customization
 - Clean separation of concerns

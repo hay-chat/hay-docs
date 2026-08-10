@@ -77,7 +77,9 @@ Teach your agent by uploading your existing support materials.
 
 > **Tip:** Start with your top 10-20 FAQs. You can always add more later!
 
-## Step 4: Create a Playbook (Optional but Recommended)
+## Step 4: Create a Playbook
+
+> **Note:** While playbooks are optional for general usage, the onboarding wizard requires completing this step before you can unlock the playground testing step.
 
 Playbooks are step-by-step instructions for handling specific situations.
 
@@ -133,13 +135,13 @@ Your Hay agent is now ready to start helping customers!
 
 - **Automatic responses:** Your agent handles incoming questions instantly
 - **Human escalation:** Complex issues are automatically sent to your team
-- **Continuous learning:** Your agent gets smarter with every conversation
+- **Feedback collection:** Review customer feedback to improve your agent over time
 
 ### Next Steps
 
 Now that you're up and running:
 
-1. **Monitor the Queue** - Visit `/queue` to check for conversations that need human attention
+1. **Monitor Conversations** - Go to **Conversations** in the sidebar to check for conversations that need human attention
 2. **Review Dashboard** - See how your agent is performing at a glance
 3. **Add More Documents** - Keep training your agent with new information
 4. **Create More Playbooks** - Automate more types of requests

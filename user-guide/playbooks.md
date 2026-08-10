@@ -50,7 +50,7 @@ Before you start, think about:
 1. Click **Playbooks** in the sidebar
 2. Click the **+** button to create a new playbook
 
-> **Tip:** You can also use the AI **Generate Playbook** wizard to create a playbook automatically. Click the **Generate** option when creating a new playbook, describe the scenario in plain language, and the wizard will produce a draft you can review and edit.
+> **Tip:** You can also use the AI **Generate Playbook** wizard, a separate flow accessible from the Playbooks list page via the **Generate** button. Describe the scenario in plain language, and the wizard will produce a draft you can review and edit.
 
 ### Step 3: Basic Information
 
@@ -156,12 +156,11 @@ Status is set when you create the playbook:
 
 **Draft** - Still working on it, not active yet
 **Active** - Live and ready to handle conversations
+**Archived** - No longer in use, hidden from active lists
 
 Click **Save Changes**
 
-> **Draft/Publish versioning:** Clicking **Save Changes** creates or updates a draft of the playbook. To make a version live, publish it — publishing sets the playbook's status to **Active** and creates an immutable snapshot of the playbook at that point in time. Subsequent edits start a new draft without affecting the published version.
->
-> **Coming Soon:** There is currently no UI control to archive a playbook after creation. This capability is planned.
+> **Draft/Publish versioning:** Clicking **Save Changes** creates or updates a draft of the playbook. To make a version live, publish it — publishing sets the playbook's status to **Active** and creates an immutable snapshot of the playbook at that point in time. Subsequent edits start a new draft without affecting the published version. You can also set a playbook to **Archived** to remove it from active use.
 
 ## Playbook Instructions Best Practices
 
@@ -236,11 +235,11 @@ Escalate to human if:
 You can assign playbooks to specific agents from the playbook editor:
 
 1. Open the playbook
-2. Go to **Agents**
-3. Select which agents should use this playbook
+2. In the right sidebar, find the **Assigned Agents** card
+3. Use the checkboxes to select which agents should use this playbook
 4. Save
 
-**If no agents assigned:** The playbook defaults to the organization's default agent.
+**If no agents assigned:** The playbook is available to all agents.
 
 ## Managing Playbooks
 
@@ -269,7 +268,7 @@ Before activating:
 
 ### Deactivating a Playbook
 
-> **Coming Soon:** There is currently no UI control to archive a playbook after creation. Status is set when the playbook is created (**Draft**) and moves to **Active** when published. Until archiving is available, keep a playbook's trigger narrow or remove its instructions to stop it from being used.
+To stop a playbook from being used, set its status to **Archived**. Archived playbooks are hidden from active lists and will not be triggered by the agent.
 
 ## Common Playbook Templates
 

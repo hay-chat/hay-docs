@@ -335,7 +335,7 @@ Since there's no built-in SLA tracking, these targets are something your team ag
 
 **Morning routine (5 minutes):**
 
-1. Filter Conversations by "Needs Attention"
+1. Find escalated conversations via the dashboard's **Attention Needed** widget, or navigate to `/conversations?status=pending-human`
 2. Sort by oldest first and scan for urgent cases
 3. Open one and click **Take Over** to start handling it
 4. Respond within your target time
@@ -396,8 +396,8 @@ Since there's no built-in SLA tracking, these targets are something your team ag
 2. **Customer Satisfaction**
 
    - Target: 85%+
-   - Based on thumbs up/down ratings
    - Review: Daily
+   - **Note:** Customer satisfaction analytics are not yet wired up and currently show placeholder data. Track satisfaction manually until in-app tracking ships.
 
 3. **Escalation Rate**
 
@@ -440,9 +440,11 @@ Since there's no built-in SLA tracking, these targets are something your team ag
 
 ### A/B Testing
 
+> **Note:** Hay does not have built-in A/B testing or automatic traffic splitting. The approach below describes a manual testing workflow you can follow using multiple agents.
+
 Test changes before rolling out everywhere:
 
-**Example: Testing agent instructions**
+**Example: Testing agent instructions (manual approach)**
 
 1. **Current state:**
 
@@ -456,7 +458,7 @@ Test changes before rolling out everywhere:
 
 3. **Run for 1 week:**
 
-   - Split traffic 50/50
+   - Manually assign conversations to each agent to compare
    - Track metrics separately
 
 4. **Compare results:**
@@ -543,7 +545,7 @@ Test changes before rolling out everywhere:
 
 **Week 1: Supervised Practice**
 
-- Use Supervision Mode
+- Use Supervision Mode (planned but not yet fully functional -- for now, review conversations manually via the dashboard)
 - Review and approve responses
 - Provide feedback
 - Share best practices

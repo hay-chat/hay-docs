@@ -23,12 +23,13 @@ Go to **Conversations** in the left sidebar to see all your interactions.
 
 **What you'll see:**
 
-- **Title** - Auto-generated summary of the conversation topic
+- **Conversation** - Title and ID of the conversation
+- **Channel** - Where the conversation came from (shown when your organization has channel plugins installed)
 - **Status** - Current state (Open, Resolved, Closed, etc.)
-- **Customer** - Who you're talking with
-- **Channel** - Where the conversation came from (Web, WhatsApp, etc.)
-- **Agent** - Which AI agent handled it
-- **Last message** - When the last activity happened
+- **Assigned To** - Which agent or team member is handling it
+- **Duration** - How long the conversation has been active
+- **Satisfaction** - Customer satisfaction rating
+- **Updated** - When the last activity happened
 
 ### Searching and Filtering
 
@@ -36,18 +37,18 @@ Find specific conversations quickly:
 
 **Search by:**
 
-- Customer name or email
-- Keywords in the conversation
+- Conversation title
 - Conversation ID
 
 **Filter by:**
 
 - **Status** - All, Active, Resolved, Escalated, Closed
 - **Channel** - Web, WhatsApp, Email, etc.
-- **Agent** - Which AI agent handled it
-- **Date range** - When the conversation happened
+- **Timeframe** - Presets: Today, This Week, This Month, All Time
 
-> **Note:** The "Active" and "Escalated" status filters are not yet functional.
+> **Note:** "Active" and "Escalated" are filter labels that may not match any conversations, since the actual status enum uses "open", "processing", "pending-human", "human-took-over", "resolved", and "closed".
+
+> **Note:** The Timeframe filter is not yet fully functional.
 
 ## Conversation Statuses
 
@@ -88,7 +89,6 @@ On the right side, view:
 - **Customer details** - Name, email, history
 - **Conversation metadata** - Channel, start time, duration
 - **Agent info** - Which agent handled this
-- **Playbook used** - If any workflow was triggered
 
 ## Taking Over a Conversation
 
@@ -122,17 +122,19 @@ When you're done:
 - Click **Release Conversation** to hand the conversation off. A dialog appears with two options:
   - **Return to AI** - The agent resumes handling messages automatically
   - **Return to Queue** - The conversation is placed back in the queue for another team member to pick up
-- Click **Close Conversation** (a separate button) to mark the conversation as resolved and ended
+- Click **Close Conversation** (a separate button) to mark the conversation as closed
 
 ## Supervision Mode
 
 Want to watch the AI work without taking over? Use Supervision Mode.
 
+> **Note:** Supervision Mode is partially implemented. The toggle to enable it exists, but the preview/approve/edit functionality for AI responses is not yet built.
+
 ### What is Supervision Mode?
 
 - Watch the conversation in real-time
-- See what the AI is about to say BEFORE it sends
-- Approve or edit responses
+- (Planned) See what the AI is about to say BEFORE it sends
+- (Planned) Approve or edit responses
 - Step in only if needed
 
 > **Note:** Supervision Mode is only available for conversations with an `open` status.
@@ -141,8 +143,8 @@ Want to watch the AI work without taking over? Use Supervision Mode.
 
 1. Open an active conversation with `open` status
 2. Click **Supervise** at the top
-3. When AI generates a response, you'll see it first
-4. **Approve** to send it, **Edit** to change it, or **Take Over** to respond yourself
+3. The conversation enters supervision mode, but preview/approve/edit of AI responses is not yet available
+4. You can still **Take Over** to respond yourself
 
 **Perfect for:**
 
@@ -158,7 +160,7 @@ Practice and test your agent without affecting real customers.
 ### Starting a Test
 
 1. Go to **Conversations**
-2. Click **New Test Conversation** or enter **Playground mode**
+2. Click **Conversation Playground** or enter **Playground mode**
 3. Chat with your agent like a customer would
 
 ### What's Different in Test Mode
