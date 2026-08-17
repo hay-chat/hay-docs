@@ -48,7 +48,7 @@ Plans typically include:
 - Support level
 - Storage
 
-Check your specific plan details in **Settings** → **Billing**.
+Check your specific plan details in **Settings** → **Billing** (billing pages are not yet available; contact your account manager for plan details).
 
 ### What happens if I exceed my conversation limit?
 
@@ -232,7 +232,7 @@ Simply edit or re-upload the correct version. Changes take effect immediately.
 
 ### Is there a limit to how many documents I can upload?
 
-Depends on your plan. Check **Settings** → **Billing** for your storage limits.
+Depends on your plan. Contact your account manager for storage limits (billing pages are not yet available).
 
 ## Queue & Escalations
 
@@ -282,7 +282,7 @@ Long term:
 Yes. Hay uses:
 
 - Encryption in transit and at rest
-- Secure password-based authentication (2FA coming soon)
+- Secure password-based authentication (2FA planned for a future release)
 - Regular security audits
 - Compliance with data protection regulations
 
@@ -293,7 +293,7 @@ Yes. Hay provides tools for:
 - Data access requests
 - Data deletion (right to be forgotten)
 - Data portability
-- Consent management
+- Consent management (planned, not yet available)
 
 ### Can I control who accesses what?
 
@@ -361,11 +361,13 @@ Contact support for API documentation.
 
 ### How do I change my plan?
 
-Go to **Settings** → **Billing** → **Change Plan**. Changes typically take effect at your next billing cycle.
+Contact your account manager to change your plan. Changes typically take effect at your next billing cycle.
+
+> **Note:** Billing pages are not yet available in the dashboard. All billing operations (plan changes, payment methods, invoices) should be handled through your account manager.
 
 ### How do I update my payment method?
 
-Go to **Settings** → **Billing** → **Payment Methods** and update your card information.
+Contact your account manager to update your payment method.
 
 ### Can I get a refund?
 
@@ -377,7 +379,7 @@ You'll receive notifications to update your payment method. After a grace period
 
 ### How do I download invoices?
 
-Go to **Settings** → **Billing** → **Invoices** and download any invoice as PDF.
+Contact your account manager to request invoices.
 
 ## Support
 

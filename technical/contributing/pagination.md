@@ -207,7 +207,23 @@ All list endpoints return a consistent response structure:
 - `externalId`: String
 - `hasConversations`: Boolean
 
+**Search Fields:** Uses generic string-based fields.
+
+**Sort Fields:** Uses generic string-based fields.
+
 This is a real, working pagination endpoint — `customers.list` uses `createListProcedure` with `customerListInputSchema` (defined in `server/routes/v1/customers/index.ts`) and returns the standard paginated response.
+
+### Messages
+
+**Available Filters:**
+
+- `conversationId`: UUID string
+- `type`: Message type enum (CUSTOMER, BOT_AGENT, SYSTEM)
+- `sender`: String
+
+**Search Fields:** `["content"]`
+
+**Sort Fields:** `["created_at", "updated_at", "type"]`
 
 ### Agents
 
@@ -229,7 +245,7 @@ This is a real, working pagination endpoint — `customers.list` uses `createLis
 - `status`: Playbook status enum
 - `agentIds`: Array of UUID strings
 
-**Search Fields:** `["name", "description"]`
+**Search Fields:** `["name", "description", "prompt_template"]`
 
 **Sort Fields:** `["created_at", "updated_at", "name", "status"]`
 
@@ -327,6 +343,8 @@ The system provides clear error messages for:
 See `server/tests/pagination.test.example.ts` for example usage covering all pagination features.
 
 > **Note:** Despite the `.test.ts` naming, this is not a Jest test — it's a standalone manual script that makes real HTTP requests (via `axios`) to a running server at `http://localhost:3000/trpc`. It is not run by `npm test` / `npm run test:server`; execute it directly (e.g. `ts-node`) against a live server to try out the examples.
+>
+> **Port note:** The script targets port 3000, but the server default port is 3001. Update the URL in the script if needed.
 
 ## Migration from Legacy Endpoints
 

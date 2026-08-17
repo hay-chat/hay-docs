@@ -88,7 +88,7 @@ section: user-guide
 
 **Identify why escalations happen:**
 
-1. Go to **Queue**
+1. Go to **Conversations** and filter by **Needs Attention** status
 2. Review escalation reasons
 3. Look for patterns
 
@@ -231,10 +231,8 @@ section: user-guide
    - Contact organization admin
    - Verify email is verified
 
-4. **2FA issues:**
-   - Ensure time is correct on device
-   - Try backup codes
-   - Contact support to reset 2FA
+4. **2FA:**
+   - Two-factor authentication is planned for a future release and is not currently available.
 
 ### Access Denied / Permission Error
 

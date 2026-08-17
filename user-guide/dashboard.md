@@ -16,15 +16,15 @@ The dashboard shows you the most important metrics and activity at a glance. Whe
 
 Below the KPI cards you'll also find:
 
-- **Activity** - a line chart of conversation volume over time
+- **Conversation Activity** - a line chart of conversation volume over time
 - **Top Performing Agents** - your agents ranked by conversation volume and resolution rate
 - **Recent Conversations** - the latest conversations across your organization
 - **Active Conversations (live)** - conversations currently in progress, across Hay and human agents
 - **Human escalations** - escalation counts for today and this week
 - **Attention Needed** - conversations awaiting a human response
-- **Sentiment Score Gauge** - an overall sentiment score for the selected period
+- **Customer Sentiment Score** - an overall sentiment score for the selected period
 - **Sentiment Breakdown** - the split of positive, neutral, and negative conversations
-- **Document Status Overview** - your knowledge base documents grouped by status
+- **Knowledge Base** - documents by status
 
 ## Understanding Your Metrics
 
@@ -95,18 +95,13 @@ See conversations waiting for human attention. The Queue is accessible at `/queu
 
 ## Real-Time Updates
 
-Your dashboard updates automatically:
-
-- **Notifications** appear for important events:
-  - Conversations needing urgent attention
-  - Customers waiting too long
-  - System alerts or issues
+Real-time updates are not yet implemented. The dashboard does not refresh automatically; you need to manually reload the page to see the latest data.
 
 ## Customizing Your View
 
 ### Filter by Date Range
 
-Use the custom date picker to select any date range for the displayed metrics.
+Use the date range picker to select from preset options (e.g., Last 7 days, Last 30 days) or choose a custom date range for the displayed metrics.
 
 ## Dashboard Best Practices
 
@@ -152,7 +147,7 @@ Some metrics are calculated every few minutes, not instantly. Refresh your brows
 
 ### Can I export this data?
 
-Exporting data isn't available from the Dashboard page itself. You can export data from **Analytics > Reports** using the **CSV Export** option.
+Exporting data isn't available from the Dashboard page itself. Analytics is not currently accessible from the sidebar, so CSV export is not available at this time.
 
 ## Next Steps
 

@@ -32,7 +32,7 @@ Think of it like training a new employee by giving them all your company documen
 ### Step 1: Go to Documents
 
 1. Click **Documents** in the left sidebar
-2. Click **Import Documents**
+2. Click **Import Document**
 
 ### Step 2: Choose Your Method
 
@@ -48,10 +48,10 @@ Think of it like training a new employee by giving them all your company documen
 - Word documents (.doc, .docx)
 - Text files (.txt)
 - Markdown files (.md)
-- CSV files (for data)
+- CSV files (for data) -- imported as plain text, no structured parsing
 - HTML files (.html)
 - PowerPoint presentations (.ppt, .pptx)
-- JSON files (.json)
+- JSON files (.json) -- imported as plain text, no structured parsing
 
 > **File size limit:** The maximum upload size is 10 MB per file (configurable via the `UPLOAD_MAX_SIZE_MB` environment variable).
 
@@ -80,8 +80,8 @@ After upload:
 
 - Give document a clear title
 - Add a description (what information does it contain?)
-- Select a **category** from the dropdown: product, api, faq, legal, training, technical, or other
-- Set the document status: **Draft**, **Published**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually.
+- Select a **category** from the dropdown (only available during import, step 3 above -- not on the document detail page): product, api, faq, legal, training, technical, or other
+- Set the document status: **Draft**, **Published**, **Under Review**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually.
 - Click **Save**
 
 ## Types of Documents to Upload

@@ -198,6 +198,8 @@ const sources = await trpc.sources.list.query();
 const source = await trpc.sources.get.query({ id: 'whatsapp' });
 ```
 
+> **Note**: This endpoint filters by `isActive: true`. Deactivated sources will return `NOT_FOUND`.
+
 ### Get Sources by Category
 
 ```typescript
@@ -212,7 +214,7 @@ const messagingSources = await trpc.sources.getByCategory.query({
 
 - **Always bypasses approval** regardless of organization or agent test mode settings
 - Used for safe testing without affecting real customers
-- Messages are immediately sent (delivery_state = 'sent', review_required = false)
+- Messages are immediately sent (`deliveryState = DeliveryState.SENT`, `reviewRequired = false`)
 
 ### Other Sources (webchat, whatsapp, etc.)
 
@@ -223,18 +225,18 @@ Test mode is determined by:
 
 **When test mode is ON**:
 - Messages require approval before sending to customers
-- delivery_state = 'queued'
-- review_required = true
+- `deliveryState = DeliveryState.QUEUED`
+- `reviewRequired = true`
 - Messages only sent after explicit approval
 
 **When test mode is OFF**:
 - Messages sent immediately
-- delivery_state = 'sent'
-- review_required = false
+- `deliveryState = DeliveryState.SENT`
+- `reviewRequired = false`
 
 **When message is blocked**:
-- delivery_state = 'blocked'
-- Message will not be delivered (e.g., failed validation or policy block)
+- `deliveryState = DeliveryState.BLOCKED`
+- Message will not be delivered (message rejected by a human reviewer during the approval process)
 
 ## Plugin Lifecycle
 
@@ -280,16 +282,18 @@ import { DeliveryState } from '@server/types/message-feedback.types';
 const messageService = new MessageService();
 
 // For bot messages that respect test mode
+// Additional optional parameters: usageMetadata (token usage tracking)
 const message = await messageService.createAssistantMessageWithTestMode(
   conversation,
   'Hello from WhatsApp!',
   'whatsapp',  // sourceId
   agent,
   organization,
-  {
+  {                                  // metadata (optional)
     whatsappMessageId: 'wamid.xxxxx',
     phoneNumber: '+1234567890'
-  }
+  },
+  usageMetadata                      // usageMetadata (optional) - token usage tracking
 );
 
 // Check if message needs approval
@@ -347,7 +351,7 @@ try {
 1. **Use namespaced IDs** for custom channels: `my-plugin:my-channel`
 2. **Store plugin-specific config** in the `metadata` field
 3. **Deactivate (don't delete)** sources on plugin uninstall to preserve message history
-4. **Check delivery_state** before sending messages to external platforms
+4. **Check `deliveryState`** before sending messages to external platforms
 5. **Use appropriate categories** for better organization and filtering
 6. **Provide clear descriptions** for users to understand each channel
 7. **Handle test mode properly** - respect queued messages

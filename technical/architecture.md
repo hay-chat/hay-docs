@@ -74,27 +74,21 @@ Persistent storage with caching:
 
 - **PostgreSQL**: Primary data store for conversations, users, settings
 - **Redis**: Caching layer and pub/sub for real-time features
-- **Object Storage**: Attachments and media files
+- **File Storage (local filesystem or optional S3)**: Attachments and media files
 
 ### Data Flow
 
 #### Incoming Message
 
-1. Message arrives via integration (email, chat, etc.)
-2. Integration plugin emits `message.received` event
-3. Message is validated and stored in database
-4. Event bus notifies all listeners
-5. Automation rules are evaluated
-6. Real-time updates sent to connected clients
+1. Webhook arrives at the plugin's registered route (e.g., `/v1/plugins/:pluginId/webhook`)
+2. Plugin normalizes the message and stores it in the database
+3. Orchestrator processes the message via RabbitMQ (perception, retrieval, execution layers)
+4. Response is delivered via Redis pub/sub
+5. WebSocket pushes real-time updates to connected clients
 
-#### Automation Execution
+#### Workflow Automation
 
-1. Rule trigger conditions evaluated
-2. If matched, rule added to job queue
-3. Worker picks up job from queue
-4. Actions executed in sequence
-5. Results logged and stored
-6. Completion event emitted
+Playbooks are the workflow mechanism in Hay. They define structured sequences of actions (e.g., collect information, route conversations, trigger plugin tools) that the orchestrator can execute during conversations. There is no standalone rules engine; all automation flows through playbook definitions.
 
 ### Scalability Considerations
 
@@ -104,7 +98,7 @@ Hay is designed to scale horizontally:
 
 - **Stateless API servers**: Scale by adding more instances
 - **Background workers**: Scale job processing independently
-- **Database read replicas**: Distribute read load
+- **Database read replicas**: Future scalability option (not currently implemented)
 
 #### Caching Strategy
 
@@ -112,16 +106,14 @@ Multi-layer caching reduces database load:
 
 ```mermaid
 graph LR
-  A["fa:fa-browser Client Cache"] --> B["fa:fa-cloud CDN"] --> C["fa:fa-bolt Redis"] --> D["fa:fa-database Database"]
+  A["fa:fa-browser Client Cache"] --> C["fa:fa-bolt Redis"] --> D["fa:fa-database Database"]
 
   style A fill:#e8f3ff,stroke:#568aff,color:#0a155c
-  style B fill:#e8f3ff,stroke:#568aff,color:#0a155c
   style C fill:#e8f3ff,stroke:#568aff,color:#0a155c
   style D fill:#f5f5f5,stroke:#d4d4d4,color:#404040
 ```
 
 - **Client**: Browser cache for static assets
-- **CDN**: Configurable asset-domain URL helper for serving static assets from a separate domain, not an integrated CDN caching layer
 - **Redis**: In-memory cache for hot data
 - **Database**: Source of truth
 
@@ -141,7 +133,7 @@ RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-b
 Multiple security layers:
 
 1. **Network**: TLS/SSL encryption for all traffic
-2. **Authentication**: JWT with short expiration
+2. **Authentication**: JWT with configurable expiration (default: 7 days)
 3. **Authorization**: Role-based access control (RBAC)
 4. **Input Validation**: Sanitize all user input
 5. **Output Encoding**: Prevent XSS attacks
@@ -149,16 +141,13 @@ Multiple security layers:
 
 #### Data Privacy
 
-- **Encryption at rest**: Database encryption enabled
-- **Encryption in transit**: TLS 1.3 required
-- **PII handling**: Separate tables with restricted access
-- **Audit logs**: All data access logged
+- **Audit logs**: Specific operations (authentication, data export, deletion) are logged for compliance purposes
 
 ### Monitoring and Observability
 
 #### Metrics
 
-Key metrics tracked:
+Application-level metrics are not yet instrumented. The following are planned for future implementation:
 
 - API response times
 - Error rates
@@ -168,18 +157,12 @@ Key metrics tracked:
 
 #### Logging
 
-Structured logging with correlation IDs:
+Structured logging via Pino:
 
 ```typescript
 logger.info({ conversationId: '123', action: 'create', duration: 45 }, 'Processing conversation');
 ```
 
-#### Tracing
-
-Distributed tracing for debugging:
-- Request flows across services
-- Performance bottleneck identification
-- Error source pinpointing
 
 ## Next Steps
 

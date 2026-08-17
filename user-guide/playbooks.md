@@ -156,12 +156,11 @@ Status is set when you create the playbook:
 
 **Draft** - Still working on it, not active yet
 **Active** - Live and ready to handle conversations
+**Archived** - No longer in use; can be set at creation time or changed later
 
 Click **Save Changes**
 
 > **Draft/Publish versioning:** Clicking **Save Changes** creates or updates a draft of the playbook. To make a version live, publish it — publishing sets the playbook's status to **Active** and creates an immutable snapshot of the playbook at that point in time. Subsequent edits start a new draft without affecting the published version.
->
-> **Coming Soon:** There is currently no UI control to archive a playbook after creation. This capability is planned.
 
 ## Playbook Instructions Best Practices
 
@@ -236,9 +235,9 @@ Escalate to human if:
 You can assign playbooks to specific agents from the playbook editor:
 
 1. Open the playbook
-2. Go to **Agents**
-3. Select which agents should use this playbook
-4. Save
+2. In the sidebar, find the **Agents** card
+3. Use the checkboxes to select which agents should use this playbook
+4. Changes are saved automatically
 
 **If no agents assigned:** The playbook defaults to the organization's default agent.
 
@@ -249,6 +248,8 @@ You can assign playbooks to specific agents from the playbook editor:
 1. Click on the playbook
 2. Make your changes
 3. Click **Save Changes**
+
+> **Auto-save vs. manual save:** The **Instructions** field auto-saves as you type. Identity fields (title, trigger, description, status) require clicking **Save Changes** to persist.
 
 Saving creates a new draft. Publish to make the updated version live.
 
@@ -269,7 +270,7 @@ Before activating:
 
 ### Deactivating a Playbook
 
-> **Coming Soon:** There is currently no UI control to archive a playbook after creation. Status is set when the playbook is created (**Draft**) and moves to **Active** when published. Until archiving is available, keep a playbook's trigger narrow or remove its instructions to stop it from being used.
+To stop a playbook from being used, set its status to **Archived**. You can do this from the playbook editor by changing the status dropdown and clicking **Save Changes**.
 
 ## Common Playbook Templates
 

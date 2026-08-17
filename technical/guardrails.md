@@ -1,17 +1,17 @@
 ---
 layout: docs.njk
 title: Guardrails
-description: Two-stage guardrail system for AI response quality
+description: Three-stage guardrail system for AI response quality
 section: technical
 navGroup: Core Systems
 navOrder: 2
 ---
 
-# Two-Stage Guardrail System
+# Three-Stage Guardrail System
 
 ## Overview
 
-Hay uses a sophisticated two-stage guardrail system to ensure AI responses serve company interests while maintaining factual accuracy. This system replaces the previous single-stage confidence guardrail with a more pragmatic, company-focused approach.
+Hay uses a sophisticated three-stage guardrail system to ensure AI responses serve company interests while maintaining factual accuracy. This system replaces the previous single-stage confidence guardrail with a more pragmatic, company-focused approach.
 
 ## Architecture
 
@@ -19,7 +19,15 @@ Hay uses a sophisticated two-stage guardrail system to ensure AI responses serve
 flowchart TD
   A["fa:fa-robot AI Response Generated"]
 
-  A --> B
+  A --> S0
+
+  subgraph S0["fa:fa-ban  Stage 0: Action Claim Guard"]
+    direction TB
+    S0_1["Does this response claim<br/>state-changing actions<br/>without a backing tool call?"]
+  end
+
+  S0 -->|"fa:fa-xmark BLOCK"| ESC0["fa:fa-user Escalate / Retry"]
+  S0 -->|"fa:fa-check PASS"| B
 
   subgraph B["fa:fa-shield-halved  Stage 1: Interest Protection"]
     direction TB
@@ -44,12 +52,55 @@ flowchart TD
   D -->|"Low <0.5"| ESC2["fa:fa-user Escalate"]
 
   style A fill:#e8f3ff,stroke:#568aff,color:#0a155c
+  style ESC0 fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
   style ESC fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
   style ESC2 fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
   style DEL1 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
   style DEL2 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
   style REC fill:#fffbeb,stroke:#fbbf24,color:#78350f
   style C fill:#fff,stroke:#568aff,color:#0a155c
+```
+
+## Stage 0: Action Claim Guardrail
+
+### Purpose
+Block responses that claim state-changing actions (e.g., "I've cancelled your order", "I've updated your address") without a backing tool call to actually perform the action. This prevents the AI from misleading customers into believing an action was taken when it was not.
+
+### Service
+`ActionClaimGuardrailService` at `/server/services/core/action-claim-guardrail.service.ts`
+
+### Configuration
+
+```typescript
+// ActionClaimGuardrailConfig
+{
+  "enabled": false,        // Disabled by default
+  "maxRetries": 1,         // Number of retries before escalation
+  "escalateOnFailure": false // Whether to escalate to human on persistent failure
+}
+```
+
+### How It Works
+- Runs **BEFORE** Stage 1 in `applyConfidenceGuardrails`
+- Inspects the AI response for language that implies a state-changing action was performed
+- Cross-references against the tool calls actually made during the turn
+- If the response claims an action but no corresponding tool call exists, the response is blocked
+- On block, the system retries up to `maxRetries` times before escalating (if `escalateOnFailure` is enabled)
+
+### What Gets Blocked
+
+**Example:**
+```
+❌ BLOCKED
+Customer: "Can you cancel my order?"
+AI: "I've cancelled your order #12345 for you."
+(when no cancellation tool call was made)
+
+✅ ALLOWED
+Customer: "Can you cancel my order?"
+AI: "Let me cancel that for you now."
+[Tool call: cancelOrder(orderId: "12345")]
+AI: "Done! I've cancelled order #12345."
 ```
 
 ## Stage 1: Company Interest Protection
@@ -220,7 +271,8 @@ When Medium confidence:
     "blockOffTopic": true,
     "blockCompetitorInfo": true,
     "blockFabrications": true,
-    "allowClarifications": true
+    "allowClarifications": true,
+    "maxRetries": 1
   },
 
   // Stage 2: Fact Grounding
@@ -244,6 +296,13 @@ Every bot response includes guardrail information:
 
 ```typescript
 {
+  // Stage 0: Action Claim
+  actionClaim: {
+    passed: true,
+    reasoning: "No state-changing action claims detected"
+  },
+  actionClaimRetryAttempted: false,
+
   // Stage 1: Company Interest
   companyInterest: {
     passed: true,
@@ -251,7 +310,8 @@ Every bot response includes guardrail information:
     severity: "none",
     shouldBlock: false,
     requiresFactCheck: false,
-    reasoning: "Clarifying terminology"
+    reasoning: "Clarifying terminology",
+    retryAttempted: false
   },
 
   // Stage 2: Fact Grounding (if ran)
@@ -355,7 +415,7 @@ Result: ✗ ESCALATED or FALLBACK
 
 ## Migration from Previous System
 
-The new two-stage system:
+The new three-stage system:
 - ✅ **Fixes** the "ticket volume" false positive
 - ✅ **Blocks** harmful responses (competitors, off-topic)
 - ✅ **Allows** helpful clarifications and tool results
@@ -410,6 +470,7 @@ conversation.messages.forEach(message => {
 ## Technical Details
 
 ### Services
+- `ActionClaimGuardrailService` - Stage 0 implementation
 - `CompanyInterestGuardrailService` - Stage 1 implementation
 - `ConfidenceGuardrailService` - Stage 2 implementation (refactored)
 
@@ -419,8 +480,10 @@ conversation.messages.forEach(message => {
 - `execution/confidence-certainty` - Stage 2 certainty (EN, PT, ES)
 
 ### Files
+- `/server/services/core/action-claim-guardrail.service.ts`
 - `/server/services/core/company-interest-guardrail.service.ts`
 - `/server/services/core/confidence-guardrail.service.ts`
 - `/server/orchestrator/execution.layer.ts`
 - `/server/orchestrator/run.ts`
+- `/server/orchestrator/types.ts`
 - `/server/types/organization-settings.types.ts`

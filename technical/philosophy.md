@@ -29,7 +29,7 @@ We believe that happy developers build better software.
 // Good: Clear, typed interface
 interface CreateConversationParams {
   customerId: string;
-  channel: 'email' | 'chat' | 'social';
+  channel: string; // varchar(64), defaults to "web"
   subject?: string;
   initialMessage: string;
 }
@@ -49,14 +49,7 @@ Sensible defaults that work out of the box.
 - Automatic discovery of plugins
 - Intelligent defaults that can be overridden
 
-```typescript
-// Convention: Plugins auto-discovered from /plugins directory
-// Configuration: Override defaults only when needed
-{
-  pluginDirectory: './custom-plugins',  // optional
-  autoDiscovery: true                    // default
-}
-```
+Plugins are automatically discovered from the `plugins/` directory at startup. Each plugin contains a `manifest.json` that defines its configuration. No additional discovery configuration is needed.
 
 #### 3. Fail Fast, Fail Loud
 
@@ -128,7 +121,7 @@ if (userNeedsFeature) {
 
 Events are emitted via `ConversationEventsService` and WebSocket service, not a general event bus.
 
-#### Dependency Injection
+#### Module-Level Singletons
 
 **Why:** Testability and flexibility
 
@@ -157,14 +150,14 @@ Repositories extend `BaseRepository<T>` (a generic TypeORM wrapper) — no inter
 - **Minimum 80% coverage**: For new code (aspirational target — not currently enforced via CI)
 
 ```typescript
-describe("AutomationService", () => {
-  it("should trigger rule when conditions match", async () => {
+describe("PlaybookService", () => {
+  it("should match playbook when conditions apply", async () => {
     const service = setupService();
-    const rule = createTestRule();
+    const playbook = createTestPlaybook();
 
-    const result = await service.evaluate(rule, testConversation);
+    const result = await service.evaluate(playbook, testConversation);
 
-    expect(result.triggered).toBe(true);
+    expect(result.matched).toBe(true);
   });
 });
 ```
@@ -178,26 +171,26 @@ describe("AutomationService", () => {
 
 ````typescript
 /**
- * Evaluates automation rules against a conversation.
+ * Evaluates a playbook against a conversation context.
  *
- * @param rule - The automation rule to evaluate
+ * @param playbook - The playbook to evaluate
  * @param conversation - The conversation context
- * @returns Evaluation result with actions to execute
+ * @returns Result indicating whether the playbook matched and actions to execute
  *
- * @throws {ValidationError} If rule or conversation is invalid
+ * @throws {ValidationError} If playbook or conversation is invalid
  *
  * @example
  * ```ts
- * const result = await evaluate(rule, conversation);
+ * const result = await evaluate(playbook, conversation);
  * if (result.matched) {
  *   await executeActions(result.actions);
  * }
  * ```
  */
 async function evaluate(
-  rule: AutomationRule,
+  playbook: Playbook,
   conversation: Conversation,
-): Promise<EvaluationResult>;
+): Promise<PlaybookEvaluationResult>;
 ````
 
 ### Contribution Guidelines

@@ -40,10 +40,9 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 
 **Customization options:**
 
-- Button position (bottom-right, bottom-left, etc.)
-- Brand colors
+- Button position (right or left)
+- Theme (blue, green, purple, or black)
 - Welcome message
-- Chat window size
 
 ### WhatsApp Business
 
@@ -95,8 +94,8 @@ Connect your WooCommerce store for e-commerce support.
 1. Go to **Integrations** → **Marketplace**
 2. Find **WooCommerce**
 3. Click **Install**
-4. Enter your WooCommerce store URL
-5. Enter your WooCommerce REST API key and secret
+4. Enter your WordPress/WooCommerce site URL
+5. Enter your Consumer Key and Consumer Secret
 6. Authorize permissions
 7. Return to Hay — connection confirmed!
 
@@ -109,9 +108,9 @@ Connect your WooCommerce store for e-commerce support.
 
 **Permissions needed:**
 
-- Read orders
-- Read products
-- Read customers
+- Full access to orders (read, create, update)
+- Full access to products (read, create, update)
+- Full access to customers (read, create, update)
 
 ### Zendesk
 
@@ -119,10 +118,9 @@ Sync with your Zendesk help desk.
 
 **What it does:**
 
-- Import existing tickets into Hay
-- Create tickets from Hay conversations
-- Sync conversation history
-- Unified customer view
+- Provides MCP tools for querying existing Zendesk tickets
+- Create new tickets from Hay conversations
+- Look up ticket details and status on demand
 
 **How to set up:**
 
@@ -147,9 +145,8 @@ Send internal notification emails to a fixed set of recipients.
 
 **How to set up:**
 
-1. Go to **Integrations** → **Email**
+1. Go to **Integrations** → **Marketplace** and install the **Email** plugin
 2. Enter a comma-separated list of recipient email addresses
-3. Send a test email to verify the connection
 
 **Best for:**
 
@@ -164,8 +161,6 @@ Go to **Integrations** in the sidebar to see:
 
 - All installed integrations
 - Connection status (✅ Connected or ⚠️ Issue)
-- Last sync time
-- Usage statistics
 
 ### Configuring an Integration
 
@@ -212,11 +207,11 @@ To remove an integration:
 ### Web Chat Features
 
 - ✅ Typing indicators
-- ✅ Read receipts
-- ✅ File uploads
+- 🔜 Read receipts — planned
+- 🔜 File uploads — planned
 - ✅ Emoji support
 - ✅ Conversation history
-- ✅ Proactive chat (trigger by page, time on site, etc.)
+- 🔜 Proactive chat (trigger by page, time on site, etc.) — planned
 
 ### WhatsApp Features
 

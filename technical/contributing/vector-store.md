@@ -49,7 +49,7 @@ npm run migration:run
 ### Basic Usage in Code
 
 ```typescript
-import { vectorStoreService } from "./services/vector-store.service";
+import { vectorStoreService } from "@server/services/vector-store.service";
 
 // Initialize (after DataSource is ready)
 await vectorStoreService.initialize();
@@ -62,7 +62,7 @@ const chunks = [
 
 const ids = await vectorStoreService.addChunks(
   organizationId,
-  documentId, // optional
+  documentId, // pass null if not linked to a document
   chunks,
 );
 
@@ -123,15 +123,15 @@ Add text chunks to the vector store.
 
 #### `searchDocuments(organizationId, query, k)`
 
-Search for similar documents within an organization.
+Search for similar documents within an organization. Results are grouped by document, returning the best similarity score per document. Use this when you need to identify which documents are most relevant to a query rather than retrieving individual text chunks.
 
-- Returns: Array of results with similarity scores
+- Returns: `Array<{ documentId: string; similarity: number }>` — one entry per matching document, ranked by similarity
 
 #### `search(organizationId, query, k)`
 
-Search for similar content within an organization.
+Search for similar individual embedding chunks within an organization. Unlike `searchDocuments`, this returns the raw embedding chunks themselves (with their page content and metadata), not grouped by document. Use this when you need the actual text passages most similar to the query.
 
-- Returns: Array of results with similarity scores
+- Returns: `SearchResult[]` — individual embedding chunks with content, metadata, and similarity scores
 
 #### `deleteByDocumentId(organizationId, docId, manager?: EntityManager)`
 

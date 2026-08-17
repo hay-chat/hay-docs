@@ -31,7 +31,12 @@ Fill in the essentials:
 **Agent Name**
 
 - Something descriptive: "Customer Support Agent", "Sales Assistant", "Technical Support Bot"
-- Visible to your team (not to customers)
+- Visible to your team and to customers in the chat widget
+
+**Avatar** (Optional)
+
+- Upload a custom avatar image for your agent by clicking the avatar area
+- The avatar is displayed in the chat widget alongside the agent's messages
 
 **Description** (Optional but recommended)
 
@@ -42,7 +47,7 @@ Fill in the essentials:
 
 **Instructions**
 
-Tell your agent how to behave. Write in plain English:
+Tell your agent how to behave using the rich text editor. You can format your instructions with headings, lists, bold/italic text, and more:
 
 ```
 You are a helpful customer support agent for an online store.
@@ -71,7 +76,7 @@ Choose how your agent should communicate:
 
 **Language**
 
-Select the language your agent should respond in. Hay supports 14 languages, allowing you to serve customers in their preferred language.
+Select the language your agent should respond in. Hay supports over 30 languages, allowing you to serve customers in their preferred language.
 
 **Things to Avoid** (Optional)
 
@@ -148,9 +153,9 @@ Control whether the agent's responses are sent automatically or require human re
 2. Under **Message Approval**, select the desired option
 3. Changes take effect for all new conversations with this agent
 
-### Human Handoff Instructions
+### Human Escalation
 
-Tell your agent exactly how to handle escalations:
+Tell your agent exactly how to handle escalations. Both fields below use a rich text editor for formatting.
 
 **When Human is Available:**
 
@@ -192,7 +197,9 @@ Since matching is semantic, you don't need to enumerate every possible keyword �
 
 > **Note:** Trigger conditions currently don't support scheduling (e.g., business hours vs. after hours). This is a potential future feature.
 
-Assigning an agent to specific channels (WhatsApp, website chat, email, etc.) is configured separately in the **Channels** section of the agent form, not through the trigger field.
+### Channels
+
+The **Channels** card in the agent form lets you assign the agent to specific communication channels. Each installed channel plugin (e.g., WhatsApp, website chat, email) appears as a toggle switch. Enable the channels this agent should handle, and disable the ones it should not. Channel assignment is independent of the trigger field.
 
 ### Default Agent
 
@@ -201,7 +208,7 @@ Every organization needs a fallback for conversations that don't clearly match a
 **To set an agent as default:**
 
 1. Open the agent you want to use as the fallback
-2. Click **Set as Default Agent**
+2. Click **Set as Default**
 
 Only one agent can be the default at a time — setting a new one automatically replaces the previous default.
 
@@ -256,15 +263,7 @@ _Technical Support_
 
 ### Monitoring Your Agents
 
-Go to **Analytics** → **Agents** to see:
-
-- **Conversations handled** - Total volume per agent
-- **Resolution rate** - How many issues they solved
-- **Average response time** - Speed of responses
-- **Escalation rate** - How often they need human help
-- **Customer satisfaction** - Ratings from customers
-
-> **Note:** Agent performance analytics currently display sample data while this feature is being developed. Live per-agent metrics are coming soon.
+Per-agent analytics (conversations handled, resolution rate, escalation rate, etc.) are not yet available in the dashboard. This feature is planned for a future release. In the meantime, you can review individual conversations in **Conversations** to assess how your agents are performing.
 
 ### Improving Agent Performance
 

@@ -9,6 +9,8 @@ section: user-guide
 
 Analytics does not have a dedicated sidebar link. Access it directly at `/analytics` or from the main dashboard.
 
+> **Note:** The analytics page currently displays mock/demo data. The metrics shown are placeholders to illustrate the interface; they do not reflect real conversation or performance data yet.
+
 ## Overview Dashboard
 
 Your analytics home shows the most important metrics at a glance.
@@ -46,17 +48,10 @@ Use the date selector to filter all metrics. Available options:
 
 **Customer Satisfaction**
 
-- Based on customer star ratings (out of 5)
-- **Excellent:** 4.5+/5
-- **Good:** 3.75–4.5/5
-- **Needs improvement:** Below 3.75/5
-
-**Escalation Rate**
-
-- Percentage of conversations requiring human help
-- **Excellent:** Under 15%
-- **Good:** 15-30%
-- **High:** Over 30% (consider more training)
+- Based on customer feedback (GOOD, BAD, or NEUTRAL), shown as a percentage of positive ratings
+- **Excellent:** 85%+ positive
+- **Good:** 70-85% positive
+- **Needs improvement:** Below 70% positive
 
 ## Conversation Analytics
 
@@ -99,17 +94,16 @@ Dive deeper into conversation data.
 - See reasons for escalation
 - Identify training opportunities
 
-**Abandoned:**
+**Other Statuses:**
 
-- Customer left before resolution
-- May indicate frustration
-- Could signal response time issues
+Conversations are tracked with the following statuses:
 
-**Still Open:**
-
-- Active conversations
-- Waiting for response
-- In progress
+- **Open** — New conversation, not yet processed
+- **Processing** — AI is actively handling the conversation
+- **Pending Human** — Flagged for human review
+- **Human Took Over** — A human agent has taken control
+- **Resolved** — Issue addressed, conversation complete
+- **Closed** — Conversation formally closed
 
 ### Conversation Duration
 
@@ -258,7 +252,7 @@ What do customers want?
 
 ### Rating System
 
-Customers can rate messages using a star rating out of 5.
+Customers can rate messages using a thumbs up (GOOD), thumbs down (BAD), or neutral reaction. Satisfaction is displayed as a percentage of positive ratings.
 
 ### Satisfaction Trends
 
@@ -317,7 +311,7 @@ Compare metrics across channels:
 ### Creating a Custom Report
 
 1. Go to `/analytics/reports`
-2. Click **Create Report**
+2. Click **New Report**
 3. Choose metrics to include
 4. Select date range
 5. Add filters (agent, channel, topic)
@@ -352,11 +346,11 @@ Compare metrics across channels:
 
 ### Scheduling Reports
 
-> **Coming soon:** Scheduled/automatic reports are not yet implemented.
+> **Note:** The scheduling UI stub exists in the interface but is non-functional. Scheduled/automatic reports are not yet implemented.
 
 ### Exporting Data
 
-> **Coming soon:** Data export (PDF, CSV) is not yet implemented.
+> **Note:** The export UI stub exists in the interface but is non-functional. Data export (PDF, CSV) is not yet implemented.
 
 ## Interpreting Your Data
 

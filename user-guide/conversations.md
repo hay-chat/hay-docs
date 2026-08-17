@@ -23,12 +23,13 @@ Go to **Conversations** in the left sidebar to see all your interactions.
 
 **What you'll see:**
 
-- **Title** - Auto-generated summary of the conversation topic
+- **Conversation** - Auto-generated summary of the conversation topic
+- **Channel** - Where the conversation came from (shown only when your organization has channel plugins installed)
 - **Status** - Current state (Open, Resolved, Closed, etc.)
-- **Customer** - Who you're talking with
-- **Channel** - Where the conversation came from (Web, WhatsApp, etc.)
-- **Agent** - Which AI agent handled it
-- **Last message** - When the last activity happened
+- **Assigned To** - Which AI agent or team member is handling it
+- **Duration** - How long the conversation has been active
+- **Satisfaction** - Customer satisfaction rating, if provided
+- **Updated** - When the last activity happened
 
 ### Searching and Filtering
 
@@ -36,16 +37,16 @@ Find specific conversations quickly:
 
 **Search by:**
 
-- Customer name or email
-- Keywords in the conversation
+- Conversation title
 - Conversation ID
 
 **Filter by:**
 
 - **Status** - All, Active, Resolved, Escalated, Closed
 - **Channel** - Web, WhatsApp, Email, etc.
-- **Agent** - Which AI agent handled it
 - **Date range** - When the conversation happened
+
+> **Note:** The date range/timeframe filter is not yet functional.
 
 > **Note:** The "Active" and "Escalated" status filters are not yet functional.
 
@@ -88,7 +89,6 @@ On the right side, view:
 - **Customer details** - Name, email, history
 - **Conversation metadata** - Channel, start time, duration
 - **Agent info** - Which agent handled this
-- **Playbook used** - If any workflow was triggered
 
 ## Taking Over a Conversation
 
@@ -122,7 +122,7 @@ When you're done:
 - Click **Release Conversation** to hand the conversation off. A dialog appears with two options:
   - **Return to AI** - The agent resumes handling messages automatically
   - **Return to Queue** - The conversation is placed back in the queue for another team member to pick up
-- Click **Close Conversation** (a separate button) to mark the conversation as resolved and ended
+- Click **Close Conversation** (a separate button) to mark the conversation as closed
 
 ## Supervision Mode
 
@@ -134,6 +134,8 @@ Want to watch the AI work without taking over? Use Supervision Mode.
 - See what the AI is about to say BEFORE it sends
 - Approve or edit responses
 - Step in only if needed
+
+> **Note:** Supervision Mode is not yet fully implemented. The Supervise button exists in the UI, but the approve/edit flow for reviewing AI responses before they are sent does not work yet.
 
 > **Note:** Supervision Mode is only available for conversations with an `open` status.
 
@@ -158,7 +160,7 @@ Practice and test your agent without affecting real customers.
 ### Starting a Test
 
 1. Go to **Conversations**
-2. Click **New Test Conversation** or enter **Playground mode**
+2. Click the **Playground** button
 3. Chat with your agent like a customer would
 
 ### What's Different in Test Mode
