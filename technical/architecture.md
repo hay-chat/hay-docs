@@ -80,21 +80,12 @@ Persistent storage with caching:
 
 #### Incoming Message
 
-1. Message arrives via integration (email, chat, etc.)
-2. Integration plugin emits `message.received` event
-3. Message is validated and stored in database
-4. Event bus notifies all listeners
-5. Automation rules are evaluated
-6. Real-time updates sent to connected clients
-
-#### Automation Execution
-
-1. Rule trigger conditions evaluated
-2. If matched, rule added to job queue
-3. Worker picks up job from queue
-4. Actions executed in sequence
-5. Results logged and stored
-6. Completion event emitted
+1. Message arrives via channel plugin (WhatsApp, email, webchat, etc.)
+2. Plugin persists the message and queues an orchestrator job via RabbitMQ
+3. Orchestrator worker picks up the job (perception → retrieval → execution layers)
+4. AI response is generated, guardrails are applied, and the reply is stored
+5. Real-time updates are published via `ConversationEventsService` (Redis pub/sub) to connected clients
+6. For channel conversations, `ChannelDeliveryService` automatically forwards the reply to the originating plugin's delivery endpoint
 
 ### Scalability Considerations
 
@@ -158,7 +149,7 @@ Multiple security layers:
 
 #### Metrics
 
-Key metrics tracked:
+Observability is currently limited to structured logging. The following metrics are planned but not yet collected (no metrics library is integrated):
 
 - API response times
 - Error rates
@@ -176,10 +167,7 @@ logger.info({ conversationId: '123', action: 'create', duration: 45 }, 'Processi
 
 #### Tracing
 
-Distributed tracing for debugging:
-- Request flows across services
-- Performance bottleneck identification
-- Error source pinpointing
+Distributed tracing is not yet implemented. Currently, error reporting is handled via opt-in PostHog exception capture (`/server/lib/telemetry.ts`). Full request tracing is planned for a future release.
 
 ## Next Steps
 

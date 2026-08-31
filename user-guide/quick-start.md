@@ -13,6 +13,10 @@ Make sure you have:
 - At least one support document or FAQ (we'll use this to train your agent)
 - 10 minutes to complete the setup
 
+## Guided Onboarding
+
+Hay also provides an automated, checklist-style walkthrough of these steps at **Getting Started** in the left sidebar (`/getting-started`). It tracks your progress and links directly into each step. The steps build on each other: you'll need an agent before adding documents, documents before creating a playbook, and a playbook before testing.
+
 ## Step 1: Choose Your Integrations
 
 Hay works where your team already does. You can connect integrations now or skip this and come back later.

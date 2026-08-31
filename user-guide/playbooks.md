@@ -156,8 +156,9 @@ Status is set when you create the playbook:
 
 **Draft** - Still working on it, not active yet
 **Active** - Live and ready to handle conversations
+**Archived** - No longer in use
 
-Click **Save Changes**
+Click **Create Playbook**
 
 > **Draft/Publish versioning:** Clicking **Save Changes** creates or updates a draft of the playbook. To make a version live, publish it — publishing sets the playbook's status to **Active** and creates an immutable snapshot of the playbook at that point in time. Subsequent edits start a new draft without affecting the published version.
 >
@@ -236,9 +237,8 @@ Escalate to human if:
 You can assign playbooks to specific agents from the playbook editor:
 
 1. Open the playbook
-2. Go to **Agents**
-3. Select which agents should use this playbook
-4. Save
+2. In the sidebar, check the agents under **Assigned Agents**
+3. Click **Save Changes**
 
 **If no agents assigned:** The playbook defaults to the organization's default agent.
 
@@ -254,14 +254,13 @@ Saving creates a new draft. Publish to make the updated version live.
 
 ### Testing a Playbook
 
-Before activating:
+A playbook must be **Active** (published) to be evaluated by the agent — Draft playbooks are not matched to conversations. To test safely:
 
-1. Set playbook to **Draft**
-2. Create a test conversation
+1. Publish the playbook (or create a narrow-trigger test version)
+2. Create a test conversation via the **Conversation Playground**
 3. Send messages that match the trigger scenario
 4. See if agent follows the steps correctly
-5. Adjust instructions as needed
-6. Publish when ready
+5. Adjust instructions as needed and re-publish
 
 ### Viewing Playbook Performance
 

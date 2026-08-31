@@ -71,7 +71,7 @@ Choose how your agent should communicate:
 
 **Language**
 
-Select the language your agent should respond in. Hay supports 14 languages, allowing you to serve customers in their preferred language.
+Select the language your agent should respond in. Hay supports 33 languages, allowing you to serve customers in their preferred language.
 
 **Things to Avoid** (Optional)
 
@@ -201,7 +201,7 @@ Every organization needs a fallback for conversations that don't clearly match a
 **To set an agent as default:**
 
 1. Open the agent you want to use as the fallback
-2. Click **Set as Default Agent**
+2. Click **Set as Default**
 
 Only one agent can be the default at a time — setting a new one automatically replaces the previous default.
 
@@ -256,7 +256,7 @@ _Technical Support_
 
 ### Monitoring Your Agents
 
-Go to **Analytics** → **Agents** to see:
+Go to **Analytics** and scroll to the **Agent Performance** table to see:
 
 - **Conversations handled** - Total volume per agent
 - **Resolution rate** - How many issues they solved

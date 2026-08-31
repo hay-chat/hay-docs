@@ -23,7 +23,7 @@ section: user-guide
 
 **Check integration:**
 
-1. Go to **Integrations**
+1. Go to **Channels** (for channel plugins like WhatsApp, Email) or **Integrations** → **Marketplace** (for data plugins like Shopify, Zendesk)
 2. Verify connection status is **Connected**
 3. Test with a sample message
 
@@ -146,9 +146,9 @@ section: user-guide
 
 **For channel integrations (WhatsApp, Email, etc.):**
 
-1. **Check the integration status:**
+1. **Check the channel status:**
 
-   - Go to **Integrations** → Your integration
+   - Go to **Channels** → Your channel
    - Confirm the connection shows **Connected**
    - Reconnect if the status looks off
 
@@ -232,9 +232,7 @@ section: user-guide
    - Verify email is verified
 
 4. **2FA issues:**
-   - Ensure time is correct on device
-   - Try backup codes
-   - Contact support to reset 2FA
+   - 2FA enforcement is not yet fully implemented. If your organization has enabled the "Require 2FA" policy toggle in Settings → Security, note that backend enforcement is still in progress — contact your organization admin if you're experiencing login issues related to this setting.
 
 ### Access Denied / Permission Error
 
