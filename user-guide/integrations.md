@@ -17,7 +17,41 @@ Integrations connect Hay with:
 
 ## Available Integrations
 
-> **Note:** This guide covers a subset of available integrations. Additional plugins (Shopify, HubSpot, Stripe, Instagram, and more) are available in the **Marketplace** — go to **Integrations** → **Marketplace** to browse the full list.
+Each integration has its own guide covering what it is, how to connect it, and what your agent can do with it:
+
+**Communication channels**
+
+- [WhatsApp](/docs/user-guide/integrations/whatsapp/) - Answer WhatsApp messages via Twilio
+- [Instagram](/docs/user-guide/integrations/instagram/) - Answer Instagram DMs
+- [Chatwoot](/docs/user-guide/integrations/chatwoot/) - Run Hay as an agent bot inside Chatwoot inboxes
+
+**E-commerce**
+
+- [Shopify](/docs/user-guide/integrations/shopify/) - Orders, refunds, customers, products, and catalog sync
+- [WooCommerce](/docs/user-guide/integrations/woocommerce/) - Full store access including orders, products, and coupons
+- [Magento](/docs/user-guide/integrations/magento/) - Products, stock, and sales insights
+- [Wix](/docs/user-guide/integrations/wix/) - Orders, refunds, fulfillment, and products
+
+**Payments & marketing**
+
+- [Stripe](/docs/user-guide/integrations/stripe/) - Payments, refunds, subscriptions, and invoices
+- [Klaviyo](/docs/user-guide/integrations/klaviyo/) - Profiles, subscriptions, campaigns, and flows
+
+**CRM & scheduling**
+
+- [HubSpot](/docs/user-guide/integrations/hubspot/) - Contacts, companies, deals, and tickets
+- [Twenty CRM](/docs/user-guide/integrations/twenty/) - People, companies, notes, and tasks
+- [Cal.com](/docs/user-guide/integrations/calcom/) - Check availability and manage bookings
+
+**Help desk & knowledge**
+
+- [Zendesk](/docs/user-guide/integrations/zendesk/) - Tickets, users, macros, and Help Center articles
+- [Atlassian (Jira & Confluence)](/docs/user-guide/integrations/atlassian/) - Jira issues plus Confluence page import
+- [Notion](/docs/user-guide/integrations/notion/) - Import Notion pages into your knowledge base
+
+**Utilities**
+
+- [Email](/docs/user-guide/integrations/email/) - Send notification emails to your team
 
 ### Web Chat
 
@@ -44,117 +78,6 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 - Brand colors
 - Welcome message
 - Chat window size
-
-### WhatsApp Business
-
-Handle WhatsApp messages with your AI agent.
-
-**What it does:**
-
-- Customers message your WhatsApp Business number
-- Hay responds automatically
-- Full conversation history in dashboard
-- Works 24/7
-
-**How to set up:**
-
-1. Go to **Integrations** → **Marketplace**
-2. Find **WhatsApp**
-3. Click **Connect**
-4. Enter your Twilio **Account SID** and **Auth Token**
-5. Enter your Twilio **WhatsApp number** in E.164 format (e.g. `+14155238886`) — Hay prepends the `whatsapp:` prefix automatically
-6. Authorize and save
-7. Done!
-
-**Requirements:**
-
-- Twilio account with WhatsApp sender enabled
-- Twilio Account SID and Auth Token
-- WhatsApp-enabled phone number in Twilio
-
-**Perfect for:**
-
-- International customers
-- Mobile-first audiences
-- Markets where WhatsApp is popular
-- Quick, informal support
-
-### WooCommerce
-
-Connect your WooCommerce store for e-commerce support.
-
-**What it does:**
-
-- Look up order information
-- Check product availability
-- Access customer purchase history
-- Provide tracking numbers
-
-**How to set up:**
-
-1. Go to **Integrations** → **Marketplace**
-2. Find **WooCommerce**
-3. Click **Install**
-4. Enter your WooCommerce store URL
-5. Enter your WooCommerce REST API key and secret
-6. Authorize permissions
-7. Return to Hay — connection confirmed!
-
-**What your agent can do:**
-
-- "Where is my order?" → Look up order status
-- "When will it arrive?" → Provide tracking info
-- "I want to return this" → Check return eligibility
-- "Is this in stock?" → Check inventory
-
-**Permissions needed:**
-
-- Read orders
-- Read products
-- Read customers
-
-### Zendesk
-
-Sync with your Zendesk help desk.
-
-**What it does:**
-
-- Import existing tickets into Hay
-- Create tickets from Hay conversations
-- Sync conversation history
-- Unified customer view
-
-**How to set up:**
-
-1. Go to **Integrations** → **Marketplace**
-2. Find **Zendesk**
-3. Click **Connect**
-4. Enter your Zendesk subdomain
-5. Enter the Zendesk admin email address
-6. Enter API token (generate in Zendesk settings)
-7. Test connection
-
-### Email
-
-Send internal notification emails to a fixed set of recipients.
-
-**What it does:**
-
-- Sends plain-text notification emails to a configured list of recipients (e.g. alerts for your team)
-- Not customer-facing — it's not used for conversation follow-ups or replying to customers
-- Does not monitor an inbox or respond to inbound email
-- Uses the platform's SMTP configuration; SMTP is a platform-level setting, not something you configure per-integration
-
-**How to set up:**
-
-1. Go to **Integrations** → **Email**
-2. Enter a comma-separated list of recipient email addresses
-3. Send a test email to verify the connection
-
-**Best for:**
-
-- Internal alerts (e.g. escalations, errors, agent-triggered notifications)
-- System notifications sent to a fixed team distribution list
 
 ## Managing Integrations
 
