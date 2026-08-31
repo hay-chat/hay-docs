@@ -1,1360 +1,658 @@
 ---
 layout: docs.njk
 title: API Reference
-description: Complete guide to the Hay plugin API
+description: Complete reference for the Hay plugin SDK and plugin API endpoints
 section: technical
 navGroup: Plugin Development
 navOrder: 2
 ---
 
-# Hay Plugin API Documentation
+# Hay Plugin API Reference
 
-> **Complete guide to building, extending, and working with the Hay plugin system**
+> **The complete reference for the `@hay/plugin-sdk` surface, the plugin worker contract, and the plugin-related API endpoints**
+
+Hay plugins are **code-first**: a plugin is an npm package whose `package.json` carries a `hay-plugin` block and whose entry module default-exports the result of `defineHayPlugin(...)`. There is **no `manifest.json`** — if you find docs or examples referencing one, they describe the old system and are stale.
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Plugin Manifest Reference](#plugin-manifest-reference)
-- [Plugin Types](#plugin-types)
-- [MCP Integration](#mcp-integration)
-- [Plugin Lifecycle](#plugin-lifecycle)
-- [API Reference](#api-reference)
-- [Configuration Management](#configuration-management)
-- [UI Extensions](#ui-extensions)
+- [Plugin Model](#plugin-model)
+- [The `hay-plugin` Package Block](#the-hay-plugin-package-block)
+- [defineHayPlugin and Lifecycle Hooks](#definehayplugin-and-lifecycle-hooks)
+- [Hook Contexts](#hook-contexts)
+- [The register API](#the-register-api)
+  - [register.config](#registerconfig)
+  - [register.auth](#registerauth)
+  - [register.route](#registerroute)
+  - [register.ui.page](#registeruipage)
+  - [register.cron](#registercron)
+  - [register.webhookRouting](#registerwebhookrouting)
+- [Runtime APIs](#runtime-apis)
+  - [ctx.config](#ctxconfig)
+  - [ctx.auth](#ctxauth)
+  - [ctx.mcp](#ctxmcp)
+  - [ctx.productSource](#ctxproductsource)
+- [Worker HTTP Contract](#worker-http-contract)
+- [Plugin → Core Callback API](#plugin--core-callback-api)
+- [Channel Delivery Contract](#channel-delivery-contract)
+- [Dashboard tRPC Endpoints](#dashboard-trpc-endpoints)
 - [Internationalization (i18n)](#internationalization-i18n)
-- [Channel Registration](#channel-registration)
-- [Best Practices](#best-practices)
-- [Building New Features](#building-new-features)
-- [Troubleshooting](#troubleshooting)
+- [Migrating from the Old Manifest System](#migrating-from-the-old-manifest-system)
 
 ---
 
-## Overview
+## Plugin Model
 
-The Hay plugin system is a dynamic, modular architecture that allows extending platform functionality through plugins. Plugins can:
+### Discovery
 
-- Connect to external services via MCP (Model Context Protocol)
-- Provide AI tools and capabilities
-- Register communication channels
-- Extend the UI with custom components
-- Add API routes and backend functionality
-- Implement OAuth authentication flows
+A directory under `plugins/core/<name>/` (or `plugins/custom/{orgId}/<name>/`) is recognized as a plugin **if and only if its `package.json` contains a `hay-plugin` key**. Discovery lives in `server/services/plugin-manager.service.ts` (`scanPluginDirectory` → `registerPlugin`); directories without the block are skipped.
 
-### Core Principles
+- **Plugin ID** = the npm package `name` (e.g. `hay-plugin-klaviyo`, `hay-channel-instagram-meta`).
+- **Entry point** = `hay-plugin.entry` (e.g. `./dist/index.js`), which must default-export `defineHayPlugin(factory)`.
+- Packages must be **ESM** (`"type": "module"`) — the loader dynamically `import()`s them.
+- The SDK is always referenced as `"@hay/plugin-sdk": "file:../../../packages/plugin-sdk"` (note the `packages/` segment).
 
-1. **Dynamic Loading**: Plugins are discovered and loaded at runtime
-2. **Organization Isolation**: Custom plugins are scoped to organizations
-3. **On-Demand Activation**: Plugin instances start only when needed
-4. **MCP-First**: Built around the Model Context Protocol standard
-5. **Never Hardcode**: Core code should never reference specific plugin IDs
+### Execution: one worker per org per plugin
+
+Plugins do **not** run inside the core process. For each `(organizationId, pluginId)` pair, core lazily spawns a separate HTTP worker process:
+
+```
+node packages/plugin-sdk/dist/runner/index.js --plugin-path=… --org-id=… --port=…
+```
+
+(`server/services/plugin-runner.service.ts`). Key facts about workers:
+
+- **Config and auth are injected as env JSON** (`HAY_ORG_CONFIG`, `HAY_ORG_AUTH`) — never as raw provider env vars. Read them through `ctx.config` / `ctx.auth`.
+- Each worker receives `HAY_API_URL` and a scoped JWT in `HAY_API_TOKEN` (generated with the plugin's declared capabilities) for calling back into core.
+- Core waits for the worker's `GET /metadata` endpoint before considering it started.
+- Workers are **idle-killed after 5 minutes** of inactivity (checked every minute, `server/services/plugin-instance-manager.service.ts`). Never rely on the process staying alive — this is why crons are scheduled by core, not the worker.
+
+### Canonical directory layout
+
+```
+plugins/core/<name>/
+├── package.json          # name = plugin ID; "type": "module"; hay-plugin block
+├── tsconfig.json         # ESM, strict, exclude ["node_modules", "dist", "mcp"]
+├── thumbnail.svg         # plugin icon, served at /plugins/thumbnails/:pluginId (svg > png > jpg)
+├── src/index.ts          # default export = defineHayPlugin(...)   [REQUIRED]
+├── mcp/                  # local stdio MCP server (optional)
+│   ├── index.js
+│   └── package.json
+├── components/           # Vue UI (capability "ui")
+├── vite.config.ui.ts     # builds components → dist/ui.js (UMD, vue externalized)
+├── i18n/                 # en.json (+ other locales)
+└── dist/                 # build output (gitignored)
+```
+
+Build from the repo root with `npm --workspace=plugins/core/<name> run build`; `scripts/build-plugins.sh` batch-builds all plugins.
 
 ---
 
-## Architecture
+## The `hay-plugin` Package Block
 
-### Directory Structure
+The fields core actually reads from `package.json → "hay-plugin"` (interface `HayPluginBlock` in `server/services/plugin-manager.service.ts`):
 
-```
-plugins/
-└── core/                              # Core plugins (all orgs)
-    ├── atlassian/
-    ├── calcom/
-    ├── chatwoot/
-    ├── email/
-    ├── hubspot/
-    ├── klaviyo/
-    ├── magento/
-    ├── notion/
-    ├── stripe/
-    ├── twenty/
-    ├── whatsapp/
-    ├── woocommerce/
-    ├── zendesk/
-    └── ...
-```
+| Field              | Type       | Description                                                                                                                                                   |
+| ------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `entry`            | `string`   | Path to the compiled entry module (e.g. `"./dist/index.js"`)                                                                                                  |
+| `displayName`      | `string`   | Human-readable name shown in the marketplace                                                                                                                  |
+| `category`         | `string`   | One of `integration \| channel \| tool \| analytics \| products` (SDK `PluginCategory`); document importers are marked via `documentImporter`, not a category |
+| `capabilities`     | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `cron`                                        |
+| `env`              | `string[]` | Allow-list of host env var names that config fields may fall back to via their `env:` property                                                                |
+| `channel`          | `string`   | Channel plugins only: the channel slug (e.g. `"instagram"`); matched by `pluginManagerService.findPluginIdByChannel()` for outbound delivery                  |
+| `autoActivate`     | `boolean`  | Legacy (document importers)                                                                                                                                   |
+| `trpcRouter`       | `string`   | Legacy (document importers): path to a tRPC router loaded in-process                                                                                          |
+| `documentImporter` | `boolean`  | Legacy: marks a document importer plugin                                                                                                                      |
+| `config`           | `object`   | Legacy: manifest-style config schema, copied into the registry manifest's `configSchema` (new plugins use `register.config` instead)                          |
+| `auth`             | `object`   | Legacy: manifest-style auth config, copied into the registry manifest (new plugins use `register.auth.*` instead)                                             |
 
-> **Note**: Plugin discovery now uses `package.json` with a `hay-plugin` block rather than a separate `plugins/base/plugin-manifest.schema.json` schema file.
+Capabilities are **declarative**: they drive marketplace classification, plugin type inference, and the scope of the worker's callback JWT — they are not hard-enforced against your implementation.
 
-### Plugin Structure
-
-Each plugin directory contains:
-
-```
-{plugin-name}/
-├── manifest.json          # Plugin configuration (REQUIRED)
-├── package.json          # NPM dependencies
-├── tsconfig.json         # TypeScript configuration
-├── src/                  # TypeScript source code
-│   └── index.ts         # Plugin entry point
-├── dist/                # Compiled output
-│   └── index.js         # Compiled entry (specified in manifest)
-├── mcp/                 # MCP server code (if local)
-│   ├── index.js         # MCP server entry
-│   └── package.json     # MCP dependencies
-├── i18n/               # Translations (optional)
-│   ├── en.json         # English (fallback)
-│   └── pt-BR.json      # Brazilian Portuguese
-├── components/          # Vue components (UI extensions)
-│   └── settings/
-│       └── CustomSettings.vue
-└── public/             # Static assets
-    └── icon.png
-```
-
-### System Components
-
-#### 1. Plugin Manager Service
-
-**Location**: `server/services/plugin-manager.service.ts`
-
-Responsible for:
-
-- Plugin discovery and registration
-- Manifest validation
-- Installation and building
-- Checksum calculation
-- Plugin registry management
-
-#### 2. Plugin Instance Manager Service
-
-**Location**: `server/services/plugin-instance-manager.service.ts`
-
-Handles:
-
-- On-demand instance startup
-- Instance lifecycle management
-- Inactivity cleanup (5-minute timeout)
-- Pool limits and queueing
-- Activity tracking
-
-#### 3. Plugin Runner Service
-
-**Location**: `server/services/plugin-runner.service.ts`
-
-Manages:
-
-- MCP server process lifecycle
-- Process health monitoring
-- Environment variable injection
-- Communication via stdio/SSE/WebSocket
-
-#### 4. MCP Client Factory
-
-**Location**: `server/services/mcp-client-factory.service.ts`
-
-Provides:
-
-- MCP client creation for local/remote servers
-- Connection management
-- Tool invocation
-- Transport protocol handling
-
----
-
-## Plugin Manifest Reference
-
-The manifest.json file is the heart of every plugin. Plugin discovery uses `package.json` with a `hay-plugin` block to register and configure each plugin.
-
-### Required Fields
+### Example (channel plugin)
 
 ```json
 {
-  "id": "hay-plugin-{name}", // Unique identifier (alphanumeric + hyphens)
-  "name": "Plugin Display Name", // Human-readable name
-  "version": "1.0.0", // Semantic version
-  "description": "Plugin description", // Brief description
-  "author": "Author Name", // Author or organization
-  "type": ["mcp-connector"], // Plugin type(s) - see Plugin Types
-  "entry": "./dist/index.js" // Compiled entry point
-}
-```
-
-### Optional Core Fields
-
-```json
-{
-  "enabled": true, // Default enabled state
-  "category": "integration", // Marketplace category
-  "icon": "shopify", // Icon identifier or URL
-  "autoActivate": false, // Auto-start on server boot
-  "invisible": false, // Hide from marketplace
-  "trpcRouter": "./dist/router.js" // Custom tRPC router (with autoActivate)
-}
-```
-
-### Marketplace Configuration
-
-```json
-{
-  "marketplace": {
-    "featured": true, // Feature in marketplace
-    "tags": ["ecommerce", "payments"], // Searchable tags
-    "screenshots": [
-      // Screenshot URLs
-      "https://example.com/screenshot1.png"
-    ]
+  "name": "hay-channel-instagram-meta",
+  "type": "module",
+  "hay-plugin": {
+    "entry": "./dist/index.js",
+    "displayName": "Instagram",
+    "category": "channel",
+    "channel": "instagram",
+    "capabilities": ["messages", "customers"],
+    "env": ["META_APP_ID", "META_APP_SECRET", "META_VERIFY_TOKEN"]
   }
 }
 ```
 
-### Capabilities
-
-The `capabilities` object defines what the plugin can do:
-
-#### MCP Capabilities
+### Example (integration plugin)
 
 ```json
 {
-  "capabilities": {
-    "mcp": {
-      "connection": {
-        "type": "local", // "local" or "remote"
-        "url": "https://mcp.example.com" // Required if type=remote
-      },
-      "tools": [
-        // MCP tools provided
-        {
-          "name": "tool_name",
-          "label": "Tool Display Name",
-          "description": "What this tool does",
-          "input_schema": {
-            // JSON Schema for parameters
-            "type": "object",
-            "properties": {
-              "param1": {
-                "type": "string",
-                "description": "Parameter description"
-              }
-            },
-            "required": ["param1"]
-          }
-        }
-      ],
-      "transport": "sse|websocket|http", // Transport protocol(s)
-      "auth": ["apiKey"], // Auth methods - see Authentication
-      "installCommand": "npm install", // Install dependencies
-      "buildCommand": "npm run build", // Build command (optional)
-      "startCommand": "node mcp/index.js" // Start MCP server
-    }
+  "name": "hay-plugin-klaviyo",
+  "type": "module",
+  "hay-plugin": {
+    "entry": "./dist/index.js",
+    "displayName": "Klaviyo",
+    "category": "integration",
+    "capabilities": ["mcp", "auth"]
   }
-}
-```
-
-#### UI Capabilities
-
-```json
-{
-  "capabilities": {
-    "ui": {
-      "routes": [
-        // Custom routes
-        {
-          "path": "/plugins/myplugin",
-          "component": "./components/Page.vue",
-          "name": "my-plugin-page",
-          "meta": {
-            "title": "My Plugin",
-            "requiresAuth": true
-          }
-        }
-      ],
-      "components": [
-        // Reusable components
-        {
-          "name": "MyComponent",
-          "path": "./components/MyComponent.vue"
-        }
-      ]
-    }
-  }
-}
-```
-
-#### API Capabilities
-
-```json
-{
-  "capabilities": {
-    "api": {
-      "routes": [
-        // Custom API routes
-        {
-          "method": "POST",
-          "path": "/webhook",
-          "handler": "./handlers/webhook.js",
-          "middleware": ["auth"]
-        }
-      ]
-    }
-  }
-}
-```
-
-### Authentication
-
-#### Simple Auth Methods
-
-```json
-{
-  "capabilities": {
-    "mcp": {
-      "auth": ["apiKey"] // or ["oauth2"], ["jwt"], or []
-    }
-  }
-}
-```
-
-#### OAuth 2.0 Configuration
-
-```json
-{
-  "capabilities": {
-    "mcp": {
-      "auth": {
-        "methods": ["oauth2", "apiKey"],
-        "oauth": {
-          "authorizationUrl": "https://provider.com/oauth/authorize",
-          "tokenUrl": "https://provider.com/oauth/token",
-          "scopes": ["read", "write"], // Required scopes
-          "optionalScopes": ["admin"], // Optional scopes
-          "pkce": true, // Enable PKCE
-          "clientIdEnvVar": "PLUGIN_CLIENT_ID",
-          "clientSecretEnvVar": "PLUGIN_CLIENT_SECRET"
-        }
-      }
-    }
-  }
-}
-```
-
-### Configuration Schema
-
-Define user-configurable fields:
-
-```json
-{
-  "configSchema": {
-    "apiKey": {
-      "type": "string",
-      "description": "Your API key for authentication",
-      "label": "API Key",
-      "placeholder": "sk_live_...",
-      "required": true,
-      "encrypted": true, // Store encrypted in database
-      "env": "PLUGIN_API_KEY", // Environment variable name
-      "regex": "^sk_(test|live)_.*" // Validation regex (optional)
-    },
-    "webhookUrl": {
-      "type": "string",
-      "description": "Webhook endpoint URL",
-      "label": "Webhook URL",
-      "required": false,
-      "default": "https://example.com/webhook"
-    }
-  }
-}
-```
-
-**Supported field types**: `string`, `number`, `boolean`, `array`, `object`
-
-### Permissions
-
-```json
-{
-  "permissions": {
-    "env": [
-      // Required environment variables
-      "SHOPIFY_ACCESS_TOKEN",
-      "MYSHOPIFY_DOMAIN"
-    ],
-    "scopes": [
-      // Required permission scopes
-      "org:<organizationId>:mcp:invoke"
-    ],
-    "api": [
-      // Platform APIs (Plugin API pattern)
-      "email" // Only declared APIs can be accessed
-    ]
-  }
-}
-```
-
-### UI Extensions
-
-#### Settings Extensions
-
-Add UI to plugin settings pages:
-
-```json
-{
-  "settingsExtensions": [
-    {
-      "slot": "before-settings", // "before-settings", "after-settings", or "tab"
-      "component": "components/settings/CustomSection.vue",
-      "tabName": "Advanced", // Required if slot="tab"
-      "tabOrder": 1 // Order of tab (optional)
-    }
-  ]
 }
 ```
 
 ---
 
-## Plugin Types
+## defineHayPlugin and Lifecycle Hooks
 
-Plugins can have multiple types for categorization:
-
-### Available Types
-
-| Type                | Description                       | Use Case                     |
-| ------------------- | --------------------------------- | ---------------------------- |
-| `channel`           | Communication channel integration | WhatsApp, Telegram, Email    |
-| `mcp-connector`     | Connects to MCP servers           | Stripe, Zendesk, remote APIs |
-| `retriever`         | Data retrieval capabilities       | Knowledge bases, search      |
-| `playbook`          | Workflow automation               | Pre-defined workflows        |
-| `document_importer` | Document import capabilities      | Notion, Google Docs, CMS     |
-| `system`            | Core system plugins               | Internal platform features   |
-
-### Categories
-
-For marketplace organization:
-
-- `integration` - External service integrations
-- `chat` - Chat and communication
-- `analytics` - Analytics and insights
-- `automation` - Automation tools
-- `utility` - Utility functions
-
----
-
-## MCP Integration
-
-### Connection Types
-
-#### Local MCP Server
-
-Plugin hosts its own MCP server:
-
-```json
-{
-  "capabilities": {
-    "mcp": {
-      "connection": {
-        "type": "local"
-      },
-      "serverPath": "./mcp/index.js",
-      "transport": "sse|websocket|http",
-      "startCommand": "node mcp/index.js"
-    }
-  }
-}
-```
-
-The MCP server:
-
-- Runs as a child process
-- Receives environment variables from configuration
-- Communicates via specified transport
-- Auto-restarts on failure
-
-#### Remote MCP Server
-
-Connect to external MCP server:
-
-```json
-{
-  "capabilities": {
-    "mcp": {
-      "connection": {
-        "type": "remote",
-        "url": "https://mcp.stripe.com"
-      },
-      "transport": "http",
-      "auth": {
-        "methods": ["oauth2"]
-      }
-    }
-  }
-}
-```
-
-### Tool Definition
-
-Each tool must specify:
-
-```json
-{
-  "name": "create_product", // Function identifier
-  "label": "Create Product", // Human-readable name
-  "description": "Creates a new product in the store",
-  "input_schema": {
-    // JSON Schema
-    "type": "object",
-    "properties": {
-      "title": {
-        "type": "string",
-        "description": "Product title"
-      },
-      "price": {
-        "type": "number",
-        "description": "Product price",
-        "minimum": 0
-      }
-    },
-    "required": ["title", "price"]
-  }
-}
-```
-
-### Transport Protocols
-
-- **stdio**: Standard input/output (for local servers)
-- **sse**: Server-Sent Events (HTTP streaming)
-- **websocket**: WebSocket connection
-- **http**: HTTP request/response
-
-Multiple transports: `"sse|websocket|http"`
-
----
-
-## Plugin Lifecycle
-
-### Discovery and Registration
-
-1. **Server Startup**: Plugin Manager scans directories
-2. **Manifest Loading**: Reads and validates manifest.json
-3. **Schema Validation**: Validates against plugin-manifest.schema.json
-4. **Registry Update**: Upserts plugin in database with checksum
-5. **Router Loading**: Auto-activated plugins load tRPC routers
-
-### Installation Flow
-
-When a plugin is enabled:
-
-```mermaid
-graph TD
-    A[Enable Plugin] --> B{Needs Install?}
-    B -->|Yes| C[Run installCommand]
-    B -->|No| D{Needs Build?}
-    C --> D
-    D -->|Yes| E[Run buildCommand]
-    D -->|No| F[Create Instance]
-    E --> F
-    F --> G[Plugin Enabled]
-```
-
-### Instance Management
-
-#### On-Demand Startup
-
-Instances start when first needed:
-
-1. **API Request**: Tool invocation requested
-2. **Check Running**: Is instance already running?
-3. **Pool Check**: Are we at max concurrent instances?
-4. **Start Process**: Launch MCP server with config
-5. **Activity Track**: Record startup timestamp
-6. **Ready**: Instance available for use
-
-#### Inactivity Cleanup
-
-Background job runs every minute:
-
-- **Threshold**: 5 minutes of inactivity
-- **Detection**: No tool invocations in timeframe
-- **Action**: Stop MCP server process
-- **Restart**: Next request starts instance again
-
-#### Pool Limits
-
-- **Default**: 10 concurrent instances per plugin
-- **Configurable**: Via `maxConcurrentInstances` in registry
-- **Queueing**: Requests wait for available slot (30s timeout)
-
-### Configuration Updates
-
-When configuration changes:
-
-1. **Update Database**: Save encrypted configuration
-2. **Restart Required**: MCP server must restart to pick up changes
-3. **Stop Instance**: If running, stop the instance
-4. **Next Request**: Will start with new configuration
-
----
-
-## API Reference
-
-### tRPC Endpoints
-
-All plugin APIs are under `/v1/plugins`:
-
-#### Get All Plugins
+The only factory is `defineHayPlugin` from `@hay/plugin-sdk` (not `createPlugin` or `definePlugin`). It takes a `HayPluginFactory`:
 
 ```typescript
-const plugins = await Hay.plugins.getAll.query();
+import { defineHayPlugin } from "@hay/plugin-sdk";
 
-// Returns:
-interface Plugin {
-  id: string; // Plugin ID
-  dbId: number; // Database ID
-  name: string; // Display name
-  version: string; // Version
-  type: string[]; // Plugin types
-  description: string; // Description
-  installed: boolean; // Installation status
-  built: boolean; // Build status
-  enabled: boolean; // Enabled for this org
-  hasConfiguration: boolean; // Has configSchema
-  hasCustomUI: boolean; // Has UI components
-  capabilities: object; // Capabilities object
-  sourceType: "core" | "custom";
-  isCustom: boolean;
-}
+export default defineHayPlugin((globalCtx) => ({
+  name: "My Plugin", // the ONLY required field
+
+  onInitialize() {
+    globalCtx.register.config({
+      /* ... */
+    });
+    globalCtx.register.auth.apiKey({
+      /* ... */
+    });
+  },
+
+  async onStart(ctx) {
+    const apiKey = ctx.config.getOptional<string>("apiKey");
+    if (!apiKey) {
+      ctx.logger.warn("Not configured yet — skipping startup");
+      return;
+    }
+    await ctx.mcp.startLocalStdio({
+      /* ... */
+    });
+  },
+}));
 ```
 
-#### Get Plugin Details
+`HayPluginDefinition` (`packages/plugin-sdk/types/plugin.ts`) — `name` is required, every hook is optional:
+
+| Hook             | Signature                                                                                         | When it runs                                                                                                                                                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `onInitialize`   | `(ctx: HayGlobalContext) => void \| Promise<void>`                                                | Once per worker process, before the HTTP server starts. **Descriptor-only**: make `register.*` calls; no network requests, no org data.                                                                                           |
+| `onStart`        | `(ctx: HayStartContext) => void \| Promise<void>`                                                 | Every org runtime start/restart (first config save, config/auth updates). Read config/auth, gate on missing credentials, start MCP servers. Must never crash the worker — log errors instead.                                     |
+| `onConnected`    | `(ctx: HayConnectedContext) => { routingKeys?: string[] } \| Promise<{ routingKeys?: string[] }>` | Called by core (`POST /on-connected`) right after OAuth tokens are stored. Return opaque **routing keys** that core persists for shared-webhook fan-out. Throwing never fails the OAuth flow — core logs a warning and continues. |
+| `onValidateAuth` | `(ctx: HayAuthValidationContext) => boolean \| Promise<boolean>`                                  | When auth credentials are saved/updated (`POST /validate-auth`). Return `true` for valid, or throw an `Error` with a user-facing message. If not implemented, auth is assumed valid.                                              |
+| `onConfigUpdate` | `(ctx: HayConfigUpdateContext) => void \| Promise<void>`                                          | After settings are saved (`POST /config-update`). Most plugins can omit this — the platform restarts registered MCP servers itself.                                                                                               |
+| `onDisable`      | `(ctx: HayDisableContext) => void \| Promise<void>`                                               | On disable/uninstall (and SIGTERM). Tear down pollers, sockets, and external subscriptions.                                                                                                                                       |
+| `onEnable`       | —                                                                                                 | **Typed but never called by the runner.** Reserved for future use by core. Do not rely on it.                                                                                                                                     |
+
+---
+
+## Hook Contexts
+
+All context interfaces live in `packages/plugin-sdk/types/contexts.ts`.
+
+| Context                                         | Fields                                                                                                                                                                                         |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `HayGlobalContext` (onInitialize + factory arg) | `register: HayRegisterAPI`, `config: HayConfigDescriptorAPI` (field references only — `config.field(name)`), `logger: HayLogger`                                                               |
+| `HayStartContext` (onStart)                     | `org: HayOrg`, `config: HayConfigRuntimeAPI`, `auth: HayAuthRuntimeAPI`, `mcp: HayMcpRuntimeAPI`, `productSource?: HayProductSourceRuntimeAPI` (only with the `products` capability), `logger` |
+| `HayConnectedContext` (onConnected)             | `org`, `config`, `auth` (fresh tokens), `logger`                                                                                                                                               |
+| `HayAuthValidationContext` (onValidateAuth)     | `org`, `config`, `auth`, `logger`                                                                                                                                                              |
+| `HayConfigUpdateContext` (onConfigUpdate)       | `org`, `config`, `logger`                                                                                                                                                                      |
+| `HayDisableContext` (onDisable)                 | `org`, `logger`                                                                                                                                                                                |
+| `HayCronContext` (cron handlers)                | `org`, `config`, `auth: HayCronAuthAPI` (adds `update()`), `logger` — no `mcp`                                                                                                                 |
+
+The key rule: **`onInitialize` is declarative** (register schemas and descriptors), **org runtime hooks are operational** (read resolved values, start things).
+
+---
+
+## The register API
+
+Available as `ctx.register` inside `onInitialize` (types in `packages/plugin-sdk/types/register.ts`). Registered metadata is exposed via the worker's `/metadata` endpoint.
+
+### register.config
 
 ```typescript
-const plugin = await Hay.plugins.get.query({
-  pluginId: "hay-plugin-shopify",
+register.config(schema: Record<string, ConfigFieldDescriptor>): void
+```
+
+Defines configuration fields; the dashboard generates the settings form from this schema. `ConfigFieldDescriptor` (`packages/plugin-sdk/types/config.ts`):
+
+| Property      | Type                                                | Description                                                                                 |
+| ------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `type`        | `"string" \| "number" \| "boolean" \| "json"`       | Field type (required)                                                                       |
+| `label`       | `string`                                            | UI label                                                                                    |
+| `description` | `string`                                            | UI help text                                                                                |
+| `placeholder` | `string`                                            | Input placeholder                                                                           |
+| `required`    | `boolean`                                           | Show a configuration error if missing (default `false`)                                     |
+| `encrypted`   | `boolean`                                           | Encrypt at rest, mask in UI and logs. **Mandatory for secrets.**                            |
+| `default`     | `T`                                                 | Default value                                                                               |
+| `env`         | `string`                                            | Host env var fallback. **Must be listed in `hay-plugin.env`** — validated at load time.     |
+| `options`     | `Array<{ label: string; value: string \| number }>` | Renders a dropdown instead of free text                                                     |
+| `showWhen`    | `ShowWhen`                                          | Declarative visibility: `{ field, equals? \| in? \| notEquals? }` referencing another field |
+
+```typescript
+register.config({
+  apiKey: {
+    type: "string",
+    label: "API Key",
+    description: "Your Klaviyo private API key",
+    required: true,
+    encrypted: true,
+  },
+  maxRetries: { type: "number", label: "Max Retries", default: 3 },
 });
 ```
 
-#### Enable Plugin
+Resolution order at runtime for `ctx.config.get(key)`: org-stored value → `process.env[env]` fallback (if allow-listed) → `default`.
+
+### register.auth
+
+The **platform runs the entire OAuth dance** — authorization, token exchange, storage, and automatic refresh. Plugins never touch OAuth endpoints themselves.
+
+#### register.auth.apiKey
 
 ```typescript
-const result = await Hay.plugins.enable.mutate({
-  pluginId: "hay-plugin-shopify",
-  configuration: {
-    shopifyAccessToken: "shpat_xxxxx",
-    myshopifyDomain: "my-store.myshopify.com",
+register.auth.apiKey(options: ApiKeyAuthOptions): void
+
+interface ApiKeyAuthOptions {
+  id: string;          // auth method id (appears as AuthState.methodId)
+  label: string;       // UI label
+  configField: string; // name of the register.config field holding the key
+}
+```
+
+#### register.auth.oauth2
+
+```typescript
+register.auth.oauth2(options: OAuth2AuthOptions): void
+```
+
+`OAuth2AuthOptions` (`packages/plugin-sdk/types/auth.ts`):
+
+| Property              | Type                     | Description                                                                                                                                     |
+| --------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                  | `string`                 | Auth method id                                                                                                                                  |
+| `label`               | `string`                 | UI label                                                                                                                                        |
+| `authorizationUrl`    | `string`                 | Provider authorize URL                                                                                                                          |
+| `tokenUrl`            | `string`                 | Provider token URL                                                                                                                              |
+| `scopes`              | `string[]`               | Requested scopes (optional)                                                                                                                     |
+| `clientId`            | `ConfigFieldReference`   | Created with `ctx.config.field("clientId")`                                                                                                     |
+| `clientSecret`        | `ConfigFieldReference`   | Created with `ctx.config.field("clientSecret")`                                                                                                 |
+| `authorizationParams` | `Record<string, string>` | Extra static authorize-URL params. Reserved params (`client_id`, `redirect_uri`, `response_type`, `state`, `scope`, etc.) cannot be overridden. |
+| `scopeSeparator`      | `string`                 | Scope join delimiter; defaults to a space. Instagram needs `","`.                                                                               |
+| `tokenExchange`       | `OAuthTokenOp`           | Declarative one-time token transform run by core right after the code exchange (e.g. Instagram `ig_exchange_token` short→long-lived swap)       |
+| `tokenRefresh`        | `OAuthTokenOp`           | Declarative custom refresh strategy for providers without a standard `refresh_token` grant (e.g. Instagram `ig_refresh_token`)                  |
+
+```typescript
+interface OAuthTokenOp {
+  url: string; // endpoint to GET
+  grantType: string; // value for the grant_type query param
+  tokenParam: string; // query-param name carrying the current access token
+  includeClientSecret?: boolean; // append client_secret (needed by token exchange)
+}
+```
+
+Both token ops are executed server-side by core (`server/services/oauth.service.ts`) as a single GET request whose JSON response must include `access_token`.
+
+```typescript
+register.auth.oauth2({
+  id: "oauth",
+  label: "Connect with Instagram",
+  authorizationUrl: "https://www.instagram.com/oauth/authorize",
+  tokenUrl: "https://api.instagram.com/oauth/access_token",
+  scopes: ["instagram_business_basic", "instagram_business_manage_messages"],
+  scopeSeparator: ",",
+  clientId: globalCtx.config.field("clientId"),
+  clientSecret: globalCtx.config.field("clientSecret"),
+  tokenExchange: {
+    url: "https://graph.instagram.com/access_token",
+    grantType: "ig_exchange_token",
+    tokenParam: "access_token",
+    includeClientSecret: true,
+  },
+  tokenRefresh: {
+    url: "https://graph.instagram.com/refresh_access_token",
+    grantType: "ig_refresh_token",
+    tokenParam: "access_token",
   },
 });
 ```
 
-#### Disable Plugin
+### register.route
 
 ```typescript
-await Hay.plugins.disable.mutate({
-  pluginId: "hay-plugin-shopify",
+register.route(method: HttpMethod, path: string, handler: RouteHandler): void
+
+type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+type RouteHandler = (req, res) => void | Promise<void>; // Express-compatible
+```
+
+Routes are mounted on the plugin's worker HTTP server. Common uses: provider webhooks (`POST /webhook`), outbound delivery (`POST /deliver`), escalation (`POST /escalate`), callbacks. External traffic reaches them through the core proxy (`ALL /v1/plugins/:pluginId/*`), which strips credential-bearing headers before forwarding.
+
+```typescript
+register.route("POST", "/webhook", async (req, res) => {
+  // verify signature, filter events, then call back into core
+  res.status(200).json({ received: true });
 });
 ```
 
-#### Update Configuration
+### register.ui.page
 
 ```typescript
-await Hay.plugins.configure.mutate({
-  pluginId: "hay-plugin-shopify",
-  configuration: {
-    shopifyAccessToken: "new-token",
+register.ui.page(page: PluginPage): void
+```
+
+`PluginPage` (`packages/plugin-sdk/types/ui.ts`):
+
+| Property        | Type                                                    | Description                                                                                                                   |
+| --------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `id`            | `string`                                                | Unique within the plugin                                                                                                      |
+| `title`         | `string`                                                | Display title                                                                                                                 |
+| `component`     | `string`                                                | Path relative to plugin root (e.g. `"./components/settings/AfterSettings.vue"`); the export name is derived from the filename |
+| `slot`          | `"standalone" \| "after-settings" \| "before-settings"` | Where to render (default `"standalone"` — standalone routes are a future enhancement)                                         |
+| `icon`          | `string`                                                | Optional icon identifier                                                                                                      |
+| `requiresSetup` | `boolean`                                               | Only show after configuration is complete                                                                                     |
+
+UI components are built by Vite (`vite.config.ui.ts`) into a UMD bundle at `dist/ui.js` with Vue externalized; the dashboard resolves components by export name and serves assets from `/plugins/ui/:pluginName/:assetPath`.
+
+### register.cron
+
+```typescript
+register.cron(options: CronJobOptions): void
+```
+
+`CronJobOptions` (`packages/plugin-sdk/types/cron.ts`):
+
+| Property      | Type                                                          | Description                                        |
+| ------------- | ------------------------------------------------------------- | -------------------------------------------------- |
+| `name`        | `string`                                                      | Unique within the plugin; must match `[a-z0-9_-]+` |
+| `schedule`    | `string`                                                      | 5-field cron expression                            |
+| `handler`     | `(ctx: HayCronContext) => void \| Promise<void>`              | Invoked when the job fires                         |
+| `retryPolicy` | `{ maxRetries?: number; backoff?: "fixed" \| "exponential" }` | Optional; `backoff` is advisory                    |
+
+**Crons are scheduled by core, not the worker** (workers are idle-killed). `server/services/plugin-cron.service.ts` registers one platform-scheduler job per enabled org per declared cron (job id `plugin-cron:<pluginId>:<orgId>:<name>`), wakes the worker when it fires, and invokes `POST /cron/:name`. Never use `setInterval` or `node-cron` inside a plugin.
+
+Cron handlers get an extended auth API to persist refreshed credentials:
+
+```typescript
+register.cron({
+  name: "refresh_token",
+  schedule: "0 */20 * * *",
+  handler: async (ctx) => {
+    const fresh = await refreshSomehow(ctx.auth.get());
+    // Buffered, returned to core, persisted encrypted; worker restarted.
+    ctx.auth.update({ accessToken: fresh.accessToken, expiresAt: fresh.expiresAt });
   },
+  retryPolicy: { maxRetries: 3, backoff: "exponential" },
 });
 ```
 
-#### Get Plugin Details (includes configuration)
+### register.webhookRouting
 
 ```typescript
-const plugin = await Hay.plugins.get.query({
-  pluginId: "hay-plugin-shopify",
-});
-
-// Returns plugin details including current configuration
+register.webhookRouting(descriptor: WebhookRoutingDescriptor): void
 ```
 
-#### Test Connection
+For providers that deliver **every org's events to a single shared webhook URL with no org identifier** (e.g. Meta apps). The plugin declares — as plain data, no code execution — how core should verify, answer the handshake, and route. Core executes the strategy blindly (`server/services/webhook-router.service.ts`) and fans events out to the right per-org workers' `POST /webhook`.
+
+`WebhookRoutingDescriptor` (`packages/plugin-sdk/types/webhook-routing.ts`):
+
+| Field                   | Description                                                                                                                                                                                                                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `signature`             | `{ header, format: "sha256-hmac", secretEnv }` — core verifies HMAC-SHA256 over the exact raw request bytes with the secret from `process.env[secretEnv]` (must be in the `hay-plugin.env` allow-list); timing-safe compare, `sha256=` prefix stripped. Only `sha256-hmac` is supported. |
+| `verificationChallenge` | Optional GET handshake: `{ modeParam, verifyTokenParam, challengeParam, verifyTokenEnv? \| verifyTokenConfigField? }` — core echoes the challenge when mode is `subscribe` and the token matches.                                                                                        |
+| `routeKeyPath`          | `{ itemsPath, keyPath }` — dot-paths (no eval, no DSL) to the events array and the per-event routing key.                                                                                                                                                                                |
+
+Routing keys are matched against the keys persisted from `onConnected` to resolve the target org.
 
 ```typescript
-const result = await Hay.plugins.testConnection.query({
-  pluginId: "hay-plugin-shopify",
-});
-
-// Returns:
-interface TestConnectionResult {
-  success: boolean;
-  status: "healthy" | "unhealthy" | "unconfigured";
-  message?: string;
-  error?: string;
-  testedAt: Date;
-}
-```
-
-#### Upload Custom Plugin
-
-```typescript
-const formData = new FormData();
-formData.append("plugin", zipFile);
-
-const result = await fetch("/v1/plugins/upload", {
-  method: "POST",
-  body: formData,
-  headers: {
-    Authorization: `Bearer ${token}`,
-    "x-organization-id": organizationId,
+register.webhookRouting({
+  signature: {
+    header: "x-hub-signature-256",
+    format: "sha256-hmac",
+    secretEnv: "META_APP_SECRET",
   },
+  verificationChallenge: {
+    modeParam: "hub.mode",
+    verifyTokenParam: "hub.verify_token",
+    challengeParam: "hub.challenge",
+    verifyTokenEnv: "META_VERIFY_TOKEN",
+  },
+  routeKeyPath: { itemsPath: "entry", keyPath: "id" },
 });
-```
-
-### Service APIs
-
-#### Plugin Manager
-
-```typescript
-import { pluginManagerService } from "@server/services/plugin-manager.service";
-
-// Get all plugins
-const plugins = pluginManagerService.getAllPlugins();
-
-// Get specific plugin
-const plugin = pluginManagerService.getPlugin("hay-plugin-shopify");
-
-// Install plugin
-await pluginManagerService.installPlugin("hay-plugin-shopify");
-
-// Build plugin
-await pluginManagerService.buildPlugin("hay-plugin-shopify");
-
-// Check if needs installation/build
-const needsInstall = pluginManagerService.needsInstallation("hay-plugin-shopify");
-const needsBuild = pluginManagerService.needsBuilding("hay-plugin-shopify");
-```
-
-#### Plugin Instance Manager
-
-```typescript
-import { pluginInstanceManagerService } from "@server/services/plugin-instance-manager.service";
-
-// Ensure instance is running (starts on-demand)
-await pluginInstanceManagerService.ensureInstanceRunning(organizationId, "hay-plugin-shopify");
-
-// Update activity timestamp (keeps instance alive)
-await pluginInstanceManagerService.updateActivityTimestamp(organizationId, "hay-plugin-shopify");
-
-// Get statistics
-const stats = await pluginInstanceManagerService.getStatistics();
-
-// Stop all instances for an organization
-await pluginInstanceManagerService.stopAllForOrganization(organizationId);
-```
-
-#### Plugin Runner
-
-```typescript
-import { getPluginRunnerService } from "@server/services/plugin-runner.service";
-
-const pluginRunnerService = getPluginRunnerService();
-
-// Start plugin worker
-await pluginRunnerService.startWorker(organizationId, "hay-plugin-shopify");
-
-// Stop plugin worker
-await pluginRunnerService.stopWorker(organizationId, "hay-plugin-shopify");
-
-// Check if running
-const isRunning = pluginRunnerService.isRunning(organizationId, "hay-plugin-shopify");
-
-// Get all workers
-const workers = pluginRunnerService.getAllWorkers();
 ```
 
 ---
 
-## Configuration Management
+## Runtime APIs
 
-### Configuration Flow
+Available on org runtime hook contexts (never in `onInitialize`).
 
-1. **User Input**: User enters configuration in dashboard
-2. **Validation**: Backend validates against configSchema
-3. **Encryption**: Sensitive fields (encrypted: true) are encrypted
-4. **Storage**: Stored in plugin_instances.config JSONB
-5. **Environment Variables**: Mapped to env vars when starting MCP server
+### ctx.config
 
-### Encryption
+`HayConfigRuntimeAPI` (`packages/plugin-sdk/types/config.ts`):
 
-Fields marked `encrypted: true` are:
+```typescript
+config.get<T = any>(key: string): T                       // throws/errors if required + missing
+config.getOptional<T = any>(key: string): T | undefined   // undefined if not configured
+config.keys(): string[]                                   // all registered field names
+config.toEnv(mapping: Record<string, string>): Record<string, string>
+// toEnv maps config values to env-var names for child processes;
+// undefined/null values are omitted.
+```
 
-- Encrypted at rest using AES-256-GCM
-- Decrypted only when needed
-- Never exposed in API responses
-- Injected as environment variables to MCP server
+### ctx.auth
 
-### Environment Variable Mapping
+`HayAuthRuntimeAPI` (`packages/plugin-sdk/types/auth.ts`):
 
-Configuration fields map to environment variables:
+```typescript
+auth.get(): AuthState | null
 
-```json
-{
-  "configSchema": {
-    "apiKey": {
-      "type": "string",
-      "env": "SHOPIFY_API_KEY", // Maps to SHOPIFY_API_KEY
-      "encrypted": true
-    }
-  }
+interface AuthState {
+  methodId: string;                      // the id used in register.auth.*
+  credentials: Record<string, unknown>;
+  // API key:  { apiKey: string }
+  // OAuth2:   { accessToken: string, refreshToken?: string, expiresAt?: number }
 }
 ```
 
-When the MCP server starts:
+Cron handlers additionally get `auth.update(credentials, methodId?)` (see [register.cron](#registercron)).
 
-```bash
-SHOPIFY_API_KEY=decrypted_value node mcp/index.js
+### ctx.mcp
+
+`HayMcpRuntimeAPI` (`packages/plugin-sdk/types/mcp.ts`) — three ways to expose MCP tools. The platform restarts registered MCP servers on config change, stops them on disable, and caches tool lists via the worker's `GET /mcp/list-tools`.
+
+```typescript
+// 1. Local stdio child process — the most common pattern.
+//    cwd is relative to the plugin directory; pass credentials via env.
+await ctx.mcp.startLocalStdio({
+  id: "klaviyo-mcp",
+  command: "node",
+  args: ["index.js"],
+  cwd: "./mcp",
+  env: { KLAVIYO_API_KEY: ctx.config.get("apiKey") },
+});
+
+// 2. Provider-hosted (remote) MCP server.
+await ctx.mcp.startExternal({
+  id: "stripe-mcp",
+  url: "https://mcp.stripe.com",
+  authHeaders: { Authorization: `Bearer ${apiKey}` },
+});
+
+// 3. In-process MCP server (advanced).
+await ctx.mcp.startLocal("my-mcp", (mcpCtx) => new MyMcpServer(mcpCtx));
 ```
 
-### Best Practices
+> **Known framework gap:** nothing runs `npm install` inside `mcp/` at build time (and `node_modules` is gitignored repo-wide). Plugins with a local stdio MCP server must either ensure `mcp/node_modules` exists on the host (run `npm install` inside `mcp/` manually, as `plugins/core/klaviyo` requires) or use only Node built-ins.
 
-1. **Always encrypt secrets**: API keys, tokens, passwords
-2. **Use descriptive env var names**: Match the service's conventions
-3. **Provide defaults**: For non-sensitive configuration
-4. **Validate input**: Use regex patterns for format validation
-5. **Clear descriptions**: Help users understand what's needed
+### ctx.productSource
+
+`HayProductSourceRuntimeAPI` (`packages/plugin-sdk/types/products.ts`) — present on `HayStartContext` only when the plugin declares the `products` capability. Lets an e-commerce plugin sync its catalog into Hay's canonical product store (the SDK-level wrapper over the `products.upsertMany` / `products.delete` callback procedures):
+
+```typescript
+productSource.upsert(products: CanonicalProduct[]): Promise<{ upserted: number; errors: number }>
+productSource.delete(externalId: string): Promise<{ removed: boolean }>
+```
+
+`CanonicalProduct` (same file) is the canonical catalog shape: `externalId`, `handle`, `title`, `variants: CanonicalVariant[]` (required), plus optional `descriptionHtml`, `vendor`, `productType`, `status: "active" | "draft" | "archived"`, `tags`, `categories`, `options`, `images`, `currency`, `sourceUrl`, `attributes`. Variants carry `externalId`, `title`, and optional `sku`, `price`, `compareAtPrice`, `inventoryQuantity`, `availability: "in_stock" | "out_of_stock" | "backorder"`, etc. Upserts are idempotent on `(source, externalId)`; core stamps `source` from the authenticated plugin id. See `plugins/core/shopify` for a full sync implementation (initial sync via cron + webhook-driven updates).
 
 ---
 
-## UI Extensions
+## Worker HTTP Contract
 
-### Settings Extensions
+Endpoints the SDK runner mounts on every worker (`packages/plugin-sdk/runner/http-server.ts`) — core calls these; plugins do not implement them directly:
 
-Add custom UI to plugin settings pages using Vue components.
+| Endpoint              | Purpose                                                                                                   |
+| --------------------- | --------------------------------------------------------------------------------------------------------- |
+| `GET /health`         | Liveness check                                                                                            |
+| `GET /metadata`       | Registered config schema, auth methods, routes, UI pages, cron descriptors; core waits on this at startup |
+| `POST /validate-auth` | Invokes `onValidateAuth`                                                                                  |
+| `POST /on-connected`  | Invokes `onConnected` after OAuth tokens are stored                                                       |
+| `POST /config-update` | Invokes `onConfigUpdate`                                                                                  |
+| `POST /disable`       | Invokes `onDisable`                                                                                       |
+| `POST /cron/:name`    | Invokes the named cron handler                                                                            |
+| `POST /mcp/call-tool` | Executes an MCP tool                                                                                      |
+| `GET /mcp/list-tools` | Lists MCP tools (cached by core)                                                                          |
+| _(plugin routes)_     | Anything registered via `register.route` (e.g. `/webhook`, `/deliver`, `/escalate`)                       |
 
-#### Before/After Settings
+External traffic reaches worker routes only through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The org is resolved from auth, subdomain, or query param — or, for a `POST /webhook` with no org identifier and a declared `webhookRouting` descriptor, the request is diverted to the shared webhook router.
 
-Add content before or after the main settings form:
+---
 
-```json
-{
-  "settingsExtensions": [
-    {
-      "slot": "after-settings",
-      "component": "components/settings/Instructions.vue"
-    }
-  ]
-}
+## Plugin → Core Callback API
+
+Workers call back into core using the injected `HAY_API_URL` + `HAY_API_TOKEN` (tRPC over HTTP). Procedures live in `server/routes/v1/plugin-api/trpc.ts` and are **capability-gated** by the worker's JWT (a plugin without the `messages` capability cannot call `messages.receive`).
+
+| Procedure                                  | Capability  | Input (key fields)                                                                                                                                                                                                                                                                      |
+| ------------------------------------------ | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `messages.receive`                         | `messages`  | `{ from, content, channel, metadata?, senderType?: "customer" \| "human_agent", externalConversationId? }` — finds/creates the customer (keyed on `external_id` per channel) and conversation, adds the message. `senderType: "human_agent"` flips the conversation to human-took-over. |
+| `messages.send`                            | `messages`  | `{ to, content, channel, conversationId?, metadata? }`                                                                                                                                                                                                                                  |
+| `messages.getByConversation`               | `messages`  | `{ conversationId: uuid }`                                                                                                                                                                                                                                                              |
+| `conversations.updateStatusByExternalId`   | `messages`  | `{ channel, externalConversationId, status: "open" \| "pending-human" \| "human-took-over" \| "resolved" \| "closed" }`                                                                                                                                                                 |
+| `customers.get`                            | `customers` | `{ customerId: uuid }`                                                                                                                                                                                                                                                                  |
+| `customers.findByExternalId`               | `customers` | `{ externalId }`                                                                                                                                                                                                                                                                        |
+| `customers.upsert`                         | `customers` | `{ externalId, channel, email?, phone?, name?, metadata? }`                                                                                                                                                                                                                             |
+| `sources.register`                         | `sources`   | `{ id, name, category: "messaging" \| "social" \| "email" \| "helpdesk", icon?, metadata? }` — **currently a stub** (accepts input, logs, returns `{ success: true }`; persistence is a TODO in the handler)                                                                            |
+| `mcp.registerLocal` / `mcp.registerRemote` | `mcp`       | Register MCP server + tool descriptors with core                                                                                                                                                                                                                                        |
+| `products.upsertMany` / `products.delete`  | `products`  | Product catalog sync (e.g. Shopify); core stamps the product `source` from the authenticated plugin id                                                                                                                                                                                  |
+
+**Inbound message dedupe is core-side**: if `metadata.mid` is set on `messages.receive`, core claims it atomically via Redis SETNX and silently drops duplicates. Channels that don't pass `mid` get no dedupe.
+
+> The router self-describes as a simplified initial implementation ("full conversation management coming in Phase 4"). Also note: the `PluginApiClient` helper is currently duplicated per channel plugin (e.g. `plugins/core/instagram/src/plugin-api.ts`, `plugins/core/chatwoot/src/plugin-api.ts`) rather than exported from the SDK — a known gap.
+
+### Legacy REST callback endpoints
+
+An older Express router still exists alongside the tRPC callback API, mounted at `/v1/plugin-api` (`server/routes/v1/plugin-api/index.ts`), authenticated with the same worker JWT: `POST /send-email` (requires an `email` capability — a legacy value outside the SDK's `PluginCapability` union, used by `plugins/core/email`), `POST /mcp/register-local`, `POST /mcp/register-remote`, and `GET /health`. New plugins should use the tRPC procedures; the REST surface is kept for the email plugin path.
+
+---
+
+## Channel Delivery Contract
+
+For `category: "channel"` plugins (see [Channel Registration](/docs/technical/plugins/channel-registration/) and [Channel Architecture](/docs/technical/plugins/channel-architecture/) for the full guide).
+
+**Inbound:** provider webhook → core proxy `POST /v1/plugins/:pluginId/webhook` → worker's registered `POST /webhook` route → plugin verifies/filters → plugin calls `messages.receive` on the callback API.
+
+**Outbound:** `server/services/channel-delivery.service.ts` subscribes to the Redis `websocket:events` channel. On `message_received` events for bot/human-agent messages with `deliveryState === "sent"` (web channel skipped), it resolves the plugin via `hay-plugin.channel`, wakes the org's worker, and posts:
+
+```
+POST /deliver
+{ to, content, messageId, conversationId, conversationMetadata, messageMetadata }
 ```
 
-#### Custom Tabs
+The plugin's `/deliver` route responds with `{ success, providerMessageId?, error? }`. Convention: **non-retryable provider errors return HTTP 200 with `success: false`** (e.g. a 24-hour-window expiry) to avoid retry storms; reserve non-200 responses for retryable failures.
 
-Add entire tabs to settings:
+**Escalation:** when a conversation transitions to pending-human, core posts to the worker's `/escalate`. This is **best-effort** — plugins that don't implement it return 404, which core silently tolerates.
 
-```json
-{
-  "settingsExtensions": [
-    {
-      "slot": "tab",
-      "component": "components/settings/AdvancedSettings.vue",
-      "tabName": "Advanced",
-      "tabOrder": 1
-    }
-  ]
-}
-```
+---
 
-### Component Access
+## Dashboard tRPC Endpoints
 
-Your Vue components have access to:
+The dashboard-facing router (`server/routes/v1/plugins/index.ts`, handlers in `plugins.handler.ts`). All procedures use `authenticatedProcedure` (JWT + `x-organization-id`). Call them from the dashboard via the `Hay` client:
 
-```vue
-<script setup lang="ts">
+```typescript
 import { Hay } from "@/utils/api";
-
-// Access plugin details (includes configuration)
-const plugin = await Hay.plugins.get.query({ pluginId: "hay-plugin-myplugin" });
-
-// Update configuration
-await Hay.plugins.configure.mutate({
-  pluginId: "hay-plugin-myplugin",
-  configuration: { newValue: "updated" },
-});
-
-// Use Nuxt features
-const router = useRouter();
-const route = useRoute();
-</script>
 ```
 
-### OAuth Connection Component
+### Queries
 
-For OAuth-enabled plugins, use the OAuthConnection component:
+| Procedure                                             | Input                  | Description                                                                              |
+| ----------------------------------------------------- | ---------------------- | ---------------------------------------------------------------------------------------- |
+| `Hay.plugins.getAll.query()`                          | —                      | All discovered plugins with org-scoped enabled/config state                              |
+| `Hay.plugins.get.query({ pluginId })`                 | `{ pluginId: string }` | One plugin's details, including current configuration                                    |
+| `Hay.plugins.getInstances.query()`                    | —                      | Plugin instances for the org                                                             |
+| `Hay.plugins.getUITemplate.query({ pluginId })`       | `{ pluginId }`         | Configuration UI template                                                                |
+| `Hay.plugins.getMCPTools.query()`                     | —                      | Cached MCP tools across enabled plugins                                                  |
+| `Hay.plugins.getMenuItems.query()`                    | —                      | Plugin-contributed menu items                                                            |
+| `Hay.plugins.testConnection.query({ pluginId })`      | `{ pluginId }`         | Health check (`PluginHealthCheckResult`)                                                 |
+| `Hay.plugins.getPluginTranslations.query({ locale })` | `{ locale: string }`   | i18n bundles for the org's **enabled** plugins, falling back to `en`                     |
+| `Hay.plugins.oauth.isAvailable.query({ pluginId })`   | `{ pluginId }`         | `{ available, ... }` — whether OAuth is registered and client credentials are resolvable |
+| `Hay.plugins.oauth.status.query({ pluginId })`        | `{ pluginId }`         | Current OAuth connection status                                                          |
 
-```vue
-<template>
-  <OAuthConnection :plugin-id="pluginId" :oauth-config="oauthConfig" />
-</template>
-```
+### Mutations
+
+| Procedure                                                   | Input                                                | Description                                                         |
+| ----------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------- |
+| `Hay.plugins.enable.mutate({ pluginId, configuration? })`   | `{ pluginId, configuration?: Record<string, any> }`  | Enable for the org (custom plugins are org-access-checked)          |
+| `Hay.plugins.disable.mutate({ pluginId })`                  | `{ pluginId }`                                       | Disable; calls the worker's `/disable` (5s timeout) before teardown |
+| `Hay.plugins.restart.mutate({ pluginId })`                  | `{ pluginId }`                                       | Restart the org's worker                                            |
+| `Hay.plugins.configure.mutate({ pluginId, configuration })` | `{ pluginId, configuration: Record<string, any> }`   | Save configuration (encrypted fields encrypted at rest)             |
+| `Hay.plugins.refreshMCPTools.mutate({ pluginId })`          | `{ pluginId }`                                       | Re-fetch tool list from the worker                                  |
+| `Hay.plugins.validateAuth.mutate({ pluginId, authState })`  | `{ pluginId, authState: { methodId, credentials } }` | Proxies to the worker's `/validate-auth`                            |
+| `Hay.plugins.oauth.initiate.mutate({ pluginId })`           | `{ pluginId }`                                       | Returns `{ authorizationUrl, state }` to start the flow             |
+| `Hay.plugins.oauth.revoke.mutate({ pluginId })`             | `{ pluginId }`                                       | Revoke the stored connection                                        |
+
+### Non-tRPC HTTP endpoints
+
+- `ALL /v1/plugins/:pluginId/*` — catch-all proxy to the org's worker (webhooks, plugin routes)
+- `GET /plugins/ui/:pluginName/:assetPath` — serves built plugin UI assets
 
 ---
 
 ## Internationalization (i18n)
 
-Plugins can provide translations for their display name, description, tool labels, and configuration field labels. The system loads translations automatically from the plugin's `i18n/` directory — no manifest changes are needed.
-
-### Directory Structure
-
-```
-my-plugin/
-├── i18n/
-│   ├── en.json       # English (always required — used as fallback)
-│   └── pt-BR.json    # Brazilian Portuguese
-├── src/
-├── mcp/
-└── ...
-```
-
-File names are locale codes (e.g., `en.json`, `pt-BR.json`, `es.json`). The system supports any locale — just add a new JSON file.
-
-### Translation File Format
-
-Each JSON file has four top-level keys:
+Plugins may ship an `i18n/` directory with per-locale JSON files (`en.json` required as the fallback; e.g. `pt.json` for Portuguese). Each file supports:
 
 ```json
 {
   "name": "My Plugin",
-  "description": "What this plugin does in one sentence",
-  "tools": {
-    "tool_name": {
-      "label": "Human-Readable Tool Name",
-      "description": "What this tool does"
-    }
-  },
-  "config": {
-    "configFieldName": {
-      "label": "Field Label",
-      "description": "Help text shown to the user"
-    }
-  }
+  "description": "One-sentence summary",
+  "tools": { "tool_name": { "label": "…", "description": "…" } },
+  "config": { "fieldName": { "label": "…", "description": "…" } }
 }
 ```
 
-| Key           | Purpose                                                                                    |
-| ------------- | ------------------------------------------------------------------------------------------ |
-| `name`        | Plugin display name in marketplace and settings                                            |
-| `description` | Plugin summary shown in marketplace cards                                                  |
-| `tools`       | Labels and descriptions for each MCP tool (keys must match tool IDs from the MCP server)   |
-| `config`      | Labels and descriptions for each config field (keys must match `configSchema` field names) |
-
-All keys are optional — only translate what applies to your plugin.
-
-### Example: English (`i18n/en.json`)
-
-```json
-{
-  "name": "Stripe",
-  "description": "Connect your Stripe account to manage payments, customers, subscriptions, and more",
-  "tools": {
-    "list_customers": {
-      "label": "List Customers",
-      "description": "Search and list Stripe customers"
-    },
-    "create_payment": {
-      "label": "Create Payment",
-      "description": "Create a new payment intent"
-    }
-  },
-  "config": {
-    "apiKey": {
-      "label": "API Key",
-      "description": "Stripe API key (starts with sk_test_ or sk_live_)"
-    }
-  }
-}
-```
-
-### Example: Portuguese (`i18n/pt-BR.json`)
-
-```json
-{
-  "name": "Stripe",
-  "description": "Conecte sua conta Stripe para gerenciar pagamentos, clientes, assinaturas e mais",
-  "tools": {
-    "list_customers": {
-      "label": "Listar Clientes",
-      "description": "Buscar e listar clientes do Stripe"
-    },
-    "create_payment": {
-      "label": "Criar Pagamento",
-      "description": "Criar uma nova intenção de pagamento"
-    }
-  },
-  "config": {
-    "apiKey": {
-      "label": "Chave de API",
-      "description": "Chave de API do Stripe (começa com sk_test_ ou sk_live_)"
-    }
-  }
-}
-```
-
-### How It Works
-
-1. **Loading**: At startup, the Plugin Manager scans each plugin's `i18n/` directory, reads all `.json` files, and attaches them to the plugin manifest under the `i18n` property.
-
-2. **Serving**: The frontend requests translations for the current locale via `Hay.plugins.getPluginTranslations.query({ locale })`. The backend returns translations for all plugins, falling back to `en` if the requested locale is missing.
-
-3. **Rendering**: The frontend merges plugin translations into Vue I18n under the `plugins` namespace. Tool labels, config labels, and plugin names are then resolved from these translations in the UI.
-
-### Fallback Behavior
-
-- If a requested locale (e.g., `pt-BR`) has no translation file, the system falls back to `en.json`.
-- If a plugin has no `i18n/` directory at all, the raw values from the MCP server and manifest are used directly.
-- Always provide `en.json` as a baseline — it ensures every string has a readable default.
-
-### Currently Supported Locales
-
-- `en` — English
-- `pt-BR` — Brazilian Portuguese
-
-Additional locales can be added at any time by creating a new JSON file.
-
-### Type Definition
-
-```typescript
-interface PluginLocale {
-  name?: string;
-  description?: string;
-  tools?: Record<string, { label: string; description?: string }>;
-  config?: Record<string, { label: string; description?: string }>;
-}
-```
-
-### Best Practices
-
-1. **Always include `en.json`** — it's the fallback for all missing locales.
-2. **Keep tool keys in sync** — the keys in `tools` must match the tool names registered in your MCP server.
-3. **Keep config keys in sync** — the keys in `config` must match the field names in your `configSchema` or `ctx.register.config()`.
-4. **Use clear, concise labels** — tool labels appear in the AI agent's tool picker and in the dashboard.
-5. **Don't translate tool IDs** — only translate the `label` and `description` values, never the keys.
+Keys under `tools` must match MCP tool names; keys under `config` must match `register.config` field names. The dashboard fetches bundles via `Hay.plugins.getPluginTranslations.query({ locale })` — only for plugins the org has enabled — and falls back to `en` for missing locales.
 
 ---
 
-## Channel Registration
-
-Plugins can register custom communication channels (sources) for handling messages from various platforms.
-
-### Source Model
-
-```typescript
-interface Source {
-  id: string; // Unique identifier
-  name: string; // Display name
-  description?: string; // Channel description
-  category: SourceCategory; // Category enum
-  pluginId?: string; // Plugin that registered this
-  isActive: boolean; // Active status
-  icon?: string; // Icon identifier
-  metadata?: Record<string, unknown>; // Plugin-specific config
-}
-
-enum SourceCategory {
-  TEST = "test",
-  MESSAGING = "messaging",
-  SOCIAL = "social",
-  EMAIL = "email",
-  HELPDESK = "helpdesk",
-}
-```
-
-### Registering a Source
-
-```typescript
-// In your plugin initialization
-const source = await trpc.sources.register.mutate({
-  id: "whatsapp", // or 'my-plugin:whatsapp'
-  name: "WhatsApp Business",
-  description: "WhatsApp Business API integration",
-  category: "messaging",
-  pluginId: "whatsapp-plugin",
-  icon: "whatsapp",
-  metadata: {
-    apiVersion: "2.0",
-    capabilities: ["text", "media", "templates"],
-  },
-});
-```
-
-### Source ID Conventions
-
-- **Simple format**: `whatsapp`, `telegram` - for well-known channels
-- **Namespaced**: `my-plugin:custom-channel` - for custom channels
-- **Pattern**: `/^[a-z0-9_:-]+$/` - lowercase, alphanumeric, dashes, underscores, colons
-
-### Creating Messages with Sources
-
-When creating messages from your plugin, specify the sourceId:
-
-```typescript
-import { MessageService } from "@server/services/core/message.service";
-
-const messageService = new MessageService();
-
-// Create message with test mode handling
-const message = await messageService.createAssistantMessageWithTestMode(
-  conversation,
-  "Hello from WhatsApp!",
-  "whatsapp", // sourceId
-  agent,
-  organization,
-  {
-    whatsappMessageId: "wamid.xxxxx",
-    phoneNumber: "+1234567890",
-  },
-);
-
-// Check delivery state
-if (message.deliveryState === "queued") {
-  // Message needs approval (test mode)
-  console.log("Message queued for approval");
-} else {
-  // Message approved automatically
-  await sendToExternalPlatform(message);
-}
-```
-
-### Source Management
-
-```typescript
-// Deactivate source
-await trpc.sources.deactivate.mutate({ id: "whatsapp" });
-
-// Activate source
-await trpc.sources.activate.mutate({ id: "whatsapp" });
-
-// List all sources
-const sources = await trpc.sources.list.query();
-
-// Get by category
-const messagingSources = await trpc.sources.getByCategory.query({
-  category: "messaging",
-});
-```
-
-See `docs/technical/plugins/channel-registration.md` for detailed guide.
-
----
-
-## Best Practices
-
-### Development
-
-1. **Follow the schema**: Always validate your manifest against the JSON schema
-2. **Version properly**: Use semantic versioning (MAJOR.MINOR.PATCH)
-3. **Document tools**: Provide clear descriptions for all MCP tools
-4. **Handle errors**: Implement proper error handling in MCP servers
-5. **Test thoroughly**: Test installation, configuration, and tool invocation
-
-### Security
-
-1. **Encrypt secrets**: Mark all sensitive fields as encrypted
-2. **Validate input**: Use regex patterns and type validation
-3. **Least privilege**: Request only necessary OAuth scopes
-4. **Secure communication**: Use HTTPS for remote MCP servers
-5. **Never log secrets**: Don't log configuration or tokens
-
-### Performance
-
-1. **Optimize startup**: Fast MCP server startup improves UX
-2. **Handle inactivity**: Design for automatic shutdown after 5 minutes
-3. **Efficient tools**: Keep tool execution fast (<5 seconds ideal)
-4. **Cache when possible**: Cache expensive operations
-5. **Monitor resources**: Be mindful of memory and CPU usage
-
-### Architecture
-
-1. **Don't hardcode plugin IDs**: Use dynamic discovery
-2. **Respect organization boundaries**: Custom plugins are org-scoped
-3. **Follow MCP standards**: Implement proper MCP protocol
-4. **Use TypeScript**: Type safety prevents runtime errors
-5. **Modular design**: Keep plugins focused and single-purpose
-
-### Documentation
-
-1. **Clear README**: Document setup and configuration
-2. **Example usage**: Provide example tool invocations
-3. **Troubleshooting**: Common issues and solutions
-4. **API documentation**: Document all tools and parameters
-5. **Update CLAUDE.md**: Add plugin-specific guidance if needed
-
----
-
-## Building New Features
-
-### Adding a New Plugin Type
-
-1. **Update Schema**: Add new type to the plugin types definition in `server/types/plugin.types.ts`
-2. **Update Types**: Add to TypeScript types in `server/types/plugin.types.ts`
-3. **Handle in Code**: Update plugin manager to handle new type
-4. **Document**: Add to this documentation
-
-### Adding New Plugin Capabilities
-
-1. **Define Schema**: Add capability to the plugin manifest structure
-2. **Implement Handler**: Create service to handle the capability
-3. **Add API**: Expose via tRPC if needed
-4. **Test**: Create test plugin using the capability
-5. **Document**: Add to capabilities section
-
-### Adding Plugin API Permissions
-
-The `permissions.api` field uses the Plugin API pattern - plugins can only access platform APIs they explicitly declare:
-
-1. **Define API**: Create the API service (e.g., EmailService)
-2. **Add to Schema**: Add to `permissions.api` enum in plugin types
-3. **Check Permission**: Verify plugin has permission before allowing access
-4. **Document**: Add to API reference
-
-Example:
-
-```json
-{
-  "permissions": {
-    "api": ["email", "sms"] // Plugin can access email and SMS APIs
-  }
-}
-```
-
-### Extending MCP Support
-
-1. **New Transport**: Implement transport in MCP client factory
-2. **New Auth Method**: Add to auth handling in process manager
-3. **Tool Enhancements**: Update tool invocation logic
-4. **Test**: Verify with real MCP server
-5. **Document**: Update MCP integration section
-
-### Custom tRPC Routers
-
-Plugins can provide their own tRPC routers:
-
-1. **Create Router**: Export router from plugin
-
-```typescript
-// plugins/my-plugin/dist/router.js
-export const router = trpcRouter({
-  myEndpoint: publicProcedure.query(() => {
-    return { message: "Hello from plugin" };
-  }),
-});
-```
-
-2. **Reference in Manifest**:
-
-```json
-{
-  "autoActivate": true,
-  "trpcRouter": "./dist/router.js"
-}
-```
-
-3. **Access**: Call via `Hay.plugins.myPlugin.myEndpoint.query()`
-
----
-
-## Troubleshooting
-
-### Plugin Not Appearing
-
-**Problem**: Plugin not visible in marketplace
-
-**Solutions**:
-
-- Check manifest.json exists and is valid JSON
-- Verify plugin ID matches pattern `/^[a-z0-9-]+$/`
-- Check `invisible` field is not `true`
-- For custom plugins, verify in correct org directory
-- Check server logs for validation errors
-
-### Installation Failures
-
-**Problem**: Plugin installation fails
-
-**Solutions**:
-
-- Check `installCommand` in manifest
-- Verify package.json exists in plugin directory
-- Ensure network access for npm install
-- Check for native dependency issues
-- Review installation logs in console
-
-### Build Failures
-
-**Problem**: Plugin build fails
-
-**Solutions**:
-
-- Check `buildCommand` in manifest
-- Verify TypeScript configuration
-- Check for compilation errors
-- Ensure all dependencies installed
-- Review build logs
-
-### MCP Server Won't Start
-
-**Problem**: Plugin instance fails to start
-
-**Solutions**:
-
-- Verify `startCommand` is correct
-- Check MCP server code for errors
-- Ensure required environment variables set
-- Check port availability
-- Review process manager logs
-- Verify file permissions
-
-### Tool Invocation Errors
-
-**Problem**: Tool calls fail or timeout
-
-**Solutions**:
-
-- Verify tool name matches manifest
-- Check input_schema validation
-- Ensure MCP server is running
-- Check tool implementation for errors
-- Verify authentication credentials
-- Check network connectivity for remote servers
-
-### Configuration Not Working
-
-**Problem**: Configuration changes not taking effect
-
-**Solutions**:
-
-- Stop and restart the plugin instance
-- Verify configuration saved in database
-- Check environment variable mapping
-- Ensure encrypted fields are decrypting
-- Review MCP server startup logs
-
-### OAuth Authentication Issues
-
-**Problem**: OAuth flow fails
-
-**Solutions**:
-
-- Verify OAuth URLs are correct
-- Check client ID and secret configuration
-- Ensure redirect URI is registered
-- Verify scopes are valid
-- Check PKCE requirements
-- Review OAuth provider logs
+## Migrating from the Old Manifest System
+
+If you are updating an old plugin or reading stale docs, these are the changes:
+
+| Old system                                                            | Current system                                                                                                                                        |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `manifest.json` with id/type/capabilities/configSchema                | `package.json → "hay-plugin"` block; nothing reads a manifest file                                                                                    |
+| Plugin ID declared in the manifest                                    | Plugin ID = npm package `name`                                                                                                                        |
+| Types `mcp-connector`, `retriever`, `playbook`, `workflow`, `utility` | Categories: `integration \| channel \| tool \| analytics \| products` (+ legacy `documentImporter: true` flag)                                        |
+| Manifest `configSchema`                                               | `register.config(...)` in `onInitialize`                                                                                                              |
+| Manifest `auth` / OAuth env-var config                                | `register.auth.apiKey(...)` / `register.auth.oauth2(...)`; platform owns the whole OAuth flow, including declarative `tokenExchange` / `tokenRefresh` |
+| Manifest `capabilities.api` route declarations                        | `register.route(...)`                                                                                                                                 |
+| `settingsExtensions` in the manifest                                  | `register.ui.page(...)`                                                                                                                               |
+| MCP `startCommand` / `installCommand` in the manifest                 | `ctx.mcp.startLocalStdio(...)` / `startExternal(...)` in `onStart`                                                                                    |
+| Plugins loaded in-process                                             | Per-org HTTP workers spawned from the SDK runner, idle-killed after 5 minutes                                                                         |
+| Reading credentials from `process.env` in the entry                   | `ctx.config` / `ctx.auth`; the `env:` field is only an allow-listed host fallback                                                                     |
+| Self-scheduled background jobs (`setInterval`, `node-cron`)           | `register.cron(...)` — core owns the schedule and wakes the worker                                                                                    |
+| SDK path `file:../../plugin-sdk`                                      | `file:../../../packages/plugin-sdk`                                                                                                                   |
+
+Legacy paths that still exist: **document importers** (`documentImporter: true` + `autoActivate: true` + `trpcRouter` in the `hay-plugin` block, alongside a normal `category` like `"integration"`) ride a special in-process path outside the worker model — core loads the plugin's tRPC router in-process at boot instead of (or in addition to) spawning a worker. See `plugins/core/atlassian` (importer + MCP tools in one plugin) and `plugins/core/notion` (pure importer). The `documentImporter` flag adds `document_importer` to the registry manifest's internal `type` array.
 
 ---
 
 ## Additional Resources
 
-- **Plugin Generation**: See `.claude/PLUGIN_GENERATION_WORKFLOW.md`
-- **Channel Registration**: See `docs/technical/plugins/channel-registration.md`
-- **Database Conventions**: See `server/database/DATABASE_CONVENTIONS.md`
-- **Frontend Guidelines**: See `.claude/FRONTEND.md`
-- **Example Plugins**: Browse `plugins/core/` directory
-
----
-
-## Getting Help
-
-- **Issues**: Open an issue in the repository
-- **Examples**: Study existing plugins in `plugins/core/`
-- **Community**: Join the Hay developer community
-- **Documentation**: This guide and related docs in `/docs`
-
----
-
-**Last Updated**: 2025-12-03
-**Version**: 1.0.0
+- **Getting Started**: [Getting Started guide](/docs/technical/plugins/getting-started/)
+- **Channel plugins**: [Channel Registration](/docs/technical/plugins/channel-registration/) and [Channel Architecture](/docs/technical/plugins/channel-architecture/)
+- **SDK source**: `packages/plugin-sdk/` (types under `types/`, runner under `runner/`)
+- **Reference implementations**: `plugins/core/klaviyo` / `plugins/core/woocommerce` (local MCP), `plugins/core/stripe` / `plugins/core/hubspot` (remote MCP), `plugins/core/chatwoot` / `plugins/core/instagram` / `plugins/core/whatsapp` (channels), `plugins/core/shopify` (OAuth + cron + products sync), `plugins/core/atlassian` / `plugins/core/notion` (document importers)
+- **Authoring guide**: `.claude/skills/build-plugin/` (archetypes, templates, anti-patterns) — the canonical how-to companion to this reference
