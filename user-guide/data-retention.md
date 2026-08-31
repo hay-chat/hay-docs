@@ -91,7 +91,7 @@ No. Anonymization permanently removes personal data. This is by design — GDPR 
 Aggregate analytics (conversation volume, resolution times, channel breakdown) are preserved. Per-conversation details and message content are not.
 
 **What about customer data exports?**
-Data exports (via **Settings** → **Privacy**) include all current data. If a conversation has already been anonymized, it will not appear in the export.
+Data exports (via **Settings** → **Customer Privacy**) include all current data. If a conversation has already been anonymized, it will not appear in the export.
 
 **Are embeddings cleaned up too?**
 Yes. All vector embeddings linked to anonymized conversations are deleted, ensuring no semantic traces of the conversation remain in the vector store.

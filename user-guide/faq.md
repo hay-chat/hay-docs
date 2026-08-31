@@ -48,7 +48,7 @@ Plans typically include:
 - Support level
 - Storage
 
-Check your specific plan details in **Settings** → **Billing**.
+Contact your account administrator for specific plan details.
 
 ### What happens if I exceed my conversation limit?
 
@@ -232,7 +232,7 @@ Simply edit or re-upload the correct version. Changes take effect immediately.
 
 ### Is there a limit to how many documents I can upload?
 
-Depends on your plan. Check **Settings** → **Billing** for your storage limits.
+Depends on your plan. Contact your account administrator for storage limit details.
 
 ## Queue & Escalations
 
@@ -282,7 +282,7 @@ Long term:
 Yes. Hay uses:
 
 - Encryption in transit and at rest
-- Secure password-based authentication (2FA coming soon)
+- Secure password-based authentication (2FA policy toggle available in Settings → Security, backend enforcement in progress)
 - Regular security audits
 - Compliance with data protection regulations
 
@@ -292,6 +292,7 @@ Yes. Hay provides tools for:
 
 - Data access requests
 - Data deletion (right to be forgotten)
+- Data portability (export)
 - Data portability
 - Consent management
 
@@ -312,14 +313,9 @@ Data is stored in secure, encrypted databases. Contact your account manager for 
 
 ### Can I export my data?
 
-Yes! You can export:
+Yes! Go to **Settings** → **Privacy** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Customer Privacy**.
 
-- All conversations
-- Customer data
-- Analytics
-- Documents
-
-Go to **Settings** → **Privacy** or use the export feature in Analytics.
+> **Note:** Analytics export is not yet available.
 
 ## Technical Questions
 
@@ -361,23 +357,11 @@ Contact support for API documentation.
 
 ### How do I change my plan?
 
-Go to **Settings** → **Billing** → **Change Plan**. Changes typically take effect at your next billing cycle.
-
-### How do I update my payment method?
-
-Go to **Settings** → **Billing** → **Payment Methods** and update your card information.
+Contact your account manager for plan changes. Self-service billing management is not yet available in the dashboard.
 
 ### Can I get a refund?
 
 Refund policies vary by plan. Contact your account manager or support for specific refund requests.
-
-### What happens if my payment fails?
-
-You'll receive notifications to update your payment method. After a grace period, service may be suspended until payment is resolved.
-
-### How do I download invoices?
-
-Go to **Settings** → **Billing** → **Invoices** and download any invoice as PDF.
 
 ## Support
 

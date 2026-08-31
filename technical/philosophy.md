@@ -76,18 +76,18 @@ throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid email format' });
 
 #### 4. Plugin-First Architecture
 
-Everything is a plugin, including core features.
+External integrations are always plugins, never bolted directly onto core logic. Core features (conversations, agents, orchestration, documents) live in the server codebase, but all third-party service integrations are implemented as plugins.
 
 **Why:**
 
-- Forces modular design
+- Forces modular design for integrations
 - Ensures extensibility
-- Dogfooding our own APIs
-- Easy to add/remove features
+- Dogfooding our own plugin APIs
+- Easy to add/remove integrations
 
 **In practice:**
 
-Plugins are discovered dynamically from the `plugins/` directory. The core source code never hardcodes plugin IDs.
+Plugins are discovered dynamically from `plugins/core/` (built-in plugins) and `plugins/custom/{organizationId}/` (org-specific plugins). The core source code never hardcodes plugin IDs.
 
 #### 5. Data Ownership and Privacy
 
