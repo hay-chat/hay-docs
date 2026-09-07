@@ -125,7 +125,7 @@ When a human takes over, the AI stops responding. The full conversation history 
 
 ### How long are conversations stored?
 
-By default, conversations are kept indefinitely. If a retention period is configured, conversations are anonymized (messages and personal data removed) after the specified number of days. Check **Settings** → **Privacy** for your specific retention policy.
+By default, conversations are kept indefinitely. If a retention period is configured, conversations are anonymized (messages and personal data removed) after the specified number of days. Check **Settings** → **Customer Privacy** for your specific retention policy.
 
 ### Can I delete conversations?
 

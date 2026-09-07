@@ -97,16 +97,13 @@ See conversations waiting for human attention. The Queue is accessible at `/queu
 
 Your dashboard updates automatically:
 
-- **Notifications** appear for important events:
-  - Conversations needing urgent attention
-  - Customers waiting too long
-  - System alerts or issues
+- Real-time updates via WebSocket are planned but not yet fully implemented. Currently, refresh the page to see the latest data.
 
 ## Customizing Your View
 
 ### Filter by Date Range
 
-Use the custom date picker to select any date range for the displayed metrics.
+Use the date range selector to choose a preset period (e.g., Last 7 days, Last 30 days, This month) or select a custom date range.
 
 ## Dashboard Best Practices
 
@@ -152,7 +149,7 @@ Some metrics are calculated every few minutes, not instantly. Refresh your brows
 
 ### Can I export this data?
 
-Exporting data isn't available from the Dashboard page itself. You can export data from **Analytics > Reports** using the **CSV Export** option.
+Exporting data isn't available from the Dashboard page itself. The Analytics Reports page (`/analytics/reports`) supports CSV export, but is not currently accessible from the sidebar navigation — navigate to it directly via URL.
 
 ## Next Steps
 

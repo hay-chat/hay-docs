@@ -64,7 +64,7 @@ Hay uses an event-driven architecture to enable:
 
 #### Plugin System
 
-Everything in Hay is a plugin, including core features. This allows for:
+Hay uses a plugin system for all external integrations and extensions. Core features (conversations, agents, orchestration) live in the server, while third-party service integrations are implemented as plugins. This allows for:
 - Maximum flexibility
 - Easy customization
 - Clean separation of concerns

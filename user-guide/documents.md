@@ -32,7 +32,7 @@ Think of it like training a new employee by giving them all your company documen
 ### Step 1: Go to Documents
 
 1. Click **Documents** in the left sidebar
-2. Click **Import Documents**
+2. Click **Import Document**
 
 ### Step 2: Choose Your Method
 
@@ -48,10 +48,10 @@ Think of it like training a new employee by giving them all your company documen
 - Word documents (.doc, .docx)
 - Text files (.txt)
 - Markdown files (.md)
-- CSV files (for data)
+- CSV files (.csv) — processed as plain text
 - HTML files (.html)
 - PowerPoint presentations (.ppt, .pptx)
-- JSON files (.json)
+- JSON files (.json) — processed as plain text
 
 > **File size limit:** The maximum upload size is 10 MB per file (configurable via the `UPLOAD_MAX_SIZE_MB` environment variable).
 
@@ -69,7 +69,7 @@ Hay processes your documents:
 
 1. Extracts text and content
 2. Breaks into searchable chunks
-3. Creates smart connections
+3. Generates vector embeddings for AI-powered search
 4. Makes it instantly available
 
 **Usually takes:** 5-30 seconds depending on size
