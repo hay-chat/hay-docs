@@ -62,10 +62,11 @@ Your agent is your AI assistant. Give it a personality and purpose.
 Teach your agent by uploading your existing support materials.
 
 1. Go to **Documents** in the left sidebar
-2. Add content using one of two buttons:
+2. Add content using the available buttons:
 
-   - **Import Document** - Upload files (PDFs, text files) or import content directly from a website URL
+   - **Connected Sources** - Manage connected data sources at `/documents/sources`
    - **Write Document** - Create a document from scratch at `/documents/new`
+   - **Import Document** - Upload files (PDF, TXT, MD, DOC, DOCX, PPT, PPTX, HTML, JSON, CSV) or import from a website URL
 
 3. When importing from a website, use the **Import from Website** option to auto-crawl the site or provide a sitemap and pull in multiple pages at once
 

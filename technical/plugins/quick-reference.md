@@ -440,7 +440,7 @@ Workers expose: `GET /health`, `GET /metadata`, `POST /validate-auth`, `POST /on
 | Channel with a shared webhook URL  | `plugins/core/instagram` (webhook routing + declarative token ops)        |
 | Cron-based token refresh           | `plugins/core/shopify`                                                    |
 
-Avoid copying: `email`, `email-imap`, `magento`, `woocommerce`, `whatsapp` — known anti-patterns (mock paths, missing sources, no idempotency; see `.claude/skills/build-plugin/reference/anti-patterns.md`).
+Avoid copying: `email`, `magento`, `woocommerce`, `whatsapp` — known anti-patterns (mock paths, missing sources, no idempotency; see `.claude/skills/build-plugin/reference/anti-patterns.md`).
 
 ---
 

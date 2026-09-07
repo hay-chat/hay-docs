@@ -77,7 +77,7 @@ The fields core actually reads (interface `HayPluginBlock` in `plugin-manager.se
 ```typescript
 interface HayPluginBlock {
   displayName?: string;
-  category?: PluginType;        // integration | channel | tool | analytics
+  category?: PluginType;        // mcp-connector | channel | retriever | playbook | document_importer | system | products
   entry?: string;               // e.g. "./dist/index.js"
   capabilities?: string[];      // routes | mcp | auth | config | ui | messages | customers | sources | products
   config?: ...;                 // config schema (usually declared in code instead)

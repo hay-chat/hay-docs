@@ -88,7 +88,7 @@ section: user-guide
 
 **Identify why escalations happen:**
 
-1. Go to **Queue**
+1. Go to **Conversations** and filter by **Escalated** status
 2. Review escalation reasons
 3. Look for patterns
 
@@ -329,9 +329,8 @@ section: user-guide
 
 1. **Check settings:**
 
-   - Go to **Settings** → **General**
-   - Verify email notifications are enabled
-   - Check which events you're subscribed to
+   - Email notification preferences are planned but not yet available in the UI
+   - Verify your SMTP configuration is correct in the server environment
 
 2. **Check spam:**
 

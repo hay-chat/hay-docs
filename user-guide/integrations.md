@@ -74,10 +74,9 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 
 **Customization options:**
 
-- Button position (bottom-right, bottom-left, etc.)
-- Brand colors
+- Widget position (right or left)
+- Theme colors (blue, green, purple, black)
 - Welcome message
-- Chat window size
 
 ## Managing Integrations
 
@@ -87,8 +86,7 @@ Go to **Integrations** in the sidebar to see:
 
 - All installed integrations
 - Connection status (✅ Connected or ⚠️ Issue)
-- Last sync time
-- Usage statistics
+- Total plugins, installed count, channels, and MCP connectors
 
 ### Configuring an Integration
 
@@ -135,11 +133,11 @@ To remove an integration:
 ### Web Chat Features
 
 - ✅ Typing indicators
-- ✅ Read receipts
-- ✅ File uploads
 - ✅ Emoji support
 - ✅ Conversation history
-- ✅ Proactive chat (trigger by page, time on site, etc.)
+- 🔜 Read receipts — planned
+- 🔜 File uploads — planned
+- 🔜 Proactive chat (trigger by page, time on site, etc.) — planned
 
 ### WhatsApp Features
 
@@ -153,7 +151,7 @@ To remove an integration:
 ### Email Features
 
 - ✅ Plain-text emails
-- 🔜 HTML emails — planned
+- ✅ HTML emails
 - 🔜 Attachments — planned
 - 🔜 CC/BCC support — planned
 - 🔜 Signature management — planned

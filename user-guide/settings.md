@@ -180,7 +180,7 @@ The page provides a ready-to-copy **Installation Code** snippet — add it to yo
 **Settings** → **Git Connections** ("Connect your Git repositories to install and sync plugins automatically").
 
 - **Connect GitHub** — connects a GitHub account via a GitHub App. (If the server isn't configured with GitHub App credentials, the page tells you which environment variables are required.)
-- **Connected Accounts** — GitHub accounts connected to your organization, with **Browse Repos**, **Disconnect**, and **Disconnect & Remove Plugins** actions
+- **Connected Accounts** — GitHub accounts connected to your organization, with **Browse Repos**, **Manage** (opens GitHub installation settings), and a disconnect button
 - **Select a repository** — pick a repository and click **Install Plugin** to install it as a Hay plugin
 - **Git Plugins** — plugins installed from Git, each showing sync status (Up to date / Update available), last sync time, commit, and a **Sync Now** button
 
@@ -192,7 +192,7 @@ This page is gated behind an advanced-settings warning — "**Advanced — chang
 
 ### Chat Provider
 
-- **Provider** — the provider used to generate agent responses. Choose from **OpenAI**, **Anthropic (Claude)**, **Google Gemini**, **Mistral**, **xAI Grok**, or a **Custom (OpenAI-compatible)** endpoint (with a variant for custom endpoints that support tool calling).
+- **Provider** — the provider used to generate agent responses. Choose from **OpenAI**, **Anthropic (Claude)**, **Google Gemini**, **Mistral**, **xAI Grok**, **Custom (OpenAI-compatible)**, or **Custom — supports tool calling (OpenAI-compatible)** (seven options total).
 - **Base URL** — the provider's OpenAI-compatible API base URL. Shown only for Mistral, Grok, and custom endpoints.
 - **Use my own API key** — when off, Hay's managed AI is used (billed with your plan). When on, enter your own provider **API Key** — it is stored encrypted and never shown again after saving.
 

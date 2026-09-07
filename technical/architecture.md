@@ -59,8 +59,8 @@ Hay's extensibility mechanism:
 Plugins are defined using `defineHayPlugin()` from `@hay/plugin-sdk`. The plugin contract is `HayPluginManifest` in `/server/types/plugin-sdk.types.ts`, exposing capabilities via a runtime `/metadata` endpoint and interacting with the platform via `HayGlobalContext`.
 
 Each plugin can:
-- Register event listeners
-- Extend the API
+- Register hooks (`onInitialize`, `onStart`, `onConnected`, etc.)
+- Expose HTTP routes and MCP tools
 - Add new UI components
 - Access core services
 
@@ -74,7 +74,7 @@ Persistent storage with caching:
 
 - **PostgreSQL**: Primary data store for conversations, users, settings
 - **Redis**: Caching layer and pub/sub for real-time features
-- **Object Storage**: Attachments and media files
+- **File Storage**: Attachments and media files (local filesystem by default, optional S3)
 
 ### Data Flow
 
@@ -95,7 +95,7 @@ Hay is designed to scale horizontally:
 
 - **Stateless API servers**: Scale by adding more instances
 - **Background workers**: Scale job processing independently
-- **Database read replicas**: Distribute read load
+- **Database connection pooling**: Efficient query distribution
 
 #### Caching Strategy
 
@@ -103,16 +103,15 @@ Multi-layer caching reduces database load:
 
 ```mermaid
 graph LR
-  A["fa:fa-browser Client Cache"] --> B["fa:fa-cloud CDN"] --> C["fa:fa-bolt Redis"] --> D["fa:fa-database Database"]
+  A["fa:fa-browser Client Cache"] --> B["fa:fa-bolt Redis"] --> C["fa:fa-database Database"]
 
   style A fill:#e8f3ff,stroke:#568aff,color:#0a155c
   style B fill:#e8f3ff,stroke:#568aff,color:#0a155c
-  style C fill:#e8f3ff,stroke:#568aff,color:#0a155c
-  style D fill:#f5f5f5,stroke:#d4d4d4,color:#404040
+  style C fill:#f5f5f5,stroke:#d4d4d4,color:#404040
 ```
 
 - **Client**: Browser cache for static assets
-- **CDN**: Configurable asset-domain URL helper for serving static assets from a separate domain, not an integrated CDN caching layer
+- **Asset Domain**: Optional configurable domain for serving static assets (not a CDN caching layer)
 - **Redis**: In-memory cache for hot data
 - **Database**: Source of truth
 
@@ -123,7 +122,6 @@ RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-b
 - Failed jobs are marked as `FAILED` by `JobQueueService.failJob()`; there is no automatic retry
 - Job priority is ordered via a SQL column, not a Bull-style priority queue
 - No rate limiting per job type
-- Monitoring and alerting
 
 ### Security Architecture
 
@@ -140,10 +138,10 @@ Multiple security layers:
 
 #### Data Privacy
 
-- **Encryption at rest**: Database encryption enabled
-- **Encryption in transit**: TLS 1.3 required
-- **PII handling**: Separate tables with restricted access
-- **Audit logs**: All data access logged
+- **Encryption at rest**: Depends on infrastructure provider's PostgreSQL configuration
+- **Encryption in transit**: TLS handled by reverse proxy (the application runs plain HTTP)
+- **PII handling**: PII lives in standard entity tables; logger-level redaction via `REDACT_PATHS`
+- **Audit logs**: Administrative actions (create/update/delete operations) are logged via `AuditLogService`
 
 ### Monitoring and Observability
 

@@ -50,7 +50,7 @@ Before you start, think about:
 1. Click **Playbooks** in the sidebar
 2. Click the **+** button to create a new playbook
 
-> **Tip:** You can also use the AI **Generate Playbook** wizard to create a playbook automatically. Click the **Generate** option when creating a new playbook, describe the scenario in plain language, and the wizard will produce a draft you can review and edit.
+> **Tip:** You can also use the AI wizard to generate a playbook automatically. On the playbooks list page, click the **Generate Playbook** button (with the sparkles icon). The wizard walks you through five steps (Purpose, Actions, Documents, Boundaries, Generate) and produces a draft you can review and edit.
 
 ### Step 3: Basic Information
 

@@ -102,7 +102,7 @@ Registered in `server/services/scheduled-jobs.registry.ts`:
 The pipeline in `server/orchestrator/run.ts` is numbered `00`–`04` in code comments:
 
 1. **Skip check** — conversations with `status === "human-took-over"` or an `assigned_user_id` are skipped entirely. Human takeover works by setting those fields; `"ai_return"` re-enqueues when handed back.
-2. **Lock (00)** — `conversation.lock()` returns a `lockerId` or bails (lock contention is not an error, just "someone else is on it"). A heartbeat refreshes the lock every 5 s (`LOCK_HEARTBEAT_INTERVAL_MS`) so long LLM/tool calls don't look abandoned. The `finally` block does an ownership-checked unlock.
+2. **Lock (00)** — `conversation.lock()` returns a `lockerId` or bails (lock contention is not an error, just "someone else is on it"). The lock lasts 15 seconds (`LOCK_DURATION_MS`) and a heartbeat refreshes it every 5 s (`LOCK_HEARTBEAT_INTERVAL_MS`) so long LLM/tool calls don't look abandoned. The `finally` block does an ownership-checked unlock.
 3. **Bootstrap** — seeds initial system, agent-instruction, and bot messages if absent. Throws the two non-retryable errors if `needs_processing` is false or there is no customer message.
 4. **Perception (01)** — intent/sentiment/language on the last customer message, saved via `message.savePerception()`. If the intent is `close_satisfied`/`close_unsatisfied` (or `greet` plus a gratitude regex), `validateConversationClosure()` re-checks against the full transcript; a confirmed closure generates a title, resolves the conversation, purges Redis secrets (`conversationSecretService`), sends an LLM-generated closing message, and exits early.
 5. **Retrieval (02)** — the active-playbook fetch and vector search run in parallel (`Promise.all`). Playbook **selection** is gated by `shouldReselectPlaybook()` (`playbook-gate.ts`): the selector LLM runs only when no playbook is set yet or the planner's last verdict was that the current one no longer fits (`conversation.metadata.playbookFits !== true`) — otherwise the previous selection stands. Selected playbooks are stored with `conversation.updatePlaybook()`, which populates `enabled_tools`. Matched documents are attached via `conversation.addDocument()`.
@@ -120,7 +120,7 @@ Prompts are file-based markdown templates resolved by `PromptService.getPrompt()
 
 ### Perception (`perception.layer.ts`)
 
-- `perceive(message, conversationId, organizationId)` — one structured-output LLM call (prompt `perception/intent-analysis`) returning `{ intent: {label, score}, sentiment: {label, score}, language }`. Intent/sentiment labels are schema-enum-constrained to `MessageIntent` / `MessageSentiment`; language is an ISO 639-1 code enforced by the JSON-schema pattern `^[a-z]{2}$`.
+- `perceive(message, conversationId, organizationId)` — one structured-output LLM call (tier `"medium"`, prompt `perception/intent-analysis`) returning `{ intent: {label, score}, sentiment: {label, score}, language }`. Intent/sentiment labels are schema-enum-constrained to `MessageIntent` / `MessageSentiment`; language is an ISO 639-1 code enforced by the JSON-schema pattern `^[a-z]{2}$`.
 - `getAgentCandidate()` exists (prompt `perception/agent-selection`, score threshold > 0.7) but is **not called from `runConversation()`** — agents are assigned at conversation creation with a fallback to the organization default. Don't wire new features through it without reconsidering that decision.
 
 ### Retrieval (`retrieval.layer.ts`)

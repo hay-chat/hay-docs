@@ -39,7 +39,7 @@ After anonymization, the conversation record remains with the title `[Anonymized
 2. Under **Conversation Retention Period**, choose a timeframe: Disabled (keep forever), 30, 60, 90, 180, or 365 days
 3. Save your changes
 
-The retention period counts from when a conversation was **closed**. Only conversations with status `closed` or `resolved` are eligible for anonymization. Open or in-progress conversations are never touched.
+The retention period counts from when a conversation was **closed** (`closed_at`). If a conversation's `closed_at` is not set, the system falls back to its creation date. Only conversations with status `closed` or `resolved` are eligible for anonymization. Open or in-progress conversations are never touched.
 
 ## Legal Hold
 
@@ -91,7 +91,7 @@ No. Anonymization permanently removes personal data. This is by design — GDPR 
 Aggregate analytics (conversation volume, resolution times, channel breakdown) are preserved. Per-conversation details and message content are not.
 
 **What about customer data exports?**
-Data exports (via **Settings** → **Customer Privacy**) include all current data. If a conversation has already been anonymized, it will not appear in the export.
+You can initiate customer data export requests via **Settings** → **Customer Privacy**. The export is delivered to the customer's email with a secure download link. If a conversation has already been anonymized, it will not appear in the export.
 
 **Are embeddings cleaned up too?**
 Yes. All vector embeddings linked to anonymized conversations are deleted, ensuring no semantic traces of the conversation remain in the vector store.

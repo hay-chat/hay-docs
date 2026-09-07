@@ -20,8 +20,9 @@ Only the Dashboard has a sidebar entry. There is no Analytics or Insights entry 
 
 The Dashboard shows metrics calculated from your actual conversations. All of them accept a date range filter and default to the last 30 days:
 
-**Conversation Metrics**
+**Metric Cards**
 
+- **Active Agents** - count of enabled agents, with new agents added this week
 - **Total Conversations** - count of conversations in the selected period
 - **Resolution Rate** - percentage of conversations marked resolved
 - **Avg Messages per Conversation** - average number of messages exchanged
@@ -37,6 +38,14 @@ Hay's AI classifies the sentiment of customer messages as they arrive. The Dashb
 **Document Status Overview**
 
 Your knowledge base documents grouped by processing status.
+
+**Additional Widgets**
+
+- **Top Performing Agents** - agents ranked by conversation count with resolution rate
+- **Recent Conversations** - last 4 conversations with status and last message
+- **Active Conversations** - live widget showing currently active conversations
+- **Escalations** - conversations that have been escalated
+- **Attention Needed** - conversations requiring attention
 
 > **Not yet implemented:** Response time analytics exist as an API endpoint but currently always return zero - the calculation is a placeholder. Any "average response time" figure you see in the product is not real data yet.
 

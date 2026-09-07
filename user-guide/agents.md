@@ -71,7 +71,7 @@ Choose how your agent should communicate:
 
 **Language**
 
-Select the language your agent should respond in. Hay supports 33 languages, allowing you to serve customers in their preferred language.
+Select the language your agent should respond in. Hay supports 33 languages at the backend, with 15 available in the dashboard language picker.
 
 **Things to Avoid** (Optional)
 
@@ -148,11 +148,11 @@ Control whether the agent's responses are sent automatically or require human re
 2. Under **Message Approval**, select the desired option
 3. Changes take effect for all new conversations with this agent
 
-### Human Handoff Instructions
+### Human Escalation
 
 Tell your agent exactly how to handle escalations:
 
-**When Human is Available:**
+**If any human agent is available:**
 
 ```
 Let the customer know that you'll connect them with a specialist
@@ -160,7 +160,7 @@ who can help. Transfer the conversation and provide a summary of
 what was discussed.
 ```
 
-**When Human is NOT Available:**
+**If all human agents are unavailable:**
 
 ```
 Apologize and let the customer know you'll have someone reach out
@@ -258,11 +258,11 @@ _Technical Support_
 
 Go to **Analytics** and scroll to the **Agent Performance** table to see:
 
-- **Conversations handled** - Total volume per agent
-- **Resolution rate** - How many issues they solved
-- **Average response time** - Speed of responses
-- **Escalation rate** - How often they need human help
-- **Customer satisfaction** - Ratings from customers
+- **Conversations** - Total volume per agent
+- **Resolution Rate** - How many issues they solved
+- **Avg Response Time** - Speed of responses
+- **Satisfaction** - Ratings from customers
+- **Status** - Whether the agent is enabled or disabled
 
 > **Note:** Agent performance analytics currently display sample data while this feature is being developed. Live per-agent metrics are coming soon.
 

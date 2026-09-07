@@ -23,12 +23,13 @@ Go to **Conversations** in the left sidebar to see all your interactions.
 
 **What you'll see:**
 
-- **Title** - Auto-generated summary of the conversation topic
-- **Status** - Current state (Open, Resolved, Closed, etc.)
-- **Customer** - Who you're talking with
-- **Channel** - Where the conversation came from (Web, WhatsApp, etc.)
-- **Agent** - Which AI agent handled it
-- **Last message** - When the last activity happened
+- **Conversation** - Title and truncated ID
+- **Channel** - Where the conversation came from (shown when multiple channels are active)
+- **Status** - Current state (Active, Resolved, Escalated, Closed)
+- **Assigned To** - Human agent, if the conversation has been taken over
+- **Duration** - How long the conversation has been active
+- **Satisfaction** - Customer satisfaction rating
+- **Updated** - When the last activity happened
 
 ### Searching and Filtering
 
@@ -43,7 +44,7 @@ Find specific conversations quickly:
 
 **Filter by:**
 
-- **Status** - All, Open, Processing, Needs Attention, Manual Control, Resolved, Closed
+- **Status** - All Status, Active, Resolved, Escalated, Closed
 - **Timeframe** - Today, This Week, This Month, All Time (preset options)
 
 > **Note:** The timeframe filter is not yet functional — selecting a timeframe currently has no effect. Channel and agent filters are planned but not yet available.
