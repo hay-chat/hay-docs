@@ -56,7 +56,7 @@ Business logic organized as modular services:
 
 Hay's extensibility mechanism:
 
-Plugins are defined using `defineHayPlugin()` from `@hay/plugin-sdk`. The plugin contract is `HayPluginManifest` in `/server/types/plugin-sdk.types.ts`, exposing capabilities via a runtime `/metadata` endpoint and interacting with the platform via `HayGlobalContext`.
+Plugins are defined using `defineHayPlugin()` from `@hay/plugin-sdk`. The plugin contract is `HayPluginManifest` in `/server/types/plugin.types.ts`, exposing capabilities via a runtime `/metadata` endpoint and interacting with the platform via `HayGlobalContext`.
 
 Each plugin can:
 - Register hooks (`onInitialize`, `onStart`, `onConnected`, etc.)
@@ -66,7 +66,7 @@ Each plugin can:
 
 #### 4. Real-Time & Background Messaging
 
-There is no single event bus module. Real-time events are published to Redis pub/sub channels via `ConversationEventsService`. Background processing tasks are queued via RabbitMQ (`rabbitmqService`) and a Redis-backed `JobQueueService`.
+There is no single event bus module. Real-time events are published to Redis pub/sub channels via `ConversationEventsService`. Background processing tasks are queued via RabbitMQ (`rabbitmqService`) and a Postgres-backed `JobQueueService` (using `SKIP LOCKED`), with Redis pub/sub used for status-update notifications.
 
 #### 5. Data Layer
 

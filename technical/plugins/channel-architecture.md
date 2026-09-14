@@ -361,7 +361,7 @@ One subtlety worth copying: `onStart` does **not** re-run on reconnect, so Insta
 
 1. `package.json`: `category: "channel"`, `channel: "<slug>"`, `capabilities: ["messages", "customers"]`.
 2. `onInitialize`: `register.config` + `register.auth.*`; `register.route("POST", "/webhook", …)` and `register.route("POST", "/deliver", …)`.
-3. If the provider uses one shared webhook URL with no tenant identifier: `register.webhookRouting(...)` + return routing keys from `onConnected`. Otherwise, verify per-instance signatures yourself using the raw bytes from `x-original-body-base64` / `x-original-url` (see `plugins/core/chatwoot` for the reference implementation: HMAC-SHA256 with `timingSafeEqual` and a replay window).
+3. If the provider uses one shared webhook URL with no tenant identifier: `register.webhookRouting(...)` + return routing keys from `onConnected`. Otherwise, verify per-instance signatures yourself using the raw bytes from `x-original-body-base64` / `x-original-url` (see `plugins/core/chatwoot` for the reference implementation: HMAC-SHA256 with `timingSafeEqual` and a replay window — note that Chatwoot's own inbound route is registered at `/messages`, not `/webhook`, matching Chatwoot's "Agent Bot" terminology; `/webhook` is only a convention other plugins are free to deviate from, so follow Chatwoot for the signature-verification pattern, not the route name).
 4. Inbound: filter echoes and out-of-scope events, then call `messages.receive` with a channel-scoped `from` and — **always** — the provider message ID in `metadata.mid` so core can dedupe redeliveries.
 5. Outbound: implement `/deliver` with the 200-`success:false` convention for permanent provider errors.
 6. Optionally implement `/escalate` for provider-side human handoff.

@@ -329,7 +329,7 @@ section: user-guide
 
 1. **Check settings:**
 
-   - Email notification preferences are planned but not yet available in the UI
+   - The Notification Preferences UI is available in **Settings → General**, with checkboxes for new conversations, escalated conversations, performance alerts, weekly reports, and quiet hours — however, changes made there currently do not persist because the backend wiring is still pending
    - Verify your SMTP configuration is correct in the server environment
 
 2. **Check spam:**

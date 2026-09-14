@@ -516,7 +516,7 @@ Endpoints the SDK runner mounts on every worker (`packages/plugin-sdk/runner/htt
 | `GET /mcp/list-tools` | Lists MCP tools (cached by core)                                                                          |
 | _(plugin routes)_     | Anything registered via `register.route` (e.g. `/webhook`, `/deliver`, `/escalate`)                       |
 
-External traffic reaches worker routes only through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The org is resolved from auth, subdomain, or query param — or, for a `POST /webhook` with no org identifier and a declared `webhookRouting` descriptor, the request is diverted to the shared webhook router.
+External traffic reaches worker routes only through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The org is resolved from the `organizationId` query param or the `x-organization-id` header (both UUID-validated against the DB) — auth-token-based org resolution is a TODO, not yet implemented — or, for a `POST /webhook` with no org identifier and a declared `webhookRouting` descriptor, the request is diverted to the shared webhook router.
 
 ---
 

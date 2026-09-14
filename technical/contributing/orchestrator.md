@@ -13,7 +13,7 @@ The orchestrator turns an incoming customer message into a bot reply. It is **ev
 
 This guide covers how the pieces fit together and where to make changes. For code-organization rules (repository vs. entity vs. service responsibilities), read [`server/orchestrator/ARCHITECTURE.md`](../../../server/orchestrator/ARCHITECTURE.md) — that document defines the layering conventions; this one describes the runtime flow.
 
-> **Note:** Older docs described an 8-phase polling architecture with cooldowns, runtime agent routing, and "plan/ender" modules. That design is gone. Agents are assigned at conversation creation, cooldowns no longer gate processing (`Conversation.addMessage()` still writes `cooldown_until`, but only the disabled legacy polling path and the unused `findReadyForProcessing()` repository method read it), and processing is triggered by queue messages, not polling.
+> **Note:** Older docs described an 8-phase polling architecture with cooldowns, runtime agent routing, and "plan/ender" modules. That design is gone. Agents are assigned at conversation creation, cooldowns no longer gate processing (`Conversation.addMessage()` still writes `cooldown_until`, and it still feeds the `orchestrator-stale-message-check` safety net (`stale-message-detector.service.ts`'s `COOLDOWN_STUCK` check) and gets cleared by `message-recovery.service.ts` — but the disabled legacy polling path and the unused `findReadyForProcessing()` method are the only places that treat it as a processing gate), and processing is triggered by queue messages, not polling.
 
 ## File Map
 

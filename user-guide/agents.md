@@ -31,7 +31,7 @@ Fill in the essentials:
 **Agent Name**
 
 - Something descriptive: "Customer Support Agent", "Sales Assistant", "Technical Support Bot"
-- Visible to your team (not to customers)
+- Visible to your team (not to customers) — unless this agent is set as your organization's **Default Agent**, in which case its name is shown to webchat customers as the chat window's title/header
 
 **Description** (Optional but recommended)
 
@@ -69,9 +69,9 @@ Choose how your agent should communicate:
 | **Casual**         | Young audience, informal brand | "Hey! No worries, I got you. Let's figure this out together."                |
 | **Enthusiastic**   | Energetic, upbeat brand voice  | "Awesome, let's get this sorted for you right away!"                         |
 
-**Language**
+**Response Language**
 
-Select the language your agent should respond in. Hay supports 33 languages at the backend, with 15 available in the dashboard language picker.
+Select the language your agent should respond in. Hay supports 33 languages at the backend. The dashboard language picker offers an **Inherit from Organization** option plus 14 selectable languages.
 
 **Things to Avoid** (Optional)
 
@@ -197,6 +197,8 @@ Assigning an agent to specific channels (WhatsApp, website chat, email, etc.) is
 ### Default Agent
 
 Every organization needs a fallback for conversations that don't clearly match any agent's trigger. Mark one agent as the **Default Agent** and Hay will assign it to those conversations automatically.
+
+> **Note:** The first agent you create for an organization is automatically set as the Default Agent. The manual steps below are only needed starting from your second agent.
 
 **To set an agent as default:**
 

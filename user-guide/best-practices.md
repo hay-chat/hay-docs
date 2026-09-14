@@ -308,7 +308,7 @@ Escalate to human if:
 
 ## Managing Escalated Conversations
 
-Hay doesn't have a separate SLA-based escalation queue. Instead, escalated conversations live in the regular **Conversations** list, distinguished by status. (Note: the `/queue` page in the dashboard is unrelated — it tracks background job processing like document uploads, emails, and exports, not customer conversations.)
+Hay doesn't have a separate SLA-based escalation queue. Instead, escalated conversations live in the regular **Conversations** list, distinguished by status. (Note: the `/queue` page in the dashboard is unrelated — it tracks background job processing like document uploads, emails, and exports, not customer conversations. It currently shows no live data: the fetch, retry, and cancel functions behind that page are unimplemented stubs.)
 
 ### Finding Conversations That Need You
 
@@ -398,12 +398,14 @@ Since there's no built-in SLA tracking, these targets are something your team ag
    - Target: 85%+
    - Based on thumbs up/down ratings
    - Review: Daily
+   - **Note:** The Customer Satisfaction figure shown in Analytics is currently demo/placeholder data, not a live calculation. The thumbs-up/down control is also internal QA review tooling used by your team when reading back conversation transcripts — it isn't a rating customers submit themselves. Treat this as an aspirational target you track manually until real feedback aggregation ships.
 
 3. **Escalation Rate**
 
    - Target: 15-30%
    - Lower = more efficient AI
    - Review: Weekly
+   - **Note:** Escalation Rate isn't computed anywhere in the app yet — there's no dashboard metric or backend calculation for it today. Treat this as an aspirational target you'd need to track manually (e.g., by counting "Needs Attention"/"Manual Control" conversations) until it's built.
 
 4. **Response Time**
    - Target: Under 5 seconds for AI
@@ -543,7 +545,7 @@ Test changes before rolling out everywhere:
 
 **Week 1: Supervised Practice**
 
-- Enable Test Mode (Message Approval) on the agent
+- Enable Message Approval (the "Require Approval" option) on the agent
 - Review and approve responses before they reach customers
 - Provide feedback
 - Share best practices
