@@ -11,7 +11,7 @@ navOrder: 1
 
 The orchestrator turns an incoming customer message into a bot reply. It is **event-driven**: messages are enqueued to RabbitMQ and consumed by a worker that runs a single pipeline — Perception → Retrieval → Execution — with tool calling, human handoff, and confidence guardrails along the way.
 
-This guide covers how the pieces fit together and where to make changes. For code-organization rules (repository vs. entity vs. service responsibilities), read [`server/orchestrator/ARCHITECTURE.md`](../../../server/orchestrator/ARCHITECTURE.md) — that document defines the layering conventions; this one describes the runtime flow.
+This guide covers how the pieces fit together and where to make changes. For code-organization rules (repository vs. entity vs. service responsibilities), read [`server/orchestrator/ARCHITECTURE.md`](https://github.com/hay-chat/hay-core/blob/master/server/orchestrator/ARCHITECTURE.md) — that document defines the layering conventions; this one describes the runtime flow.
 
 > **Note:** Older docs described an 8-phase polling architecture with cooldowns, runtime agent routing, and "plan/ender" modules. That design is gone. Agents are assigned at conversation creation, cooldowns no longer gate processing (`Conversation.addMessage()` still writes `cooldown_until`, but only the disabled legacy polling path and the unused `findReadyForProcessing()` repository method read it), and processing is triggered by queue messages, not polling.
 
@@ -165,7 +165,7 @@ Stages 1–2 are skipped for `GREET` / `CLOSE_SATISFIED` / `CLOSE_UNSATISFIED` i
 
 Fallback messages are no longer only canned: `composeContextualFallbackMessage()` asks an LLM (prompt `execution/contextual-fallback`, tier `"medium"`) to acknowledge the customer's actual request from the last few customer-visible messages — deliberately _without_ seeing the blocked response, so unverified claims can't leak through — and falls back to the static configured message on error.
 
-All Stage 1/2 outcomes are appended to `orchestration_status.guardrailLog` (plus a legacy `confidenceLog`) by `saveConfidenceLog()` in `run.ts`; Stage 0 results ride on message metadata (`actionClaim`, `actionClaimRetryAttempted`). The full guardrail design is documented in [`docs/technical/guardrails.md`](../guardrails.md).
+All Stage 1/2 outcomes are appended to `orchestration_status.guardrailLog` (plus a legacy `confidenceLog`) by `saveConfidenceLog()` in `run.ts`; Stage 0 results ride on message metadata (`actionClaim`, `actionClaimRetryAttempted`). The full guardrail design is documented in [`docs/technical/guardrails.md`](/docs/technical/guardrails/).
 
 ## Inactivity Lifecycle
 
@@ -186,7 +186,7 @@ Closures set `status: "resolved"`, fire the `conversation.resolved` hook, and tr
 - **New early-exit condition** — if it should not be retried, add its error message to `isNonRetryableError()` in `orchestrator.worker.ts`.
 - **New guardrail stage** — follow the Stage 0 pattern: a service with `getDefaultConfig()`/`mergeConfig()`, a per-turn retry budget in `turnGuardrailState`, and corrective `plannerFeedback` before escalating.
 
-Follow the layering rules in [`server/orchestrator/ARCHITECTURE.md`](../../../server/orchestrator/ARCHITECTURE.md): DB access through repositories, entity state changes through entity methods, business logic in the layers.
+Follow the layering rules in [`server/orchestrator/ARCHITECTURE.md`](https://github.com/hay-chat/hay-core/blob/master/server/orchestrator/ARCHITECTURE.md): DB access through repositories, entity state changes through entity methods, business logic in the layers.
 
 ## Testing and Debugging
 
