@@ -56,10 +56,10 @@ Business logic organized as modular services:
 
 Hay's extensibility mechanism:
 
-Plugins are defined using `defineHayPlugin()` from `@hay/plugin-sdk`. The plugin contract is `HayPluginManifest` in `/server/types/plugin-sdk.types.ts`, exposing capabilities via a runtime `/metadata` endpoint and interacting with the platform via `HayGlobalContext`.
+Plugins are defined using `defineHayPlugin()` from `@hay/plugin-sdk`. The manifest (`HayPluginManifest` in `packages/plugin-sdk/types/manifest.ts`) is a minimal `package.json` block declaring entry point, category, and capabilities. Runtime metadata (config schema, auth methods, UI extensions) is exposed via a `/metadata` endpoint and typed as `PluginMetadata` in `/server/types/plugin-sdk.types.ts`.
 
 Each plugin can:
-- Register hooks (`onInitialize`, `onStart`, `onConnected`, etc.)
+- Register hooks (`onInitialize`, `onStart`, `onConnected`, `onValidateAuth`, `onConfigUpdate`, `onDisable`, `onEnable`)
 - Expose HTTP routes and MCP tools
 - Add new UI components
 - Access core services
@@ -130,7 +130,7 @@ RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-b
 Multiple security layers:
 
 1. **Network**: TLS/SSL encryption for all traffic
-2. **Authentication**: JWT with short expiration
+2. **Authentication**: JWT with configurable expiration (default 7 days, refresh tokens 30 days)
 3. **Authorization**: Role-based access control (RBAC)
 4. **Input Validation**: Sanitize all user input
 5. **Output Encoding**: Prevent XSS attacks

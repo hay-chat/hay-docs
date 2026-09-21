@@ -160,7 +160,7 @@ Status is set when you create the playbook:
 
 Click **Create Playbook**
 
-> **Draft/Publish versioning:** Clicking **Save Changes** creates or updates a draft of the playbook. To make a version live, publish it — publishing sets the playbook's status to **Active** and creates an immutable snapshot of the playbook at that point in time. Subsequent edits start a new draft without affecting the published version.
+> **Draft/Publish versioning:** Clicking **Save Changes** creates or updates a draft of the playbook. To make a version live, publish it — publishing sets the playbook's status to **Active** and creates an immutable snapshot of the playbook at that point in time. Subsequent edits start a new draft without affecting the published version. You can browse previous versions in the **Version History** panel, roll back to any earlier published version, or discard a draft to revert to the current live version.
 >
 > **Coming Soon:** There is currently no UI control to archive a playbook after creation. This capability is planned.
 
@@ -240,7 +240,7 @@ You can assign playbooks to specific agents from the playbook editor:
 2. In the sidebar, check the agents under **Assigned Agents**
 3. Click **Save Changes**
 
-**If no agents assigned:** The playbook defaults to the organization's default agent.
+**Note:** Agent assignment is organizational metadata for your own reference. All active playbooks are evaluated for every conversation regardless of which agents are assigned — the orchestrator retrieves all active playbooks and scores them against the conversation context.
 
 ## Managing Playbooks
 

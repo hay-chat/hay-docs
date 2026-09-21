@@ -40,7 +40,7 @@ Installed plugins can add their own entries to the Settings menu (these are show
 
 ### Platform Settings
 
-- **Default Language** — default language for new conversations and system messages (English or Portuguese)
+- **Default Language** — default language for new conversations and system messages (English and Portuguese available in the UI; the backend supports additional languages for conversation handling)
 - **Timezone** — used for displaying timestamps
 - **Date Format** — MM/DD/YYYY (US), DD/MM/YYYY (EU), YYYY-MM-DD (ISO), or DD MMM YYYY, with a live preview
 - **Time Format** — 12-hour (AM/PM) or 24-hour, with a live preview
@@ -91,8 +91,8 @@ Hay has six roles: **Owner**, **Admin**, **Contributor**, **Member**, **Viewer**
 ### Managing members and invitations
 
 - **Search** members by name or email, and filter by role
-- **Change Role** — update a member's role
-- **Remove Member** — remove someone from the organization (cannot be undone)
+- **Change Role** — update a member's role (Owners only — Admins can invite members but cannot change roles or remove existing members)
+- **Remove Member** — remove someone from the organization (Owners only; cannot be undone)
 - **Pending Invitations** — see invitations that haven't been accepted yet, with options to **resend** or **cancel** each one
 
 ## Privacy & Data (Your Own Data)

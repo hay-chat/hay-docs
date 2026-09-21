@@ -170,7 +170,7 @@ describe("AutomationService", () => {
 
 - **TSDoc comments**: On all public APIs
 - **README in each package**: Setup and usage
-- **Architecture Decision Records**: For major decisions
+- **Architecture Decision Records**: For major decisions (planned — not yet adopted)
 - **Inline comments**: Only for "why", not "what"
 
 ````typescript

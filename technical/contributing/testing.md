@@ -76,7 +76,7 @@ extracting tokens from the storage state file by hand:
 **Security notes:**
 - Only works in development (`NODE_ENV !== 'production'`)
 - Token removed from URL after validation
-- Tokens expire after 15 minutes (JWT default)
+- Tokens expire after 7 days (JWT default, configurable via `JWT_EXPIRES_IN`)
 
 **Note on the storage state file:** `playwright/.auth/user.json` stores the token inside a
 JSON-stringified `pinia:auth` localStorage entry, and the expiry field there is `expiresAt`
@@ -408,7 +408,7 @@ jobs:
 ### Production Safety
 
 - URL token auth **disabled** in production (`NODE_ENV !== 'production'`)
-- Tokens expire after 15 minutes (JWT config)
+- Tokens expire after 7 days (JWT config, configurable via `JWT_EXPIRES_IN`)
 - Storage state files in `.gitignore` (prevents committing tokens)
 - Test users have distinctive pattern for easy identification
 

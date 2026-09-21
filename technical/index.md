@@ -46,7 +46,7 @@ Backend:
 - PostgreSQL for data persistence
 - Redis for caching and real-time features
 - RabbitMQ (amqplib) for message queues
-- OpenAI for embeddings and chat
+- Multi-provider AI (OpenAI, Anthropic, Google Gemini) for embeddings and chat
 
 Infrastructure:
 - Docker for containerization

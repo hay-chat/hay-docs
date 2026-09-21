@@ -25,7 +25,7 @@ Go to **Conversations** in the left sidebar to see all your interactions.
 
 - **Conversation** - Title and truncated ID
 - **Channel** - Where the conversation came from (shown when multiple channels are active)
-- **Status** - Current state (Active, Resolved, Escalated, Closed)
+- **Status** - Current state (Open, Processing, Needs Attention, Manual Control, Resolved, Closed)
 - **Assigned To** - Human agent, if the conversation has been taken over
 - **Duration** - How long the conversation has been active
 - **Satisfaction** - Customer satisfaction rating
@@ -44,7 +44,7 @@ Find specific conversations quickly:
 
 **Filter by:**
 
-- **Status** - All Status, Active, Resolved, Escalated, Closed
+- **Status** - All Status, Open, Processing, Needs Attention, Manual Control, Resolved, Closed
 - **Timeframe** - Today, This Week, This Month, All Time (preset options)
 
 > **Note:** The timeframe filter is not yet functional — selecting a timeframe currently has no effect. Channel and agent filters are planned but not yet available.
@@ -57,8 +57,8 @@ Understanding what each status means:
 | ------------------- | ---------------------------------------- | ---------------------------- |
 | **Open**            | AI is actively handling the conversation | Agent responds automatically |
 | **Processing**      | AI is thinking and preparing a response  | Wait a few seconds           |
-| **Pending Human** (shown in the UI as "Needs Attention") | Customer needs human help | Appears in your Queue        |
-| **Human Took Over** (shown in the UI as "Manual Control") | A team member is now handling it | AI stops responding          |
+| **Needs Attention** | Customer needs human help | Appears in your Queue        |
+| **Manual Control** | A team member is now handling it | AI stops responding          |
 | **Resolved**        | Issue was solved successfully            | Conversation is complete     |
 | **Closed**          | Conversation ended                       | No further action needed     |
 
@@ -109,7 +109,7 @@ Sometimes you need to step in and handle a conversation yourself.
 
 > **What happens when you take over:**
 >
-> - Status changes to "Human Took Over" (shown in the UI as "Manual Control")
+> - Status changes to "Manual Control"
 > - AI stops generating responses
 > - You can chat directly with the customer
 > - All your messages are logged

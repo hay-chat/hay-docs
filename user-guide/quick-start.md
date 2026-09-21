@@ -28,12 +28,12 @@ Hay works where your team already does. You can connect integrations now or skip
 
 **Popular integrations:**
 
-- **Web Chat** - Add a chat widget to your website
 - **WhatsApp** - Handle WhatsApp Business messages
 - **Shopify** - Access order and product information
+- **HubSpot** - Sync contacts and tickets from your CRM
 - **Zendesk** - Sync with your help desk
 
-> **Tip:** You can start with just the Web Chat widget and add more integrations later!
+> **Tip:** You can also add a chat widget to your website under **Settings** → **Webchat**.
 
 ## Step 2: Create Your First Agent
 
@@ -46,14 +46,10 @@ Your agent is your AI assistant. Give it a personality and purpose.
    - **Name:** Something descriptive like "Customer Support Agent"
    - **Description:** What this agent handles (e.g., "Handles order questions and product inquiries")
    - **Tone:** Choose how your agent should communicate (Professional, Casual, or Enthusiastic)
+   - **Instructions:** Define the agent's general behavior using the rich text editor (e.g., how to greet customers, what topics to avoid, when to escalate to a human)
+   - **Initial Greeting Message** _(optional)_**:** The first message the agent sends when a conversation starts
 
-4. (Optional) Add specific instructions:
-
-   - How to greet customers
-   - What topics to avoid
-   - When to escalate to a human
-
-5. Click **Create Agent**
+4. Click **Create Agent**
 
 > **Example:** "Support Agent" with a "Casual" tone that "helps customers with orders, shipping, and product questions"
 
@@ -91,7 +87,7 @@ Playbooks are step-by-step instructions for handling specific situations.
 3. Set up the basics:
 
    - **Title:** "Welcome New Customers"
-   - **Trigger:** "greeting" or "hello"
+   - **Trigger:** A free-text description of when this playbook should activate (up to 250 characters), e.g. "Customer asks about order status or shipping updates"
    - **Instructions:** What should happen when triggered
 
 4. Write instructions in plain language:

@@ -80,7 +80,7 @@ After upload:
 
 - Give document a clear title
 - Add a description (what information does it contain?)
-- Select a **category** from the dropdown: product, api, faq, legal, training, technical, or other
+- Select a **type** from the dropdown — this sets the document's type as shown in the documents list. The dropdown options map as follows: product = Guide, api = Reference, faq = FAQ, legal = Policy, training = Tutorial, technical = Reference, other = Article
 - Set the document status: **Draft**, **Published**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually.
 - Click **Save**
 
@@ -210,15 +210,17 @@ Refunds: 30 days. See mgr for exceptions.
 
 ### Organizing Documents
 
-Use the **category** dropdown when uploading a document to keep your knowledge base organized:
+Use the **type** dropdown when importing a document to keep your knowledge base organized. The dropdown option you select determines the document type shown in the documents list:
 
-- **faq** - Frequently asked questions
-- **product** - Product descriptions and specs
-- **api** - API references and developer docs
-- **legal** - Terms of service, privacy policy, etc.
-- **training** - Internal training and onboarding content
-- **technical** - Troubleshooting guides and technical docs
-- **other** - Everything else
+| Dropdown option | Document type |
+|-----------------|---------------|
+| **product** | Guide |
+| **api** | Reference |
+| **faq** | FAQ |
+| **legal** | Policy |
+| **training** | Tutorial |
+| **technical** | Reference |
+| **other** | Article |
 
 ### Keep Documents Updated
 
