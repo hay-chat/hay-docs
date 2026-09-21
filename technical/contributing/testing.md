@@ -348,7 +348,7 @@ npx playwright install
 ### GitHub Actions Example
 
 > **Note:** This is a simplified illustration. For the actual workflow this project runs,
-> see [`.github/workflows/playwright.yml`](../../../.github/workflows/playwright.yml).
+> see [`.github/workflows/playwright.yml`](https://github.com/hay-chat/hay-core/blob/master/.github/workflows/playwright.yml).
 > Key differences from the simplified example below: the real workflow is triggered by
 > `workflow_dispatch` only (manual run from the Actions tab — it is **not** a merge gate
 > and does not run on push/PR), it also spins up a Redis service and runs database

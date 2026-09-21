@@ -379,8 +379,8 @@ One subtlety worth copying: `onStart` does **not** re-run on reconnect, so Insta
 
 ## References
 
-- [Getting Started](getting-started.md) — plugin anatomy, SDK contract, lifecycle hooks
-- [Quick Reference](quick-reference.md) — `register.*` API signatures
-- [Channel Registration](channel-registration.md) — the sources table and source registration
+- [Getting Started](/docs/technical/plugins/getting-started/) — plugin anatomy, SDK contract, lifecycle hooks
+- [Quick Reference](/docs/technical/plugins/quick-reference/) — `register.*` API signatures
+- [Channel Registration](/docs/technical/plugins/channel-registration/) — the sources table and source registration
 - Core code: `server/routes/v1/plugins/proxy.ts` (ingress), `server/services/webhook-router.service.ts` (shared-webhook fan-out), `server/services/channel-delivery.service.ts` (outbound + escalation), `server/routes/v1/plugin-api/trpc.ts` (plugin → core callbacks)
 - Example plugin: `plugins/core/instagram`
