@@ -129,7 +129,7 @@ By default, conversations are kept indefinitely. If a retention period is config
 
 ### Can I delete conversations?
 
-Conversations are archived rather than deleted for compliance and learning. For privacy requests (GDPR), use the data deletion tool in **Settings** → **Privacy**.
+Conversations can be deleted from the conversation view. If data retention is configured, conversations are automatically anonymized after the retention period. For GDPR deletion requests on behalf of customers, use the data deletion tool in **Settings** → **Customer Privacy**.
 
 ## Integrations
 

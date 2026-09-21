@@ -88,7 +88,7 @@ section: user-guide
 
 **Identify why escalations happen:**
 
-1. Go to **Conversations** and filter by **Escalated** status
+1. Go to **Conversations** and filter by **Escalated** status (this shows conversations requiring human attention, including those with pending-human and human-took-over statuses)
 2. Review escalation reasons
 3. Look for patterns
 
@@ -128,8 +128,8 @@ section: user-guide
 1. **Re-authenticate:**
 
    - Go to **Integrations**
-   - Click **Reconnect**
-   - Sign in again
+   - Go to the plugin's settings page and reconfigure the connection, or disable and re-enable the integration
+   - Sign in again if prompted
    - Authorize permissions
 
 2. **Check credentials:**

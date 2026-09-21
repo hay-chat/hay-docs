@@ -76,7 +76,7 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 
 - Widget position (right or left)
 - Theme colors (blue, green, purple, black)
-- Welcome message
+- Greeting message
 
 ## Managing Integrations
 
@@ -85,7 +85,7 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 **Integrations** in the sidebar is not itself a page — it's a parent item that expands to show a **Marketplace** link plus a link for each plugin you've enabled.
 
 - The **Marketplace** page shows aggregate stats: total plugins, installed count, channels, and MCP connectors
-- Each enabled plugin's own settings page shows its connection status (✅ Connected or ⚠️ Issue)
+- Each enabled plugin's own settings page shows its connection status (✅ Connected or ⚠️ Connection Failed)
 
 ### Configuring an Integration
 
@@ -121,7 +121,7 @@ To remove an integration:
 ### Installing from Marketplace
 
 1. Find the integration you want
-2. Click **Install** or **Connect**
+2. Click **Install**
 3. Follow the setup wizard
 4. Authorize necessary permissions
 5. Test the integration

@@ -66,7 +66,7 @@ Feedback comes from **your team, not from customers**. When a dashboard user rev
 
 Once submitted, the message shows "Feedback recorded" with an **Edit** link to change it later.
 
-Ratings are stored as `good`, `bad`, or `neutral` - there is **no star rating and no 1-5 scale**. End customers cannot rate messages: the webchat widget has no feedback UI. Every rating is recorded with the reviewer who gave it.
+Ratings are stored as `good` or `bad` (a `neutral` value exists in the schema but the feedback UI only offers good and bad) - there is **no star rating and no 1-5 scale**. End customers cannot rate messages: the webchat widget has no feedback UI. Every rating is recorded with the reviewer who gave it.
 
 ### Stats cards
 
@@ -110,7 +110,7 @@ The following pages exist in the product but display **hardcoded demo data**. Do
 
 ### `/analytics` - Analytics
 
-Shows KPI cards (Total Conversations, Resolution Rate, Avg Response Time, Customer Satisfaction), Response Time Distribution, Top Issues, an Agent Performance table, and Channel Performance. All of these figures are demo placeholders, including the star-based satisfaction scores. The timeframe selector, **Export**, and **Refresh** buttons do nothing yet. The two chart areas ("Conversation Volume", "Resolution Rate Trend") are empty placeholders. The only real element is the list of channels itself, which reflects your enabled channel plugins - the metrics next to them do not.
+Shows KPI cards (Total Conversations, Resolution Rate, Avg Response Time, Customer Satisfaction), Response Time Distribution, Top Issues, an Agent Performance table, and Channel Performance. All of these figures are demo placeholders. The Customer Satisfaction KPI card shows a percentage format, while the Agent Performance table uses star-based satisfaction scores. The timeframe selector, **Export**, and **Refresh** buttons do nothing yet. The two chart areas ("Conversation Volume", "Resolution Rate Trend") are empty placeholders. The only real element is the list of channels itself, which reflects your enabled channel plugins - the metrics next to them do not.
 
 ### `/analytics/reports` - Custom Reports
 
@@ -118,7 +118,7 @@ A preview of a report builder (Report Configuration, Metrics Selection, Grouping
 
 ### `/insights` - Insights
 
-Shows sample AI-generated improvement suggestions. Accepting or rejecting them only updates the demo list on screen - nothing is saved - and the page itself displays a "Coming soon" notice.
+Renders a full demo UI with interactive filters, stat cards, and AI-generated improvement suggestions. Accepting or rejecting suggestions only updates the demo list on screen - nothing is saved. The page also displays a "Coming soon" notice alongside the demo content.
 
 ## Common Analytics Questions
 

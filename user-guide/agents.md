@@ -42,7 +42,7 @@ Fill in the essentials:
 
 **Instructions**
 
-Tell your agent how to behave. Write in plain English:
+Tell your agent how to behave using the rich text editor (TipTap). You can format text with headings, lists, bold, and other styling. Write in plain English:
 
 ```
 You are a helpful customer support agent for an online store.
@@ -148,9 +148,11 @@ Control whether the agent's responses are sent automatically or require human re
 2. Under **Message Approval**, select the desired option
 3. Changes take effect for all new conversations with this agent
 
+Playground conversations always send automatically regardless of this setting.
+
 ### Human Escalation
 
-Tell your agent exactly how to handle escalations:
+Tell your agent exactly how to handle escalations. Both handoff instruction fields use a rich text editor (TipTap), so you can format the instructions with headings, lists, bold, and other styling.
 
 **If any human agent is available:**
 

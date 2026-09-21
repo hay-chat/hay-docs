@@ -59,8 +59,8 @@ Understanding what each status means:
 | ------------------- | ---------------------------------------- | ---------------------------- |
 | **Open**            | AI is actively handling the conversation | Agent responds automatically |
 | **Processing**      | AI is thinking and preparing a response  | Wait a few seconds           |
-| **Pending Human** (shown in the UI as "Needs Attention") | Customer needs human help | Appears in your Queue        |
-| **Human Took Over** (shown in the UI as "Manual Control") | A team member is now handling it | AI stops responding          |
+| **Needs Attention** | Customer needs human help | Appears in your Queue        |
+| **Manual Control** | A team member is now handling it | AI stops responding          |
 | **Resolved**        | Issue was solved successfully            | Conversation is complete     |
 | **Closed**          | Conversation ended                       | No further action needed     |
 
@@ -111,7 +111,7 @@ Sometimes you need to step in and handle a conversation yourself.
 
 > **What happens when you take over:**
 >
-> - Status changes to "Human Took Over" (shown in the UI as "Manual Control")
+> - Status changes to "Manual Control"
 > - AI stops generating responses
 > - You can chat directly with the customer
 > - All your messages are logged

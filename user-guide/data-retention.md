@@ -54,7 +54,7 @@ Conversations on legal hold are **exempt from automatic anonymization**, even if
 
 ## Cleanup Schedule
 
-The retention job runs automatically once per day (at 3:00 AM UTC). Each run:
+The retention job runs automatically once per day (at 3:00 AM server time). Each run:
 
 1. Finds all organizations with a retention policy configured
 2. Identifies closed/resolved conversations past the retention window

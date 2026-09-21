@@ -160,7 +160,7 @@ Status is set when you create the playbook:
 
 Click **Create Playbook**
 
-> **What's live vs. what's versioned:** Identity fields — **Title**, **Trigger**, **Description**, and **Assigned Agents** — save immediately when you click **Save Changes** and take effect right away, no publishing required. Only the **Instructions** content goes through draft/publish versioning: edits to Instructions auto-save to a hidden draft, and the agent keeps using the last published version until you click **Publish**, which sets the playbook's status to **Active** and creates an immutable snapshot of the Instructions at that point in time.
+> **What's live vs. what's versioned:** Identity fields — **Title**, **Trigger**, **Description**, and **Assigned Agents** — save immediately when you click **Save Changes** and take effect right away, no publishing required. Only the **Instructions** content goes through draft/publish versioning: edits to Instructions auto-save to a hidden draft, and the agent keeps using the last published version until you click **Publish**, which sets the playbook's status to **Active** and creates an immutable snapshot of the Instructions at that point in time. You can browse previous versions in the **Version History** panel, roll back to an earlier published version, or discard a draft to revert to the live version.
 >
 > **Coming Soon:** There is currently no UI control to archive a playbook after creation. This capability is planned.
 
@@ -240,7 +240,7 @@ You can assign playbooks to specific agents from the playbook editor:
 2. In the sidebar, check the agents under **Assigned Agents**
 3. Click **Save Changes**
 
-**If no agents assigned:** The playbook defaults to the organization's default agent.
+**Note:** Agent assignment is organizational metadata for your own reference. All active playbooks are evaluated for every conversation regardless of which agents are assigned — the orchestrator retrieves all active playbooks and scores them against the conversation context.
 
 ## Managing Playbooks
 
