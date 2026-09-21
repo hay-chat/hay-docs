@@ -105,7 +105,6 @@ Request a copy of all your personal data in JSON format. The export includes:
 
 - Profile information (email, name, account settings)
 - Organization memberships and roles
-- API keys metadata (no secrets included)
 - Audit logs (last 1000 events)
 - Documents and content you've created
 
@@ -116,7 +115,7 @@ Exports typically take less than 5 minutes; you'll receive an email with a downl
 Permanently delete your account and associated data:
 
 - Your account is permanently deactivated
-- All API keys are revoked
+- Your access to the organization's API keys is removed (API keys are organization-scoped, not user-scoped)
 - Personal information is removed or anonymized
 - Some audit logs may be retained (anonymized) for compliance
 

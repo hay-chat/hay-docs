@@ -293,7 +293,6 @@ Yes. Hay provides tools for:
 - Data access requests
 - Data deletion (right to be forgotten)
 - Data portability (export)
-- Data portability
 - Consent management
 
 ### Can I control who accesses what?

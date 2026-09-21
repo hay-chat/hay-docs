@@ -18,7 +18,7 @@ Only the Dashboard has a sidebar entry. There is no Analytics or Insights entry 
 
 ## Real Metrics (Dashboard)
 
-The Dashboard shows metrics calculated from your actual conversations. All of them accept a date range filter and default to the last 30 days:
+The Dashboard shows metrics calculated from your actual conversations. **Total Conversations**, **Resolution Rate**, and **Avg Messages per Conversation** accept a date range filter and default to the last 30 days. **Active Agents** always shows the current snapshot and is not affected by the date filter.
 
 **Metric Cards**
 
@@ -46,6 +46,8 @@ Your knowledge base documents grouped by processing status.
 - **Active Conversations** - live widget showing currently active conversations
 - **Escalations** - conversations that have been escalated
 - **Attention Needed** - conversations requiring attention
+
+> **Note:** The per-agent resolution rate shown in the Top Performing Agents widget is currently placeholder/demo data, randomized between 90-99%. Real per-agent resolution analytics are still being developed.
 
 > **Not yet implemented:** Response time analytics exist as an API endpoint but currently always return zero - the calculation is a placeholder. Any "average response time" figure you see in the product is not real data yet.
 

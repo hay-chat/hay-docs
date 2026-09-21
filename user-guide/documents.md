@@ -80,8 +80,11 @@ After upload:
 
 - Give document a clear title
 - Add a description (what information does it contain?)
-- Select a **type** from the dropdown — this sets the document's type as shown in the documents list. The dropdown options map as follows: product = Guide, api = Reference, faq = FAQ, legal = Policy, training = Tutorial, technical = Reference, other = Article
-- Set the document status: **Draft**, **Published**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually.
+- Select a **category** from the dropdown: product, api, faq, legal, training, technical, or other
+
+  > **Note:** Category isn't a separate field stored alongside Type — it maps directly to the document's **Type** (see [Viewing Documents](#viewing-documents)). "API" and "Technical" both map to the **Reference** type.
+
+- Set the document status: **Draft**, **Published**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually. A document can also briefly be in an internal **Under Review** state, which isn't user-selectable.
 - Click **Save**
 
 ## Types of Documents to Upload
@@ -210,9 +213,9 @@ Refunds: 30 days. See mgr for exceptions.
 
 ### Organizing Documents
 
-Use the **type** dropdown when importing a document to keep your knowledge base organized. The dropdown option you select determines the document type shown in the documents list:
+Use the **Category** dropdown when importing a document to keep your knowledge base organized. The category you select determines the document type shown in the documents list:
 
-| Dropdown option | Document type |
+| Category | Document type |
 |-----------------|---------------|
 | **product** | Guide |
 | **api** | Reference |
@@ -221,6 +224,8 @@ Use the **type** dropdown when importing a document to keep your knowledge base 
 | **training** | Tutorial |
 | **technical** | Reference |
 | **other** | Article |
+
+> **Note:** Category isn't a persisted field of its own — it's just how the upload form sets the document's **Type**. Each category maps directly to a Type value, and both **api** and **technical** map to **Reference**.
 
 ### Keep Documents Updated
 
@@ -249,7 +254,7 @@ Go to **Documents** to see all uploaded content.
 - **Name** - Document title
 - **Type** - The document's content type (Article, Guide, FAQ, Tutorial, Reference, Policy)
 - **Source** - Where the document came from (upload, URL crawl, etc.)
-- **Status** - Draft, Published, Archived, Processing, or Error
+- **Status** - Draft, Published, Archived, Processing, or Error (documents can also briefly hold an internal **Under Review** status, which isn't user-selectable)
 - **Last Modified** - When the document was last updated
 
 ### Editing Documents

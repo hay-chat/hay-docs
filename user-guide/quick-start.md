@@ -87,8 +87,9 @@ Playbooks are step-by-step instructions for handling specific situations.
 3. Set up the basics:
 
    - **Title:** "Welcome New Customers"
-   - **Trigger:** A free-text description of when this playbook should activate (up to 250 characters), e.g. "Customer asks about order status or shipping updates"
+   - **Trigger:** "This playbook activates when the customer greets or says hello"
    - **Instructions:** What should happen when triggered
+   - **Status:** Set to "Active" (playbooks default to "Draft" and won't trigger until activated)
 
 4. Write instructions in plain language:
 
@@ -98,7 +99,7 @@ Playbooks are step-by-step instructions for handling specific situations.
    If they need help with products, provide relevant information.
    ```
 
-5. Click **Create Playbook**
+5. Confirm **Status** is set to "Active", then click **Create Playbook**
 
 > **Common playbook examples:**
 >

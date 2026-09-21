@@ -209,7 +209,7 @@ When contributing to Hay:
 
 ### Learning Resources
 
-- **[Architecture Guide](/docs/technical/architecture)** - System design details
+- **[Architecture Guide](/docs/technical/architecture/)** - System design details
 - **[Plugin Development](/docs/technical/plugins/getting-started/)** - Build your first plugin
 - **[Contributing Guide](/docs/technical/)** - How to contribute
 

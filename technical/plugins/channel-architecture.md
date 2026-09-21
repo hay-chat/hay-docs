@@ -361,7 +361,7 @@ One subtlety worth copying: `onStart` does **not** re-run on reconnect, so Insta
 
 1. `package.json`: `category: "channel"`, `channel: "<slug>"`, `capabilities: ["messages", "customers"]`.
 2. `onInitialize`: `register.config` + `register.auth.*`; `register.route("POST", "/webhook", …)` and `register.route("POST", "/deliver", …)`.
-3. If the provider uses one shared webhook URL with no tenant identifier: `register.webhookRouting(...)` + return routing keys from `onConnected`. Otherwise, verify per-instance signatures yourself using the raw bytes from `x-original-body-base64` / `x-original-url` (see `plugins/core/chatwoot` for the reference implementation: HMAC-SHA256 with `timingSafeEqual` and a replay window).
+3. If the provider uses one shared webhook URL with no tenant identifier: `register.webhookRouting(...)` + return routing keys from `onConnected`. Otherwise, verify per-instance signatures yourself using the raw bytes from `x-original-body-base64` / `x-original-url` (see `plugins/core/chatwoot` for the reference implementation: HMAC-SHA256 with `timingSafeEqual` and a replay window — note that Chatwoot's own inbound route is registered at `/messages`, not `/webhook`, matching Chatwoot's "Agent Bot" terminology; `/webhook` is only a convention other plugins are free to deviate from, so follow Chatwoot for the signature-verification pattern, not the route name).
 4. Inbound: filter echoes and out-of-scope events, then call `messages.receive` with a channel-scoped `from` and — **always** — the provider message ID in `metadata.mid` so core can dedupe redeliveries.
 5. Outbound: implement `/deliver` with the 200-`success:false` convention for permanent provider errors.
 6. Optionally implement `/escalate` for provider-side human handoff.
@@ -379,8 +379,8 @@ One subtlety worth copying: `onStart` does **not** re-run on reconnect, so Insta
 
 ## References
 
-- [Getting Started](getting-started.md) — plugin anatomy, SDK contract, lifecycle hooks
-- [Quick Reference](quick-reference.md) — `register.*` API signatures
-- [Channel Registration](channel-registration.md) — the sources table and source registration
+- [Getting Started](/docs/technical/plugins/getting-started/) — plugin anatomy, SDK contract, lifecycle hooks
+- [Quick Reference](/docs/technical/plugins/quick-reference/) — `register.*` API signatures
+- [Channel Registration](/docs/technical/plugins/channel-registration/) — the sources table and source registration
 - Core code: `server/routes/v1/plugins/proxy.ts` (ingress), `server/services/webhook-router.service.ts` (shared-webhook fan-out), `server/services/channel-delivery.service.ts` (outbound + escalation), `server/routes/v1/plugin-api/trpc.ts` (plugin → core callbacks)
 - Example plugin: `plugins/core/instagram`

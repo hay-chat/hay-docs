@@ -66,7 +66,7 @@ Each plugin can:
 
 #### 4. Real-Time & Background Messaging
 
-There is no single event bus module. Real-time events are published to Redis pub/sub channels via `ConversationEventsService`. Background processing tasks are queued via RabbitMQ (`rabbitmqService`) and a Redis-backed `JobQueueService`.
+There is no single event bus module. Real-time events are published to Redis pub/sub channels via `ConversationEventsService`. Background processing tasks are queued via RabbitMQ (`rabbitmqService`) and a Postgres-backed `JobQueueService` (using `SKIP LOCKED`), with Redis pub/sub used for status-update notifications.
 
 #### 5. Data Layer
 

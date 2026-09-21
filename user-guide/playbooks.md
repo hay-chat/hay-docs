@@ -160,7 +160,7 @@ Status is set when you create the playbook:
 
 Click **Create Playbook**
 
-> **Draft/Publish versioning:** Clicking **Save Changes** creates or updates a draft of the playbook. To make a version live, publish it — publishing sets the playbook's status to **Active** and creates an immutable snapshot of the playbook at that point in time. Subsequent edits start a new draft without affecting the published version. You can browse previous versions in the **Version History** panel, roll back to any earlier published version, or discard a draft to revert to the current live version.
+> **What's live vs. what's versioned:** Identity fields — **Title**, **Trigger**, **Description**, and **Assigned Agents** — save immediately when you click **Save Changes** and take effect right away, no publishing required. Only the **Instructions** content goes through draft/publish versioning: edits to Instructions auto-save to a hidden draft, and the agent keeps using the last published version until you click **Publish**, which sets the playbook's status to **Active** and creates an immutable snapshot of the Instructions at that point in time. You can browse previous versions in the **Version History** panel, roll back to an earlier published version, or discard a draft to revert to the live version.
 >
 > **Coming Soon:** There is currently no UI control to archive a playbook after creation. This capability is planned.
 
@@ -250,11 +250,11 @@ You can assign playbooks to specific agents from the playbook editor:
 2. Make your changes
 3. Click **Save Changes**
 
-Saving creates a new draft. Publish to make the updated version live.
+**Save Changes** applies immediately to Title, Trigger, Description, and Assigned Agents — no publishing needed. If you also edited the Instructions, those changes auto-save to a draft and won't affect live conversations until you click **Publish**.
 
 ### Testing a Playbook
 
-A playbook must be **Active** (published) to be evaluated by the agent — Draft playbooks are not matched to conversations. To test safely:
+A playbook must be **Active** (published) to be evaluated by the agent — Draft playbooks are not matched to conversations. Note that this only concerns the Instructions version: changes to the Trigger, Title, and Description take effect immediately on **Save Changes**, so an active playbook can start (or stop) matching conversations right away even without a publish. To test safely:
 
 1. Publish the playbook (or create a narrow-trigger test version)
 2. Create a test conversation via the **Conversation Playground**
