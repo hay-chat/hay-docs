@@ -44,7 +44,7 @@ Find specific conversations quickly:
 
 **Filter by:**
 
-- **Status** - All Status, Open, Processing, Needs Attention, Manual Control, Resolved, Closed
+- **Status** - All Status, Active, Resolved, Escalated, Closed
 - **Timeframe** - Today, This Week, This Month, All Time (preset options)
 
 > **Note:** The timeframe filter is not yet functional — selecting a timeframe currently has no effect. Channel and agent filters are planned but not yet available.
