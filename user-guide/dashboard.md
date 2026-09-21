@@ -23,7 +23,7 @@ Below the KPI cards you'll also find:
 - **Human escalations** - escalation counts for today and this week
 - **Attention Needed** - conversations awaiting a human response
 - **Sentiment Score Gauge** - an overall sentiment score for the selected period
-- **Sentiment Breakdown** - the split of positive, neutral, and negative conversations
+- **Sentiment Breakdown** - the split of positive, neutral, and negative messages
 - **Document Status Overview** - your knowledge base documents grouped by status
 
 ## Understanding Your Metrics
@@ -95,9 +95,10 @@ See conversations waiting for human attention. The Queue is accessible at `/queu
 
 ## Real-Time Updates
 
-Your dashboard updates automatically:
+Your dashboard updates automatically, but not all widgets:
 
-- Real-time updates via WebSocket are planned but not yet fully implemented. Currently, refresh the page to see the latest data.
+- **Active Conversations** and **Attention Needed** update live via WebSocket events, with a 30-second polling fallback if the WebSocket connection drops.
+- KPI cards, the **Activity** chart, and the **Sentiment** widgets do not update live - refresh the page to see the latest data for these.
 
 ## Customizing Your View
 
@@ -142,14 +143,13 @@ When you notice patterns:
 
 Some metrics are calculated every few minutes, not instantly. Refresh your browser to see the latest data.
 
-### What's the difference between "open" and "active"?
+### What are the possible conversation statuses?
 
-- **Open** = conversation started but may be waiting for a response
-- **Active** = actively exchanging messages right now
+Conversations move through these statuses: `open`, `processing`, `pending-human`, `human-took-over`, `resolved`, and `closed`. There is no "active" status.
 
 ### Can I export this data?
 
-Exporting data isn't available from the Dashboard page itself. The Analytics Reports page (`/analytics/reports`) supports CSV export, but is not currently accessible from the sidebar navigation — navigate to it directly via URL.
+Exporting data isn't available from the Dashboard page itself. The Analytics Reports page (`/analytics/reports`) has a report-builder UI, but report generation and export are not implemented yet. The only working export today is **Export CSV** on the Feedback Insights page.
 
 ## Next Steps
 

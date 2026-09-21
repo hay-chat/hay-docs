@@ -25,7 +25,7 @@ Go to **Conversations** in the left sidebar to see all your interactions.
 
 - **Conversation** - Title and truncated ID
 - **Channel** - Where the conversation came from (shown when multiple channels are active)
-- **Status** - Current state (Active, Resolved, Escalated, Closed)
+- **Status** - Current state (Open, Processing, Needs Attention, Manual Control, Resolved, Closed)
 - **Assigned To** - Human agent, if the conversation has been taken over
 - **Duration** - How long the conversation has been active
 - **Satisfaction** - Customer satisfaction rating
@@ -48,6 +48,8 @@ Find specific conversations quickly:
 - **Timeframe** - Today, This Week, This Month, All Time (preset options)
 
 > **Note:** The timeframe filter is not yet functional — selecting a timeframe currently has no effect. Channel and agent filters are planned but not yet available.
+
+> **Note:** The "Active" and "Escalated" status filters don't currently match any real conversation status. The filter does a strict equality check against actual status values (`open`, `processing`, `pending-human`, `human-took-over`, `resolved`, `closed`), so selecting "Active" or "Escalated" may return no results.
 
 ## Conversation Statuses
 
@@ -195,19 +197,18 @@ Save a complete record:
 
 ### Messages You'll See
 
-**Customer Types:**
+**Message Types:**
 
-- 💬 Regular message
-- 📎 File or image attachment
-- ⭐ Feedback or rating
-- 🔄 Follow-up question
+- 💬 **Customer** - Message from the customer
+- 🤖 **BotAgent** - AI response
+- 👤 **HumanAgent** - Human agent message
+- ℹ️ **System** - System notification
+- 🛠️ **Tool** - Tool call/result
+- 📄 **Document** - Document reference
+- 📋 **Playbook** - Playbook step
+- 🛒 **ProductRecommendation** - Suggested product(s)
 
-**Agent Types:**
-
-- 🤖 AI response
-- 👤 Human agent message
-- ℹ️ System notification
-- ⚠️ Error or escalation notice
+> **Note:** Feedback (👍/👎) is an action on a BotAgent message, not a separate message type. File and image attachments are shown via a 📎 paperclip icon on the message that carries them, not as their own message type.
 
 ### Handling Attachments
 

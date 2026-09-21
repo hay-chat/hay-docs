@@ -81,7 +81,10 @@ After upload:
 - Give document a clear title
 - Add a description (what information does it contain?)
 - Select a **category** from the dropdown: product, api, faq, legal, training, technical, or other
-- Set the document status: **Draft**, **Published**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually.
+
+  > **Note:** Category isn't a separate field stored alongside Type — it maps directly to the document's **Type** (see [Viewing Documents](#viewing-documents)). "API" and "Technical" both map to the **Reference** type.
+
+- Set the document status: **Draft**, **Published**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually. A document can also briefly be in an internal **Under Review** state, which isn't user-selectable.
 - Click **Save**
 
 ## Types of Documents to Upload
@@ -220,6 +223,8 @@ Use the **category** dropdown when uploading a document to keep your knowledge b
 - **technical** - Troubleshooting guides and technical docs
 - **other** - Everything else
 
+> **Note:** Category isn't a persisted field of its own — it's just how the upload form sets the document's **Type**. Each category maps directly to a Type value, and both **api** and **technical** map to **Reference**.
+
 ### Keep Documents Updated
 
 Set reminders to review:
@@ -247,7 +252,7 @@ Go to **Documents** to see all uploaded content.
 - **Name** - Document title
 - **Type** - The document's content type (Article, Guide, FAQ, Tutorial, Reference, Policy)
 - **Source** - Where the document came from (upload, URL crawl, etc.)
-- **Status** - Draft, Published, Archived, Processing, or Error
+- **Status** - Draft, Published, Archived, Processing, or Error (documents can also briefly hold an internal **Under Review** status, which isn't user-selectable)
 - **Last Modified** - When the document was last updated
 
 ### Editing Documents

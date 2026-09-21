@@ -82,11 +82,10 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 
 ### Viewing Installed Integrations
 
-Go to **Integrations** in the sidebar to see:
+**Integrations** in the sidebar is not itself a page — it's a parent item that expands to show a **Marketplace** link plus a link for each plugin you've enabled.
 
-- All installed integrations
-- Connection status (✅ Connected or ⚠️ Issue)
-- Total plugins, installed count, channels, and MCP connectors
+- The **Marketplace** page shows aggregate stats: total plugins, installed count, channels, and MCP connectors
+- Each enabled plugin's own settings page shows its connection status (✅ Connected or ⚠️ Issue)
 
 ### Configuring an Integration
 
@@ -103,7 +102,7 @@ To adjust settings:
 To remove an integration:
 
 1. Go to the integration
-2. Click **Disconnect** or **Uninstall**
+2. Click **Remove** (from the Marketplace) or **Disable Integration** (from the integration's settings page)
 3. Confirm the action
 4. Integration is removed
 
