@@ -282,7 +282,7 @@ Long term:
 Yes. Hay uses:
 
 - Encryption in transit and at rest
-- Secure password-based authentication (2FA policy toggle available in Settings → Security, backend enforcement in progress)
+- Secure password-based authentication (2FA policy toggle available in Settings → Security via direct URL; backend enforcement in progress, and the Security page is not yet linked in the sidebar navigation)
 - Regular security audits
 - Compliance with data protection regulations
 
@@ -312,7 +312,7 @@ Data is stored in secure, encrypted databases. Contact your account manager for 
 
 ### Can I export my data?
 
-Yes! Go to **Settings** → **Privacy** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Customer Privacy**.
+Yes! Go to **Settings** → **Privacy** to export your own account data (profile, organization memberships, API key metadata, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Customer Privacy**.
 
 > **Note:** Analytics export is not yet available.
 

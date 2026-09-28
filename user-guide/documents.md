@@ -84,7 +84,7 @@ After upload:
 
   > **Note:** Category isn't a separate field stored alongside Type — it maps directly to the document's **Type** (see [Viewing Documents](#viewing-documents)). "API" and "Technical" both map to the **Reference** type.
 
-- Set the document status: **Draft**, **Published**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually. A document can also briefly be in an internal **Under Review** state, which isn't user-selectable.
+- Check the **Make available immediately** checkbox to publish the document right away, or leave it unchecked to save as Draft. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually. A document can also briefly be in an internal **Under Review** state, which isn't user-selectable.
 - Click **Save**
 
 ## Types of Documents to Upload
@@ -259,11 +259,11 @@ Go to **Documents** to see all uploaded content.
 
 ### Editing Documents
 
-To update existing document:
+To update an existing document:
 
 1. Click on the document
-2. Click **Edit**
-3. Update content
+2. For documents created via the **Write Document** editor, click **Edit** to modify the content. For uploaded or web-imported documents, the content is read-only.
+3. Title and status can be changed for all documents from the detail page.
 4. Click **Save**
 
 Changes are reflected immediately.
@@ -279,7 +279,7 @@ Use the search bar to find specific documents:
 
 You can mark a document as **Archived** from the documents list without deleting it, using the archive action on each row or in bulk.
 
-> ⚠️ **Note:** Archiving from the documents list is not yet fully functional — the action currently only updates what you see on screen and does not persist to the backend. Don't rely on it yet to keep a document out of use.
+> ⚠️ **Note:** Archiving via the row action on the documents list is not yet fully functional — the action currently only updates what you see on screen and does not persist to the backend. However, you can change a document's status to Archived from the document detail page using the status dropdown, which does persist.
 
 ### Deleting Documents
 

@@ -142,7 +142,7 @@ Repositories extend `BaseRepository<T>` (a generic TypeORM wrapper) — no inter
 #### TypeScript Usage
 
 - **Strict mode enabled**: No implicit any
-- **Explicit return types**: For all public functions
+- **Explicit return types**: For all public functions (aspirational — not consistently enforced yet)
 - **Discriminated unions**: For state management
 - **Branded types**: For IDs and sensitive data (aspirational pattern — not yet implemented in the codebase; IDs are currently plain strings)
 
@@ -154,14 +154,14 @@ Repositories extend `BaseRepository<T>` (a generic TypeORM wrapper) — no inter
 - **Minimum 80% coverage**: For new code (aspirational target — not currently enforced via CI)
 
 ```typescript
-describe("AutomationService", () => {
-  it("should trigger rule when conditions match", async () => {
+describe("AnalyticsService", () => {
+  it("should return metrics for the given date range", async () => {
     const service = setupService();
-    const rule = createTestRule();
+    const range = { startDate: new Date("2024-01-01"), endDate: new Date("2024-01-31") };
 
-    const result = await service.evaluate(rule, testConversation);
+    const result = await service.getMetrics(orgId, range);
 
-    expect(result.triggered).toBe(true);
+    expect(result.totalConversations).toBeGreaterThanOrEqual(0);
   });
 });
 ```
@@ -175,26 +175,24 @@ describe("AutomationService", () => {
 
 ````typescript
 /**
- * Evaluates automation rules against a conversation.
+ * Retrieves analytics metrics for an organization within a date range.
  *
- * @param rule - The automation rule to evaluate
- * @param conversation - The conversation context
- * @returns Evaluation result with actions to execute
+ * @param organizationId - The organization to query
+ * @param options - Date range and optional filters
+ * @returns Aggregated metrics including conversation counts and resolution rates
  *
- * @throws {ValidationError} If rule or conversation is invalid
+ * @throws {ValidationError} If date range is invalid
  *
  * @example
  * ```ts
- * const result = await evaluate(rule, conversation);
- * if (result.matched) {
- *   await executeActions(result.actions);
- * }
+ * const metrics = await getMetrics(orgId, { startDate, endDate });
+ * console.log(`Resolution rate: ${metrics.resolutionRate}%`);
  * ```
  */
-async function evaluate(
-  rule: AutomationRule,
-  conversation: Conversation,
-): Promise<EvaluationResult>;
+async function getMetrics(
+  organizationId: string,
+  options: MetricsOptions,
+): Promise<AnalyticsMetrics>;
 ````
 
 ### Contribution Guidelines

@@ -157,7 +157,7 @@ Observability is currently limited to structured logging. The following metrics 
 
 #### Logging
 
-Structured logging with correlation IDs:
+Structured logging with module scoping and automatic PII redaction:
 
 ```typescript
 logger.info({ conversationId: '123', action: 'create', duration: 45 }, 'Processing conversation');

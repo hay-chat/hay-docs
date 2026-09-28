@@ -49,7 +49,7 @@ Backend:
 - Multi-provider AI (OpenAI, Anthropic, Google Gemini) for embeddings and chat
 
 Infrastructure:
-- Docker for containerization
+- Docker for development infrastructure (PostgreSQL, Redis, RabbitMQ)
 - GitHub Actions for CI/CD
 ```
 

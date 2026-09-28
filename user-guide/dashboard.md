@@ -97,7 +97,7 @@ See conversations waiting for human attention. The Queue is accessible at `/queu
 
 Your dashboard updates automatically, but not all widgets:
 
-- **Active Conversations** and **Attention Needed** update live via WebSocket events, with a 30-second polling fallback if the WebSocket connection drops.
+- **Active Conversations** updates live via WebSocket events, with 30-second polling that always runs as a baseline. **Attention Needed** updates live via WebSocket events but has no polling fallback. **Escalations** updates via 30-second polling only (no WebSocket).
 - KPI cards, the **Activity** chart, and the **Sentiment** widgets do not update live - refresh the page to see the latest data for these.
 
 ## Customizing Your View
