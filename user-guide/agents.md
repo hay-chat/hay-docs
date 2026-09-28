@@ -37,6 +37,7 @@ Fill in the essentials:
 
 - What does this agent handle?
 - Example: "Handles order questions, shipping inquiries, and basic product information"
+- Your description helps Hay choose the right agent for each conversation (see Trigger Conditions), but it is not shown to customers or included in the agent's conversation context
 
 ### Step 3: Configure Behavior
 
@@ -262,6 +263,7 @@ _Technical Support_
 
 Go to **Analytics** and scroll to the **Agent Performance** table to see:
 
+- **Agent** - The agent name
 - **Conversations** - Total volume per agent
 - **Resolution Rate** - How many issues they solved
 - **Avg Response Time** - Speed of responses

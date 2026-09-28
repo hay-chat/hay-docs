@@ -83,12 +83,12 @@ Teach your agent by uploading your existing support materials.
 Playbooks are step-by-step instructions for handling specific situations.
 
 1. Go to **Playbooks** in the left sidebar
-2. Click the **+ icon** or **Generate Playbook**
+2. Click the **+** button to create a playbook manually, or click **Generate Playbook** to use the AI wizard
 3. Set up the basics:
 
    - **Title:** "Welcome New Customers"
    - **Trigger:** "This playbook activates when the customer greets or says hello"
-   - **Instructions:** What should happen when triggered
+   - **Instructions:** Define the playbook's behavior using the rich text editor (supports formatting, action references, and document links)
    - **Status:** Set to "Active" (playbooks default to "Draft" and won't trigger until activated)
 
 4. Write instructions in plain language:
@@ -135,13 +135,13 @@ Your Hay agent is now ready to start helping customers!
 
 - **Automatic responses:** Your agent handles incoming questions instantly
 - **Human escalation:** Complex issues are automatically sent to your team
-- **Continuous learning:** Your agent gets smarter with every conversation
+- **Continuous improvement:** Review conversations and update your documents and playbooks to keep improving responses
 
 ### Next Steps
 
 Now that you're up and running:
 
-1. **Monitor the Queue** - Visit `/queue` to check for conversations that need human attention
+1. **Monitor the Queue** - Visit `/queue` (accessible via direct URL) to check for conversations that need human attention
 2. **Review Dashboard** - See how your agent is performing at a glance
 3. **Add More Documents** - Keep training your agent with new information
 4. **Create More Playbooks** - Automate more types of requests

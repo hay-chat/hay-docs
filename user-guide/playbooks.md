@@ -268,7 +268,7 @@ A playbook must be **Active** (published) to be evaluated by the agent — Draft
 
 ### Deactivating a Playbook
 
-> **Coming Soon:** There is currently no UI control to archive a playbook after creation. Status is set when the playbook is created (**Draft**) and moves to **Active** when published. Until archiving is available, keep a playbook's trigger narrow or remove its instructions to stop it from being used.
+> **Coming Soon:** There is currently no UI control to archive a playbook after creation. Status can be set when the playbook is created (default: **Draft**, but **Active** and **Archived** are also available in the create dropdown) and moves to **Active** when published. Until a dedicated archiving action is available, use the status dropdown on the playbook edit page to change status.
 
 ## Common Playbook Templates
 

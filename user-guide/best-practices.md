@@ -592,7 +592,7 @@ Test changes before rolling out everywhere:
 
 **Do:**
 
-- ✅ Use strong passwords and 2FA
+- ✅ Use strong passwords (2FA is not yet available in Hay)
 - ✅ Limit access to what each person needs
 - ✅ Review user access quarterly
 - ✅ Log out when leaving computer
