@@ -98,7 +98,7 @@ Create `plugins/core/nasa/package.json`:
 
 Key points:
 
-- **`name`** is the plugin ID used everywhere (API calls, worker routing, UI asset paths). The convention is `hay-plugin-<name>` for integrations and `hay-channel-<name>-<provider>` for channels.
+- **`name`** is the plugin ID used everywhere (API calls, worker routing, UI asset paths). The convention is `hay-plugin-<name>` for integrations and `hay-channel-<channel>[-<provider>]` for channels (the provider suffix is used when the channel rides on a separate platform, e.g. `hay-channel-whatsapp-twilio`, `hay-channel-instagram-meta`, but omitted when the channel is the platform itself, e.g. `hay-channel-chatwoot`).
 - **`hay-plugin`** is what makes this directory a plugin — the discovery loop in `server/services/plugin-manager.service.ts` skips any directory without it.
 - **`category`** must be one of `integration | channel | tool | analytics | products`.
 - **`capabilities`** are declarative: `mcp | auth | config | ui | routes | cron | products` (channels additionally use `messages`, `customers`, `sources`). They drive marketplace classification and the scope of the JWT the worker uses to call back into core.
@@ -249,6 +249,7 @@ What's happening here:
 - **`onValidateAuth`** is invoked by core when the user saves credentials. Do a real API round-trip and return `true`/`false`. If the hook throws, the runner catches it and treats the result as invalid — the message lands in the worker log, and the dashboard shows a generic "Auth validation failed" error. If you don't implement the hook at all, credentials are assumed valid.
 - **`onStart`** runs per org whenever the worker starts (including respawns after idle-kill). Credentials may legitimately be absent — a user can enable a plugin before configuring it — so gate and return instead of throwing.
 - Config and credentials arrive through `ctx.config` / `ctx.auth`, **not** through `process.env` in the entry. Core injects them into the worker; per-org secrets never sit in raw host environment variables.
+- **`onConnected`** is called by core right after OAuth tokens are stored. Return routing keys for shared-webhook fan-out, and optionally an `account` for dashboard display. Only relevant for OAuth plugins (Archetype B/C with OAuth); omit it for API-key-only plugins.
 - Do **not** implement `onEnable` — it exists in the SDK types but the runner never calls it.
 
 ### Step 5: Write the MCP Server
@@ -442,7 +443,7 @@ core server
   └─ spawns per (org, plugin):  node packages/plugin-sdk/dist/runner/index.js
        ├─ env: HAY_ORG_CONFIG, HAY_ORG_AUTH   (your config + credentials)
        ├─ env: HAY_API_URL, HAY_API_TOKEN     (scoped JWT to call back into core)
-       ├─ HTTP: /metadata /validate-auth /config-update /disable /mcp/*  ← core calls these
+       ├─ HTTP: /health /metadata /validate-auth /on-connected /config-update /disable /cron/:name /mcp/*  ← core calls these
        └─ your onStart → spawns mcp/index.js over stdio
 ```
 
