@@ -341,7 +341,7 @@ This helps with:
 1. Consolidate similar documents
 2. Use clear naming convention
 3. Archive old/unused documents
-4. Use tags effectively
+4. Review and remove outdated content regularly
 
 ## Document Checklist
 

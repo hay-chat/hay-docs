@@ -24,7 +24,7 @@ Below the KPI cards you'll also find:
 - **Attention Needed** - conversations awaiting a human response
 - **Sentiment Score Gauge** - an overall sentiment score for the selected period
 - **Sentiment Breakdown** - the split of positive, neutral, and negative messages
-- **Document Status Overview** - your knowledge base documents grouped by status
+- **Knowledge Base** - your knowledge base documents grouped by status
 
 ## Understanding Your Metrics
 
@@ -97,8 +97,10 @@ See conversations waiting for human attention. The Queue is accessible at `/queu
 
 Your dashboard updates automatically, but not all widgets:
 
-- **Active Conversations** and **Attention Needed** update live via WebSocket events, with a 30-second polling fallback if the WebSocket connection drops.
-- KPI cards, the **Activity** chart, and the **Sentiment** widgets do not update live - refresh the page to see the latest data for these.
+- **Active Conversations** updates live via WebSocket events (`conversation_updated`, `conversation_created`), with a 30-second polling fallback if the WebSocket connection drops.
+- **Attention Needed** updates live via WebSocket events (`conversation_updated`, `message_received`) but has no polling fallback.
+- **Human Escalations** polls every 30 seconds (no WebSocket).
+- KPI cards, the **Activity** chart, and the **Sentiment** widgets do not update live — use the Refresh button or reload the page to see the latest data.
 
 ## Customizing Your View
 

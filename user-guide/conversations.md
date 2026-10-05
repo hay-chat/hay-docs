@@ -85,11 +85,12 @@ For each AI response, you can see:
 
 ### Conversation Info Panel
 
-On the right side, view:
+The right sidebar shows four cards:
 
-- **Customer details** - Name, email, history
-- **Conversation metadata** - Channel, start time, duration
-- **Agent info** - Which agent handled this
+- **Customer Information** - Name, avatar, channel, email, phone, first seen date, and status
+- **Conversation Details** - Agent, status, message count, created date, updated date, and legal hold toggle
+- **Previous Conversations** - Other conversations from the same customer
+- **Related Documents** - Documents linked to the conversation
 
 ## Taking Over a Conversation
 

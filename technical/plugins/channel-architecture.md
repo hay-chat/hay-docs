@@ -143,6 +143,12 @@ register.webhookRouting({
     itemsPath: "entry", // dot-path to the array of items
     keyPath: "id", // dot-path within each item to the routing key
   },
+  deauthorization: {
+    format: "signed-request",
+    param: "signed_request",
+    secretEnv: "META_APP_SECRET",
+    keyPath: "user_id",
+  },
 });
 ```
 
@@ -161,8 +167,8 @@ async onConnected(ctx) {
   const client = new GraphClient({ logger: ctx.logger });
   // (the real handler also refreshes the worker's closure-held token/client
   //  and re-subscribes the account to the app's webhooks — see below)
-  const routingKeys = await client.getConnectedAccountIds(token);
-  return { routingKeys };
+  const connected = await client.getConnectedAccount(token);
+  return { routingKeys: connected.ids, account: { label: connected.username ?? connected.ids[0] } };
 }
 ```
 
