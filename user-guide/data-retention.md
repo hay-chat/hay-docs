@@ -24,14 +24,14 @@ When a conversation passes the retention window, Hay **anonymizes** it rather th
 - Linked document references
 - Associated vector embeddings
 
-**Preserved (for analytics):**
+**Preserved (record structure):**
 
 - Timestamps (created, closed, updated)
 - Conversation status and channel
 - Agent assignment
 - Organization ID
 
-After anonymization, the conversation record remains with the title `[Anonymized]` and a `deleted_at` timestamp. This lets you keep aggregate metrics (resolution times, volume trends, channel distribution) without retaining any personal data.
+After anonymization, the conversation record remains with the title `[Anonymized]` and a `deleted_at` timestamp. Note that anonymized conversations are **excluded from Dashboard analytics** (Total Conversations, Resolution Rate, Activity chart) because the analytics queries filter on `deleted_at IS NULL`.
 
 ## Configuring Retention
 
@@ -47,8 +47,8 @@ Sometimes you need to preserve a specific conversation regardless of your retent
 
 **To place a conversation on legal hold:**
 
-1. Open the conversation
-2. Use the legal hold toggle to enable it
+1. Open the conversation detail panel
+2. Use the **Legal Hold** toggle to enable it
 
 Conversations on legal hold are **exempt from automatic anonymization**, even if they exceed the retention period. They remain fully intact until the hold is removed.
 
@@ -59,10 +59,10 @@ The retention job runs automatically once per day (at 3:00 AM server time). Each
 1. Finds all organizations with a retention policy configured
 2. Identifies closed/resolved conversations past the retention window
 3. Skips conversations on legal hold
-4. Deletes associated embeddings from the vector store
+4. Deletes associated embeddings from the vector store (best-effort — if deletion fails, anonymization still proceeds)
 5. Deletes all messages
 6. Anonymizes the conversation record
-7. Writes an entry to the audit log
+7. Writes an entry to the audit log (one entry per organization that had conversations anonymized; a failure entry is written if an organization errors)
 
 If an error occurs while processing one organization, the job continues with the remaining organizations.
 
@@ -88,7 +88,7 @@ The new period takes effect on the next daily run. Conversations that already ex
 No. Anonymization permanently removes personal data. This is by design — GDPR requires that deleted data cannot be recovered.
 
 **Does retention affect analytics?**
-Aggregate analytics (conversation volume, resolution times, channel breakdown) are preserved. Per-conversation details and message content are not.
+Yes — anonymized conversations are excluded from Dashboard metrics (they have a `deleted_at` timestamp, which analytics queries filter out). Per-conversation details and message content are permanently removed.
 
 **What about customer data exports?**
 You can initiate customer data export requests via **Settings** → **Customer Privacy**. The export is delivered to the customer's email with a secure download link. If a conversation has already been anonymized, it will not appear in the export.

@@ -43,7 +43,7 @@ Backend:
 - Node.js with Express
 - tRPC for type-safe APIs
 - TypeORM for database access
-- PostgreSQL for data persistence
+- PostgreSQL with pgvector for data persistence and vector search
 - Redis for caching and real-time features
 - RabbitMQ (amqplib) for message queues
 - Multi-provider AI (OpenAI, Anthropic, Google Gemini) for embeddings and chat
@@ -82,8 +82,14 @@ Choose your path:
 
 - **[Architecture](/docs/technical/architecture/)** - Understand Hay's design
 - **[Philosophy](/docs/technical/philosophy/)** - Learn our design principles
+- **[Guardrails](/docs/technical/guardrails/)** - AI confidence and safety guardrails
+- **[Context API](/docs/technical/context-api/)** - Pass end-user information into conversations
+- **[Logging Guide](/docs/technical/LOGGER/)** - Structured, PII-redacting logging
 - **[Plugin Development](/docs/technical/plugins/getting-started/)** - Build your first plugin
 - **[API Reference](/docs/technical/plugins/api-reference/)** - Integrate with Hay's API
+- **[Plugin Quick Reference](/docs/technical/plugins/quick-reference/)** - Fast reference for plugin development
+- **[Channel Architecture](/docs/technical/plugins/channel-architecture/)** - How channel plugins work
+- **[Channel Registration](/docs/technical/plugins/channel-registration/)** - Registering communication channels
 
 ### Community
 

@@ -174,7 +174,7 @@ Use this when you want public context to survive across conversations. Instead o
 
 **Step 1: Store public context against the customer from your backend**
 
-Call this on user login, signup, or whenever the user's profile changes.
+Call this on user login, signup, or whenever the user's profile changes. The customer record must already exist (created via the dashboard, a prior widget session, or the customers API) — if no customer with that `externalId` exists, the call returns a NOT_FOUND error.
 
 ```js
 await hay.customers.addContext("ext_usr_456", {
@@ -184,11 +184,11 @@ await hay.customers.addContext("ext_usr_456", {
 });
 ```
 
-The `externalId` ("ext_usr_456") is your own user ID — whatever you use in your system.
+The `externalId` ("ext_usr_456") is your own user ID — whatever you use in your system. The context is **merged** into the customer's `external_metadata` — existing keys not included in the call are preserved.
 
 **Step 2: Pass the external ID to the widget**
 
-Inject the user's external ID server-side into your page and pass it to the widget. Hay looks up the customer record and loads their stored context automatically.
+Inject the user's external ID server-side into your page and pass it to the widget. If a customer with that `externalId` exists, Hay loads their stored context automatically. If no matching customer is found, the widget continues without customer context (no error is shown).
 
 ```html
 <script>
@@ -268,7 +268,7 @@ Conversation secrets are stored in Redis with a 24-hour TTL, scoped to the conve
 
 Public context is stored against the customer record using the customer's `externalId`. This is not a secrets endpoint — only non-sensitive data you're comfortable the AI seeing.
 
-Customer context is stored in the `external_metadata` JSONB column on the customer record (not a dedicated `context` column).
+Customer context is stored in the `external_metadata` JSONB column on the customer record (not a dedicated `context` column). The call **merges** the provided context into `external_metadata` — existing keys not included in the call are preserved.
 
 Context is attached via the tRPC mutation `customers.addContext` with input `{ externalId, context: Record<string, unknown> }`:
 
@@ -278,6 +278,19 @@ await hay.customers.addContext("ext_usr_456", {
   plan: "pro",
 });
 ```
+
+### Conversation context
+
+You can also attach public context directly to a conversation via the tRPC mutation `conversations.addContext` with input `{ id: uuid, context: Record<string, unknown> }`. This **merges** the provided context into the conversation's `context` JSONB column.
+
+```js
+await hay.conversations.addContext(conversationId, {
+  userId: user.id,
+  plan: user.plan,
+});
+```
+
+**Context precedence:** When the AI sees context, conversation context overrides customer `external_metadata` on key conflicts (`{...customer.external_metadata, ...conversation.context}`).
 
 ---
 

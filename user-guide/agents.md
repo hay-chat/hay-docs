@@ -21,7 +21,7 @@ You can have multiple agents, each specialized for different needs.
 
 ### Step 1: Navigate to Agents
 
-1. Click **Agents** in the left sidebar
+1. Go to **Settings** → **Agents** in the left sidebar (Admin or Owner role required)
 2. Click **Create Agent** button
 
 ### Step 2: Basic Information
@@ -69,6 +69,8 @@ Choose how your agent should communicate:
 | **Casual**         | Young audience, informal brand | "Hey! No worries, I got you. Let's figure this out together."                |
 | **Enthusiastic**   | Energetic, upbeat brand voice  | "Awesome, let's get this sorted for you right away!"                         |
 
+These are presets that fill an editable text box — you can also write a fully custom tone description.
+
 **Response Language**
 
 Select the language your agent should respond in. Hay supports 33 languages at the backend. The dashboard language picker offers an **Inherit from Organization** option plus 14 selectable languages.
@@ -114,7 +116,7 @@ What brings you in today?
 
 ### Step 5: Enable and Save
 
-- Toggle **Enabled** to activate your agent
+- Toggle **Enable agent** to activate your agent
 - Click **Create Agent**
 
 Your agent is now ready to start handling conversations!
@@ -123,7 +125,7 @@ Your agent is now ready to start handling conversations!
 
 Need to make changes? Easy!
 
-1. Go to **Agents** in the sidebar
+1. Go to **Settings** → **Agents** in the sidebar
 2. Click on the agent you want to edit
 3. Make your changes
 4. Click **Save Changes**

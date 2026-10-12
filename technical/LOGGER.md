@@ -45,7 +45,7 @@ logger.info("Server started");
 | `info`  | Important state changes, startup, success      |
 | `debug` | Diagnostic detail, request tracing, dev output |
 
-Configure via `LOG_LEVEL` environment variable. Defaults to `info` in production and `debug` otherwise.
+Configure via `LOG_LEVEL` environment variable. The effective default is `debug` (set in `config/env.ts`). Set `LOG_LEVEL=info` explicitly in production environments.
 
 ## PII Redaction
 
@@ -55,9 +55,10 @@ All logs are automatically redacted at two layers:
 
 Sensitive fields are replaced with `[REDACTED]` before serialization. The list below is a representative subset; see `server/lib/logger/redaction.ts` for the full source of truth.
 
-- **Credentials**: `password`, `token`, `accessToken`, `refreshToken`, `apiKey`, `secret`, `clientSecret`
-- **Personal data**: `email`, `phone`, `phoneNumber`, `ssn`, `creditCard`, `bankAccount`
-- **Headers**: `headers.authorization`, `headers.cookie`
+- **Credentials**: `password`, `token`, `accessToken`, `refreshToken`, `apiKey`, `secret`, `clientSecret`, `key`, `webhookSecret`
+- **Personal data**: `email`, `phone`, `phoneNumber`, `ssn`, `creditCard`, `bankAccount`, `name`, `firstName`, `lastName`, `address`, `ip`, `ipAddress`, `userAgent`
+- **Headers**: `headers.authorization`, `headers.cookie`, `headers.set-cookie`, `headers.x-api-key`, `headers.proxy-authorization` (and capitalized variants)
+- **Communication**: `to`, `from`, `cc`, `bcc`, `replyTo`, `verificationUrl`, `resetUrl`, `callbackUrl`
 - **Nested**: All of the above at three depths of nesting (`field`, `*.field`, `*.*.field`)
 
 ### Layer 2: Regex-based string redaction (log messages)
@@ -82,8 +83,8 @@ logger.info("Call +1-555-123-4567 for support");
 
 | Variable        | Default        | Description                                         |
 | --------------- | -------------- | --------------------------------------------------- |
-| `LOG_LEVEL`     | `debug`/`info` | Log level (`info` in production, `debug` otherwise) |
-| `DEBUG_MODULES` | `*`            | Module filter for debug output                      |
+| `LOG_LEVEL`     | `debug`        | Log level (set to `info` in production explicitly)                                                                                            |
+| `DEBUG_MODULES` | (unset = `*`)  | Comma-separated list of module names to allow debug output; prefix with `!` to exclude (e.g. `orchestrator,!perception`). Case-insensitive. Modules not in the filter are floored at `info`. |
 
 ## ESLint Enforcement
 

@@ -41,7 +41,7 @@ This shows how many customer conversations your Hay agent has handled.
 
 ### Resolution Rate
 
-The percentage of conversations solved completely by AI without human intervention.
+The percentage of conversations with status `resolved` out of all conversations in the selected date range.
 
 **What's a good resolution rate?**
 
@@ -77,13 +77,11 @@ Click on any conversation to:
 - Take over if needed
 - Review customer feedback
 
-### Check the Queue
+### Check Conversations Needing Attention
 
-See conversations waiting for human attention. The Queue is accessible at `/queue` but does not appear in the main sidebar navigation.
+See conversations waiting for human attention via the **Attention Needed** widget on the dashboard, or filter the Conversations list by the **Needs Attention** status.
 
-- Navigate to `/queue` to view pending conversations
-- Open any conversation to respond
-- Take over to chat directly with the customer
+> **Note:** The `/queue` page exists but shows background job processing status, not customer conversations.
 
 ### Monitor Agents
 
@@ -98,7 +96,8 @@ See conversations waiting for human attention. The Queue is accessible at `/queu
 Your dashboard updates automatically, but not all widgets:
 
 - **Active Conversations** and **Attention Needed** update live via WebSocket events, with a 30-second polling fallback if the WebSocket connection drops.
-- KPI cards, the **Activity** chart, and the **Sentiment** widgets do not update live - refresh the page to see the latest data for these.
+- **Human escalations** polls every 30 seconds.
+- KPI cards, the **Activity** chart, and the **Sentiment** widgets do not update live — refresh the page to see the latest data for these.
 
 ## Customizing Your View
 
@@ -112,7 +111,7 @@ Use the date range selector to choose a preset period (e.g., Last 7 days, Last 3
 
 Spend 2-3 minutes each morning reviewing:
 
-1. Any conversations in the queue
+1. Any conversations needing attention
 2. Resolution rate trends
 3. Unusual spikes or drops in volume
 
@@ -134,8 +133,8 @@ When you notice patterns:
 **Low resolution rate?**
 → Review recent conversations to see where the agent struggles
 
-**Long response times?**
-→ Check if your knowledge base is organized efficiently
+**Customers waiting too long?**
+→ Check if your knowledge base is organized efficiently and review escalation workflows
 
 ## Common Dashboard Questions
 

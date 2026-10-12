@@ -59,7 +59,7 @@ Hay's extensibility mechanism:
 Plugins are defined using `defineHayPlugin()` from `@hay/plugin-sdk`. The manifest (`HayPluginManifest` in `packages/plugin-sdk/types/manifest.ts`) is a minimal `package.json` block declaring entry point, category, and capabilities. Runtime metadata (config schema, auth methods, UI extensions) is exposed via a `/metadata` endpoint and typed as `PluginMetadata` in `/server/types/plugin-sdk.types.ts`.
 
 Each plugin can:
-- Register hooks (`onInitialize`, `onStart`, `onConnected`, `onValidateAuth`, `onConfigUpdate`, `onDisable`, `onEnable`)
+- Register hooks (`onInitialize`, `onStart`, `onConnected`, `onValidateAuth`, `onConfigUpdate`, `onDisable`; `onEnable` is typed but not called by the runner)
 - Expose HTTP routes and MCP tools
 - Add new UI components
 - Access core services
@@ -97,23 +97,18 @@ Hay is designed to scale horizontally:
 - **Background workers**: Scale job processing independently
 - **Database connection pooling**: Efficient query distribution
 
-#### Caching Strategy
+#### Caching & Redis Usage
 
-Multi-layer caching reduces database load:
+Redis is used for real-time messaging and operational state, not as a general-purpose data cache:
 
-```mermaid
-graph LR
-  A["fa:fa-browser Client Cache"] --> B["fa:fa-bolt Redis"] --> C["fa:fa-database Database"]
-
-  style A fill:#e8f3ff,stroke:#568aff,color:#0a155c
-  style B fill:#e8f3ff,stroke:#568aff,color:#0a155c
-  style C fill:#f5f5f5,stroke:#d4d4d4,color:#404040
-```
-
-- **Client**: Browser cache for static assets
-- **Asset Domain**: Optional configurable domain for serving static assets (not a CDN caching layer)
-- **Redis**: In-memory cache for hot data
-- **Database**: Source of truth
+- **Pub/Sub**: `conversation-events` and `websocket:events` channels for real-time updates
+- **Rate Limiting**: Request throttling via `rate-limit.service.ts`
+- **OAuth State**: Temporary storage during OAuth flows
+- **Conversation Secrets**: Ephemeral per-conversation secrets (24-hour TTL)
+- **Job Notifications**: Status updates for background job completion
+- **Channel Delivery**: Message delivery coordination
+- **CDN Domain** (`CDN_DOMAIN` / `config.domain.cdn`): Optional configurable domain for rewriting static asset URLs
+- **Database**: Source of truth for all persistent data
 
 #### Message Queue
 
@@ -131,8 +126,8 @@ Multiple security layers:
 
 1. **Network**: TLS/SSL encryption for all traffic
 2. **Authentication**: JWT with configurable expiration (default 7 days, refresh tokens 30 days)
-3. **Authorization**: Role-based access control (RBAC)
-4. **Input Validation**: Sanitize all user input
+3. **Authorization**: Role-based checks (admin vs user roles)
+4. **Input Validation**: Zod schema validation at tRPC boundaries, plus `sanitize-html` where HTML is processed
 5. **Output Encoding**: Prevent XSS attacks
 6. **Database**: Prepared statements prevent SQL injection
 

@@ -9,10 +9,6 @@ navOrder: 4
 
 # Vector Store Implementation Guide
 
-## ✅ Implementation Complete
-
-This implementation provides pgvector support with multi-tenant vector storage and similarity search for your TypeORM + PostgreSQL application.
-
 This document describes the pgvector integration for embedding storage and similarity search, implemented via raw SQL through TypeORM's `AppDataSource.query` and a custom `llmProviderFactory` for generating embeddings.
 
 ## Setup
@@ -123,15 +119,15 @@ Add text chunks to the vector store.
 
 #### `searchDocuments(organizationId, query, k)`
 
-Search for similar documents within an organization.
+Search for similar documents within an organization. Runs an HNSW top-100 candidate pool, groups results by document, and returns the max similarity per document.
 
-- Returns: Array of results with similarity scores
+- Returns: `Array<{ documentId: string, similarity: number }>`
 
 #### `search(organizationId, query, k)`
 
 Search for similar content within an organization.
 
-- Returns: Array of results with similarity scores
+- Returns: `SearchResult[]` — each result contains `id`, `documentId` (from `metadata.documentId`), `content`, `metadata`, and `similarity` (calculated as `1 - cosine_distance`)
 
 #### `deleteByDocumentId(organizationId, docId, manager?: EntityManager)`
 
@@ -167,7 +163,7 @@ Get embedding statistics for an organization.
 
 ## Switching Embedding Models
 
-To use a different embedding model:
+The embedding dimension is pinned — `assertDimensions()` throws on mismatch, and the column and HNSW index are built for `EMBEDDING_DIM`. Changing models requires a migration:
 
 1. Update `.env`:
 
@@ -176,12 +172,16 @@ OPENAI_EMBEDDING_MODEL=text-embedding-3-large
 EMBEDDING_DIM=3072  # For large model
 ```
 
-2. Create a new migration to update the vector dimension:
+2. Create a new migration that drops the HNSW index, alters the column, and recreates the index:
 
 ```sql
-ALTER TABLE embeddings
-ALTER COLUMN embedding TYPE vector(3072);
+DROP INDEX IF EXISTS embeddings_embedding_hnsw_idx;
+ALTER TABLE embeddings ALTER COLUMN embedding TYPE vector(3072);
+CREATE INDEX embeddings_embedding_hnsw_idx ON embeddings
+  USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 64);
 ```
+
+> **Note:** pgvector HNSW indexes on `vector` columns support at most 2000 dimensions. For `text-embedding-3-large` at 3072 dimensions, you must either use OpenAI's `dimensions` parameter to reduce to 1536, or use `halfvec(3072)`. All existing embeddings must be re-generated after switching models.
 
 ## Switching Distance Metrics
 
@@ -218,14 +218,13 @@ WITH (m = 16, ef_construction = 64);
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS vector;
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
 ```
 
 ### Performance issues
 
 1. Check index usage: `EXPLAIN ANALYZE your_query`
 2. Consider partial indexes for large orgs
-3. Monitor `lists` and `ef_construction` HNSW parameters
+3. Monitor `m`, `ef_construction` and query-time `hnsw.ef_search` HNSW parameters
 
 ### Multi-tenancy concerns
 

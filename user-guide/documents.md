@@ -57,11 +57,13 @@ Think of it like training a new employee by giving them all your company documen
 
 > **Write a document from scratch:** To compose a document directly in Hay without uploading a file, go to **/documents/new** and use the **Write Document** editor.
 
-**Import from URL**
+**Import from Website**
 
-- Paste a website URL and Hay will crawl the entire site — it follows the sitemap and discovers same-domain pages automatically
+- Enter a URL and Hay discovers pages via crawling or sitemap
+- Review discovered pages — you can filter by URL pattern (contains, starts with, ends with, and negations) and deselect pages you don't want
+- Choose document metadata (Type, Status, Visibility: Private/Internal/Public) before importing
+- The website is saved as a synced source and re-synced automatically
 - Useful for importing an existing help center or documentation site
-- All discovered pages are processed and added as separate documents
 
 ### Step 3: Processing
 
@@ -74,18 +76,20 @@ Hay processes your documents:
 
 **Usually takes:** 5-30 seconds depending on size
 
-### Step 4: Review and Organize
+### Step 4: Add Details
 
-After upload:
+For file uploads, the details step comes **before** upload:
 
-- Give document a clear title
-- Add a description (what information does it contain?)
+- Give the document a clear name
 - Select a **category** from the dropdown: product, api, faq, legal, training, technical, or other
 
-  > **Note:** Category isn't a separate field stored alongside Type — it maps directly to the document's **Type** (see [Viewing Documents](#viewing-documents)). "API" and "Technical" both map to the **Reference** type.
+  > **Note:** Category maps directly to the document's **Type** (see [Viewing Documents](#viewing-documents)). "API" and "Technical" both map to the **Reference** type.
 
-- Set the document status: **Draft**, **Published**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually. A document can also briefly be in an internal **Under Review** state, which isn't user-selectable.
-- Click **Save**
+- Add a description (what information does it contain?)
+- Toggle "Make this document immediately available to AI agents" (Published) or leave it off (Draft)
+- Click **Start Upload**
+
+Document status (Draft, Published, Archived) can be changed later on the document detail page. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these are system-managed. The **Under Review** status is available when importing from a website URL.
 
 ## Types of Documents to Upload
 
@@ -270,10 +274,7 @@ Changes are reflected immediately.
 
 ### Searching Documents
 
-Use the search bar to find specific documents:
-
-- Search by title
-- Search by content
+Use the search bar and press Enter or click the Search button to find documents. Search runs both semantic (vector) and keyword-based matching — it is not live filtering.
 
 ### Archiving Documents
 

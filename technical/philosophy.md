@@ -169,7 +169,7 @@ describe("AutomationService", () => {
 #### Documentation
 
 - **TSDoc comments**: On all public APIs
-- **README in each package**: Setup and usage
+- **README at the repo root**: Setup and usage
 - **Architecture Decision Records**: For major decisions (planned — not yet adopted)
 - **Inline comments**: Only for "why", not "what"
 
@@ -211,12 +211,12 @@ When contributing to Hay:
 
 - **[Architecture Guide](/docs/technical/architecture/)** - System design details
 - **[Plugin Development](/docs/technical/plugins/getting-started/)** - Build your first plugin
-- **[Contributing Guide](/docs/technical/)** - How to contribute
+- **Contributing guides** - See the [contributing section](/docs/technical/contributing/orchestrator/) for specific topics
 
 ## Next Steps
 
 Ready to build? Start with:
 
-- [Setting up your development environment](/docs/technical/)
+- [Testing conventions](/docs/technical/contributing/testing/) - Set up your development environment
 - [Creating your first plugin](/docs/technical/plugins/getting-started/)
 - [Understanding the architecture](/docs/technical/architecture/)

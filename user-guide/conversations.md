@@ -139,7 +139,7 @@ Want to review AI responses before they reach customers? Use **Test Mode** (also
 
 ### How to Enable Test Mode
 
-1. Go to **Agents** → select your agent
+1. Go to **Settings** → **Agents** → select your agent
 2. Under **Message Approval**, choose **Require Approval**
 3. Alternatively, set it organization-wide in **Settings** → **General** under Test Mode Default
 
