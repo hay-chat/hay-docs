@@ -129,7 +129,7 @@ By default, conversations are kept indefinitely. If a retention period is config
 
 ### Can I delete conversations?
 
-Conversations can be deleted from the conversation view. If data retention is configured, conversations are automatically anonymized after the retention period. For GDPR deletion requests on behalf of customers, use the data deletion tool in **Settings** → **Customer Privacy**.
+If data retention is configured, conversations are automatically anonymized after the retention period. For GDPR deletion requests on behalf of customers, use the data deletion tool in **Settings** → **Customer Privacy**.
 
 ## Integrations
 
@@ -258,7 +258,7 @@ Set your own SLAs based on your business needs.
 
 ### Can I automatically assign escalations to specific team members?
 
-Today, assignment is manual: a team member can take over a conversation from the queue and it's assigned to them. Automatic routing rules (by topic, time of day, availability, or customer tier) are not yet available — coming soon.
+Today, assignment is manual: a team member can take over a conversation using the **Take Over** button and it's assigned to them. Automatic routing rules (by topic, time of day, availability, or customer tier) are not yet available — coming soon.
 
 ### What if the queue gets too long?
 
@@ -282,7 +282,7 @@ Long term:
 Yes. Hay uses:
 
 - Encryption in transit and at rest
-- Secure password-based authentication (2FA policy toggle available in Settings → Security, backend enforcement in progress)
+- Secure password-based authentication with role-based access control
 - Regular security audits
 - Compliance with data protection regulations
 
@@ -312,7 +312,7 @@ Data is stored in secure, encrypted databases. Contact your account manager for 
 
 ### Can I export my data?
 
-Yes! Go to **Settings** → **Privacy** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Customer Privacy**.
+Yes! Go to **Settings** → **Privacy & Data** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Customer Privacy**.
 
 > **Note:** Analytics export is not yet available.
 

@@ -232,7 +232,7 @@ section: user-guide
    - Verify email is verified
 
 4. **2FA issues:**
-   - 2FA enforcement is not yet fully implemented. If your organization has enabled the "Require 2FA" policy toggle in Settings → Security, note that backend enforcement is still in progress — contact your organization admin if you're experiencing login issues related to this setting.
+   - 2FA is not yet available. If you're experiencing login issues, contact your organization admin.
 
 ### Access Denied / Permission Error
 
@@ -327,10 +327,10 @@ section: user-guide
 
 **Solutions:**
 
-1. **Check settings:**
+1. **Check configuration:**
 
-   - The Notification Preferences UI is available in **Settings → General**, with checkboxes for new conversations, escalated conversations, performance alerts, weekly reports, and quiet hours — however, changes made there currently do not persist because the backend wiring is still pending
-   - Verify your SMTP configuration is correct in the server environment
+   - Verify your SMTP configuration is correct in the server environment (host, port, credentials)
+   - In-app notification preferences are not yet available in the UI
 
 2. **Check spam:**
 

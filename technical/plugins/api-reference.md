@@ -604,6 +604,9 @@ import { Hay } from "@/utils/api";
 
 ### Non-tRPC HTTP endpoints
 
+- `POST /v1/plugins/upload` — upload a new plugin from a ZIP file (admin-only, multer, single file field "plugin", max size `config.plugins.maxUploadSizeMB`)
+- `PUT /v1/plugins/:pluginId` — update an existing plugin from a ZIP file (admin-only)
+- `DELETE /v1/plugins/:pluginId` — delete a plugin (admin-only)
 - `ALL /v1/plugins/:pluginId/*` — catch-all proxy to the org's worker (webhooks, plugin routes)
 - `GET /plugins/ui/:pluginName/:assetPath` — serves built plugin UI assets
 

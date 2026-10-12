@@ -149,8 +149,10 @@ To remove an integration:
 
 ### Email Features
 
+The Email plugin sends outbound notification emails to a configured recipient list — it is not a customer-facing channel.
+
 - ✅ Plain-text emails
-- ✅ HTML emails
+- 🔜 HTML emails — planned
 - 🔜 Attachments — planned
 - 🔜 CC/BCC support — planned
 - 🔜 Signature management — planned
