@@ -29,7 +29,7 @@ Each integration has its own guide covering what it is, how to connect it, and w
 
 - [Shopify](/docs/user-guide/integrations/shopify/) - Orders, refunds, customers, products, and catalog sync
 - [WooCommerce](/docs/user-guide/integrations/woocommerce/) - Full store access including orders, products, and coupons
-- [Magento](/docs/user-guide/integrations/magento/) - Products, stock, and sales insights
+- [Magento](/docs/user-guide/integrations/magento/) - Orders, customers, products, stock, and sales analytics
 - [Wix](/docs/user-guide/integrations/wix/) - Orders, refunds, fulfillment, and products
 
 **Payments & marketing**

@@ -253,7 +253,8 @@ Go to **Documents** to see all uploaded content.
 
 - **Name** - Document title
 - **Type** - The document's content type (Article, Guide, FAQ, Tutorial, Reference, Policy)
-- **Source** - Where the document came from (upload, URL crawl, etc.)
+- **Source** - Where the document came from: Upload (file upload), Web (URL crawl), Plugin (synced integration), or Editor (written in Hay)
+- **Visibility** - Who can access the document (Public, Private, or Internal). Defaults to Private
 - **Status** - Draft, Published, Archived, Processing, or Error (documents can also briefly hold an internal **Under Review** status, which isn't user-selectable)
 - **Last Modified** - When the document was last updated
 
@@ -341,7 +342,7 @@ This helps with:
 1. Consolidate similar documents
 2. Use clear naming convention
 3. Archive old/unused documents
-4. Use tags effectively
+4. Use tags effectively — add tags during import to group related documents; tags appear as badges on the document detail page
 
 ## Document Checklist
 

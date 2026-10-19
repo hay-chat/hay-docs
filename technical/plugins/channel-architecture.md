@@ -161,8 +161,13 @@ async onConnected(ctx) {
   const client = new GraphClient({ logger: ctx.logger });
   // (the real handler also refreshes the worker's closure-held token/client
   //  and re-subscribes the account to the app's webhooks — see below)
-  const routingKeys = await client.getConnectedAccountIds(token);
-  return { routingKeys };
+  const connected = await client.getConnectedAccount(token);
+  return {
+    routingKeys: connected.ids,
+    account: connected.username
+      ? { label: `@${connected.username}`, avatarUrl: connected.profilePictureUrl }
+      : undefined,
+  };
 }
 ```
 
