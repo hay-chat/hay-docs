@@ -319,7 +319,7 @@ Go to **Conversations** in the left sidebar and filter by **Status**:
 | **Pending Human** (shown as "Needs Attention") | Customer needs human help — nobody has picked it up yet |
 | **Human Took Over** (shown as "Manual Control") | A team member is actively handling it |
 
-Sort by **Last message** (oldest first) to see which conversations have been waiting longest.
+Conversations are shown newest-first by default. Review the "Needs Attention" filter on the Conversations page to find those waiting longest.
 
 **Set your own response time targets:**
 
@@ -344,7 +344,7 @@ Since there's no built-in SLA tracking, these targets are something your team ag
 
 - Re-check the "Needs Attention" filter every 30-60 minutes
 - Take over new escalations promptly
-- Use **Release Conversation → Return to Queue** if you need to hand a conversation to another team member (it goes back to "Needs Attention" for someone else to pick up)
+- Use **Release Conversation** if you need to hand off — a dialog offers two options: **Return to AI** (AI resumes handling) or **Return to Queue** (goes back to "Needs Attention" for another team member)
 - Keep customers informed
 
 **End of day:**
@@ -398,7 +398,7 @@ Since there's no built-in SLA tracking, these targets are something your team ag
    - Target: 85%+
    - Based on thumbs up/down ratings
    - Review: Daily
-   - **Note:** The Customer Satisfaction figure shown in Analytics is currently demo/placeholder data, not a live calculation. The thumbs-up/down control is also internal QA review tooling used by your team when reading back conversation transcripts — it isn't a rating customers submit themselves. Treat this as an aspirational target you track manually until real feedback aggregation ships.
+   - **Note:** The Customer Satisfaction figure shown in Analytics is currently demo/placeholder data, not a live calculation. The thumbs-up/down control is an internal review system used by your team when evaluating conversation quality — it is not a rating customers submit themselves. Review results are available on the **Feedback Insights** page under Insights (`/insights/feedback`). Treat this as an aspirational target until real customer-facing feedback aggregation ships.
 
 3. **Escalation Rate**
 
@@ -458,7 +458,7 @@ Test changes before rolling out everywhere:
 
 3. **Run for 1 week:**
 
-   - Split traffic 50/50
+   - Manually assign conversations to each agent (there is no built-in traffic splitting — you would route manually or via channel assignment)
    - Track metrics separately
 
 4. **Compare results:**
@@ -592,7 +592,7 @@ Test changes before rolling out everywhere:
 
 **Do:**
 
-- ✅ Use strong passwords and 2FA
+- ✅ Use strong passwords (2FA settings UI exists under Settings → Security, but may not be fully operational yet)
 - ✅ Limit access to what each person needs
 - ✅ Review user access quarterly
 - ✅ Log out when leaving computer

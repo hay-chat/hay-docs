@@ -121,7 +121,7 @@ There is no in-process plugin loading and no generic "process manager" service �
    - `HAY_ORG_CONFIG` — JSON: `{ org: { id }, config: <resolved config> }`
    - `HAY_ORG_AUTH` — JSON-serialized `AuthState` (decrypted credentials)
    - `HAY_API_URL` + `HAY_API_TOKEN` — a JWT (`generatePluginJWT`) scoped to `{ organizationId, pluginId, scope: "plugin-api", capabilities }`, expiring in 24h, so the worker can call back into core
-   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through a deny-pattern list (`SECRET`, `PASSWORD`, `TOKEN`, `PRIVATE_KEY`, `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`) so secret-looking names are blocked by default
+   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through a deny-pattern list (`SECRET`, `PASSWORD`, `TOKEN`, `PRIVATE.?KEY` (regex, matches with or without underscore), `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`) so secret-looking names are blocked by default
 6. Wait for the worker's **`GET /metadata`** endpoint to respond (up to 20 attempts × 500ms) — not `/health`.
 7. Update the `PluginInstance` row: `runtimeState = "ready"`, `running = true`, `processId`, health `"healthy"`. On failure: `runtimeState = "error"` + `lastError`.
 8. Kick off MCP tool discovery in the background (`fetchAndStoreTools` in `server/services/plugin-tools.service.ts`, which caches the worker's `GET /mcp/list-tools` result).
@@ -146,7 +146,7 @@ The SDK runner's HTTP server (`packages/plugin-sdk/runner/http-server.ts`) expos
 | `POST /mcp/call-tool`, `GET /mcp/list-tools` | MCP tool invocation / discovery                                                                                                                                                          |
 | _(dynamic)_                                  | Any route the plugin declared via `register.route(method, path, handler)` — mounted verbatim on the Express app (this is how channel plugins expose `/webhook`, `/deliver`, `/escalate`) |
 
-All dashboard/webhook traffic to a worker goes through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The proxy resolves the organization **only** from the `organizationId` query param or the `x-organization-id` header (`extractorganizationId`) — both are validated as a UUID and checked against the DB before use. There is no subdomain-based resolution. A third path, resolving the org from an auth token (JWT) for authenticated webhook endpoints, is marked `// TODO` in the code and not implemented. Once resolved, the proxy starts the worker on demand, bumps its activity timestamp, strips credential-bearing headers (`authorization`, `cookie`, `proxy-authorization`, etc.), and forwards the request.
+All dashboard/webhook traffic to a worker goes through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The proxy resolves the organization **only** from the `organizationId` query param or the `x-organization-id` header (`extractorganizationId`) — both are validated as a UUID and checked against the DB before use. There is no subdomain-based resolution (the function's JSDoc mentions it, but only query params and the `x-organization-id` header are implemented). A third path, resolving the org from an auth token (JWT) for authenticated webhook endpoints, is marked `// TODO` in the code and not implemented. Once resolved, the proxy starts the worker on demand, bumps its activity timestamp, strips credential-bearing headers (`authorization`, `cookie`, `proxy-authorization`, etc.), and forwards the request.
 
 ---
 
@@ -268,7 +268,7 @@ Core never learns which provider it's routing for — all provider knowledge is 
 
 ### Inbound: normal per-org webhooks and message ingestion
 
-Webhooks that do identify the org go straight through the proxy to the worker's registered `/webhook` route. The plugin verifies/filters the event and then calls **back into core** with `messages.receive` (see next section). Inbound dedupe is core-side: if the plugin passes `metadata.mid`, core claims it atomically via Redis `SET ... NX EX` and drops duplicates (`server/routes/v1/plugin-api/trpc.ts`); channels that don't pass a `mid` get no dedupe.
+Webhooks that do identify the org go straight through the proxy to the worker's registered `/webhook` route. The plugin verifies/filters the event and then calls **back into core** with `messages.receive` (see next section). Inbound dedupe is core-side: if the plugin passes `metadata.mid`, core claims it atomically via the `claimProviderMessage` helper (using Redis SETNX semantics) and drops duplicates (`server/routes/v1/plugin-api/trpc.ts`); channels that don't pass a `mid` get no dedupe.
 
 ### Outbound: channel delivery
 

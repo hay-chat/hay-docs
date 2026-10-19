@@ -293,7 +293,6 @@ Yes. Hay provides tools for:
 - Data access requests
 - Data deletion (right to be forgotten)
 - Data portability (export)
-- Consent management
 
 ### Can I control who accesses what?
 
@@ -302,7 +301,7 @@ Yes! Use role-based access control:
 - Owner: Full access
 - Admin: Settings and management
 - Member: Standard team access
-- Contributor: Contribute content (documents, playbooks)
+- Contributor: Manage content (documents, playbooks, agents) and handle conversations
 - Agent: Conversations only
 - Viewer: Read-only access
 
@@ -312,7 +311,7 @@ Data is stored in secure, encrypted databases. Contact your account manager for 
 
 ### Can I export my data?
 
-Yes! Go to **Settings** → **Privacy** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Customer Privacy**.
+Yes! Go to **Settings** → **Privacy & Data** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Customer Privacy**.
 
 > **Note:** Analytics export is not yet available.
 

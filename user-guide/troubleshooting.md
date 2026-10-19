@@ -30,7 +30,7 @@ section: user-guide
 **Check conversation status:**
 
 1. Open the conversation
-2. Check if status is "Open" (not "Closed" or "Human Took Over")
+2. Check if status is "Open" (not "Closed", "Resolved", "Manual Control", or "Needs Attention")
 3. Check for error messages in conversation
 
 **If still not working:**
@@ -112,10 +112,10 @@ section: user-guide
 - Respond faster
 - Offer alternatives before escalating
 
-**Adjust confidence threshold:**
+**Adjust confidence thresholds:**
 
-1. Go to **Settings** → **General**
-2. Lower confidence threshold slightly
+1. Go to **Settings** → **General** → **AI Confidence Guardrails**
+2. Lower the **High Threshold** (default 0.8) or **Medium Threshold** (default 0.5) slightly
 3. Monitor results
 4. Adjust as needed
 
@@ -329,7 +329,7 @@ section: user-guide
 
 1. **Check settings:**
 
-   - The Notification Preferences UI is available in **Settings → General**, with checkboxes for new conversations, escalated conversations, performance alerts, weekly reports, and quiet hours — however, changes made there currently do not persist because the backend wiring is still pending
+   - The Notification Preferences UI is currently not available — it is planned but not yet implemented in the dashboard
    - Verify your SMTP configuration is correct in the server environment
 
 2. **Check spam:**

@@ -24,7 +24,7 @@ You can have multiple agents, each specialized for different needs.
 1. Click **Agents** in the left sidebar
 2. Click **Create Agent** button
 
-### Step 2: Basic Information
+### Step 2: Agent Configuration
 
 Fill in the essentials:
 
@@ -37,12 +37,15 @@ Fill in the essentials:
 
 - What does this agent handle?
 - Example: "Handles order questions, shipping inquiries, and basic product information"
+- This is an internal description — it is not visible to the AI agent or to customers
 
 ### Step 3: Configure Behavior
 
 **Instructions**
 
-Tell your agent how to behave using the rich text editor (TipTap). You can format text with headings, lists, bold, and other styling. Write in plain English:
+Tell your agent how to behave using the rich text editor (TipTap). You can format text with headings, lists, bold, and other styling. Write in plain English.
+
+> **Tip:** Use Instructions for general behavior and tone. For specific step-by-step workflows (e.g., "when a customer asks about returns, do X then Y"), use **Playbooks** instead.
 
 ```
 You are a helpful customer support agent for an online store.
@@ -84,7 +87,7 @@ List topics or phrases your agent should never use:
 - Don't make pricing decisions without approval
 ```
 
-### Step 4: Initial Greeting
+### Step 4: Initial Greeting Message
 
 Set a welcoming first message customers see:
 
@@ -112,7 +115,11 @@ Hi there! Thanks for reaching out. I'm here to help!
 What brings you in today?
 ```
 
-### Step 5: Enable and Save
+### Step 5: Assign Channels
+
+If your organization has communication channels configured (Web Chat, WhatsApp, etc.), the agent form includes a **Channels** card where you can toggle which channels this agent handles. A channel can be assigned to multiple agents.
+
+### Step 6: Enable and Save
 
 - Toggle **Enabled** to activate your agent
 - Click **Create Agent**

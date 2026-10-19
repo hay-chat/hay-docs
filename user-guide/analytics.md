@@ -18,7 +18,7 @@ Only the Dashboard has a sidebar entry. There is no Analytics or Insights entry 
 
 ## Real Metrics (Dashboard)
 
-The Dashboard shows metrics calculated from your actual conversations. **Total Conversations**, **Resolution Rate**, and **Avg Messages per Conversation** accept a date range filter and default to the last 30 days. **Active Agents** always shows the current snapshot and is not affected by the date filter.
+The Dashboard shows metrics calculated from your actual conversations. **Total Conversations**, **Resolution Rate**, and **Avg Messages per Conversation** accept a date range filter. The date selector displays "Last 30 days" by default, but the initial data load shows all-time figures until a date preset is explicitly selected. The **Conversation Activity** chart defaults to the last 30 days server-side. **Active Agents** always shows the current snapshot and is not affected by the date filter.
 
 **Metric Cards**
 
@@ -118,7 +118,7 @@ A preview of a report builder (Report Configuration, Metrics Selection, Grouping
 
 ### `/insights` - Insights
 
-Renders a full demo UI with interactive filters, stat cards, and AI-generated improvement suggestions. Accepting or rejecting suggestions only updates the demo list on screen - nothing is saved. The page also displays a "Coming soon" notice alongside the demo content.
+Renders a full demo UI with interactive filters, AI-generated improvement suggestion cards (with accept/reject buttons), and an accepted-insights history section. Accepting or rejecting suggestions only updates the demo list on screen - nothing is saved. The page also displays a "Coming soon" notice alongside the demo content.
 
 ## Common Analytics Questions
 

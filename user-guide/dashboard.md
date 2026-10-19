@@ -24,7 +24,7 @@ Below the KPI cards you'll also find:
 - **Attention Needed** - conversations awaiting a human response
 - **Sentiment Score Gauge** - an overall sentiment score for the selected period
 - **Sentiment Breakdown** - the split of positive, neutral, and negative messages
-- **Document Status Overview** - your knowledge base documents grouped by status
+- **Knowledge Base** - your knowledge base documents grouped by status
 
 ## Understanding Your Metrics
 
@@ -79,11 +79,9 @@ Click on any conversation to:
 
 ### Check the Queue
 
-See conversations waiting for human attention. The Queue is accessible at `/queue` but does not appear in the main sidebar navigation.
+The `/queue` page shows background processing jobs (document uploads, email sending, exports, imports). It is accessible at `/queue` but does not appear in the main sidebar navigation.
 
-- Navigate to `/queue` to view pending conversations
-- Open any conversation to respond
-- Take over to chat directly with the customer
+To find conversations waiting for human attention, use the **Attention Needed** dashboard widget or filter the Conversations page by status.
 
 ### Monitor Agents
 
@@ -98,13 +96,14 @@ See conversations waiting for human attention. The Queue is accessible at `/queu
 Your dashboard updates automatically, but not all widgets:
 
 - **Active Conversations** and **Attention Needed** update live via WebSocket events, with a 30-second polling fallback if the WebSocket connection drops.
+- **Human Escalations** refreshes on a 30-second polling interval (no WebSocket support).
 - KPI cards, the **Activity** chart, and the **Sentiment** widgets do not update live - refresh the page to see the latest data for these.
 
 ## Customizing Your View
 
 ### Filter by Date Range
 
-Use the date range selector to choose a preset period (e.g., Last 7 days, Last 30 days, This month) or select a custom date range.
+Use the date range selector to choose a preset period (Last 7 days, Last 30 days, Last 90 days, This week, This month, This year) or select a custom date range.
 
 ## Dashboard Best Practices
 
