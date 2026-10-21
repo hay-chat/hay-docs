@@ -674,5 +674,5 @@ Legacy paths that still exist: **document importers** (`documentImporter: true` 
 - **Getting Started**: [Getting Started guide](/docs/technical/plugins/getting-started/)
 - **Channel plugins**: [Channel Registration](/docs/technical/plugins/channel-registration/) and [Channel Architecture](/docs/technical/plugins/channel-architecture/)
 - **SDK source**: `packages/plugin-sdk/` (types under `types/`, runner under `runner/`)
-- **Reference implementations**: `plugins/core/klaviyo` / `plugins/core/woocommerce` (local MCP), `plugins/core/stripe` / `plugins/core/hubspot` (remote MCP), `plugins/core/chatwoot` / `plugins/core/instagram` / `plugins/core/whatsapp` (channels), `plugins/core/shopify` (OAuth + cron + products sync), `plugins/core/atlassian` / `plugins/core/notion` (document importers)
+- **Reference implementations**: `plugins/core/klaviyo` / `plugins/core/woocommerce` (local MCP), `plugins/core/stripe` / `plugins/core/hubspot` (remote MCP), `plugins/core/chatwoot` / `plugins/core/instagram` (channels), `plugins/core/shopify` (OAuth + cron + products sync), `plugins/core/atlassian` / `plugins/core/notion` (document importers)
 - **Authoring guide**: `.claude/skills/build-plugin/` (archetypes, templates, anti-patterns) — the canonical how-to companion to this reference

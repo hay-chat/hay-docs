@@ -217,7 +217,6 @@ In short: the `sources` table is a vestigial catalog, and the only registration 
 
 - **`plugins/core/instagram`** — the shared-app model: empty per-org config with env-fallback OAuth client credentials, `register.webhookRouting` for shared-webhook fan-out, `onConnected` returning the IG account id as a routing key, declarative token exchange/refresh, and the `200 + success:false` non-retryable error convention in `/deliver`.
 - **`plugins/core/chatwoot`** — the per-org webhook model, with the strongest signature verification (HMAC-SHA256 over raw bytes, replay window, `timingSafeEqual`), `senderType: "human_agent"` forwarding, `externalConversationId` usage, and `/escalate` handoff. Note it does **not** pass `metadata.mid`, so its inbound path has no dedupe.
-- **`plugins/core/whatsapp`** (Twilio) — the simplest per-org channel; useful as a minimal skeleton, but avoid copying its inbound handler verbatim: it passes no `metadata.mid` (no dedupe) and uses a bare phone number as `from` instead of a channel-scoped identity.
 
 ## Related Documentation
 
