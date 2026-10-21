@@ -116,7 +116,7 @@ The proxy decides between two paths:
 When forwarding, the proxy:
 
 - **Strips credential-bearing headers**: `authorization`, `cookie`, `x-forwarded-for`, `x-real-ip`, `proxy-authorization`, `content-length`.
-- **Preserves signature-verification material**: since Express has already JSON-parsed the body, the proxy re-encodes it as JSON (moving the original `Content-Type` into `x-original-content-type`) and adds `x-original-url` (the external-facing URL, honoring `X-Forwarded-Proto`) and `x-original-body-base64` (the exact raw request bytes, captured by a body-parser `verify` hook in `server/main.ts` as `req.rawBody`). Plugins that verify per-instance HMAC signatures (e.g. Chatwoot) recompute the digest over these raw bytes.
+- **Preserves signature-verification material**: the exact raw request bytes (captured by a body-parser `verify` hook in `server/main.ts` as `req.rawBody`) are forwarded unchanged as the worker request body under the original `Content-Type`, and `x-original-url` carries the external-facing URL (honoring `X-Forwarded-Proto`). The SDK runner captures the bytes again as `req.rawBody`, so plugins that verify per-instance HMAC signatures (e.g. Chatwoot) recompute the digest over exactly what the provider signed. Bodies up to 5 MB are accepted end to end (Meta webhooks can reach 3 MB).
 
 If no org can be resolved (and there's no routing descriptor), the proxy returns `401`.
 
@@ -361,7 +361,7 @@ One subtlety worth copying: `onStart` does **not** re-run on reconnect, so Insta
 
 1. `package.json`: `category: "channel"`, `channel: "<slug>"`, `capabilities: ["messages", "customers"]`.
 2. `onInitialize`: `register.config` + `register.auth.*`; `register.route("POST", "/webhook", …)` and `register.route("POST", "/deliver", …)`.
-3. If the provider uses one shared webhook URL with no tenant identifier: `register.webhookRouting(...)` + return routing keys from `onConnected`. Otherwise, verify per-instance signatures yourself using the raw bytes from `x-original-body-base64` / `x-original-url` (see `plugins/core/chatwoot` for the reference implementation: HMAC-SHA256 with `timingSafeEqual` and a replay window).
+3. If the provider uses one shared webhook URL with no tenant identifier: `register.webhookRouting(...)` + return routing keys from `onConnected`. Otherwise, verify per-instance signatures yourself using the raw bytes from `req.rawBody` / `x-original-url` (see `plugins/core/chatwoot` for the reference implementation: HMAC-SHA256 with `timingSafeEqual` and a replay window).
 4. Inbound: filter echoes and out-of-scope events, then call `messages.receive` with a channel-scoped `from` and — **always** — the provider message ID in `metadata.mid` so core can dedupe redeliveries.
 5. Outbound: implement `/deliver` with the 200-`success:false` convention for permanent provider errors.
 6. Optionally implement `/escalate` for provider-side human handoff.
