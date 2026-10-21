@@ -255,13 +255,13 @@ Jobs are unregistered when the plugin is disabled for the org.
 
 ### Inbound: shared-webhook fan-out
 
-Some providers (e.g. Meta) deliver all events for all customers to **one** webhook URL that carries no org identifier. A plugin can declare a `WebhookRoutingDescriptor` via `register.webhookRouting` (`packages/plugin-sdk/types/webhook-routing.ts`) — pure data, no code: an HMAC-SHA256 signature spec (`header`, `format: "sha256-hmac"`, secret source), an optional GET verification-challenge spec, and dot-path extraction rules (`routeKeyPath: { itemsPath, keyPath }`).
+Some providers (e.g. Meta) deliver all events for all customers to **one** webhook URL that carries no org identifier. A plugin can declare a `WebhookRoutingDescriptor` via `register.webhookRouting` (`packages/plugin-sdk/types/webhook-routing.ts`) — pure data, no code: an HMAC-SHA256 signature spec (`header`, `format: "sha256-hmac"`, secret source), an optional GET verification-challenge spec, and dot-path extraction rules (`routeKeyPath: { itemsPath, keyPath, nested? }` — `nested: { itemsPath, keyPath }` names a sub-array inside each item whose elements carry their own routing key, e.g. WhatsApp `changes[]` under `entry[]`).
 
 The dispatch point is in the proxy (`server/routes/v1/plugins/proxy.ts`): a request to `.../webhook` with **no** org identifier, for a plugin that declared a routing descriptor, is diverted to `webhookRouterService.handle()` (`server/services/webhook-router.service.ts`), which:
 
 1. Answers the provider's GET verification handshake if declared (echoes the challenge param after checking the verify token).
 2. For POSTs, verifies the HMAC over the raw body bytes (`verifyHmacSha256` from `server/services/plugin-route.service.ts`).
-3. Extracts a routing key per payload entry (`routeKeyPath`), resolves key → org via `plugin_webhook_routes`, and fans each entry out to the right org's worker `POST /webhook` (with credential-bearing headers stripped).
+3. Extracts a routing key per payload entry (`routeKeyPath`), resolves key → org via `plugin_webhook_routes`, and fans each entry out to the right org's worker `POST /webhook` (with credential-bearing headers stripped). With `nested`, each entry's sub-array is filtered per org first: sub-items route by their own key, keyless sub-items go to the entry owner, unknown nested keys are dropped, and each org gets a clone of the entry with only its sub-items.
 
 Core never learns which provider it's routing for — all provider knowledge is in the plugin's declaration.
 

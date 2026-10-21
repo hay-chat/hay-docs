@@ -401,9 +401,18 @@ For providers that deliver **every org's events to a single shared webhook URL w
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `signature`             | `{ header, format: "sha256-hmac", secretEnv }` — core verifies HMAC-SHA256 over the exact raw request bytes with the secret from `process.env[secretEnv]` (must be in the `hay-plugin.env` allow-list); timing-safe compare, `sha256=` prefix stripped. Only `sha256-hmac` is supported. |
 | `verificationChallenge` | Optional GET handshake: `{ modeParam, verifyTokenParam, challengeParam, verifyTokenEnv? \| verifyTokenConfigField? }` — core echoes the challenge when mode is `subscribe` and the token matches.                                                                                        |
-| `routeKeyPath`          | `{ itemsPath, keyPath }` — dot-paths (no eval, no DSL) to the events array and the per-event routing key.                                                                                                                                                                                |
+| `routeKeyPath`          | `{ itemsPath, keyPath, nested? }` — dot-paths (no eval, no DSL) to the events array and the per-event routing key. Optional `nested: { itemsPath, keyPath }` names a sub-array inside each item whose elements carry their own routing key (see below).                                  |
 
 Routing keys are matched against the keys persisted from `onConnected` to resolve the target org.
+
+**Nested routing** (`routeKeyPath.nested`): some providers batch several accounts' events under one item — WhatsApp puts phone-number-level `changes[]` under a WABA-level `entry[]`. Declaring `nested: { itemsPath: "changes", keyPath: "value.metadata.phone_number_id" }` makes core split each item by sub-item owner:
+
+- a sub-item whose nested key resolves to an org goes to that org;
+- a sub-item whose nested key is **unknown** is dropped — it never falls back to the item-level owner;
+- a sub-item with **no** nested key (account-level events such as `account_update`) goes to the item-level (`keyPath`) owner;
+- each org receives one clone of the item containing only its own sub-items; an item with no sub-items for any org is not sent.
+
+Items whose sub-array is missing or not an array are routed whole by the item-level key, exactly as without `nested`.
 
 ```typescript
 register.webhookRouting({
@@ -419,6 +428,17 @@ register.webhookRouting({
     verifyTokenEnv: "META_VERIFY_TOKEN",
   },
   routeKeyPath: { itemsPath: "entry", keyPath: "id" },
+});
+
+// Nested form (WhatsApp): route each change by its phone number, falling
+// back to the WABA owner for changes that carry no phone_number_id.
+register.webhookRouting({
+  // ...signature / verificationChallenge as above
+  routeKeyPath: {
+    itemsPath: "entry",
+    keyPath: "id",
+    nested: { itemsPath: "changes", keyPath: "value.metadata.phone_number_id" },
+  },
 });
 ```
 
