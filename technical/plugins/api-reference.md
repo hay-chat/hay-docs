@@ -96,7 +96,7 @@ The fields core actually reads from `package.json → "hay-plugin"` (interface `
 | `entry`            | `string`   | Path to the compiled entry module (e.g. `"./dist/index.js"`)                                                                                                  |
 | `displayName`      | `string`   | Human-readable name shown in the marketplace                                                                                                                  |
 | `category`         | `string`   | One of `integration \| channel \| tool \| analytics \| products` (SDK `PluginCategory`); document importers are marked via `documentImporter`, not a category |
-| `capabilities`     | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `cron`                                        |
+| `capabilities`     | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `cron`, `email`                                        |
 | `env`              | `string[]` | Allow-list of host env var names that config fields may fall back to via their `env:` property                                                                |
 | `channel`          | `string`   | Channel plugins only: the channel slug (e.g. `"instagram"`); matched by `pluginManagerService.findPluginIdByChannel()` for outbound delivery                  |
 | `autoActivate`     | `boolean`  | Legacy (document importers)                                                                                                                                   |
