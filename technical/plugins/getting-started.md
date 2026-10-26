@@ -98,7 +98,7 @@ Create `plugins/core/nasa/package.json`:
 
 Key points:
 
-- **`name`** is the plugin ID used everywhere (API calls, worker routing, UI asset paths). The convention is `hay-plugin-<name>` for integrations and `hay-channel-<name>-<provider>` for channels.
+- **`name`** is the plugin ID used everywhere (API calls, worker routing, UI asset paths). The convention is `hay-plugin-<name>` for integrations and `hay-channel-<name>` for channels (optionally suffixed with `-<provider>` when multiple providers exist for the same channel, e.g. `hay-channel-instagram-meta`).
 - **`hay-plugin`** is what makes this directory a plugin — the discovery loop in `server/services/plugin-manager.service.ts` skips any directory without it.
 - **`category`** must be one of `integration | channel | tool | analytics | products`.
 - **`capabilities`** are declarative: `mcp | auth | config | ui | routes | cron | products` (channels additionally use `messages`, `customers`, `sources`). They drive marketplace classification and the scope of the JWT the worker uses to call back into core.
@@ -246,6 +246,7 @@ What's happening here:
 
 - `defineHayPlugin(factory)` is the **only** plugin factory. The factory receives a global context (logger, plugin metadata) and returns the plugin definition. The only required field is `name`; every hook is optional.
 - **`onInitialize`** runs once per worker, before the worker starts serving HTTP. It must be descriptor-only: `ctx.register.*` calls, no network requests, no org data.
+- **`onConnected`** (not shown above) runs right after OAuth tokens are stored — return `{ routingKeys?, account?, credentials? }` for shared-webhook fan-out, dashboard display, and extra credential persistence. Most API-key plugins skip it; channel and OAuth plugins may need it. See the [API Reference](/docs/technical/plugins/api-reference/) for details.
 - **`onValidateAuth`** is invoked by core when the user saves credentials. Do a real API round-trip and return `true`/`false`. If the hook throws, the runner catches it and treats the result as invalid — the message lands in the worker log, and the dashboard shows a generic "Auth validation failed" error. If you don't implement the hook at all, credentials are assumed valid.
 - **`onStart`** runs per org whenever the worker starts (including respawns after idle-kill). Credentials may legitimately be absent — a user can enable a plugin before configuring it — so gate and return instead of throwing.
 - Config and credentials arrive through `ctx.config` / `ctx.auth`, **not** through `process.env` in the entry. Core injects them into the worker; per-org secrets never sit in raw host environment variables.
@@ -442,7 +443,7 @@ core server
   └─ spawns per (org, plugin):  node packages/plugin-sdk/dist/runner/index.js
        ├─ env: HAY_ORG_CONFIG, HAY_ORG_AUTH   (your config + credentials)
        ├─ env: HAY_API_URL, HAY_API_TOKEN     (scoped JWT to call back into core)
-       ├─ HTTP: /metadata /validate-auth /config-update /disable /mcp/*  ← core calls these
+       ├─ HTTP: /health /metadata /validate-auth /on-connected /config-update /disable /cron/:name /mcp/*  ← core calls these
        └─ your onStart → spawns mcp/index.js over stdio
 ```
 

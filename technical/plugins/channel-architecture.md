@@ -49,7 +49,7 @@ _(verbatim from `plugins/core/instagram/package.json`)_
 The load-bearing fields:
 
 - **`category: "channel"`** — classifies the plugin in the marketplace.
-- **`channel: "<slug>"`** — the channel slug (e.g. `"instagram"`). This is the join key for outbound delivery: `Conversation.channel` is a free-form string, and core resolves which plugin owns a channel via `pluginManagerService.findPluginIdByChannel(channel)`, which matches this field.
+- **`channel: "<slug>"`** — the channel slug (e.g. `"instagram"`). This is the join key for outbound delivery: `Conversation.channel` is a free-form string, and core resolves which plugin owns a channel via `pluginManagerService.findPluginIdByChannel(organizationId, channel)`, which checks enabled instances for the org and matches this field.
 - **`capabilities: ["messages", "customers"]`** — scopes the worker's Plugin API JWT so it may call `messages.*` and `customers.*` procedures.
 
 The entry module registers Express-style routes on the worker in `onInitialize`:
@@ -116,7 +116,7 @@ The proxy decides between two paths:
 When forwarding, the proxy:
 
 - **Strips credential-bearing headers**: `authorization`, `cookie`, `x-forwarded-for`, `x-real-ip`, `proxy-authorization`, `content-length`.
-- **Preserves signature-verification material**: since Express has already JSON-parsed the body, the proxy re-encodes it as JSON (moving the original `Content-Type` into `x-original-content-type`) and adds `x-original-url` (the external-facing URL, honoring `X-Forwarded-Proto`) and `x-original-body-base64` (the exact raw request bytes, captured by a body-parser `verify` hook in `server/main.ts` as `req.rawBody`). Plugins that verify per-instance HMAC signatures (e.g. Chatwoot) recompute the digest over these raw bytes.
+- **Preserves signature-verification material**: the proxy checks for `req.rawBody` (the exact raw request bytes, captured by a body-parser `verify` hook in `server/main.ts`) and forwards it directly as the request body under the original content type. Only when `rawBody` is absent does it fall back to `JSON.stringify(req.body)` with `application/json`. The proxy also adds `x-original-url` (the external-facing URL, honoring `X-Forwarded-Proto`). Plugins that verify per-instance HMAC signatures (e.g. Chatwoot) recompute the digest over these raw bytes.
 
 If no org can be resolved (and there's no routing descriptor), the proxy returns `401`.
 
@@ -161,8 +161,8 @@ async onConnected(ctx) {
   const client = new GraphClient({ logger: ctx.logger });
   // (the real handler also refreshes the worker's closure-held token/client
   //  and re-subscribes the account to the app's webhooks — see below)
-  const routingKeys = await client.getConnectedAccountIds(token);
-  return { routingKeys };
+  const connected = await client.getConnectedAccount(token);
+  return { routingKeys: connected.ids };
 }
 ```
 
@@ -228,7 +228,7 @@ Processing steps, in order:
 1. **Customer** — look up by `external_id` within the org (`customerRepository.findByExternalId`). Create if missing, storing channel data under `external_metadata[channel]`; on subsequent messages, backfill `name`/`phone` if empty and merge the latest metadata. The `from` value is a channel-scoped identity and lives in `external_id` — never in the phone field (a real phone number only lands in `phone` if the channel passes `metadata.phone`).
 2. **Agent resolution** — `getAgentForChannel(orgId, channel)`: (1) agents whose `channels` array (the `agent.channels` text-array column on the Agent entity) includes this channel — preferring the org default agent if it's among them, otherwise the earliest-created; (2) the org default agent; (3) the first available agent. Only when the org has no agents at all does the mutation fail (an internal `NOT_FOUND` that the procedure's catch-all re-throws as `INTERNAL_SERVER_ERROR` with message "No agent configured for this channel").
 3. **Conversation** — `findActiveByCustomerAndChannel(customerId, channel, orgId)`; create a new `open` conversation if none is active. If the plugin passed `externalConversationId`, it is stored under `conversation.metadata[channel].conversationId` so outbound delivery can reuse it.
-4. **Dedupe** — if `metadata.mid` is set, core claims the key `dedupe:msg:<orgId>:<channel>:<mid>` atomically via Redis `SETNX` with a 24h TTL. Duplicates return `{ processed: false, deduped: true }` without creating a message. Redis being down fails open (at-least-once beats dropping). **Channels that don't pass `mid` get no dedupe at all** — of the shipped plugins, only Instagram currently sets it (WhatsApp passes `messageSid` and Chatwoot `chatwootMessageId` in metadata, but neither under the `mid` key core checks).
+4. **Dedupe** — if `metadata.mid` is set, core claims the key `dedupe:msg:<orgId>:<channel>:<mid>` atomically via Redis `SETNX` with a 24h TTL. Duplicates return `{ processed: false, deduped: true }` without creating a message. Redis being down fails open (at-least-once beats dropping). **Channels that don't pass `mid` get no dedupe at all** — of the shipped plugins, Instagram and WhatsApp both pass `metadata.mid` (the provider message ID); Chatwoot passes `chatwootMessageId` under a different metadata key, which core ignores for dedupe.
 5. **Message** — added as `MessageType.CUSTOMER`, or `MessageType.HUMAN_AGENT` when `senderType === "human_agent"` (e.g. a Chatwoot agent replied on the provider side). Human-agent messages are tagged `metadata.externalOrigin: true` so outbound delivery never echoes them back to the same channel, and the conversation is flipped to `human-took-over` so the orchestrator stops responding.
 
 The new customer message then flows through the normal orchestrator pipeline exactly as a webchat message would.
@@ -250,7 +250,7 @@ A message is delivered to the channel plugin only when **all** of these hold:
 
 The service then:
 
-1. Resolves the plugin by slug: `pluginManagerService.findPluginIdByChannel(conversation.channel)` — matching the `hay-plugin.channel` field. No plugin registered for the channel → warn and drop.
+1. Resolves the plugin by slug: `pluginManagerService.findPluginIdByChannel(organizationId, conversation.channel)` — per-org resolution matching the `hay-plugin.channel` field. No plugin registered for the channel → warn and drop.
 2. Gets or starts the org's worker.
 3. POSTs to `http://localhost:<port>/deliver`:
 
@@ -262,6 +262,7 @@ The service then:
   conversationId: string,
   conversationMetadata: Record<string, unknown> | null,
   messageMetadata: Record<string, unknown> | null,
+  attachments: MessageAttachment[] | null,  // pre-uploaded media for the message
 }
 ```
 
@@ -314,6 +315,10 @@ Channel plugins call back into core via the Plugin API (`server/routes/v1/plugin
 | `messages.getByConversation`                                        | `messages`  | Read a conversation's messages                                                                                |
 | `conversations.updateStatusByExternalId`                            | `messages`  | Mirror provider-side lifecycle changes (resolve/reopen) into Hay, keyed on `metadata[channel].conversationId` |
 | `customers.get` / `customers.findByExternalId` / `customers.upsert` | `customers` | Customer lookup and enrichment                                                                                |
+| `messages.updateStatus`                                             | `messages`  | Update provider delivery status on a message (e.g. `delivered`, `read`)                                       |
+| `media.upload`                                                      | `messages`  | Upload channel media to Hay storage with optional speech-to-text transcription                                 |
+| `connection.revoke`                                                 | `messages`  | Plugin signals that provider credentials have been revoked so core can disconnect the instance                  |
+| `webhooks.setRoutingKeys`                                           | `messages`  | Set shared-webhook routing keys for connections configured without OAuth                                        |
 | `sources.register`                                                  | `sources`   | **Stub** — accepts input and returns `{ success: true }`, but persistence is a TODO in the code               |
 
 _(The router also exposes `mcp.registerLocal`, `mcp.registerRemote`, `products.upsertMany`, and `products.delete` for non-channel capabilities.)_
@@ -361,12 +366,12 @@ One subtlety worth copying: `onStart` does **not** re-run on reconnect, so Insta
 
 1. `package.json`: `category: "channel"`, `channel: "<slug>"`, `capabilities: ["messages", "customers"]`.
 2. `onInitialize`: `register.config` + `register.auth.*`; `register.route("POST", "/webhook", …)` and `register.route("POST", "/deliver", …)`.
-3. If the provider uses one shared webhook URL with no tenant identifier: `register.webhookRouting(...)` + return routing keys from `onConnected`. Otherwise, verify per-instance signatures yourself using the raw bytes from `x-original-body-base64` / `x-original-url` (see `plugins/core/chatwoot` for the reference implementation: HMAC-SHA256 with `timingSafeEqual` and a replay window — note that Chatwoot's own inbound route is registered at `/messages`, not `/webhook`, matching Chatwoot's "Agent Bot" terminology; `/webhook` is only a convention other plugins are free to deviate from, so follow Chatwoot for the signature-verification pattern, not the route name).
+3. If the provider uses one shared webhook URL with no tenant identifier: `register.webhookRouting(...)` + return routing keys from `onConnected`. Otherwise, verify per-instance signatures yourself using the raw bytes forwarded by the proxy (see `plugins/core/chatwoot` for the reference implementation: HMAC-SHA256 with `timingSafeEqual` and a replay window — note that Chatwoot's own inbound route is registered at `/messages`, not `/webhook`, matching Chatwoot's "Agent Bot" terminology; `/webhook` is only a convention other plugins are free to deviate from, so follow Chatwoot for the signature-verification pattern, not the route name).
 4. Inbound: filter echoes and out-of-scope events, then call `messages.receive` with a channel-scoped `from` and — **always** — the provider message ID in `metadata.mid` so core can dedupe redeliveries.
 5. Outbound: implement `/deliver` with the 200-`success:false` convention for permanent provider errors.
 6. Optionally implement `/escalate` for provider-side human handoff.
 
-**Reference implementations:** `plugins/core/instagram` (shared-app model, declarative webhook routing, declarative token exchange/refresh, and the only plugin that passes `metadata.mid`) and `plugins/core/chatwoot` (per-instance signature verification, escalation, human-agent forwarding, `externalConversationId`). Avoid copying the inbound handlers of `plugins/core/whatsapp` or `plugins/core/chatwoot` verbatim — neither passes `metadata.mid`, so their inbound paths have no dedupe. WhatsApp also uses a bare phone number as `from` rather than a channel-scoped identity (`whatsapp:` is stripped); prefer Instagram's `<channel>:<id>` convention for new plugins.
+**Reference implementations:** `plugins/core/instagram` (shared-app model, declarative webhook routing, declarative token exchange/refresh) and `plugins/core/chatwoot` (per-instance signature verification, escalation, human-agent forwarding, `externalConversationId`). Both Instagram and WhatsApp pass `metadata.mid` for core-side dedupe; Chatwoot passes the provider message ID under `metadata.chatwootMessageId`, which core ignores for dedupe — always pass `metadata.mid` in new plugins. WhatsApp uses E.164 `+<digits>` for phone-identified users and `whatsapp:bsuid:<user_id>` for business-scoped-user-ID users; prefer Instagram's `<channel>:<id>` convention for new plugins.
 
 ### Known gaps and stubs (as of this writing)
 
