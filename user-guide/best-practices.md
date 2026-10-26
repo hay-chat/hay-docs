@@ -319,7 +319,7 @@ Go to **Conversations** in the left sidebar and filter by **Status**:
 | **Pending Human** (shown as "Needs Attention") | Customer needs human help — nobody has picked it up yet |
 | **Human Took Over** (shown as "Manual Control") | A team member is actively handling it |
 
-Sort by **Last message** (oldest first) to see which conversations have been waiting longest.
+Filter by status to find conversations needing attention (the default view shows newest first).
 
 **Set your own response time targets:**
 
@@ -444,6 +444,8 @@ Since there's no built-in SLA tracking, these targets are something your team ag
 
 Test changes before rolling out everywhere:
 
+> **Note:** Hay does not have built-in A/B testing or traffic splitting. To compare different agent configurations, create a second agent with the new instructions and manually compare results over time.
+
 **Example: Testing agent instructions**
 
 1. **Current state:**
@@ -458,7 +460,7 @@ Test changes before rolling out everywhere:
 
 3. **Run for 1 week:**
 
-   - Split traffic 50/50
+   - Assign each agent to different channels or time windows
    - Track metrics separately
 
 4. **Compare results:**
@@ -592,7 +594,7 @@ Test changes before rolling out everywhere:
 
 **Do:**
 
-- ✅ Use strong passwords and 2FA
+- ✅ Use strong passwords
 - ✅ Limit access to what each person needs
 - ✅ Review user access quarterly
 - ✅ Log out when leaving computer
@@ -652,7 +654,7 @@ Quarterly:
 
    - Route by topic/complexity
    - Specialized agents
-   - Priority queues
+   - Prioritize conversations by status (Needs Attention first)
 
 2. **Automation focus:**
 

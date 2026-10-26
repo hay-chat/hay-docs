@@ -79,7 +79,7 @@ Start with 15-25 essential documents covering your most common customer question
 
 ### Can I test before going live with customers?
 
-Absolutely! Use the Playground mode to test your agent with sample questions before connecting it to real customer channels.
+Absolutely! Use the Playground (accessed from the Conversations page) to test your agent with sample questions before connecting it to real customer channels.
 
 ## Agents & AI
 
@@ -107,7 +107,7 @@ Yes! You control the AI through:
 - Agent instructions (tone, style, what to say/not say)
 - Documents (what information to use)
 - Playbooks (specific workflows)
-- Test mode (approve each response)
+- Message Approval (approve each response before sending)
 
 ### Will customers know they're talking to AI?
 
@@ -129,7 +129,7 @@ By default, conversations are kept indefinitely. If a retention period is config
 
 ### Can I delete conversations?
 
-Conversations can be deleted from the conversation view. If data retention is configured, conversations are automatically anonymized after the retention period. For GDPR deletion requests on behalf of customers, use the data deletion tool in **Settings** → **Customer Privacy**.
+Conversations can be deleted via the API. If data retention is configured, conversations are automatically anonymized after the retention period. For GDPR deletion requests on behalf of customers, use the data deletion tool in **Settings** → **Customer Privacy**.
 
 ## Integrations
 
@@ -155,7 +155,7 @@ Most integrations are included in your plan. Some third-party services (like Wha
 
 ### Can I build custom integrations?
 
-Yes! Hay has an API for custom integrations. Contact support for developer documentation.
+Yes! Hay has a plugin SDK and API for custom integrations. See the [Plugin Development Guide](/docs/technical/plugins/getting-started/) for developer documentation.
 
 ### Will my Shopify/Zendesk data be secure?
 
@@ -282,7 +282,7 @@ Long term:
 Yes. Hay uses:
 
 - Encryption in transit and at rest
-- Secure password-based authentication (2FA policy toggle available in Settings → Security, backend enforcement in progress)
+- Secure password-based authentication (a Security settings page exists but is not yet accessible from navigation and 2FA backend enforcement is not yet wired up)
 - Regular security audits
 - Compliance with data protection regulations
 
@@ -293,7 +293,6 @@ Yes. Hay provides tools for:
 - Data access requests
 - Data deletion (right to be forgotten)
 - Data portability (export)
-- Consent management
 
 ### Can I control who accesses what?
 
@@ -312,7 +311,7 @@ Data is stored in secure, encrypted databases. Contact your account manager for 
 
 ### Can I export my data?
 
-Yes! Go to **Settings** → **Privacy** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Customer Privacy**.
+Yes! Go to **Settings** → **Privacy & Data** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Customer Privacy**.
 
 > **Note:** Analytics export is not yet available.
 
@@ -350,7 +349,7 @@ Yes! Hay has a full API for:
 - Accessing analytics
 - Managing agents and documents
 
-Contact support for API documentation.
+See the [Plugin API Reference](/docs/technical/plugins/api-reference/) for documentation.
 
 ## Billing & Account
 

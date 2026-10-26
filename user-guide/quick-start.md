@@ -30,7 +30,7 @@ Hay works where your team already does. You can connect integrations now or skip
 
 - **WhatsApp** - Handle WhatsApp Business messages
 - **Shopify** - Access order and product information
-- **HubSpot** - Sync contacts and tickets from your CRM
+- **HubSpot** - Access and manage contacts, companies, deals, and tickets from your CRM
 - **Zendesk** - Sync with your help desk
 
 > **Tip:** You can also add a chat widget to your website under **Settings** → **Webchat**.
@@ -141,7 +141,7 @@ Your Hay agent is now ready to start helping customers!
 
 Now that you're up and running:
 
-1. **Monitor the Queue** - Visit `/queue` to check for conversations that need human attention
+1. **Monitor the Queue** - Visit `/queue` (accessible via direct URL — it is not in the sidebar) to check background job statuses, and use the **Attention Needed** widget on the Dashboard to find conversations that need human attention
 2. **Review Dashboard** - See how your agent is performing at a glance
 3. **Add More Documents** - Keep training your agent with new information
 4. **Create More Playbooks** - Automate more types of requests

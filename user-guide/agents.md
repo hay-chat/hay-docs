@@ -28,7 +28,7 @@ You can have multiple agents, each specialized for different needs.
 
 Fill in the essentials:
 
-**Agent Name**
+**Name**
 
 - Something descriptive: "Customer Support Agent", "Sales Assistant", "Technical Support Bot"
 - Visible to your team (not to customers) — unless this agent is set as your organization's **Default Agent**, in which case its name is shown to webchat customers as the chat window's title/header
@@ -39,6 +39,8 @@ Fill in the essentials:
 - Example: "Handles order questions, shipping inquiries, and basic product information"
 
 ### Step 3: Configure Behavior
+
+The agent form presents these fields in the order shown below.
 
 **Instructions**
 
@@ -59,34 +61,9 @@ Important guidelines:
 - If someone is frustrated, offer to connect them with a manager
 ```
 
-**Tone**
+**Initial Greeting Message**
 
-Choose how your agent should communicate:
-
-| Tone               | When to Use                    | Example                                                                      |
-| ------------------ | ------------------------------ | ---------------------------------------------------------------------------- |
-| **Professional**   | B2B, enterprise customers      | "Thank you for contacting us. I'd be happy to assist you with that inquiry." |
-| **Casual**         | Young audience, informal brand | "Hey! No worries, I got you. Let's figure this out together."                |
-| **Enthusiastic**   | Energetic, upbeat brand voice  | "Awesome, let's get this sorted for you right away!"                         |
-
-**Response Language**
-
-Select the language your agent should respond in. Hay supports 33 languages at the backend. The dashboard language picker offers an **Inherit from Organization** option plus 14 selectable languages.
-
-**Things to Avoid** (Optional)
-
-List topics or phrases your agent should never use:
-
-```
-- Don't promise specific dates without checking systems
-- Avoid technical jargon with non-technical customers
-- Never say "that's not possible" without offering alternatives
-- Don't make pricing decisions without approval
-```
-
-### Step 4: Initial Greeting
-
-Set a welcoming first message customers see:
+Set a welcoming first message customers see. This message is automatically translated to match the conversation's language. A default greeting is used if the field is left empty.
 
 **Examples:**
 
@@ -111,6 +88,37 @@ _General Support:_
 Hi there! Thanks for reaching out. I'm here to help!
 What brings you in today?
 ```
+
+**Response Language**
+
+Select the language your agent should respond in. Hay supports 33 languages at the backend. The dashboard language picker offers an **Inherit from Organization** option plus 14 selectable languages.
+
+**Tone**
+
+Choose how your agent should communicate:
+
+| Tone               | When to Use                    | Example                                                                      |
+| ------------------ | ------------------------------ | ---------------------------------------------------------------------------- |
+| **Professional**   | B2B, enterprise customers      | "Thank you for contacting us. I'd be happy to assist you with that inquiry." |
+| **Casual**         | Young audience, informal brand | "Hey! No worries, I got you. Let's figure this out together."                |
+| **Enthusiastic**   | Energetic, upbeat brand voice  | "Awesome, let's get this sorted for you right away!"                         |
+
+**Things to Avoid** (Optional)
+
+List topics or phrases your agent should never use:
+
+```
+- Don't promise specific dates without checking systems
+- Avoid technical jargon with non-technical customers
+- Never say "that's not possible" without offering alternatives
+- Don't make pricing decisions without approval
+```
+
+### Step 4: Channels
+
+When your organization has enabled channel plugins (WhatsApp, Instagram, email, etc.), a **Channels** card appears in the agent form with toggle switches for each channel. Turn on the channels this agent should handle.
+
+A channel can be assigned to more than one agent — if it is, the default agent responds when no agent's trigger is a better match.
 
 ### Step 5: Enable and Save
 

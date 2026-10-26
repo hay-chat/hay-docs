@@ -111,7 +111,7 @@ graph LR
 ```
 
 - **Client**: Browser cache for static assets
-- **Asset Domain**: Optional configurable domain for serving static assets (not a CDN caching layer)
+- **CDN Domain**: Optional configurable domain (`CDN_DOMAIN` env var / `getCdnUrl()`) for serving static assets (not necessarily a CDN caching layer)
 - **Redis**: In-memory cache for hot data
 - **Database**: Source of truth
 
@@ -130,7 +130,7 @@ RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-b
 Multiple security layers:
 
 1. **Network**: TLS/SSL encryption for all traffic
-2. **Authentication**: JWT with configurable expiration (default 7 days, refresh tokens 30 days)
+2. **Authentication**: JWT with short-lived access tokens (default 15 minutes via `auth.config.ts`) and refresh tokens (default 30 days via `JWT_REFRESH_EXPIRES_IN`)
 3. **Authorization**: Role-based access control (RBAC)
 4. **Input Validation**: Sanitize all user input
 5. **Output Encoding**: Prevent XSS attacks

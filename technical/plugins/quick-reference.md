@@ -107,7 +107,7 @@ export default defineHayPlugin((globalCtx) => ({
 | `onInitialize(ctx)`   | Once per worker boot            | `register.*` only — no I/O                                   |
 | `onStart(ctx)`        | Per-org start/restart           | Read `ctx.config`/`ctx.auth`, start MCP                      |
 | `onValidateAuth(ctx)` | Credentials change              | Return `true`/`false`; a throw = invalid (logged, not shown) |
-| `onConnected(ctx)`    | Right after OAuth tokens stored | Return `{ routingKeys }` for shared webhooks                 |
+| `onConnected(ctx, extras?)` | Right after OAuth tokens stored | Return `{ routingKeys?, account?, credentials? }` — routing keys for shared webhooks, account info for dashboard display, and extra credentials to persist |
 | `onConfigUpdate(ctx)` | Settings saved                  | Platform restarts registered MCP servers itself              |
 | `onDisable(ctx)`      | Disable/uninstall               | Tear down pollers/clients                                    |
 
@@ -290,7 +290,7 @@ Optional: implement `POST /escalate` for human-handoff notifications — core to
 
 All under `pluginApi.*`, capability-gated via the worker JWT (`server/routes/v1/plugin-api/trpc.ts`):
 
-`messages.receive` · `messages.send` · `messages.getByConversation` · `conversations.updateStatusByExternalId` · `customers.get` · `customers.findByExternalId` · `customers.upsert` · `sources.register` · `mcp.registerLocal` · `mcp.registerRemote` · `products.upsertMany` · `products.delete`
+`messages.receive` · `messages.send` · `messages.getByConversation` · `messages.updateStatus` · `conversations.updateStatusByExternalId` · `customers.get` · `customers.findByExternalId` · `customers.upsert` · `sources.register` · `mcp.registerLocal` · `mcp.registerRemote` · `products.upsertMany` · `products.delete` · `media.upload` · `connection.revoke` · `webhooks.setRoutingKeys`
 
 ---
 
@@ -318,6 +318,8 @@ await Hay.plugins.disable.mutate({ pluginId: "hay-plugin-myservice" });
 // OAuth
 await Hay.plugins.oauth.initiate.mutate({ pluginId: "hay-plugin-myservice" });
 const oauthStatus = await Hay.plugins.oauth.status.query({ pluginId: "hay-plugin-myservice" });
+await Hay.plugins.oauth.completeWithCode.mutate({ pluginId: "hay-plugin-myservice", code: "..." }); // client-side OAuth (e.g. Meta Embedded Signup)
+await Hay.plugins.oauth.revoke.mutate({ pluginId: "hay-plugin-myservice" });
 ```
 
 Router: `server/routes/v1/plugins/index.ts`; handlers in `server/routes/v1/plugins/plugins.handler.ts`.

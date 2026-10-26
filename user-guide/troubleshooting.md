@@ -30,7 +30,7 @@ section: user-guide
 **Check conversation status:**
 
 1. Open the conversation
-2. Check if status is "Open" (not "Closed" or "Human Took Over")
+2. Check if status is "Open" (not "Closed", "Resolved", "Processing", "Pending Human", or "Human Took Over")
 3. Check for error messages in conversation
 
 **If still not working:**
@@ -112,12 +112,12 @@ section: user-guide
 - Respond faster
 - Offer alternatives before escalating
 
-**Adjust confidence threshold:**
+**Adjust confidence thresholds:**
 
-1. Go to **Settings** → **General**
-2. Lower confidence threshold slightly
-3. Monitor results
-4. Adjust as needed
+1. Go to **Settings** → **General** → **AI Confidence Guardrails**
+2. There are two thresholds: **High** (default 0.8) and **Medium** (default 0.5). Lowering the Medium threshold reduces escalations by allowing more responses through. Lowering the High threshold causes more responses to go through a recheck pass (retrieving additional documents) before sending.
+3. Monitor results after adjusting
+4. Fine-tune as needed
 
 ## Integration Problems
 
@@ -127,8 +127,8 @@ section: user-guide
 
 1. **Re-authenticate:**
 
-   - Go to **Integrations**
-   - Go to the plugin's settings page and reconfigure the connection, or disable and re-enable the integration
+   - Go to **Integrations**, then click the specific plugin's settings page
+   - Reconfigure the connection, or disable and re-enable the integration
    - Sign in again if prompted
    - Authorize permissions
 
@@ -329,8 +329,8 @@ section: user-guide
 
 1. **Check settings:**
 
-   - The Notification Preferences UI is available in **Settings → General**, with checkboxes for new conversations, escalated conversations, performance alerts, weekly reports, and quiet hours — however, changes made there currently do not persist because the backend wiring is still pending
-   - Verify your SMTP configuration is correct in the server environment
+   - Notification Preferences are not yet available in the UI. This feature is planned for a future release.
+   - Verify your SMTP configuration is correct in the server environment for system emails (password resets, invitations, privacy requests)
 
 2. **Check spam:**
 

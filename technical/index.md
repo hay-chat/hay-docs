@@ -82,8 +82,14 @@ Choose your path:
 
 - **[Architecture](/docs/technical/architecture/)** - Understand Hay's design
 - **[Philosophy](/docs/technical/philosophy/)** - Learn our design principles
+- **[Context API](/docs/technical/context-api/)** - Pass runtime context and secrets to conversations
+- **[Guardrails](/docs/technical/guardrails/)** - Confidence, company-interest, and action-claim guardrails
+- **[Logger](/docs/technical/LOGGER/)** - Structured logging and redaction
 - **[Plugin Development](/docs/technical/plugins/getting-started/)** - Build your first plugin
+- **[Plugin Quick Reference](/docs/technical/plugins/quick-reference/)** - Common plugin patterns at a glance
 - **[API Reference](/docs/technical/plugins/api-reference/)** - Integrate with Hay's API
+- **[Channel Architecture](/docs/technical/plugins/channel-architecture/)** - How channel plugins route messages
+- **[Channel Registration](/docs/technical/plugins/channel-registration/)** - Register and manage message sources
 
 ### Community
 

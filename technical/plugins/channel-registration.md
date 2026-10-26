@@ -56,7 +56,7 @@ Field-by-field (interface `HayPluginBlock` in `server/services/plugin-manager.se
 
 **Channel slug rules:**
 
-- One plugin per slug. Core resolves the channel with `pluginManagerService.findPluginIdByChannel(channel)`, which returns the first loaded plugin whose `hay-plugin.channel` matches — there is no conflict handling, so pick a slug no other plugin uses.
+- One plugin per slug per org. Core resolves the channel with `pluginManagerService.findPluginIdByChannel(organizationId, channel)`, which checks enabled instances for the org and returns the first matching plugin (alphabetically by plugin ID). When multiple enabled plugins claim the same channel slug, core logs a warning and picks the first alphabetically — pick a slug no other plugin uses.
 - `"web"` is reserved for the built-in webchat/dashboard channel; the delivery service explicitly skips it.
 - The plugin API validates `channel` as a 1–64 character string. Use lowercase.
 
@@ -147,7 +147,7 @@ What core does with it:
 1. **Customer** — finds or creates a `Customer` keyed on `external_id` = `from` for the org. `metadata.profileName` backfills the name, `metadata.phone` the phone; all metadata is stored under `customer.external_metadata[channel]`.
 2. **Agent** — resolves the responding agent for the channel: agents explicitly assigned to the channel first (preferring the org default agent, then the earliest-created), then the org default agent, then the first available agent. If the org has no agents at all, the call fails with `NOT_FOUND`.
 3. **Conversation** — reuses the customer's active conversation on that channel or creates one. `externalConversationId` is stored in `conversation.metadata[channel].conversationId` so outbound delivery can reuse it.
-4. **Dedupe** — if `metadata.mid` is a non-empty string, core claims it atomically in Redis (24h TTL). Redelivered webhooks with the same `mid` return `{ processed: false, deduped: true }` and create no message. **Channels that don't pass `mid` get no dedupe** — always set it if the provider gives you a message id. (Of the shipped plugins, only Instagram does; WhatsApp and Chatwoot pass provider message ids under other metadata keys, which core ignores for dedupe.)
+4. **Dedupe** — if `metadata.mid` is a non-empty string, core claims it atomically in Redis (24h TTL). Redelivered webhooks with the same `mid` return `{ processed: false, deduped: true }` and create no message. **Channels that don't pass `mid` get no dedupe** — always set it if the provider gives you a message id. (Of the shipped plugins, Instagram and WhatsApp both pass `metadata.mid`; Chatwoot passes the provider message ID under `metadata.chatwootMessageId`, which core ignores for dedupe.)
 5. **Human-agent forwarding** — `senderType: "human_agent"` (a human replied on the external system, e.g. a Chatwoot agent) records the message as a human-agent message, tags it `externalOrigin: true` so it is never echoed back to the channel, and flips the conversation to `human-took-over` so the AI orchestrator stops responding.
 
 Return value: `{ messageId, conversationId, processed, deduped }`.
@@ -163,7 +163,7 @@ Other plugin API procedures useful to channel plugins (same auth, capability-gat
 When the orchestrator (or a human agent in the dashboard) produces a reply on a non-web channel, `server/services/channel-delivery.service.ts` picks it up from the Redis `websocket:events` stream and delivers it via your plugin:
 
 1. Only `BotAgent` / `HumanAgent` messages with `deliveryState === "sent"` are delivered. Messages queued for approval by test mode (`deliveryState === "queued"`) are skipped until approved, and messages tagged `externalOrigin: true` are never echoed back.
-2. Core looks up your plugin with `findPluginIdByChannel(conversation.channel)`, starts the org's worker if needed, and POSTs to the worker's `/deliver` route:
+2. Core looks up your plugin with `findPluginIdByChannel(organizationId, conversation.channel)`, starts the org's worker if needed, and POSTs to the worker's `/deliver` route:
 
 ```typescript
 // Request body
@@ -174,6 +174,7 @@ When the orchestrator (or a human agent in the dashboard) produces a reply on a 
   conversationId: string;
   conversationMetadata: Record<string, unknown> | null;  // includes metadata[channel].conversationId if set
   messageMetadata: Record<string, unknown> | null;
+  attachments: MessageAttachment[] | null;           // pre-uploaded media for the message
 }
 
 // Expected response body
@@ -207,7 +208,7 @@ Channel plugins do not implement test mode — core enforces it before delivery 
 Earlier docs described channel registration via a `sources.register` call. Current state, for the avoidance of confusion:
 
 - **Plugin-facing `sources.register` is a stub.** The procedure exists in the plugin API router (`server/routes/v1/plugin-api/trpc.ts`, gated on the `sources` capability) but its body is a `TODO` — it logs the input and returns `{ success: true }` without persisting anything. Calling it from a plugin has no effect. **Do not use it to register a channel.**
-- **A dashboard-facing `sources` tRPC router exists** (`server/routes/v1/sources/`, backed by a real `sources` table via `SourceService`): `sources.list`, `sources.get`, `sources.getByCategory` (all filter to active sources), plus `sources.register`, `sources.activate`, `sources.deactivate` (core sources `playground` and `webchat` are protected). It works, but it plays **no role in channel routing or message delivery** — nothing in the inbound/outbound paths reads it. Its only current consumer is display metadata in the insights feedback page (`dashboard/composables/useSources.ts`).
+- **A dashboard-facing `sources` tRPC router exists** (`server/routes/v1/sources/`, backed by a real `sources` table via `SourceService`): `sources.list`, `sources.get`, `sources.getByCategory` (all filter to active sources), plus `sources.register`, `sources.activate`, `sources.deactivate` (core sources `playground` and `webchat` are protected by `register` and `deactivate` only — `activate` does not check for them, allowing reactivation of any source). It works, but it plays **no role in channel routing or message delivery** — nothing in the inbound/outbound paths reads it. Its only current consumer is display metadata in the insights feedback page (`dashboard/composables/useSources.ts`).
 
 In short: the `sources` table is a vestigial catalog, and the only registration that matters for a channel plugin is the declarative `hay-plugin.channel` field described above.
 
@@ -217,7 +218,7 @@ In short: the `sources` table is a vestigial catalog, and the only registration 
 
 - **`plugins/core/instagram`** — the shared-app model: empty per-org config with env-fallback OAuth client credentials, `register.webhookRouting` for shared-webhook fan-out, `onConnected` returning the IG account id as a routing key, declarative token exchange/refresh, and the `200 + success:false` non-retryable error convention in `/deliver`.
 - **`plugins/core/chatwoot`** — the per-org webhook model, with the strongest signature verification (HMAC-SHA256 over raw bytes, replay window, `timingSafeEqual`), `senderType: "human_agent"` forwarding, `externalConversationId` usage, and `/escalate` handoff. Note it does **not** pass `metadata.mid`, so its inbound path has no dedupe.
-- **`plugins/core/whatsapp`** (Twilio) — the simplest per-org channel; useful as a minimal skeleton, but avoid copying its inbound handler verbatim: it passes no `metadata.mid` (no dedupe) and uses a bare phone number as `from` instead of a channel-scoped identity.
+- **`plugins/core/whatsapp`** (Meta Cloud API) — a channel using Meta's WhatsApp Cloud API with Embedded Signup. It passes `metadata.mid` (the wamid) for core-side dedupe. It uses E.164 `+<digits>` for phone-identified users and `whatsapp:bsuid:<user_id>` for business-scoped-user-ID users as `from`; prefer Instagram's `<channel>:<id>` convention for new plugins.
 
 ## Related Documentation
 
