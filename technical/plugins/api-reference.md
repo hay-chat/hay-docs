@@ -56,7 +56,7 @@ A directory under `plugins/core/<name>/` (or `plugins/custom/{orgId}/<name>/`) i
 Plugins do **not** run inside the core process. For each `(organizationId, pluginId)` pair, core lazily spawns a separate HTTP worker process:
 
 ```
-node packages/plugin-sdk/dist/runner/index.js --plugin-path=… --org-id=… --port=…
+node packages/plugin-sdk/dist/runner/index.js --plugin-path=… --org-id=… --port=… --mode=production
 ```
 
 (`server/services/plugin-runner.service.ts`). Key facts about workers:
@@ -179,7 +179,7 @@ export default defineHayPlugin((globalCtx) => ({
 | ---------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `onInitialize`   | `(ctx: HayGlobalContext) => void \| Promise<void>`                                                | Once per worker process, before the HTTP server starts. **Descriptor-only**: make `register.*` calls; no network requests, no org data.                                                                                           |
 | `onStart`        | `(ctx: HayStartContext) => void \| Promise<void>`                                                 | Every org runtime start/restart (first config save, config/auth updates). Read config/auth, gate on missing credentials, start MCP servers. Must never crash the worker — log errors instead.                                     |
-| `onConnected`    | `(ctx: HayConnectedContext) => { routingKeys?: string[] } \| Promise<{ routingKeys?: string[] }>` | Called by core (`POST /on-connected`) right after OAuth tokens are stored. Return opaque **routing keys** that core persists for shared-webhook fan-out. Throwing never fails the OAuth flow — core logs a warning and continues. |
+| `onConnected`    | `(ctx: HayConnectedContext, extras?: Record<string, unknown>) => OnConnectedResult \| Promise<OnConnectedResult>` | Called by core (`POST /on-connected`) right after OAuth tokens are stored. `extras` carries untrusted client-supplied values from the connect request (e.g. Embedded Signup IDs). Return `{ routingKeys?, account?, credentials? }`: opaque **routing keys** for shared-webhook fan-out, an `account` (`{ label, avatarUrl }`) for dashboard display, and extra `credentials` to merge into the encrypted auth state. Throwing never fails the OAuth flow — core logs a warning and continues. |
 | `onValidateAuth` | `(ctx: HayAuthValidationContext) => boolean \| Promise<boolean>`                                  | When auth credentials are saved/updated (`POST /validate-auth`). Return `true` for valid, or throw an `Error` with a user-facing message. If not implemented, auth is assumed valid.                                              |
 | `onConfigUpdate` | `(ctx: HayConfigUpdateContext) => void \| Promise<void>`                                          | After settings are saved (`POST /config-update`). Most plugins can omit this — the platform restarts registered MCP servers itself.                                                                                               |
 | `onDisable`      | `(ctx: HayDisableContext) => void \| Promise<void>`                                               | On disable/uninstall (and SIGTERM). Tear down pollers, sockets, and external subscriptions.                                                                                                                                       |
@@ -229,6 +229,7 @@ Defines configuration fields; the dashboard generates the settings form from thi
 | `env`         | `string`                                            | Host env var fallback. **Must be listed in `hay-plugin.env`** — validated at load time.     |
 | `options`     | `Array<{ label: string; value: string \| number }>` | Renders a dropdown instead of free text                                                     |
 | `showWhen`    | `ShowWhen`                                          | Declarative visibility: `{ field, equals? \| in? \| notEquals? }` referencing another field |
+| `serverOnly`  | `boolean`                                           | Resolved only inside the Hay server; never delivered to the plugin worker. Use for credentials only core needs (e.g. OAuth client secrets for token exchange). |
 
 ```typescript
 register.config({

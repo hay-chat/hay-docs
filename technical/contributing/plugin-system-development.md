@@ -121,7 +121,7 @@ There is no in-process plugin loading and no generic "process manager" service �
    - `HAY_ORG_CONFIG` — JSON: `{ org: { id }, config: <resolved config> }`
    - `HAY_ORG_AUTH` — JSON-serialized `AuthState` (decrypted credentials)
    - `HAY_API_URL` + `HAY_API_TOKEN` — a JWT (`generatePluginJWT`) scoped to `{ organizationId, pluginId, scope: "plugin-api", capabilities }`, expiring in 24h, so the worker can call back into core
-   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through a deny-pattern list (`SECRET`, `PASSWORD`, `TOKEN`, `PRIVATE_KEY`, `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`) so secret-looking names are blocked by default
+   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through a deny-pattern list (regex patterns: `SECRET`, `PASSWORD`, `TOKEN`, `/PRIVATE.?KEY/i`, `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`) so secret-looking names are blocked by default
 6. Wait for the worker's **`GET /metadata`** endpoint to respond (up to 20 attempts × 500ms) — not `/health`.
 7. Update the `PluginInstance` row: `runtimeState = "ready"`, `running = true`, `processId`, health `"healthy"`. On failure: `runtimeState = "error"` + `lastError`.
 8. Kick off MCP tool discovery in the background (`fetchAndStoreTools` in `server/services/plugin-tools.service.ts`, which caches the worker's `GET /mcp/list-tools` result).
@@ -276,7 +276,7 @@ Webhooks that do identify the org go straight through the proxy to the worker's 
 
 Subscribes to the Redis `websocket:events` channel:
 
-- `message_received` events for bot/human-agent messages (web channel skipped) → resolve the plugin by channel slug via `pluginManagerService.findPluginIdByChannel(channel)` (matching `hay-plugin.channel`), ensure the org's worker is up, and `POST /deliver` with `{ to, content, messageId, conversationId, ... }`. The plugin returns `{ success, providerMessageId?, error? }`; on success core stores the provider message ID. Convention: non-retryable provider errors return **HTTP 200 with `success: false`** to avoid retry storms.
+- `message_received` events for bot/human-agent messages (web channel skipped) → resolve the plugin by channel slug via `pluginManagerService.findPluginIdByChannel(organizationId, channel)` (per-org resolution matching `hay-plugin.channel`), ensure the org's worker is up, and `POST /deliver` with `{ to, content, messageId, conversationId, attachments, ... }`. The plugin returns `{ success, providerMessageId?, error? }`; on success core stores the provider message ID. Convention: non-retryable provider errors return **HTTP 200 with `success: false`** to avoid retry storms.
 - `conversation_status_changed` → `pending-human` → `POST /escalate` on the worker (web channel skipped). This is best-effort: a 404 from plugins that don't implement `/escalate` is silently tolerated.
 
 See [Channel Architecture](/docs/technical/plugins/channel-architecture/) for the plugin-author view.
@@ -289,13 +289,17 @@ See [Channel Architecture](/docs/technical/plugins/channel-architecture/) for th
 
 Workers call back into core over tRPC-HTTP using the `HAY_API_URL`/`HAY_API_TOKEN` env vars. Every procedure is a `pluginProcedure` gated by the worker's JWT (org + plugin + capabilities; `server/trpc/middleware/plugin-auth.ts`). Current surface:
 
-- `messages.receive` — input `{ from, content, channel, metadata?, senderType?, externalConversationId? }`; finds/creates the Customer (keyed on `external_id` per channel) and conversation, adds the message
+- `messages.receive` — input `{ from, content, channel, metadata?, senderType?, externalConversationId?, attachments? }`; finds/creates the Customer (keyed on `external_id` per channel) and conversation, adds the message
 - `messages.send`, `messages.getByConversation`
+- `messages.updateStatus` — update provider delivery status on a message
 - `conversations.updateStatusByExternalId`
 - `customers.get`, `customers.findByExternalId`, `customers.upsert`
 - `sources.register`
 - `mcp.registerLocal`, `mcp.registerRemote`
 - `products.upsertMany`, `products.delete` (source is the authenticated plugin ID — a plugin can only touch its own products)
+- `media.upload` — upload channel media to Hay storage with optional speech-to-text transcription
+- `connection.revoke` — plugin signals that provider credentials have been revoked
+- `webhooks.setRoutingKeys` — set shared-webhook routing keys without going through OAuth
 
 The router self-describes as a "simplified initial implementation" — expect this surface to grow.
 
@@ -306,7 +310,7 @@ The router self-describes as a "simplified initial implementation" — expect th
 **Files**: `server/routes/v1/plugins/index.ts` (router), `server/routes/v1/plugins/plugins.handler.ts` (implementations). All procedures are `authenticatedProcedure`.
 
 - **Queries**: `plugins.getAll`, `plugins.get`, `plugins.getInstances`, `plugins.getUITemplate`, `plugins.getMCPTools`, `plugins.getMenuItems`, `plugins.testConnection`, `plugins.getPluginTranslations`, `plugins.oauth.isAvailable`, `plugins.oauth.status`
-- **Mutations**: `plugins.enable`, `plugins.disable`, `plugins.restart`, `plugins.configure`, `plugins.refreshMCPTools`, `plugins.validateAuth`, `plugins.oauth.initiate`, `plugins.oauth.revoke`
+- **Mutations**: `plugins.enable`, `plugins.disable`, `plugins.restart`, `plugins.configure`, `plugins.refreshMCPTools`, `plugins.validateAuth`, `plugins.callUiRoute`, `plugins.oauth.initiate`, `plugins.oauth.completeWithCode`, `plugins.oauth.revoke`
 
 There is **no** generic `plugins.invokeTool` mutation — MCP tool invocation happens inside the orchestrator via the worker's `POST /mcp/call-tool`.
 

@@ -52,7 +52,7 @@ Sensible defaults that work out of the box.
 
 ```typescript
 // Convention: Plugins auto-discovered from plugins/core/ and plugins/custom/{orgId}/
-// No configuration needed — discovery runs automatically at startup via PluginManagerService.discoverPlugins()
+// No configuration needed — discovery runs automatically at startup via PluginManagerService.initialize()
 ```
 
 #### 3. Fail Fast, Fail Loud
@@ -94,7 +94,7 @@ Users own their data, always.
 
 - Export functionality for all data
 - Clear data retention policies
-- Encryption by default
+- Encryption for sensitive credentials (OAuth tokens, API keys)
 - GDPR compliance built-in
 - Self-hosting option available
 
@@ -135,14 +135,14 @@ Services use singleton exports and direct module imports (e.g., `export const my
 
 **Why:** Abstracts data access, easy to swap databases
 
-Repositories extend `BaseRepository<T>` (a generic TypeORM wrapper) — no interface abstraction layer.
+Some repositories extend `BaseRepository<T>` (a generic TypeORM wrapper providing pagination and filtering), while others use TypeORM's `Repository<T>` directly — no interface abstraction layer.
 
 ### Code Quality Standards
 
 #### TypeScript Usage
 
 - **Strict mode enabled**: No implicit any
-- **Explicit return types**: For all public functions
+- **Explicit return types**: For all public functions (aspirational — not consistently followed yet)
 - **Discriminated unions**: For state management
 - **Branded types**: For IDs and sensitive data (aspirational pattern — not yet implemented in the codebase; IDs are currently plain strings)
 
@@ -168,7 +168,7 @@ describe("AutomationService", () => {
 
 #### Documentation
 
-- **TSDoc comments**: On all public APIs
+- **TSDoc comments**: On all public APIs (aspirational — inconsistently applied)
 - **README in each package**: Setup and usage
 - **Architecture Decision Records**: For major decisions (planned — not yet adopted)
 - **Inline comments**: Only for "why", not "what"

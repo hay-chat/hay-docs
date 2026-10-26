@@ -105,6 +105,7 @@ Request a copy of all your personal data in JSON format. The export includes:
 
 - Profile information (email, name, account settings)
 - Organization memberships and roles
+- API keys metadata (no secrets included)
 - Audit logs (last 1000 events)
 - Documents and content you've created
 
@@ -115,7 +116,7 @@ Exports typically take less than 5 minutes; you'll receive an email with a downl
 Permanently delete your account and associated data:
 
 - Your account is permanently deactivated
-- Your access to the organization's API keys is removed (API keys are organization-scoped, not user-scoped)
+- All API keys will be revoked
 - Personal information is removed or anonymized
 - Some audit logs may be retained (anonymized) for compliance
 
@@ -192,7 +193,7 @@ This page is gated behind an advanced-settings warning — "**Advanced — chang
 ### Chat Provider
 
 - **Provider** — the provider used to generate agent responses. Choose from **OpenAI**, **Anthropic (Claude)**, **Google Gemini**, **Mistral**, **xAI Grok**, **Custom (OpenAI-compatible)**, or **Custom — supports tool calling (OpenAI-compatible)** (seven options total).
-- **Base URL** — the provider's OpenAI-compatible API base URL. Shown only for Mistral, Grok, and custom endpoints.
+- **Base URL** — the provider's OpenAI-compatible API base URL. Shown for Mistral, xAI Grok, Custom (OpenAI-compatible), and Custom — supports tool calling.
 - **Use my own API key** — when off, Hay's managed AI is used (billed with your plan). When on, enter your own provider **API Key** — it is stored encrypted and never shown again after saving.
 
 ### Model Tiers

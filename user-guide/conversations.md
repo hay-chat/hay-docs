@@ -87,9 +87,10 @@ For each AI response, you can see:
 
 On the right side, view:
 
-- **Customer details** - Name, email, history
-- **Conversation metadata** - Channel, start time, duration
-- **Agent info** - Which agent handled this
+- **Customer Information** — Name, channel, email, phone, first seen date, status
+- **Conversation Details** — Agent name, status, message count, created/updated timestamps, legal hold toggle
+- **Previous Conversations** — Other conversations from the same customer
+- **Related Documents** — Documents linked to this conversation
 
 ## Taking Over a Conversation
 

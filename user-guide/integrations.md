@@ -21,7 +21,7 @@ Each integration has its own guide covering what it is, how to connect it, and w
 
 **Communication channels**
 
-- [WhatsApp](/docs/user-guide/integrations/whatsapp/) - Answer WhatsApp messages via Twilio
+- [WhatsApp](/docs/user-guide/integrations/whatsapp/) - Answer WhatsApp messages via the Meta WhatsApp Cloud API
 - [Instagram](/docs/user-guide/integrations/instagram/) - Answer Instagram DMs
 - [Chatwoot](/docs/user-guide/integrations/chatwoot/) - Run Hay as an agent bot inside Chatwoot inboxes
 
@@ -29,13 +29,13 @@ Each integration has its own guide covering what it is, how to connect it, and w
 
 - [Shopify](/docs/user-guide/integrations/shopify/) - Orders, refunds, customers, products, and catalog sync
 - [WooCommerce](/docs/user-guide/integrations/woocommerce/) - Full store access including orders, products, and coupons
-- [Magento](/docs/user-guide/integrations/magento/) - Products, stock, and sales insights
+- [Magento](/docs/user-guide/integrations/magento/) - Products, orders, customers, inventory, and sales insights
 - [Wix](/docs/user-guide/integrations/wix/) - Orders, refunds, fulfillment, and products
 
 **Payments & marketing**
 
 - [Stripe](/docs/user-guide/integrations/stripe/) - Payments, refunds, subscriptions, and invoices
-- [Klaviyo](/docs/user-guide/integrations/klaviyo/) - Profiles, subscriptions, campaigns, and flows
+- [Klaviyo](/docs/user-guide/integrations/klaviyo/) - Profiles, lists, segments, campaigns, flows, and templates
 
 **CRM & scheduling**
 
@@ -140,11 +140,10 @@ To remove an integration:
 
 ### WhatsApp Features
 
-- ✅ Plain-text message sending
-- ✅ Plain-text message receiving
-- 🔜 Rich media (images, videos, documents) — planned
-- 🔜 Quick reply buttons — planned
-- 🔜 Message templates — planned
+- ✅ Plain-text message sending and receiving
+- ✅ Rich media (images, videos, audio, documents, stickers)
+- ✅ Quick reply buttons (inbound interactive messages)
+- ✅ Message templates (outbound via `sendTemplate`)
 - 🔜 Read receipts — planned
 
 ### Email Features
