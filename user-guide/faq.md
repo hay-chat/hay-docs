@@ -31,32 +31,32 @@ Hay can understand and respond in over 50 languages. Your documents can be in an
 
 ### How much does Hay cost?
 
-Pricing varies based on conversation volume and features needed. Contact your account manager or visit the Hay pricing page for current plans.
+Hay has four plans (Solo, Starter, Growth and Enterprise), billed monthly or annually. Every plan includes a number of **resolutions** per billing period; a resolution is a conversation the AI closes without a human. Current prices are on [hay.chat/pricing](https://hay.chat/pricing/).
+
+### Which currencies can I pay in?
+
+Euro, US dollar, British pound and Brazilian real. You pick the currency when you first check out (the pricing page pre-selects it from your region). Stripe fixes a customer's currency with that first subscription, so later plans, including a new subscription after a cancellation, stay in it. To move to another currency, contact support and we set up a new billing customer for you.
 
 ### Is there a free trial?
 
-Most plans include a trial period. Check with your account representative for current trial offerings.
+Yes. Every new workspace starts on a free trial; the dashboard shows how many days remain. When the trial ends you pick a plan on [hay.chat/billing](https://hay.chat/billing/).
 
 ### What's included in my plan?
 
-Plans typically include:
+- A number of AI resolutions per billing period (annual plans get twelve months' worth up front)
+- Every channel and integration
+- The support level listed for your plan on [hay.chat/pricing](https://hay.chat/pricing/)
 
-- Number of conversations per month
-- Number of agents
-- Team member seats
-- Integrations
-- Support level
-- Storage
+### What happens if I exceed my resolution limit?
 
-Contact your account administrator for specific plan details.
+You are warned by email at 50 %, 80 % and 100 % of your included resolutions, and the dashboard shows a banner from 80 %. What happens at 100 % depends on the **Allow extra resolutions** switch on [hay.chat/billing](https://hay.chat/billing/):
 
-### What happens if I exceed my conversation limit?
-
-Depending on your plan, you'll either be charged for additional conversations or need to upgrade your plan. You'll receive notifications as you approach your limit.
+- **On (default):** the AI keeps working and each extra resolution is billed at your plan's per-resolution rate on the next invoice.
+- **Off:** the AI pauses. New customer messages wait in **Needs Attention** for your team, your dashboard keeps working, and nothing extra is billed. The AI resumes on its own when the next period starts, or immediately when you switch extra resolutions back on or upgrade. Conversations that were parked while the AI was paused stay in Needs Attention until your team replies or hands them back with **Return to AI**.
 
 ### Can I cancel anytime?
 
-Yes, most plans are month-to-month and can be canceled anytime. Check your specific plan terms in your agreement.
+Yes. Monthly plans can be cancelled at any time and run until the end of the paid period. Annual plans are cancelled the same way; see the refund policy for the early-exit terms.
 
 ## Getting Started
 
@@ -358,11 +358,15 @@ Contact support for API documentation.
 
 ### How do I change my plan?
 
-Contact your account manager for plan changes. Self-service billing management is not yet available in the dashboard.
+Go to [hay.chat/billing](https://hay.chat/billing/), open **Plans** and choose the new plan or billing interval. The change applies to your existing subscription immediately and Stripe prorates the difference: between two monthly plans it lands on your next invoice; switching between monthly and yearly starts a new billing cycle and is invoiced right away. Upgrades and downgrades both work this way; nothing creates a second subscription. Payment details and invoices are managed in the Stripe customer portal, reachable from the same page.
+
+### Where do I see my usage?
+
+The overview on [hay.chat/billing](https://hay.chat/billing/) shows resolutions used against your allowance for the current period, the percentage, when the period renews and whether extra resolutions are allowed.
 
 ### Can I get a refund?
 
-Refund policies vary by plan. Contact your account manager or support for specific refund requests.
+Refund terms are in the [refund policy](https://hay.chat/refund-policy/). Contact support with your workspace name and invoice number.
 
 ## Support
 

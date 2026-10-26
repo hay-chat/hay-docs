@@ -263,7 +263,11 @@ Enable **Test Mode Default** in **Settings** → **General** → **Platform Sett
 
 ### Does Hay have billing, 2FA, or webhook settings?
 
-Not yet. There is currently no billing page, no two-factor authentication, and no webhook configuration in Settings.
+Billing (plan, usage, extra-resolution switch, invoices) lives on [hay.chat/billing](https://hay.chat/billing/), not inside the dashboard Settings menu. There is currently no two-factor authentication and no webhook configuration in Settings.
+
+### Why is there a usage banner at the top of the dashboard?
+
+Your workspace has used 80 % or more of its included resolutions for the period. At 100 % the banner tells you whether extra resolutions are being billed or the AI is paused (see the [FAQ](/docs/user-guide/faq/#what-happens-if-i-exceed-my-resolution-limit)). Dismissing the banner hides it for the current tab only.
 
 ## Next Steps
 
