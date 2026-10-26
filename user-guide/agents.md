@@ -168,6 +168,8 @@ within 2 business hours. Collect their email if you don't have it.
 Ask if there's anything else you can help with while they wait.
 ```
 
+> **Note:** once the agent has handed off, the conversation is in **Needs Attention** and the AI stays out of it. If your unavailable-instructions ask the customer a question, their answer is stored for your team but the AI does not reply to it; a team member picks it up from the queue.
+
 ### Trigger Conditions
 
 The **Trigger** field is a free-text description of when this agent should be selected for a conversation. Rather than matching exact keywords, Hay uses an LLM to semantically compare the incoming message against each enabled agent's trigger (along with its name and description) and picks the best match.
@@ -352,7 +354,9 @@ One click. Go to **Agents** and click **Pause** on the agent card (or switch off
 - Every new customer message is stored and the conversation moves to **Needs Attention**, so your team sees it in the queue and can reply by taking it over. Hay does not send an automatic "we are away" message.
 - Conversations a team member has already taken over are not affected.
 
-Click **Resume** to bring the agent back. Conversations that landed in Needs Attention while it was paused stay there until a team member takes them over or returns them to the AI.
+A reply the agent was already writing when you clicked Pause will still go out; nothing new starts after that.
+
+Click **Resume** to bring the agent back. Conversations that landed in Needs Attention while it was paused stay there: a team member has to **Take Over** each one, and can then **Release → Return to AI** once the agent is resumed (while it is paused, Return to AI just sends the conversation back to Needs Attention).
 
 To remove the chat widget from your site entirely instead, switch off **Enable webchat widget** under **Settings** → **Webchat**; the widget then disappears without showing customers any message.
 
