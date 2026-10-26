@@ -114,7 +114,7 @@ What brings you in today?
 
 ### Step 5: Enable and Save
 
-- Toggle **Enabled** to activate your agent
+- Leave **Agent active** switched on so the agent replies to customers
 - Click **Create Agent**
 
 Your agent is now ready to start handling conversations!
@@ -262,7 +262,7 @@ Go to **Analytics** and scroll to the **Agent Performance** table to see:
 - **Resolution Rate** - How many issues they solved
 - **Avg Response Time** - Speed of responses
 - **Satisfaction** - Ratings from customers
-- **Status** - Whether the agent is enabled or disabled
+- **Status** - Whether the agent is active or paused
 
 > **Note:** Agent performance analytics currently display sample data while this feature is being developed. Live per-agent metrics are coming soon.
 
@@ -344,9 +344,17 @@ Set a reminder to review your agents:
 
 No, Hay assigns one agent per conversation to maintain consistency. You can manually reassign if needed.
 
-### What happens if I disable an agent?
+### How do I pause the AI?
 
-New conversations won't be assigned to this agent. Existing conversations continue with the same agent.
+One click. Go to **Agents** and click **Pause** on the agent card (or switch off **Agent active** on the agent's page). While an agent is paused:
+
+- It stops replying on every channel it is assigned to (web widget, WhatsApp, Instagram, and so on). Your widget stays on your site and customers can still write.
+- Every new customer message is stored and the conversation moves to **Needs Attention**, so your team sees it in the queue and can reply by taking it over. Hay does not send an automatic "we are away" message.
+- Conversations a team member has already taken over are not affected.
+
+Click **Resume** to bring the agent back. Conversations that landed in Needs Attention while it was paused stay there until a team member takes them over or returns them to the AI.
+
+To remove the chat widget from your site entirely instead, switch off **Enable webchat widget** under **Settings** → **Webchat**; the widget then disappears without showing customers any message.
 
 ### Can agents learn on their own?
 

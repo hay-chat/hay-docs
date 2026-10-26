@@ -57,7 +57,7 @@ Understanding what each status means:
 | ------------------- | ---------------------------------------- | ---------------------------- |
 | **Open**            | AI is actively handling the conversation | Agent responds automatically |
 | **Processing**      | AI is thinking and preparing a response  | Wait a few seconds           |
-| **Pending Human** (shown in the UI as "Needs Attention") | Customer needs human help | Appears in your Queue        |
+| **Pending Human** (shown in the UI as "Needs Attention") | Customer needs human help, or the agent is paused | Appears in your Queue; the AI stays out until a team member takes over or returns it to the AI |
 | **Human Took Over** (shown in the UI as "Manual Control") | A team member is now handling it | AI stops responding          |
 | **Resolved**        | Issue was solved successfully            | Conversation is complete     |
 | **Closed**          | Conversation ended                       | No further action needed     |
@@ -120,8 +120,13 @@ When you're done:
 
 - Click **Release Conversation** to hand the conversation off. A dialog appears with two options:
   - **Return to AI** - The agent resumes handling messages automatically
-  - **Return to Queue** - The conversation is placed back in the queue for another team member to pick up
+  - **Return to Queue** - The conversation is placed back in the queue (Needs Attention) for another team member to pick up
 - Click **Close Conversation** (a separate button) to mark the conversation as closed
+
+> **Needs Attention is sticky.** Once a conversation is in Needs Attention (the AI handed it off, it was
+> returned to the queue, or the agent is paused), new customer messages do not wake the AI. The only
+> ways out are **Take Over** or **Return to AI**. To stop the AI for every conversation at once, pause
+> the agent from the **Agents** page.
 
 ## Supervision Mode
 

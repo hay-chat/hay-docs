@@ -169,7 +169,7 @@ For each token you can see its status (Active / Inactive / Expired), creation da
 ### Security & Access
 
 - **Allowed Domains** — one domain per line; use `*` to allow all domains. Controls where the widget can be embedded.
-- **Enable webchat widget** — master on/off toggle
+- **Enable webchat widget** — master on/off toggle. Switching it off removes the widget from your site; visitors see nothing, not even an offline message. To keep the chat open but stop the AI from replying, pause the agent on the **Agents** page instead.
 
 ### Installation Code
 
