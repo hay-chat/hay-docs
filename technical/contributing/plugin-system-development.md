@@ -256,13 +256,13 @@ Jobs are unregistered when the plugin is disabled for the org.
 
 ### Inbound: shared-webhook fan-out
 
-Some providers (e.g. Meta) deliver all events for all customers to **one** webhook URL that carries no org identifier. A plugin can declare a `WebhookRoutingDescriptor` via `register.webhookRouting` (`packages/plugin-sdk/types/webhook-routing.ts`) — pure data, no code: an HMAC-SHA256 signature spec (`header`, `format: "sha256-hmac"`, secret source), an optional GET verification-challenge spec, and dot-path extraction rules (`routeKeyPath: { itemsPath, keyPath }`).
+Some providers (e.g. Meta) deliver all events for all customers to **one** webhook URL that carries no org identifier. A plugin can declare a `WebhookRoutingDescriptor` via `register.webhookRouting` (`packages/plugin-sdk/types/webhook-routing.ts`) — pure data, no code: an HMAC-SHA256 signature spec (`header`, `format: "sha256-hmac"`, secret source), an optional GET verification-challenge spec, and dot-path extraction rules (`routeKeyPath: { itemsPath, keyPath, nested? }` — `nested: { itemsPath, keyPath }` names a sub-array inside each item whose elements carry their own routing key, e.g. WhatsApp `changes[]` under `entry[]`).
 
 The dispatch point is in the proxy (`server/routes/v1/plugins/proxy.ts`): a request to `.../webhook` with **no** org identifier, for a plugin that declared a routing descriptor, is diverted to `webhookRouterService.handle()` (`server/services/webhook-router.service.ts`), which:
 
 1. Answers the provider's GET verification handshake if declared (echoes the challenge param after checking the verify token).
 2. For POSTs, verifies the HMAC over the raw body bytes (`verifyHmacSha256` from `server/services/plugin-route.service.ts`).
-3. Extracts a routing key per payload entry (`routeKeyPath`), resolves key → org via `plugin_webhook_routes`, and fans each entry out to the right org's worker `POST /webhook` (with credential-bearing headers stripped).
+3. Extracts a routing key per payload entry (`routeKeyPath`), resolves key → org via `plugin_webhook_routes`, and fans each entry out to the right org's worker `POST /webhook` (with credential-bearing headers stripped). With `nested`, each entry's sub-array is filtered per org first: sub-items route by their own key, keyless sub-items go to the entry owner, unknown nested keys are dropped, and each org gets a clone of the entry with only its sub-items.
 
 Core never learns which provider it's routing for — all provider knowledge is in the plugin's declaration.
 
@@ -328,7 +328,7 @@ Things a contributor should know exist (or don't) before building on them:
 - **`onEnable` is dead code** — typed in the SDK but invoked by neither the runner nor core.
 - **Document importers bypass the worker model.** Plugins with `autoActivate: true` + `trpcRouter` (e.g. `plugins/core/atlassian`) load a tRPC router in-process at boot via `server/services/plugin-router-registry.service.ts`, coupled to `@server/*` internals. This is the legacy special case, not the pattern to extend.
 - **`onConfigUpdate` is also uncalled** — the runner exposes `POST /config-update`, but core applies config changes by restarting the worker (see the hooks table).
-- **`PluginApiClient` is duplicated per channel plugin** (`plugins/core/instagram/src/plugin-api.ts`, and likewise in `chatwoot`, `email`, `whatsapp`) instead of being an SDK export.
+- **`PluginApiClient` is duplicated per channel plugin** (`plugins/core/instagram/src/plugin-api.ts`, and likewise in `chatwoot`, `email`) instead of being an SDK export.
 - **Webhook signature format** is limited to `sha256-hmac` in `WebhookRoutingDescriptor`.
 - **The instance pool's `queuedRequests` stat is tracked but never incremented** — pool limiting works via polling (`waitForAvailableSlot`), not a real queue.
 - The `plugin_instances.status` column is legacy; `runtimeState` is the field the runner actually maintains.

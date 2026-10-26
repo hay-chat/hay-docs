@@ -21,7 +21,7 @@ Each integration has its own guide covering what it is, how to connect it, and w
 
 **Communication channels**
 
-- [WhatsApp](/docs/user-guide/integrations/whatsapp/) - Answer WhatsApp messages via Twilio
+- [WhatsApp](/docs/user-guide/integrations/whatsapp/) - Answer WhatsApp messages through Meta's Cloud API
 - [Instagram](/docs/user-guide/integrations/instagram/) - Answer Instagram DMs
 - [Chatwoot](/docs/user-guide/integrations/chatwoot/) - Run Hay as an agent bot inside Chatwoot inboxes
 
