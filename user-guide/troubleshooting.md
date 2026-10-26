@@ -348,26 +348,35 @@ section: user-guide
    - Try sending test notification
    - Contact support if tests fail
 
-### Not Getting In-App Notifications
+### Not Getting Alerts When a Conversation Needs a Human
 
-**Solutions:**
+**With the dashboard open** you should hear a sound and see a toast. If not, check that the browser tab is allowed to play sound and show notifications.
 
-1. **Browser permissions:**
+**With the dashboard closed**, alerts only arrive on devices where **Alerts on this device** is on. Check:
 
-   - Check browser allows notifications
-   - Enable if blocked
-   - Restart browser
+1. **Is it on for this device?**
 
-2. **Do Not Disturb:**
+   - Go to **Settings → Profile → Notifications** (or look at the bell on Home)
+   - The switch must be on for _this_ browser or phone; it is per device, not per account
+   - Use **Send a test alert** to confirm delivery
 
-   - Check system DND settings
-   - Temporarily disable
-   - Test notifications
+2. **Browser permission:**
 
-3. **Dashboard notifications:**
-   - Check settings in Hay
-   - Enable desired notification types
-   - Save preferences
+   - If the switch says alerts are blocked, notifications were denied for the Hay site
+   - Allow them again in the browser's site settings (the lock icon next to the address), then turn the switch on
+
+3. **iPhone or iPad:**
+
+   - Add Hay to your Home Screen (Share → **Add to Home Screen**) and open it from that icon
+   - Safari tabs cannot receive alerts; only the installed Home Screen app can (iOS 16.4 or later)
+
+4. **Do Not Disturb / Focus:**
+
+   - Check the system Do Not Disturb or Focus settings
+   - Temporarily disable and send a test
+
+5. **Server configuration (self-hosted):**
+   - The server needs `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` set; without them the switch is not shown
 
 ## Document Problems
 

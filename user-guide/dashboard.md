@@ -5,9 +5,19 @@ description: Your Hay dashboard is mission control for your AI support operation
 section: user-guide
 ---
 
-## Overview
+## Home: what needs you right now
 
-The dashboard shows you the most important metrics and activity at a glance. When you log in, you'll see four KPI cards at the top:
+When you log in you land on **Home**. It is not a report: it shows only the conversations that need a person.
+
+- **Waiting for a human** - conversations the AI handed off, longest wait first. Each row shows the customer, the AI's summary, the channel and how long they have waited. Tap **Take over** to pick one up: the AI stops replying and the conversation opens for you.
+- **Being handled** - conversations a team member has already taken over, with the handler's name.
+- **Alerts on this device** - turn this on to get a notification on your phone or computer when a conversation starts waiting, even with the dashboard closed. The notification opens the conversation.
+
+Home updates live as conversations arrive, are taken over or released. The sidebar badge next to **Home** (and the bell in the top bar on phones) shows how many conversations are waiting.
+
+## Dashboard (metrics)
+
+The **Dashboard** entry in the sidebar shows the most important metrics and activity at a glance. You'll see four KPI cards at the top:
 
 - **Active Agents** - how many agents are currently configured and active
 - **Total Conversations** - total conversations handled
@@ -95,10 +105,7 @@ See conversations waiting for human attention. The Queue is accessible at `/queu
 
 ## Real-Time Updates
 
-Your dashboard updates automatically, but not all widgets:
-
-- **Active Conversations** and **Attention Needed** update live via WebSocket events, with a 30-second polling fallback if the WebSocket connection drops.
-- KPI cards, the **Activity** chart, and the **Sentiment** widgets do not update live - refresh the page to see the latest data for these.
+**Home** and the waiting-conversations badge update live over WebSocket. The metrics on the **Dashboard** page are loaded when you open it or change the date range; refresh the page to see the latest numbers.
 
 ## Customizing Your View
 
@@ -112,7 +119,7 @@ Use the date range selector to choose a preset period (e.g., Last 7 days, Last 3
 
 Spend 2-3 minutes each morning reviewing:
 
-1. Any conversations in the queue
+1. Anything waiting on **Home**
 2. Resolution rate trends
 3. Unusual spikes or drops in volume
 
