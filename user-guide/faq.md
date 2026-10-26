@@ -35,7 +35,7 @@ Hay has four plans (Solo, Starter, Growth and Enterprise), billed monthly or ann
 
 ### Which currencies can I pay in?
 
-Euro, US dollar, British pound and Brazilian real. You pick the currency when you check out (the pricing page pre-selects it from your region) and the subscription stays in that currency. Stripe does not allow switching currency on an existing subscription; to change it, cancel at the end of the period and subscribe again.
+Euro, US dollar, British pound and Brazilian real. You pick the currency when you first check out (the pricing page pre-selects it from your region). Stripe fixes a customer's currency with that first subscription, so later plans, including a new subscription after a cancellation, stay in it. To move to another currency, contact support and we set up a new billing customer for you.
 
 ### Is there a free trial?
 
@@ -44,16 +44,15 @@ Yes. Every new workspace starts on a free trial; the dashboard shows how many da
 ### What's included in my plan?
 
 - A number of AI resolutions per billing period (annual plans get twelve months' worth up front)
-- Unlimited team members and agents
-- All integrations
-- Email support (priority support on Growth and Enterprise)
+- Every channel and integration
+- The support level listed for your plan on [hay.chat/pricing](https://hay.chat/pricing/)
 
 ### What happens if I exceed my resolution limit?
 
 You are warned by email at 50 %, 80 % and 100 % of your included resolutions, and the dashboard shows a banner from 80 %. What happens at 100 % depends on the **Allow extra resolutions** switch on [hay.chat/billing](https://hay.chat/billing/):
 
 - **On (default):** the AI keeps working and each extra resolution is billed at your plan's per-resolution rate on the next invoice.
-- **Off:** the AI pauses. New customer messages wait in **Needs Attention** for your team, your dashboard keeps working, and nothing extra is billed. The AI resumes on its own when the next period starts, or immediately when you switch extra resolutions back on or upgrade.
+- **Off:** the AI pauses. New customer messages wait in **Needs Attention** for your team, your dashboard keeps working, and nothing extra is billed. The AI resumes on its own when the next period starts, or immediately when you switch extra resolutions back on or upgrade. Conversations that were parked while the AI was paused stay in Needs Attention until your team replies or hands them back with **Return to AI**.
 
 ### Can I cancel anytime?
 
@@ -357,7 +356,7 @@ Contact support for API documentation.
 
 ### How do I change my plan?
 
-Go to [hay.chat/billing](https://hay.chat/billing/), open **Plans** and choose the new plan or billing interval. The change applies to your existing subscription immediately and Stripe prorates the difference on your next invoice. Upgrades and downgrades both work this way; nothing creates a second subscription. Payment details and invoices are managed in the Stripe customer portal, reachable from the same page.
+Go to [hay.chat/billing](https://hay.chat/billing/), open **Plans** and choose the new plan or billing interval. The change applies to your existing subscription immediately and Stripe prorates the difference: between two monthly plans it lands on your next invoice; switching between monthly and yearly starts a new billing cycle and is invoiced right away. Upgrades and downgrades both work this way; nothing creates a second subscription. Payment details and invoices are managed in the Stripe customer portal, reachable from the same page.
 
 ### Where do I see my usage?
 
