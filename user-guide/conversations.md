@@ -129,11 +129,14 @@ Want to review AI responses before they reach customers? Use **Test Mode** (also
 
 ### What is Test Mode?
 
-- AI responses are held in a queue before sending
+- AI responses are held in a queue before sending; the customer sees nothing until a team member acts
 - A team member reviews and approves each message
 - Messages can be edited before approval or blocked entirely
+- Approving sends the reply on the conversation's own channel: web widget, WhatsApp, Instagram or Chatwoot
 
 > **Note:** A "Supervise" toggle also appears on conversation pages, but it is not yet functional — it only changes the button label without affecting behavior. For actual review-before-send capability, use Test Mode.
+
+> **WhatsApp and Instagram:** Meta only accepts replies within 24 hours of the customer's last message. A reply approved after that window is not delivered; the message is marked as failed in the conversation and the customer has to write again before you can answer.
 
 ### How to Enable Test Mode
 
@@ -141,7 +144,7 @@ Want to review AI responses before they reach customers? Use **Test Mode** (also
 2. Under **Message Approval**, choose **Require Approval**
 3. Alternatively, set it organization-wide in **Settings** → **General** under Test Mode Default
 
-When enabled, bot messages appear with a "Pending" status and must be approved by a team member before being delivered to the customer.
+When enabled, bot messages appear with a "Queued for Approval" badge and must be approved by a team member before being delivered to the customer. Click **Approve & Send** to review the text, edit it if needed, and send it, or **Block** to discard it.
 
 **Perfect for:**
 

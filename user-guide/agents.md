@@ -139,7 +139,7 @@ Control whether the agent's responses are sent automatically or require human re
 **Options:**
 
 - **Inherit from Organization** - Uses the organization-level default setting
-- **Require Approval** - Agent generates responses but a team member must approve each one before it is sent to the customer; ideal for quality assurance and training
+- **Require Approval** - Agent generates responses but a team member must approve each one before it is sent to the customer, on every channel (web widget, WhatsApp, Instagram, Chatwoot); ideal for quality assurance and training. On WhatsApp and Instagram, approve within 24 hours of the customer's last message or Meta rejects the reply.
 - **Auto-Send** - Agent sends responses immediately without manual review
 
 **How to configure:**
