@@ -5,15 +5,15 @@ description: Your Hay dashboard is mission control for your AI support operation
 section: user-guide
 ---
 
-## Home: what needs you right now
+## Inbox: what needs you right now
 
-When you log in you land on **Home**. It is not a report: it shows only the conversations that need a person.
+On a phone you land on **Inbox** when you log in; on a desktop you land on the **Dashboard** and the Inbox is one click away in the sidebar. The Inbox is not a report: it shows only the conversations that need a person.
 
 - **Waiting for a human** - conversations the AI handed off, longest wait first. Each row shows the customer, the AI's summary, the channel and how long they have waited. Tap **Take over** to pick one up: the AI stops replying and the conversation opens for you.
 - **Being handled** - conversations a team member has already taken over, with the handler's name.
 - **Alerts on this device** - turn this on to get a notification on your phone or computer when a conversation starts waiting, even with the dashboard closed. The notification opens the conversation.
 
-Home updates live as conversations arrive, are taken over or released. The sidebar badge next to **Home** (and the bell in the top bar on phones) shows how many conversations are waiting.
+Inbox updates live as conversations arrive, are taken over or released. The sidebar badge next to **Inbox** (and the bell in the top bar on phones) shows how many conversations are waiting.
 
 ## Dashboard (metrics)
 
@@ -105,7 +105,7 @@ See conversations waiting for human attention. The Queue is accessible at `/queu
 
 ## Real-Time Updates
 
-**Home** and the waiting-conversations badge update live over WebSocket. The metrics on the **Dashboard** page are loaded when you open it or change the date range; refresh the page to see the latest numbers.
+**Inbox** and the waiting-conversations badge update live over WebSocket. The metrics on the **Dashboard** page are loaded when you open it or change the date range; refresh the page to see the latest numbers.
 
 ## Customizing Your View
 
@@ -119,7 +119,7 @@ Use the date range selector to choose a preset period (e.g., Last 7 days, Last 3
 
 Spend 2-3 minutes each morning reviewing:
 
-1. Anything waiting on **Home**
+1. Anything waiting on **Inbox**
 2. Resolution rate trends
 3. Unusual spikes or drops in volume
 

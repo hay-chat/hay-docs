@@ -104,7 +104,7 @@ Sometimes you need to step in and handle a conversation yourself.
 
 ### How to Take Over
 
-From **Home**, tap **Take over** on any conversation in the **Waiting for a human** list. The conversation opens with you in control.
+From **Inbox**, tap **Take over** on any conversation in the **Waiting for a human** list. The conversation opens with you in control.
 
 From a conversation:
 

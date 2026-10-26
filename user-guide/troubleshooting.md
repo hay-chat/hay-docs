@@ -356,7 +356,7 @@ section: user-guide
 
 1. **Is it on for this device?**
 
-   - Go to **Settings → Profile → Notifications** (or look at the bell on Home)
+   - Go to **Settings → Profile → Notifications** (or look at the bell on Inbox)
    - The switch must be on for _this_ browser or phone; it is per device, not per account
    - Use **Send a test alert** to confirm delivery
 
