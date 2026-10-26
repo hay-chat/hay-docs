@@ -332,7 +332,9 @@ Always use the latest version for best performance.
 
 ### Can I use Hay on mobile?
 
-Yes! The dashboard works on tablets and phones through your mobile browser. There's no dedicated mobile app currently.
+Yes, through your phone's browser. There is no app to install. The dashboard adapts to small screens, and the **Home** screen is built for the phone: it lists the conversations waiting for a human, longest wait first, with a **Take over** button on each row.
+
+To be alerted when a customer needs a human while the dashboard is closed, turn on **Alerts on this device** (on Home, or under **Settings → Profile → Notifications**). On iPhone and iPad, first add Hay to your Home Screen (Share → **Add to Home Screen**) and open it from there; iOS only allows alerts for web apps installed that way.
 
 ### Do I need to install anything?
 

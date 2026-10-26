@@ -102,10 +102,18 @@ Sometimes you need to step in and handle a conversation yourself.
 
 ### How to Take Over
 
+From **Home**, tap **Take over** on any conversation in the **Waiting for a human** list. The conversation opens with you in control.
+
+From a conversation:
+
 1. Open the conversation
 2. Click **Take Over** button at the top
 3. Start typing your messages
 4. The AI will stop responding automatically
+
+### Getting Alerted
+
+When the AI hands a conversation off, everyone in the organization with the dashboard open hears a sound and sees a toast. To be alerted with the dashboard closed, turn on **Alerts on this device** on Home or under **Settings → Profile → Notifications**: your browser or phone then shows a notification that opens the conversation. Each device is enabled separately. On iPhone and iPad, add Hay to the Home Screen first and open it from there, otherwise iOS does not deliver notifications.
 
 > **What happens when you take over:**
 >
