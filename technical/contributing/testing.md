@@ -140,8 +140,7 @@ The following is a non-exhaustive list of spec files:
 - `tests/webchat-plugin.spec.ts` - Webchat plugin tests
 - `tests/zendesk-plugin.spec.ts` - Zendesk plugin tutorial tests
 - `tests/atlassian-plugin.spec.ts` - Atlassian plugin tests
-- `tests/email-plugin.spec.ts` - Email plugin tests
-- `tests/email-plugin-installation.spec.ts` - Email plugin installation tests
+- `tests/email-channel-setup.spec.ts` - Email inbox setup wizard tests
 - `tests/webchat-consent-strict.spec.ts` - Webchat consent (strict mode) tests
 - `tests/hubspot-oauth-flow.spec.ts` - HubSpot OAuth flow tests
 - `tests/plugin-health-check-and-settings.spec.ts` - Plugin health check and settings tests

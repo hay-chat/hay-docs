@@ -24,7 +24,7 @@ Each integration has its own guide covering what it is, how to connect it, and w
 - [WhatsApp](/docs/user-guide/integrations/whatsapp/) - Answer WhatsApp messages through Meta's Cloud API
 - [Instagram](/docs/user-guide/integrations/instagram/) - Answer Instagram DMs
 - [Chatwoot](/docs/user-guide/integrations/chatwoot/) - Run Hay as an agent bot inside Chatwoot inboxes
-- [Email inbox](/docs/user-guide/integrations/email-inbox/) - Forward your support mailbox and answer customer emails in-thread
+- [Email inbox](/docs/user-guide/integrations/email-inbox/) - Forward your support mailbox, answer customer emails in-thread, and let the agent email your team
 
 **E-commerce**
 
@@ -49,10 +49,6 @@ Each integration has its own guide covering what it is, how to connect it, and w
 - [Zendesk](/docs/user-guide/integrations/zendesk/) - Tickets, users, macros, and Help Center articles
 - [Atlassian (Jira & Confluence)](/docs/user-guide/integrations/atlassian/) - Jira issues plus Confluence page import
 - [Notion](/docs/user-guide/integrations/notion/) - Import Notion pages into your knowledge base
-
-**Utilities**
-
-- [Email](/docs/user-guide/integrations/email/) - Send notification emails to your team (outbound tool; for customer email see Email inbox above)
 
 ### Web Chat
 
