@@ -563,7 +563,7 @@ Workers call back into core using the injected `HAY_API_URL` + `HAY_API_TOKEN` (
 
 ### Legacy REST callback endpoints
 
-An older Express router still exists alongside the tRPC callback API, mounted at `/v1/plugin-api` (`server/routes/v1/plugin-api/index.ts`), authenticated with the same worker JWT: `POST /send-email` (requires an `email` capability — a legacy value outside the SDK's `PluginCapability` union, used by `plugins/core/email`), `POST /mcp/register-local`, `POST /mcp/register-remote`, and `GET /health`. New plugins should use the tRPC procedures; the REST surface is kept for the email plugin path.
+An older Express router still exists alongside the tRPC callback API, mounted at `/v1/plugin-api` (`server/routes/v1/plugin-api/index.ts`), authenticated with the same worker JWT: `POST /send-email` (requires an `email` capability — a legacy value outside the SDK's `PluginCapability` union, used by the Email inbox plugin, `plugins/core/email-channel`), `POST /mcp/register-local`, `POST /mcp/register-remote`, and `GET /health`. New plugins should use the tRPC procedures; the REST surface is kept for the Email inbox send path.
 
 ---
 

@@ -9,7 +9,7 @@ section: user-guide
 
 Many customers still write to `support@yourstore.com`. The Email inbox channel turns that mailbox into a Hay channel without changing where your email lives: you keep your Gmail, Google Workspace, Outlook or Microsoft 365 account and simply forward a copy of incoming mail to a Hay address that is unique to your workspace. Hay's AI agent answers by email, every reply stays in the customer's thread, and you can step in from the dashboard at any time.
 
-> **Different from the "Email" tool.** The [Email](/docs/user-guide/integrations/email/) integration lets the agent send notification emails to your team. The Email inbox channel receives and answers customer emails.
+It also lets the agent email your team, for example to flag a conversation that needs attention. This replaces the former standalone "Email" integration; workspaces that had it installed were moved to Email inbox automatically.
 
 ## How to Connect Your Inbox
 
@@ -31,6 +31,14 @@ Then make sure an agent handles the channel: open the agent's settings and under
 - **Reply in the thread** — replies are sent as *"Your store name" <support@…hay.chat>* with the headers email clients use to group a thread, so the customer sees one conversation. Replying to Hay's email lands in the same Hay conversation
 - **Human takeover** — replies you write in the dashboard go out by email too. If someone at your store answers a customer directly from your own mailbox, Hay notices the customer's next reply refers to a message it never sent, stops the AI on that conversation and lists it under **Needs attention**
 - **Stay out of trouble** — bounces, out-of-office auto-replies and mailing-list traffic are never answered. Emails that fail the sender's DMARC check are stored but held for a human instead of being answered automatically
+
+## Email Your Team
+
+The agent can send an email to your team with the `send-email` action (`hay-channel-email:send-email` in playbooks), for example "email the team when a customer asks for a refund over $200". The agent writes the subject and body; it cannot choose who receives it.
+
+- Set **Team notification addresses** in the Email inbox settings (comma-separated). If you leave it empty, the email goes to your support address
+- You can use the action without forwarding your mailbox: fill in only the team notification addresses
+- Notification emails use the same sender as customer replies. If your support mailbox forwards one back to Hay, Hay recognises it and ignores it
 
 ## Good to Know
 
