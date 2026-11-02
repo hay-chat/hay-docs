@@ -72,6 +72,9 @@ customer message ──> Conversation.addMessage()
 | `ai_return`        | Conversation entity, when a human hands the conversation back to the AI                               |
 | `recovery`         | `server/services/message-recovery.service.ts` (stale-message recovery)                                |
 | `inactivity`       | `Orchestrator.checkInactivity()` after sending an inactivity warning                                  |
+| `approval_decided` | Conversation entity, when a person approves or rejects a held action                                  |
+| `simulation`       | Offline simulation run (test a conversation without a real customer)                                  |
+| `form_submission`  | The customer submitted an in-conversation form — AI resumes with the answers                          |
 | `sweep`            | The `orchestrator-sweep` scheduled job (safety net, see below)                                        |
 
 The queue message is an `OrchestratorMessage`: `{ messageId, conversationId, organizationId, trigger, timestamp, attempt }`.
@@ -140,7 +143,7 @@ Prompts are file-based markdown templates resolved by `PromptService.getPrompt()
 
 `options` (`ExecuteOptions`) also carries per-turn state owned by the run loop and shared by reference across re-plans: `toolsCalledThisTurn` (the tool ledger) and `turnGuardrailState` (retry budgets).
 
-One structured LLM call against `buildPlannerSchema(allToolNames)` returns `{ step, userMessage, toolName, toolArgs, handoffReason, closeReason, rationale, playbookFits }` with `step ∈ ASK | RESPOND | CALL_TOOL | HANDOFF | CLOSE`. `playbookFits` is the planner's verdict on whether the active playbook still matches the conversation (`null` when none is active) — it feeds the playbook gate. When tools exist, `toolName` is **enum-constrained in the schema** to the allowed set, so the model can't emit a malformed name. The layer then auto-corrects common LLM mistakes: missing step with a tool → `CALL_TOOL`; `RESPOND` with a tool but no message → `CALL_TOOL`; `CALL_TOOL` with a `userMessage` → the message is stripped; invalid tool name or `ASK`/`RESPOND` without a `userMessage` → return `null`, which makes the loop retry the planner.
+One structured LLM call against `buildPlannerSchema(allToolNames)` returns `{ step, userMessage, toolName, toolArgs, handoffReason, closeReason, rationale, playbookFits }` with `step ∈ ASK | RESPOND | CALL_TOOL | HANDOFF | CLOSE | ASK_TEAM | ASK_FORM`. `playbookFits` is the planner's verdict on whether the active playbook still matches the conversation (`null` when none is active) — it feeds the playbook gate. When tools exist, `toolName` is **enum-constrained in the schema** to the allowed set, so the model can't emit a malformed name. The layer then auto-corrects common LLM mistakes: missing step with a tool → `CALL_TOOL`; `RESPOND` with a tool but no message → `CALL_TOOL`; `CALL_TOOL` with a `userMessage` → the message is stripped; invalid tool name or `ASK`/`RESPOND` without a `userMessage` → return `null`, which makes the loop retry the planner.
 
 ## The Execution Loop (`run.ts::handleExecutionLoop`)
 
@@ -148,7 +151,9 @@ Caps: `MAX_ITERATIONS = 15`, `MAX_EMPTY_RETRIES = 3` (after which a canned fallb
 
 - **`playbookFits === false`** — the planner says the customer moved on (e.g. order status → refund): the verdict is persisted to `conversation.metadata.playbookFits`, the selector re-runs, and the plan is discarded and re-made without spending an iteration. Bounded to **one re-selection per turn** so the planner can't ping-pong between playbooks.
 - **`CALL_TOOL`** — a `TOOL`-type message is written with `toolStatus: "RUNNING"`, then `ToolExecutionService.handleToolExecution()` runs the tool and updates the message in place; the outcome is recorded in the tool ledger and the loop continues so the planner can read the result. A guard in `run.ts` blocks non-core tools not present in `enabled_tools` — the blocked call is fed back to the model as a `TOOL` error message and does **not** count against the iteration cap. After a successful `recommend_products` call, `maybeEmitProductRecommendation()` emits a separate `PRODUCT_RECOMMENDATION` message carrying the product payload for the webchat/dashboard cards.
-- **`HANDOFF`** — status becomes `pending-human` (broadcast via WebSocket) and `generateHandoffSummary()` is fired asynchronously (prompt `conversation/handoff-summary`, last 15 public messages, saved to `conversation.summary` for the human agent). If online humans exist (`userRepository.findOnlineByOrganization`), the agent's `human_handoff_available_instructions` are injected and the loop continues, or a default/LLM-generated transfer message is sent; with nobody online, `human_handoff_unavailable_instructions` or a default apology. A `handoffProcessed` flag deduplicates repeated HANDOFF steps.
+- **`HANDOFF`** — status becomes `pending-human` (broadcast via WebSocket) and `generateHandoffSummary()` is fired asynchronously (prompt `conversation/handoff-summary`, last 15 public messages, saved to `conversation.summary` for the human agent). Availability is determined by `getAvailability()` from `business-hours.service.ts`, which checks business hours and `countReachableMembers()`. If team members are reachable, the agent's `human_handoff_available_instructions` are injected and the loop continues, or a default/LLM-generated transfer message is sent; with nobody reachable, `human_handoff_unavailable_instructions` or a default apology. A `handoffProcessed` flag deduplicates repeated HANDOFF steps.
+- **`ASK_TEAM`** — Quick Check: the AI stores a specific factual question for the team and sends a fixed holding line to the customer. When a team member answers, an `approval_decided` trigger re-enqueues the conversation so the AI can resume with the answer. Falls back to `HANDOFF` if Quick Check is not enabled for the organization.
+- **`ASK_FORM`** — emits a `FORM`-type message in `PENDING` state and pauses the execution loop. When the customer submits the form, a `form_submission` trigger re-enqueues the conversation. The AI resumes with the form answers in context.
 - **`CLOSE`** — optional final message, Redis secrets deleted, loop ends. (The conversation status itself is resolved by the closure path in perception or by inactivity — CLOSE only ends the turn.)
 - **`RESPOND` / `ASK`** — the bot message is sent with guardrail metadata attached. If the result also carries an unexecuted tool, the message is flagged `potentialHallucination` in metadata and an error is logged.
 
@@ -171,7 +176,7 @@ All Stage 1/2 outcomes are appended to `orchestration_status.guardrailLog` (plus
 
 `Orchestrator.checkInactivity()` (`server/orchestrator/index.ts`), helpers in `conversation-utils.ts`. Thresholds derive from `config.conversation.inactivityInterval`:
 
-- **½×** — LLM-generated warning message (marked `metadata.isInactivityWarning`), conversation re-enqueued with trigger `"inactivity"`.
+- **½×** — LLM-generated warning message (marked `metadata.isInactivityWarning`). The warning no longer re-enqueues the conversation; a subsequent customer reply triggers its own enqueue.
 - **1×** — close with a message.
 - **2×** — close silently; empty conversations older than 2× are deleted outright.
 
@@ -180,7 +185,7 @@ Closures set `status: "resolved"`, fire the `conversation.resolved` hook, and tr
 ## Extending the Orchestrator
 
 - **Change LLM behavior** — edit the prompt file under `server/prompts/en/…` (and translations under `pt/`, `es/`); keep the JSON schema in the layer in sync if the output shape changes.
-- **New planner step type** — extend the `step` enum in `buildPlannerSchema()` and `ExecutionResult` (`execution.layer.ts`), then add a branch in `handleExecutionLoop()` (`run.ts`).
+- **New planner step type** — extend the `step` enum in `buildPlannerSchema()` and `ExecutionResult` (`execution.layer.ts`), then add a branch in `handleExecutionLoop()` (`run.ts`). Existing non-standard steps to reference: `ASK_TEAM` (quick check with team) and `ASK_FORM` (in-conversation form collection).
 - **New processing trigger** — add it to `OrchestratorTrigger` and call `orchestratorQueueService.enqueue()` from wherever the event originates. Never call `runConversation()` directly from request handlers; go through the queue so locking, retries, and the sweep apply.
 - **New always-available tool** — register it in the core tool registry (`server/services/core/core-tools`); it will be merged into the planner's tool list and exempted from the `enabled_tools` gate automatically.
 - **New early-exit condition** — if it should not be retried, add its error message to `isNonRetryableError()` in `orchestrator.worker.ts`.

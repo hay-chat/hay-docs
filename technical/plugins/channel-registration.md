@@ -56,7 +56,7 @@ Field-by-field (interface `HayPluginBlock` in `server/services/plugin-manager.se
 
 **Channel slug rules:**
 
-- One plugin per slug. Core resolves the channel with `pluginManagerService.findPluginIdByChannel(channel)`, which returns the first loaded plugin whose `hay-plugin.channel` matches — there is no conflict handling, so pick a slug no other plugin uses.
+- One plugin per slug. Core resolves the channel with `pluginManagerService.findPluginIdByChannel(organizationId, channel)`, which returns the first enabled plugin instance for the org whose `hay-plugin.channel` matches — there is no conflict handling, so pick a slug no other plugin uses.
 - `"web"` is reserved for the built-in webchat/dashboard channel; the delivery service explicitly skips it.
 - The plugin API validates `channel` as a 1–64 character string. Use lowercase.
 
@@ -145,9 +145,9 @@ Input schema (`server/routes/v1/plugin-api/trpc.ts`, requires the `messages` cap
 What core does with it:
 
 1. **Customer** — finds or creates a `Customer` keyed on `external_id` = `from` for the org. `metadata.profileName` backfills the name, `metadata.phone` the phone; all metadata is stored under `customer.external_metadata[channel]`.
-2. **Agent** — resolves the responding agent for the channel: agents explicitly assigned to the channel first (preferring the org default agent, then the earliest-created), then the org default agent, then the first available agent. If the org has no agents at all, the call fails with `NOT_FOUND`.
+2. **Agent** — resolves the responding agent for the channel: agents explicitly assigned to the channel first (preferring the org default agent, then the earliest-created), then the org default agent, then the first available agent. When no agents exist at all, the conversation is created with `holdForHuman = true` and parked in the inbox for a human to pick up.
 3. **Conversation** — reuses the customer's active conversation on that channel or creates one. `externalConversationId` is stored in `conversation.metadata[channel].conversationId` so outbound delivery can reuse it.
-4. **Dedupe** — if `metadata.mid` is a non-empty string, core claims it atomically in Redis (24h TTL). Redelivered webhooks with the same `mid` return `{ processed: false, deduped: true }` and create no message. **Channels that don't pass `mid` get no dedupe** — always set it if the provider gives you a message id. (Of the shipped plugins, only Instagram does; WhatsApp and Chatwoot pass provider message ids under other metadata keys, which core ignores for dedupe.)
+4. **Dedupe** — if `metadata.mid` is a non-empty string, core claims it atomically in Redis (24h TTL). Redelivered webhooks with the same `mid` return `{ processed: false, deduped: true }` and create no message. **Channels that don't pass `mid` get no dedupe** — always set it if the provider gives you a message id. (Of the shipped plugins, both Instagram and WhatsApp pass `metadata.mid` for core dedupe; only Chatwoot still lacks it.)
 5. **Human-agent forwarding** — `senderType: "human_agent"` (a human replied on the external system, e.g. a Chatwoot agent) records the message as a human-agent message, tags it `externalOrigin: true` so it is never echoed back to the channel, and flips the conversation to `human-took-over` so the AI orchestrator stops responding.
 
 Return value: `{ messageId, conversationId, processed, deduped }`.
@@ -163,7 +163,7 @@ Other plugin API procedures useful to channel plugins (same auth, capability-gat
 When the orchestrator (or a human agent in the dashboard) produces a reply on a non-web channel, `server/services/channel-delivery.service.ts` picks it up from the Redis `websocket:events` stream and delivers it via your plugin:
 
 1. Only `BotAgent` / `HumanAgent` messages with `deliveryState === "sent"` are delivered. Messages queued for approval by test mode (`deliveryState === "queued"`) are skipped until approved, and messages tagged `externalOrigin: true` are never echoed back.
-2. Core looks up your plugin with `findPluginIdByChannel(conversation.channel)`, starts the org's worker if needed, and POSTs to the worker's `/deliver` route:
+2. Core looks up your plugin with `findPluginIdByChannel(organizationId, conversation.channel)`, starts the org's worker if needed, and POSTs to the worker's `/deliver` route:
 
 ```typescript
 // Request body
@@ -174,6 +174,9 @@ When the orchestrator (or a human agent in the dashboard) produces a reply on a 
   conversationId: string;
   conversationMetadata: Record<string, unknown> | null;  // includes metadata[channel].conversationId if set
   messageMetadata: Record<string, unknown> | null;
+  messageType: string;                               // e.g. "HumanAgent" — Meta allows human-tag replies outside the 24h window
+  language: string | null;                           // conversation language for template selection
+  attachments: Array<{ name: string, url: string, type: string, size: number }>;
 }
 
 // Expected response body
@@ -188,7 +191,7 @@ When the orchestrator (or a human agent in the dashboard) produces a reply on a 
 
 ### Escalation: `POST /escalate` (optional)
 
-When a conversation flips to `pending-human` on a non-web channel, core POSTs `{ conversationId, conversationMetadata, reason: "orchestrator_handoff" }` to the worker's `/escalate` route so the plugin can perform a provider-side handoff (e.g. Chatwoot reopens the ticket and assigns a team). This is **best-effort**: if your plugin doesn't register `/escalate`, the resulting 404 is silently tolerated.
+When a conversation flips to `pending-human` on a non-web channel, core POSTs `{ conversationId, conversationMetadata, reason: "orchestrator_handoff", attachments: [...] }` to the worker's `/escalate` route so the plugin can perform a provider-side handoff (e.g. Chatwoot reopens the ticket and assigns a team). This is **best-effort**: if your plugin doesn't register `/escalate`, the resulting 404 is silently tolerated.
 
 ---
 
