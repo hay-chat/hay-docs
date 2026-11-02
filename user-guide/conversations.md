@@ -49,7 +49,7 @@ Find specific conversations quickly:
 
 > **Note:** The timeframe filter is not yet functional — selecting a timeframe currently has no effect. Channel and agent filters are planned but not yet available.
 
-> **Note:** The "Active" and "Escalated" status filters don't currently match any real conversation status. The filter does a strict equality check against actual status values (`open`, `processing`, `pending-human`, `human-took-over`, `resolved`, `closed`), so selecting "Active" or "Escalated" may return no results.
+> **Note:** The "Active" and "Escalated" status filters don't currently match any real conversation status. The filter does a strict equality check against actual status values (`open`, `processing`, `pending-human`, `human-took-over`, `awaiting-approval`, `resolved`, `unresolved`, `closed`), so selecting "Active" or "Escalated" may return no results.
 
 ## Conversation Statuses
 
@@ -61,7 +61,9 @@ Understanding what each status means:
 | **Processing**      | AI is thinking and preparing a response  | Wait a few seconds           |
 | **Needs Attention** | Customer needs human help | Appears in your Queue        |
 | **Manual Control** | A team member is now handling it | AI stops responding          |
+| **Awaiting Approval** | A team member must approve or reject a proposed action before the AI continues | Message held until reviewed |
 | **Resolved**        | Issue was solved successfully            | Conversation is complete     |
+| **Unresolved**      | Conversation closed without solving the customer's issue | No further action needed |
 | **Closed**          | Conversation ended                       | No further action needed     |
 
 ## Opening a Conversation
@@ -218,6 +220,7 @@ Save a complete record:
 - 📄 **Document** - Document reference
 - 📋 **Playbook** - Playbook step
 - 🛒 **ProductRecommendation** - Suggested product(s)
+- 📝 **Form** - Form interaction
 
 > **Note:** Feedback (👍/👎) is an action on a BotAgent message, not a separate message type. File and image attachments are shown via a 📎 paperclip icon on the message that carries them, not as their own message type.
 

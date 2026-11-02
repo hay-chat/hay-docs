@@ -592,7 +592,7 @@ Test changes before rolling out everywhere:
 
 **Do:**
 
-- ✅ Use strong passwords and 2FA
+- ✅ Use strong passwords
 - ✅ Limit access to what each person needs
 - ✅ Review user access quarterly
 - ✅ Log out when leaving computer

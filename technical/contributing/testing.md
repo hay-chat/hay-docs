@@ -79,7 +79,7 @@ extracting tokens from the storage state file by hand:
 - Tokens expire after 7 days (JWT default, configurable via `JWT_EXPIRES_IN`)
 
 **Note on the storage state file:** `playwright/.auth/user.json` stores the token inside a
-JSON-stringified `pinia:auth` localStorage entry, and the expiry field there is `expiresAt`
+JSON-stringified `auth` localStorage entry, and the expiry field there is `expiresAt`
 (an absolute epoch-ms timestamp), not `expiresIn` (a relative seconds value). If you need to
 navigate manually with the `?accessToken=&refreshToken=&expiresIn=` URL params, call the
 `POST /v1/auth.login` endpoint directly (the same thing `navigateWithAuth()` does) to get a
