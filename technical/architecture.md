@@ -130,7 +130,7 @@ RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-b
 Multiple security layers:
 
 1. **Network**: TLS/SSL encryption for all traffic
-2. **Authentication**: JWT with configurable expiration (default 7 days, refresh tokens 30 days)
+2. **Authentication**: JWT with configurable expiration (default 7 days, refresh tokens 90 days)
 3. **Authorization**: Role-based access control (RBAC)
 4. **Input Validation**: Sanitize all user input
 5. **Output Encoding**: Prevent XSS attacks

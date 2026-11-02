@@ -196,12 +196,15 @@ Inject the user's external ID server-side into your page and pass it to the widg
     config: {
       organizationId: "org_xxx",
       baseUrl: "https://app.hay.so",
-      customerExternalId: "ext_usr_456", // inject this from your server, not from user input
+      customerExternalId: "ext_usr_456", // inject from your server
+      customerExternalIdSignature: "a1b2c3...", // HMAC-SHA256 of the external ID, computed server-side
     },
   };
 </script>
 <script src="https://cdn.hay.chat/widget.js" async></script>
 ```
+
+> **Identity verification required.** `customerExternalIdSignature` is an HMAC-SHA256 hex digest of `customerExternalId`, computed on your server using your organization's identity secret (found in **Settings → Webchat**). Without a valid signature, the external ID is ignored and the visitor is treated as anonymous. Never expose the identity secret client-side.
 
 You can still layer in ephemeral context client-side and attach per-conversation secrets via `onConversationStarted`:
 
@@ -211,6 +214,7 @@ You can still layer in ephemeral context client-side and attach per-conversation
     config: {
       organizationId: "org_xxx",
       customerExternalId: "ext_usr_456",
+      customerExternalIdSignature: "a1b2c3...", // HMAC-SHA256, computed server-side
 
       context: {
         currentPage: window.location.pathname, // ephemeral, this conversation only
@@ -237,7 +241,7 @@ You can still layer in ephemeral context client-side and attach per-conversation
 | Server involvement | None                                 | Per conversation                     | Per setup                                     |
 | Secrets support    | No                                   | Yes                                  | No                                            |
 | Context lifetime   | Conversation                         | Conversation                         | Until you update it                           |
-| Setup effort       | Minimal                              | Medium                               | Medium                                        |
+| Setup effort       | Minimal                              | Medium                               | Medium (requires server-side HMAC signing)    |
 | Best for           | Page context, non-sensitive metadata | Auth tokens, per-request credentials | Persistent user profiles, non-sensitive state |
 
 Paths B and C are designed to be combined: use Path C to load the user's stored profile automatically, and add `onConversationStarted` to attach per-conversation secrets on top.
@@ -350,7 +354,7 @@ Available secrets (values are hidden — reference as <<secret.keyname>> in tool
 - **Conversation-scoped secrets are ephemeral** — stored in Redis with a 24-hour TTL, scoped to the conversation, never written to the database. If the user opens a new conversation (e.g. after closing the browser), your `onConversationStarted` callback fires again and you re-attach fresh secrets.
 - **Customer records store only public context** — no secrets are ever written to the database. If you need per-user credentials, attach them per-conversation via `onConversationStarted`.
 - **`conversation.id` is not sensitive** — passing it from the browser to your backend (Path B) does not expose anything meaningful. The DPoP keypair is what authenticates the conversation.
-- **`customerExternalId` should come from your server** — inject it into the page server-side rather than deriving it from user input. If a user tampers with it in the browser console, they can only affect their own AI session context (no secrets, no conversation history access).
+- **`customerExternalId` requires a server-side signature** — pass `customerExternalIdSignature` alongside it: an HMAC-SHA256 hex digest of the external ID, computed on your server using your organization's identity secret (available in **Settings → Webchat**). Without a valid signature, the external ID is silently ignored and the visitor is treated as anonymous. This prevents a user from impersonating another customer by tampering with the ID in the browser console. **Never expose the identity secret in client-side code.**
 - **Validate on your side** — Hay does not verify that the user making the widget request is who you say they are. That is your backend's responsibility. Always authenticate the request in your own middleware before calling `addSecrets`.
 
 ---

@@ -39,7 +39,7 @@ Hay works where your team already does. You can connect integrations now or skip
 
 Your agent is your AI assistant. Give it a personality and purpose.
 
-1. Go to **Settings** → **Agents**
+1. Go to **Settings** → **Assistant**
 2. Click **Create Agent**
 3. Fill in the basic information:
 
@@ -141,7 +141,7 @@ Your Hay agent is now ready to start helping customers!
 
 Now that you're up and running:
 
-1. **Monitor the Queue** - Visit `/queue` to check for conversations that need human attention
+1. **Monitor the Inbox** - Visit **Inbox** in the sidebar to check for conversations that need human attention
 2. **Review Dashboard** - See how your agent is performing at a glance
 3. **Add More Documents** - Keep training your agent with new information
 4. **Create More Playbooks** - Automate more types of requests

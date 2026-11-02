@@ -87,6 +87,12 @@ interface HayPluginBlock {
   autoActivate?: boolean;       // legacy (document importers)
   trpcRouter?: string;          // legacy (document importers)
   documentImporter?: boolean;   // legacy (document importers)
+  defaultEnabled?: boolean;     // auto-enable for new organizations
+  oauthHosts?: string[];        // additional OAuth redirect hosts
+  rendering?: {                 // channel-specific rendering hints
+    markdown?: "plain" | "rich";
+    productRecommendations?: "text" | "carousel";
+  };
 }
 ```
 
@@ -121,7 +127,7 @@ There is no in-process plugin loading and no generic "process manager" service �
    - `HAY_ORG_CONFIG` — JSON: `{ org: { id }, config: <resolved config> }`
    - `HAY_ORG_AUTH` — JSON-serialized `AuthState` (decrypted credentials)
    - `HAY_API_URL` + `HAY_API_TOKEN` — a JWT (`generatePluginJWT`) scoped to `{ organizationId, pluginId, scope: "plugin-api", capabilities }`, expiring in 24h, so the worker can call back into core
-   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through a deny-pattern list (`SECRET`, `PASSWORD`, `TOKEN`, `PRIVATE_KEY`, `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`) so secret-looking names are blocked by default
+   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through two deny-pattern lists: `CORE_RESERVED_ENV_PATTERNS` (`^DB_`, `^DATABASE`, `^REDIS`, `^RABBITMQ`, `^HAY_`, `^INTERNAL_API`) blocks core infrastructure vars, and `SECRET_ENV_PATTERNS` (`SECRET`, `PASSWORD`, `TOKEN`, `PRIVATE.?KEY`, `CREDENTIAL`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^LLM_`, `^ENCRYPTION`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^VAPID_PRIVATE`, `^STRIPE_SECRET_KEY$`, `^STRIPE_WEBHOOK_SECRET$`, `^RESEND_EVENTS_WEBHOOK_SECRET$`) blocks secret-looking names
 6. Wait for the worker's **`GET /metadata`** endpoint to respond (up to 20 attempts × 500ms) — not `/health`.
 7. Update the `PluginInstance` row: `runtimeState = "ready"`, `running = true`, `processId`, health `"healthy"`. On failure: `runtimeState = "error"` + `lastError`.
 8. Kick off MCP tool discovery in the background (`fetchAndStoreTools` in `server/services/plugin-tools.service.ts`, which caches the worker's `GET /mcp/list-tools` result).
@@ -146,7 +152,7 @@ The SDK runner's HTTP server (`packages/plugin-sdk/runner/http-server.ts`) expos
 | `POST /mcp/call-tool`, `GET /mcp/list-tools` | MCP tool invocation / discovery                                                                                                                                                          |
 | _(dynamic)_                                  | Any route the plugin declared via `register.route(method, path, handler)` — mounted verbatim on the Express app (this is how channel plugins expose `/webhook`, `/deliver`, `/escalate`) |
 
-All dashboard/webhook traffic to a worker goes through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The proxy resolves the organization **only** from the `organizationId` query param or the `x-organization-id` header (`extractorganizationId`) — both are validated as a UUID and checked against the DB before use. There is no subdomain-based resolution. A third path, resolving the org from an auth token (JWT) for authenticated webhook endpoints, is marked `// TODO` in the code and not implemented. Once resolved, the proxy starts the worker on demand, bumps its activity timestamp, strips credential-bearing headers (`authorization`, `cookie`, `proxy-authorization`, etc.), and forwards the request.
+All dashboard/webhook traffic to a worker goes through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The proxy resolves the organization **only** from the `organizationId` query param or the `x-organization-id` header (`extractorganizationId`) — both are validated as a UUID and checked against the DB before use. There is no subdomain-based resolution. A third path, resolving the org from an auth token (JWT) for authenticated webhook endpoints, is marked `// TODO` in the code and not implemented. Once resolved, the proxy starts the worker on demand, bumps its activity timestamp, strips credential-bearing headers (`authorization`, `cookie`, `proxy-authorization`, `x-forwarded-for`, `x-real-ip`, `content-length`, `x-hay-webhook-verified`, `x-hay-worker-secret`), and forwards the request.
 
 ---
 
@@ -209,6 +215,7 @@ One row per `(organizationId, pluginId)` — the org's enablement, config, auth,
 | `status`                                                                              | varchar                     | legacy field (`stopped`/`starting`/`running`/`stopping`/`error`), kept for backwards compatibility                                    |
 | `runtimeState`                                                                        | varchar                     | the current state machine field (`PluginInstanceRuntimeState`)                                                                        |
 | `lastActivityAt`                                                                      | timestamptz                 | idle-kill input                                                                                                                       |
+| `channelHealth`                                                                       | jsonb, nullable             | Channel health status reported by the plugin (e.g. API connectivity, rate limits)                                                     |
 | `priority`                                                                            | integer                     |                                                                                                                                       |
 
 ### `plugin_webhook_routes` (`plugin-webhook-route.entity.ts`)
@@ -261,7 +268,7 @@ Some providers (e.g. Meta) deliver all events for all customers to **one** webho
 The dispatch point is in the proxy (`server/routes/v1/plugins/proxy.ts`): a request to `.../webhook` with **no** org identifier, for a plugin that declared a routing descriptor, is diverted to `webhookRouterService.handle()` (`server/services/webhook-router.service.ts`), which:
 
 1. Answers the provider's GET verification handshake if declared (echoes the challenge param after checking the verify token).
-2. For POSTs, verifies the HMAC over the raw body bytes (`verifyHmacSha256` from `server/services/plugin-route.service.ts`).
+2. For POSTs, verifies the HMAC over the raw body bytes (`verifyHmacSha256` from `server/lib/hmac-signature.ts`).
 3. Extracts a routing key per payload entry (`routeKeyPath`), resolves key → org via `plugin_webhook_routes`, and fans each entry out to the right org's worker `POST /webhook` (with credential-bearing headers stripped). With `nested`, each entry's sub-array is filtered per org first: sub-items route by their own key, keyless sub-items go to the entry owner, unknown nested keys are dropped, and each org gets a clone of the entry with only its sub-items.
 
 Core never learns which provider it's routing for — all provider knowledge is in the plugin's declaration.

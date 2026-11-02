@@ -50,6 +50,8 @@ Each integration has its own guide covering what it is, how to connect it, and w
 - [Atlassian (Jira & Confluence)](/docs/user-guide/integrations/atlassian/) - Jira issues plus Confluence page import
 - [Notion](/docs/user-guide/integrations/notion/) - Import Notion pages into your knowledge base
 
+> **Note:** The following plugins are available but do not yet have documentation pages: Mercado Pago, Facebook Messenger, Nuvemshop, and Spacebring.
+
 ### Web Chat
 
 Add a live chat widget to your website. Web Chat is a built-in Hay feature, not a marketplace plugin.
@@ -132,7 +134,7 @@ To remove an integration:
 - ✅ Emoji support
 - ✅ Conversation history
 - 🔜 Read receipts — planned
-- 🔜 File uploads — planned
+- ✅ File uploads (images and PDF, max 10 MB)
 - 🔜 Proactive chat (trigger by page, time on site, etc.) — planned
 
 ### WhatsApp Features

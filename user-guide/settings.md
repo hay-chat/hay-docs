@@ -9,21 +9,19 @@ section: user-guide
 
 Click **Settings** in the left sidebar to expand the settings menu. What you see depends on your role:
 
-**Admins and Owners** see the full menu:
+**Admins and Owners** see the full menu, organized into sections:
 
-- **General** — organization details, platform preferences, AI confidence guardrails
-- **Agents** — manage your AI agents (see the [Agents guide](/docs/user-guide/agents/))
-- **Channels** — manage communication channels
-- **Users** — team members and invitations
-- **Privacy & Data** — your own GDPR rights (export/delete your account)
-- **API Tokens** — organization-level API access
-- **Webchat** — website chat widget configuration
-- **Git Connections** — install plugins from GitHub repositories
-- **AI Models** — the AI provider and models behind your agents
+- **Assistant** — Identity (agent configuration), Actions (AI action approval settings), AI Models (provider and model selection)
+- **Channels** — Channel List (manage communication channels), Webchat (website chat widget), Business Hours (availability schedule)
+- **Workspace** — General (organization details, platform preferences, AI confidence guardrails), Users (team members and invitations)
+- **Privacy** — Workspace Data (your own GDPR rights — export/delete your account), Customer Privacy (GDPR requests on behalf of customers, data retention policy)
+- **Developers** — API Tokens (organization-level API access), Git Connections (install plugins from GitHub repositories)
+- **Billing & Usage** — Usage (resolution tracking and billing overview)
+- **My Profile** — your personal profile, email, and password
 
 **All roles** see:
 
-- **Customer Privacy** — GDPR requests on behalf of customers, and the data retention policy
+- **Customer Privacy** (under Privacy) — GDPR requests on behalf of customers, and the data retention policy
 - **My Profile** — your personal profile, email, and password
 
 Installed plugins can add their own entries to the Settings menu (these are shown to Admins and Owners only).

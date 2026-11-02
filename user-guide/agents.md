@@ -21,7 +21,7 @@ You can have multiple agents, each specialized for different needs.
 
 ### Step 1: Navigate to Agents
 
-1. Click **Agents** in the left sidebar
+1. Go to **Settings** → **Assistant** in the left sidebar
 2. Click **Create Agent** button
 
 ### Step 2: Basic Information
@@ -123,7 +123,7 @@ Your agent is now ready to start handling conversations!
 
 Need to make changes? Easy!
 
-1. Go to **Agents** in the sidebar
+1. Go to **Settings** → **Assistant** in the sidebar
 2. Click on the agent you want to edit
 3. Make your changes
 4. Click **Save Changes**

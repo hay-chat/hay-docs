@@ -14,7 +14,7 @@ Hay's working analytics are found in two places:
 
 > **Important:** The pages at `/analytics`, `/analytics/reports`, and `/insights` also exist, but they are **UI previews populated with demo data** - the numbers shown there are not calculated from your account. They are covered at the end of this guide so you can tell them apart from real data.
 
-Only the Dashboard has a sidebar entry. There is no Analytics or Insights entry in the sidebar - Feedback Insights and the preview pages are reached by direct URL.
+The Dashboard has its own sidebar entry. The sidebar also has a **Quality** section containing **Tests**, **Insights**, and **Feedback** entries. The preview pages at `/analytics` and `/analytics/reports` are not linked from the sidebar and are reached by direct URL only.
 
 ## Real Metrics (Dashboard)
 
@@ -107,14 +107,6 @@ While testing a new agent, rate its messages liberally - the feedback history be
 ## Demo / Preview Pages
 
 The following pages exist in the product but display **hardcoded demo data**. Do not use them to make decisions.
-
-### `/analytics` - Analytics
-
-Shows KPI cards (Total Conversations, Resolution Rate, Avg Response Time, Customer Satisfaction), Response Time Distribution, Top Issues, an Agent Performance table, and Channel Performance. All of these figures are demo placeholders. The Customer Satisfaction KPI card shows a percentage format, while the Agent Performance table uses star-based satisfaction scores. The timeframe selector, **Export**, and **Refresh** buttons do nothing yet. The two chart areas ("Conversation Volume", "Resolution Rate Trend") are empty placeholders. The only real element is the list of channels itself, which reflects your enabled channel plugins - the metrics next to them do not.
-
-### `/analytics/reports` - Custom Reports
-
-A preview of a report builder (Report Configuration, Metrics Selection, Grouping & Filters, Visualization, Quick Templates, Recent Reports). Generating, saving, scheduling, viewing, and downloading reports are all not implemented - the buttons do nothing yet, and the "Recent Reports" list is demo data.
 
 ### `/insights` - Insights
 

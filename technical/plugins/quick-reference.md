@@ -52,7 +52,7 @@ navOrder: 5
 ```
 
 - **Categories**: `integration | channel | tool | analytics | products` (document importers are marked separately via `"documentImporter": true` in the `hay-plugin` block, not a category)
-- **Capabilities**: `mcp | auth | config | routes | ui | cron | products` (+ `messages | customers | sources` for channels)
+- **Capabilities**: `mcp | auth | config | routes | ui | cron | products | disputes | tickets | email | webchat | setup` (+ `messages | customers | sources` for channels)
 - **SDK path** is `file:../../../packages/plugin-sdk` — note `packages/`
 - Channel plugins add `"channel": "<slug>"` and (if needed) `"env": ["VAR_A", "VAR_B"]` — the allow-list for host env fallbacks
 
@@ -107,7 +107,7 @@ export default defineHayPlugin((globalCtx) => ({
 | `onInitialize(ctx)`   | Once per worker boot            | `register.*` only — no I/O                                   |
 | `onStart(ctx)`        | Per-org start/restart           | Read `ctx.config`/`ctx.auth`, start MCP                      |
 | `onValidateAuth(ctx)` | Credentials change              | Return `true`/`false`; a throw = invalid (logged, not shown) |
-| `onConnected(ctx)`    | Right after OAuth tokens stored | Return `{ routingKeys }` for shared webhooks                 |
+| `onConnected(ctx, extras?)` | Right after OAuth tokens stored | Return `{ routingKeys?, account?, credentials? }`            |
 | `onConfigUpdate(ctx)` | Settings saved                  | Platform restarts registered MCP servers itself              |
 | `onDisable(ctx)`      | Disable/uninstall               | Tear down pollers/clients                                    |
 
@@ -243,6 +243,18 @@ ctx.register.ui.page({
 ```
 
 Requires the `ui` capability and a `vite.config.ui.ts` that builds `components/` into `dist/ui.js` (UMD, Vue externalized).
+
+### Setup Flow & Webchat Customization
+
+```typescript
+// Multi-step setup with status tracking
+ctx.register.setup({
+  steps: [{ id: "connect", label: "Connect Account" }, { id: "configure", label: "Configure" }],
+});
+
+// Webchat gate events (channel plugins)
+ctx.register.webchat({ /* ... */ });
+```
 
 ---
 

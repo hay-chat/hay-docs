@@ -15,7 +15,7 @@ Hay runs every AI `RESPOND` step through a three-stage guardrail pipeline before
 
 - **Stage 0 — Action-Claim Consistency**: blocks responses that claim a state-changing action was performed when no tool call backs it this turn.
 - **Stage 1 — Company Interest Protection**: blocks responses that harm company interests (off-topic, competitor info, fabrications).
-- **Stage 2 — Fact Grounding**: verifies company-specific claims against retrieved documents, tool results, and the active playbook.
+- **Stage 2 — Fact Grounding**: runs on every reply — a lightweight grounding-only check by default, or a full three-component assessment when Stage 1 flags company claims. Verifies responses against retrieved documents, tool results, and the active playbook.
 
 The pipeline lives in `applyConfidenceGuardrails()` in `/server/orchestrator/execution.layer.ts`. Stage 0 runs first — even for conversational intents — while Stages 1 and 2 are skipped entirely when the customer's last message has an exempt intent (`GREET`, `CLOSE_SATISFIED`, `CLOSE_UNSATISFIED`), so a false "I've cancelled it, glad I could help!" on a closing message is still caught.
 
@@ -166,7 +166,7 @@ On evaluation error, Stage 1 allows the response but forces `requiresFactCheck: 
 
 ### Purpose
 
-Only activated when Stage 1 passes AND sets `requiresFactCheck: true`. Verifies that factual claims about the company are grounded in evidence. Implemented by `ConfidenceGuardrailService` (`assessConfidence()`).
+Runs on every reply. When Stage 1 sets `requiresFactCheck: true`, the full three-component assessment (grounding + retrieval + certainty) runs. Otherwise, a lightweight grounding-only check runs first; if the grounding score falls below `mediumThreshold`, the full assessment follows. Implemented by `ConfidenceGuardrailService` (`assessConfidence()`).
 
 ### Grounding Sources
 
@@ -182,7 +182,7 @@ Weights are fixed in `ConfidenceGuardrailService.WEIGHTS`:
 
 #### Grounding Score (60% weight)
 
-LLM evaluation (prompt `execution/confidence-grounding`) of whether the response is extracted from the provided context vs. the model's prior knowledge. Returns 0.0 automatically when no documents/evidence were retrieved; on evaluation error a conservative 0.3 is used.
+LLM evaluation (prompt `execution/confidence-grounding`) of whether the response is extracted from the provided context vs. the model's prior knowledge. When no documents were retrieved, the LLM evaluates the response against a "no documents" placeholder — a claim-free reply (greeting, "let me check") scores high, while a specific company claim scores low. On evaluation error a conservative 0.3 is used.
 
 #### Retrieval Score (30% weight)
 
@@ -214,7 +214,7 @@ When Medium confidence (`performRecheck()`):
 
 If `shouldEscalate` (low tier) — or a recheck still lands in the low tier:
 
-- `enableEscalation: true` → convert to `HANDOFF` with reason "Low confidence in AI response - unverified company claims".
+- `enableEscalation: true` → convert to `HANDOFF` with reason "Low confidence in AI response - unverified company claims". When the organization has Quick Check enabled, the result may be `ASK_TEAM` instead — the AI asks the team a specific factual question and continues after their answer, avoiding a full handoff.
 - `enableEscalation: false` → replace the response with the fallback message.
 
 In both cases the replaced text is preserved as `originalMessage`.

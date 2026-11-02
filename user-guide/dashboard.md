@@ -87,13 +87,13 @@ Click on any conversation to:
 - Take over if needed
 - Review customer feedback
 
-### Check the Queue
+### Check the Inbox
 
-See conversations waiting for human attention. The Queue is accessible at `/queue` but does not appear in the main sidebar navigation.
+See conversations waiting for human attention via the **Inbox** in the sidebar.
 
-- Navigate to `/queue` to view pending conversations
-- Open any conversation to respond
-- Take over to chat directly with the customer
+- Click **Inbox** to view conversations that need a person
+- Tap **Take over** to pick up a conversation
+- The AI stops replying and you can chat directly with the customer
 
 ### Monitor Agents
 
@@ -152,7 +152,7 @@ Some metrics are calculated every few minutes, not instantly. Refresh your brows
 
 ### What are the possible conversation statuses?
 
-Conversations move through these statuses: `open`, `processing`, `pending-human`, `human-took-over`, `resolved`, and `closed`. There is no "active" status.
+Conversations move through these statuses: `open`, `processing`, `pending-human`, `human-took-over`, `awaiting-approval`, `resolved`, `unresolved`, and `closed`. There is no "active" status.
 
 ### Can I export this data?
 

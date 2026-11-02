@@ -45,7 +45,7 @@ logger.info("Server started");
 | `info`  | Important state changes, startup, success      |
 | `debug` | Diagnostic detail, request tracing, dev output |
 
-Configure via `LOG_LEVEL` environment variable. Defaults to `info` in production and `debug` otherwise.
+Configure via `LOG_LEVEL` environment variable. Defaults to `debug`. Set `LOG_LEVEL=info` in production deployments.
 
 ## PII Redaction
 
@@ -82,7 +82,7 @@ logger.info("Call +1-555-123-4567 for support");
 
 | Variable        | Default        | Description                                         |
 | --------------- | -------------- | --------------------------------------------------- |
-| `LOG_LEVEL`     | `debug`/`info` | Log level (`info` in production, `debug` otherwise) |
+| `LOG_LEVEL`     | `debug`        | Log level (set to `info` in production)             |
 | `DEBUG_MODULES` | `*`            | Module filter for debug output                      |
 
 ## ESLint Enforcement
@@ -91,7 +91,7 @@ logger.info("Call +1-555-123-4567 for support");
 
 - Test files (`*.test.ts`, `*.spec.ts`, `tests/setup.ts`)
 - Migration files (`database/migrations/`)
-- CLI scripts (`scripts/`, `run-migration.ts`)
+- CLI scripts (`scripts/`, `run-migration.ts`, `run-migrations.ts`)
 
 ## Log Retention
 
