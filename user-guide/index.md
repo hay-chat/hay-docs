@@ -61,6 +61,13 @@ One AI assistant that works across all your support channels - no need to set up
 
 Your customer data stays secure and private. Hay is built with GDPR compliance and data protection in mind.
 
+## Running Hay.chat Day to Day
+
+- [Action approvals](/docs/user-guide/action-approvals/): decide which refunds, cancellations and discounts need a person's yes
+- [Team alerts, pause and business hours](/docs/user-guide/team-alerts-and-hours/): get alerted when a shopper needs a person, and pause the AI everywhere
+- [Billing and usage](/docs/user-guide/billing-and-usage/): what counts as a resolution and how to review it
+- [Exports, evidence packs and AI reply review](/docs/user-guide/exports-and-evidence/): export conversations, prepare a payment dispute, download your workspace
+
 ## Getting Help
 
 If you need assistance while using Hay:
