@@ -55,4 +55,6 @@ Hay connects to Stripe's own tool server, which provides more than two dozen act
 
 - Search across your Stripe data, fetch a specific record by ID, and search Stripe's documentation.
 
+Refunds, subscription cancellations and discount coupons wait for a person to approve them by default; see [Action approvals](/docs/user-guide/action-approvals/). To gather evidence for a dispute from your conversations, see [Evidence packs](/docs/user-guide/exports-and-evidence/#evidence-pack-for-a-payment-dispute).
+
 Your AI agent picks the right tool automatically mid-conversation. When a customer asks "Why was I charged $49 yesterday?", the agent finds the payment, checks the subscription or invoice behind it, and explains — or issues the refund if that's what your playbook allows.

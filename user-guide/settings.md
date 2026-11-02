@@ -45,7 +45,7 @@ Installed plugins can add their own entries to the Settings menu (these are show
 - **Date Format** — MM/DD/YYYY (US), DD/MM/YYYY (EU), YYYY-MM-DD (ISO), or DD MMM YYYY, with a live preview
 - **Time Format** — 12-hour (AM/PM) or 24-hour, with a live preview
 - **Default Agent** — the agent that handles conversations when no specific agent is assigned
-- **Test Mode Default** — when the "Require approval for AI messages by default" checkbox is enabled, AI messages require human approval before being sent to customers. Individual agents can override this setting, and playground conversations always auto-send regardless.
+- **Test Mode Default** — when the "Require approval for AI messages by default" checkbox is enabled, AI messages require human approval before being sent to customers. Individual agents can override this setting, and playground conversations always auto-send regardless. This is separate from approving store actions such as refunds; see [Action approvals](/docs/user-guide/action-approvals/).
 
 ### AI Confidence Guardrails
 

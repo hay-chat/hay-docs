@@ -15,6 +15,8 @@ Integrations connect Hay with:
 
 > **Access:** Integrations are accessible only to users with the **Admin** or **Owner** role.
 
+> **Store actions need your say-so.** When a store integration is connected, refunds, cancellations, discounts and exchanges wait for a person to approve them by default. See [Action approvals](/docs/user-guide/action-approvals/).
+
 ## Available Integrations
 
 Each integration has its own guide covering what it is, how to connect it, and what your agent can do with it:
@@ -22,16 +24,18 @@ Each integration has its own guide covering what it is, how to connect it, and w
 **Communication channels**
 
 - [WhatsApp](/docs/user-guide/integrations/whatsapp/) - Answer WhatsApp messages through Meta's Cloud API
+- [Messenger](/docs/user-guide/integrations/messenger/) - Answer Facebook Page messages
 - [Instagram](/docs/user-guide/integrations/instagram/) - Answer Instagram DMs
 - [Chatwoot](/docs/user-guide/integrations/chatwoot/) - Run Hay as an agent bot inside Chatwoot inboxes
 - [Email inbox](/docs/user-guide/integrations/email-inbox/) - Forward your support mailbox, answer customer emails in-thread, and let the agent email your team
 
 **E-commerce**
 
-- [Shopify](/docs/user-guide/integrations/shopify/) - Orders, refunds, customers, products, and catalog sync
-- [WooCommerce](/docs/user-guide/integrations/woocommerce/) - Full store access including orders, products, and coupons
-- [Magento](/docs/user-guide/integrations/magento/) - Products, stock, and sales insights
-- [Wix](/docs/user-guide/integrations/wix/) - Orders, refunds, fulfillment, and products
+- [Shopify](/docs/user-guide/integrations/shopify/) - Orders, refunds, returns, exchanges, customers, products, and catalog sync
+- [WooCommerce](/docs/user-guide/integrations/woocommerce/) - Orders, tracking, cancellations, refunds, goodwill coupons, and products
+- [Magento](/docs/user-guide/integrations/magento/) - Orders, tracking, cancellations, refunds, and products
+- [Wix](/docs/user-guide/integrations/wix/) - Orders, tracking, cancellations, refunds, and products
+- [Nuvemshop / Tiendanube](/docs/user-guide/integrations/nuvemshop/) - Orders, Pix payment links, tracking, goodwill coupons, and products
 
 **Payments & marketing**
 
@@ -60,6 +64,8 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 - Customers click and start chatting instantly
 - Conversations go straight to your Hay dashboard
 - Fully customizable appearance
+- Shoppers can attach photos (JPG, PNG, GIF, WebP) or PDFs up to 10 MB, and the AI reads them
+- Optional bot protection with Cloudflare Turnstile (see below)
 
 **How to set up:**
 
@@ -68,6 +74,8 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 3. Paste it into your website (usually before the closing `</body>` tag)
 4. Customize colors, position, and welcome message
 5. Save and test!
+
+**Bot protection:** install the **Turnstile** plugin to stop bots from opening conversations. **Invisible** (recommended) checks visitors in the background and asks for a click only when Cloudflare is unsure; **Challenge everyone** shows the check before a visitor's first message; **Off** disables it. If one workspace suddenly gets a flood of new chats, Hay.chat can challenge every visitor for a few hours automatically.
 
 **Customization options:**
 
@@ -132,14 +140,14 @@ To remove an integration:
 - ✅ Emoji support
 - ✅ Conversation history
 - 🔜 Read receipts — planned
-- 🔜 File uploads — planned
+- ✅ Photo and PDF uploads (up to 10 MB)
 - 🔜 Proactive chat (trigger by page, time on site, etc.) — planned
 
 ### WhatsApp Features
 
 - ✅ Plain-text message sending
 - ✅ Plain-text message receiving
-- 🔜 Rich media (images, videos, documents) — planned
+- ✅ Receiving images, videos, documents and voice notes (voice notes are transcribed)
 - 🔜 Quick reply buttons — planned
 - 🔜 Message templates — planned
 - 🔜 Read receipts — planned
@@ -148,7 +156,7 @@ To remove an integration:
 
 - ✅ Plain-text emails
 - ✅ HTML emails
-- 🔜 Attachments — planned
+- ✅ Receiving attachments
 - 🔜 CC/BCC support — planned
 - 🔜 Signature management — planned
 

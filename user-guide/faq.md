@@ -364,6 +364,14 @@ Go to [hay.chat/billing](https://hay.chat/billing/), open **Plans** and choose t
 
 The overview on [hay.chat/billing](https://hay.chat/billing/) shows resolutions used against your allowance for the current period, the percentage, when the period renews and whether extra resolutions are allowed.
 
+### What counts as a billable resolution?
+
+A conversation the AI resolved (confirmed by the shopper or assumed), a planned hand-off from a playbook, or an action sent for approval. Greetings, spam, tests, and chats handed to your team without the AI resolving them are never billed. See [Billing and Usage](/docs/user-guide/billing-and-usage/).
+
+### Can the AI refund orders without asking me?
+
+Not by default. Refunds, cancellations, discounts and exchanges wait for an Owner or Admin to approve them. See [Action approvals](/docs/user-guide/action-approvals/).
+
 ### Can I get a refund?
 
 Refund terms are in the [refund policy](https://hay.chat/refund-policy/). Contact support with your workspace name and invoice number.

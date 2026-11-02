@@ -33,6 +33,16 @@ The plugin also has a **Self-hosted (own app)** connection mode for teams that r
 - Add or replace the internal note on an order
 - Cancel an order — optionally restocking items, refunding, and notifying the customer
 
+### Exchanges and item swaps
+
+- Swap an item on an order that has not shipped for another variant of the same product (for example a different size)
+- Exchange delivered items for other variants: Hay.chat opens a Shopify return with the exchange items so the replacement is released
+- Email the payment link for an unpaid order, after the shopper's email or phone matches the order
+
+### Goodwill coupons
+
+The agent can create a single-use discount code as an apology. In the plugin settings, **Allow goodwill coupons** (on by default), **maximum percentage** (default 10%), **maximum fixed amount** (default 0, which turns fixed coupons off) and **validity in days** (default 30) set the limits. A coupon above the limits waits for a person to approve it.
+
 ### Refunds & Returns
 
 - Preview the correct refund amounts for an order before executing it
@@ -57,5 +67,7 @@ The plugin also has a **Self-hosted (own app)** connection mode for teams that r
 ### Product Catalog Sync
 
 Beyond the tools above, the Shopify plugin syncs your full product catalog into Hay in the background. That means your agent can search and recommend real products — with accurate prices, options, images, and availability — directly in conversations. The catalog re-syncs automatically on a schedule, and in self-hosted mode a background job also keeps your Shopify access token fresh so the connection never silently expires.
+
+Shopify gives the agent 25 tools. Refunds, cancellations, discounts and exchanges wait for a person to approve them by default; see [Action approvals](/docs/user-guide/action-approvals/).
 
 Your agent uses all of these tools automatically: when a customer asks "where's my order #1042?" or "can I get a refund?", the agent picks the right tool, checks your store, and answers with real data — escalating to your team when a decision needs a human.
