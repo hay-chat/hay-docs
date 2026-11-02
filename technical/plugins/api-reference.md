@@ -96,7 +96,7 @@ The fields core actually reads from `package.json → "hay-plugin"` (interface `
 | `entry`            | `string`   | Path to the compiled entry module (e.g. `"./dist/index.js"`)                                                                                                  |
 | `displayName`      | `string`   | Human-readable name shown in the marketplace                                                                                                                  |
 | `category`         | `string`   | One of `integration \| channel \| tool \| analytics \| products` (SDK `PluginCategory`); document importers are marked via `documentImporter`, not a category |
-| `capabilities`     | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `cron`, `email`                                        |
+| `capabilities`     | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `cron`, `email`, `disputes`, `tickets`, `webchat`, `setup` |
 | `env`              | `string[]` | Allow-list of host env var names that config fields may fall back to via their `env:` property                                                                |
 | `channel`          | `string`   | Channel plugins only: the channel slug (e.g. `"instagram"`); matched by `pluginManagerService.findPluginIdByChannel()` for outbound delivery                  |
 | `autoActivate`     | `boolean`  | Legacy (document importers)                                                                                                                                   |
@@ -104,6 +104,9 @@ The fields core actually reads from `package.json → "hay-plugin"` (interface `
 | `documentImporter` | `boolean`  | Legacy: marks a document importer plugin                                                                                                                      |
 | `config`           | `object`   | Legacy: manifest-style config schema, copied into the registry manifest's `configSchema` (new plugins use `register.config` instead)                          |
 | `auth`             | `object`   | Legacy: manifest-style auth config, copied into the registry manifest (new plugins use `register.auth.*` instead)                                             |
+| `defaultEnabled`   | `boolean`  | Auto-enable for new organizations                                                                                                                             |
+| `oauthHosts`       | `string[]` | Additional OAuth redirect hosts (besides the default)                                                                                                         |
+| `rendering`        | `object`   | Channel-specific rendering hints: `{ markdown?: "plain" \| "rich", productRecommendations?: "text" \| "carousel" }`                                          |
 
 Capabilities are **declarative**: they drive marketplace classification, plugin type inference, and the scope of the worker's callback JWT — they are not hard-enforced against your implementation.
 
@@ -179,7 +182,7 @@ export default defineHayPlugin((globalCtx) => ({
 | ---------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `onInitialize`   | `(ctx: HayGlobalContext) => void \| Promise<void>`                                                | Once per worker process, before the HTTP server starts. **Descriptor-only**: make `register.*` calls; no network requests, no org data.                                                                                           |
 | `onStart`        | `(ctx: HayStartContext) => void \| Promise<void>`                                                 | Every org runtime start/restart (first config save, config/auth updates). Read config/auth, gate on missing credentials, start MCP servers. Must never crash the worker — log errors instead.                                     |
-| `onConnected`    | `(ctx: HayConnectedContext) => { routingKeys?: string[] } \| Promise<{ routingKeys?: string[] }>` | Called by core (`POST /on-connected`) right after OAuth tokens are stored. Return opaque **routing keys** that core persists for shared-webhook fan-out. Throwing never fails the OAuth flow — core logs a warning and continues. |
+| `onConnected`    | `(ctx: HayConnectedContext, extras?: Record<string, unknown>) => OnConnectedResult \| Promise<OnConnectedResult>` | Called by core (`POST /on-connected`) right after OAuth tokens are stored. Return `{ routingKeys?, account?: ConnectedAccount, credentials?: Record<string, string> }`. `routingKeys` are persisted for shared-webhook fan-out; `account` surfaces connected account info in the dashboard; `credentials` are merged into the auth state. Throwing never fails the OAuth flow — core logs a warning and continues. |
 | `onValidateAuth` | `(ctx: HayAuthValidationContext) => boolean \| Promise<boolean>`                                  | When auth credentials are saved/updated (`POST /validate-auth`). Return `true` for valid, or throw an `Error` with a user-facing message. If not implemented, auth is assumed valid.                                              |
 | `onConfigUpdate` | `(ctx: HayConfigUpdateContext) => void \| Promise<void>`                                          | After settings are saved (`POST /config-update`). Most plugins can omit this — the platform restarts registered MCP servers itself.                                                                                               |
 | `onDisable`      | `(ctx: HayDisableContext) => void \| Promise<void>`                                               | On disable/uninstall (and SIGTERM). Tear down pollers, sockets, and external subscriptions.                                                                                                                                       |
@@ -209,6 +212,8 @@ The key rule: **`onInitialize` is declarative** (register schemas and descriptor
 
 Available as `ctx.register` inside `onInitialize` (types in `packages/plugin-sdk/types/register.ts`). Registered metadata is exposed via the worker's `/metadata` endpoint.
 
+> In addition to the methods documented below, the register API also includes `register.webchat` (customize webchat behavior for channel plugins) and `register.setup(options)` (declare a multi-step setup flow with status tracking via `POST /setup/status`). See the SDK types for details.
+
 ### register.config
 
 ```typescript
@@ -229,6 +234,8 @@ Defines configuration fields; the dashboard generates the settings form from thi
 | `env`         | `string`                                            | Host env var fallback. **Must be listed in `hay-plugin.env`** — validated at load time.     |
 | `options`     | `Array<{ label: string; value: string \| number }>` | Renders a dropdown instead of free text                                                     |
 | `showWhen`    | `ShowWhen`                                          | Declarative visibility: `{ field, equals? \| in? \| notEquals? }` referencing another field |
+| `serverOnly`  | `boolean`                                           | Hide from the dashboard UI; only used server-side (e.g. internal routing config)            |
+| `advanced`    | `boolean`                                           | Show under an "Advanced" collapsible section in the settings UI                             |
 
 ```typescript
 register.config({
@@ -282,6 +289,8 @@ register.auth.oauth2(options: OAuth2AuthOptions): void
 | `scopeSeparator`      | `string`                 | Scope join delimiter; defaults to a space. Instagram needs `","`.                                                                               |
 | `tokenExchange`       | `OAuthTokenOp`           | Declarative one-time token transform run by core right after the code exchange (e.g. Instagram `ig_exchange_token` short→long-lived swap)       |
 | `tokenRefresh`        | `OAuthTokenOp`           | Declarative custom refresh strategy for providers without a standard `refresh_token` grant (e.g. Instagram `ig_refresh_token`)                  |
+| `connectFlow`         | `"redirect" \| "client"` | OAuth flow variant: `"redirect"` (default) uses server-side code exchange; `"client"` for client-side flows                                    |
+| `tokenRequestFormat`  | `"form" \| "json"`       | How to send the token exchange request body: `"form"` (default, `application/x-www-form-urlencoded`) or `"json"`                                |
 
 ```typescript
 interface OAuthTokenOp {
@@ -534,6 +543,8 @@ Endpoints the SDK runner mounts on every worker (`packages/plugin-sdk/runner/htt
 | `POST /cron/:name`    | Invokes the named cron handler                                                                            |
 | `POST /mcp/call-tool` | Executes an MCP tool                                                                                      |
 | `GET /mcp/list-tools` | Lists MCP tools (cached by core)                                                                          |
+| `POST /setup/status`  | Reports setup progress (plugins with `register.setup`)                                                    |
+| `POST /webchat/gate/:event` | Webchat gate events (plugins with `register.webchat`)                                                |
 | _(plugin routes)_     | Anything registered via `register.route` (e.g. `/webhook`, `/deliver`, `/escalate`)                       |
 
 External traffic reaches worker routes only through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The org is resolved from the `organizationId` query param or the `x-organization-id` header (both UUID-validated against the DB) — auth-token-based org resolution is a TODO, not yet implemented — or, for a `POST /webhook` with no org identifier and a declared `webhookRouting` descriptor, the request is diverted to the shared webhook router.
