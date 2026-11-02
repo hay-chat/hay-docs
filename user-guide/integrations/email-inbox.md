@@ -40,9 +40,19 @@ The agent can send an email to your team with the `send-email` action (`hay-chan
 - You can use the action without forwarding your mailbox: fill in only the team notification addresses
 - Notification emails use the same sender as customer replies. If your support mailbox forwards one back to Hay, Hay recognises it and ignores it
 
+## Send From Your Own Domain
+
+In the Email inbox settings, **Send from your own domain (optional)** lets replies come from your support address (for example `support@yourstore.com`) instead of the shared address.
+
+1. Choose **Set up** for the domain of your support address. Hay.chat shows the DNS records to add at your domain provider
+2. Add them, then select **Check now**. DNS changes can take a few hours. The status moves from *Waiting for DNS records* to *Checking DNS* to *Verified*
+3. Once verified, replies come from your support address
+
+Shared mailbox providers such as Gmail cannot be verified, so those replies keep coming from the shared address. If your support address is on a different domain from the one you verified, replies also stay on the shared address. **Remove domain** sends them back to the shared address. Sending from your own domain is handled by Hay.chat's email provider, Resend; self-hosted installations need their own Resend account (see [Self-hosting](/docs/technical/self-hosting/)).
+
 ## Good to Know
 
-- Replies currently come from an address on Hay's domain with your store name as the sender. Sending from your own domain is planned
+- By default replies come from Hay.chat's shared sending address with your store name as the sender. You can send from your own domain instead: see below
 - Hay does not read your mailbox or hold its credentials; it only receives what you forward
 - The forwarding address is unique to your workspace. Mail sent to it that is not forwarded from your support address is ignored
 - Your inbox keeps its own copy of every incoming email. Turn on **Keep a copy in my inbox** to also receive Hay's replies there
