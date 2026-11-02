@@ -5,6 +5,21 @@ description: Get alerted when a conversation needs a person, pause the AI everyw
 section: user-guide
 ---
 
+> TLDR: When the AI can't help, isn't confident or the shopper asks for a person, Hay.chat hands the chat to your team and alerts whoever is available. If nobody is online, the shopper is told the team has been alerted, and out of hours they're told when you're back while the AI keeps helping with anything else.
+
+## When does Hay.chat hand a chat to a person?
+
+Hay.chat passes a conversation to your team in six situations:
+
+- The shopper asks to talk to a person
+- A tool fails and the request needs someone to do it by hand
+- The AI isn't confident in its answer
+- An answer fails its action check
+- A playbook reaches a **Handoff to human** step
+- A request waiting for approval expires
+
+Replies from the AI carry an AI label by default.
+
 ## Alerts when a conversation needs a person
 
 When Hay.chat hands a conversation to your team, it alerts the people who are set to **Available**.
@@ -63,3 +78,13 @@ In web chat, a shopper who asks for a person while you are closed can leave an e
 When the AI does not know a fact ("does this vase come gift-boxed?"), it can ask your team instead of handing over the whole conversation, and carry on with the shopper's other questions. Everyone on the team gets a notification and an email with a one-tap answer link. Under **Quick check with the team** you set how long until a "still checking" update (default and limits are on the page) and when to pass the question to the queue. Outside business hours, or when nobody is reachable, the question goes straight to the queue.
 
 A conversation where a teammate supplied the answer is not billed as an AI resolution. See [Billing and Usage](/docs/user-guide/billing-and-usage/).
+
+## What does the shopper see when nobody is online?
+
+It depends on whether you're open.
+
+- **Open, but nobody is reachable:** the shopper is told "No one from the team is online right now, so I've alerted them..."
+- **Out of hours:** the shopper is told "The team is away right now and back [next opening time]. I've passed your message on..." Meanwhile the AI keeps helping with anything else the shopper asks. You can write your own out-of-hours message instead.
+- The shopper doesn't see a queue position.
+
+Behind the scenes your team gets a phone push, a second push after 10 minutes, then an email. See [Alerts when a conversation needs a person](#alerts-when-a-conversation-needs-a-person).

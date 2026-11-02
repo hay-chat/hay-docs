@@ -117,7 +117,7 @@ That's up to you. Best practice is transparency - let customers know they're cha
 
 ### Can customers talk to a human anytime?
 
-Yes! Customers can request a human anytime by saying things like "I need to speak to a person." The AI also escalates automatically when appropriate.
+Yes! Customers can request a human anytime by saying things like "I need to speak to a person." The AI also escalates automatically when appropriate. If nobody on your team is online, the shopper is told the team has been alerted. See [Team alerts and business hours](/docs/user-guide/team-alerts-and-hours/).
 
 ### What happens to conversations when someone takes over?
 
