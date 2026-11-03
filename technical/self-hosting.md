@@ -62,7 +62,7 @@ Two optional settings let an external operator (for example a billing system) ma
 
 ## Conversation timing
 
-`CONVERSATION_INACTIVITY_INTERVAL` (milliseconds, default 1800000) sets when quiet conversations close: a warning at half the value, a close with a sign-off message at the value and a silent close at double. See [Billing and Usage](/docs/user-guide/billing-and-usage/#how-conversations-close-by-themselves).
+`CONVERSATION_INACTIVITY_INTERVAL` (milliseconds, default 1800000) sets when quiet conversations close: a warning at half the value, a close with a sign-off message at the value and a silent close at double. See [Billing and Usage](/docs/user-guide/billing-and-usage/#when-does-a-quiet-conversation-close).
 
 ## Other optional settings
 

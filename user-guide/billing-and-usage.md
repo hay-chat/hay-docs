@@ -34,7 +34,7 @@ If the AI resolved the conversation and a person was involved afterwards, it is 
 
 An assumed resolution can be reversed. If the shopper writes again within **72 hours**, the charge is reversed and the conversation counts as one conversation again. Reversed resolutions show on the Usage page.
 
-## How conversations close by themselves
+## When does a quiet conversation close?
 
 When a shopper goes quiet, Hay.chat closes the conversation for you. With the default timing:
 
