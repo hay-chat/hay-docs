@@ -1,7 +1,7 @@
 ---
 layout: docs.njk
 title: How do I set up Hay.chat?
-description: Set up Hay.chat in five steps: connect your store, import your help docs, write playbooks, test in the Playground, then switch the AI on for shoppers.
+description: "Set up Hay.chat in five steps: connect your store, import your help docs, write playbooks, test in the Playground, then switch the AI on for shoppers."
 section: user-guide
 ---
 
