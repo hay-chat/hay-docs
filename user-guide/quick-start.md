@@ -1,149 +1,91 @@
 ---
 layout: docs.njk
-title: Quick Start Guide
-description: Get your Hay AI assistant up and running in less than 10 minutes! Follow these simple steps to start automating your customer support.
+title: How do I set up Hay.chat?
+description: "Set up Hay.chat in five steps: connect your store, import your help docs, write playbooks, test in the Playground, then switch the AI on for shoppers."
 section: user-guide
 ---
 
-## Before You Begin
+> TLDR: Connect your store, import your help docs, write a few playbooks, test in the Playground, then switch the AI on. How long it takes depends mostly on how ready your docs and policies are, and your 30-day free trial starts at sign-up, not at go-live.
 
-Make sure you have:
+## Before you begin
 
-- A Hay account (sign up at your organization's Hay dashboard)
-- At least one support document or FAQ (we'll use this to train your agent)
-- 10 minutes to complete the setup
+You'll need:
 
-## Guided Onboarding
+- A Hay.chat account. The 30-day free trial starts when you sign up and needs no credit card.
+- The **Admin** or **Owner** role, if you're connecting integrations.
+- Your help docs and policies (returns, refunds, shipping) in whatever form you already have them.
 
-Hay also provides an automated, checklist-style walkthrough of these steps at **Getting Started** in the left sidebar (`/getting-started`). It tracks your progress and links directly into each step. The steps build on each other: you'll need an agent before adding documents, documents before creating a playbook, and a playbook before testing.
+The **Getting Started** page in the left sidebar walks you through these steps as a checklist, tracks your progress and links straight into each one.
 
-## Step 1: Choose Your Integrations
+## Step 1: Connect your store
 
-Hay works where your team already does. You can connect integrations now or skip this and come back later.
+1. Go to **Integrations** → **Marketplace** in the left sidebar.
+2. Find your store platform and follow its connection steps.
 
-1. Go to **Integrations** → **Marketplace** in the left sidebar _(admin/owner only)_
-2. Browse available integrations (Shopify, WhatsApp, Zendesk, etc.)
-3. Click on an integration you want to add
-4. Follow the simple connection steps
+Hay.chat has store plugins for [Shopify](/docs/user-guide/integrations/shopify/), [WooCommerce](/docs/user-guide/integrations/woocommerce/), [Magento](/docs/user-guide/integrations/magento/), [Wix](/docs/user-guide/integrations/wix/) and [Nuvemshop](/docs/user-guide/integrations/nuvemshop/). If your shop is custom-built or headless, see [Can Hay.chat support a custom or headless store?](/docs/user-guide/integrations/no-store-plugin/)
 
-**Popular integrations:**
+Once a store is connected, refunds, cancellations and discounts wait for your approval by default. See [Action approvals](/docs/user-guide/action-approvals/).
 
-- **WhatsApp** - Handle WhatsApp Business messages
-- **Shopify** - Access order and product information
-- **HubSpot** - Sync contacts and tickets from your CRM
-- **Zendesk** - Sync with your help desk
+## Step 2: Import your help docs
 
-> **Tip:** You can also add a chat widget to your website under **Settings** → **Webchat**.
+Go to **Documents** in the left sidebar and add your material:
 
-## Step 2: Create Your First Agent
+- **Write Document** to create one from scratch
+- **Import Document** to upload files (PDF, TXT, MD, DOC, DOCX, PPT, PPTX, HTML, JSON, CSV)
+- **Import from Website** to crawl your site or a sitemap and pull in several pages at once
 
-Your agent is your AI assistant. Give it a personality and purpose.
+Hay.chat reads what you add and answers shoppers from it.
 
-1. Go to **Settings** → **Agents**
-2. Click **Create Agent**
-3. Fill in the basic information:
+**What makes good material?**
 
-   - **Name:** Something descriptive like "Customer Support Agent"
-   - **Description:** What this agent handles (e.g., "Handles order questions and product inquiries")
-   - **Tone:** Choose how your agent should communicate (Professional, Casual, or Enthusiastic)
-   - **Instructions:** Define the agent's general behavior using the rich text editor (e.g., how to greet customers, what topics to avoid, when to escalate to a human)
-   - **Initial Greeting Message** _(optional)_**:** The first message the agent sends when a conversation starts
+- Frequently asked questions
+- Product documentation
+- Return and refund policies
+- Shipping information
+- Common support scenarios
 
-4. Click **Create Agent**
+Start with the questions you're asked most. You can add more at any time.
 
-> **Example:** "Support Agent" with a "Casual" tone that "helps customers with orders, shipping, and product questions"
+## Step 3: Write a few playbooks
 
-## Step 3: Upload Training Documents
+If you haven't made an agent yet, create one under **Settings** → **Agents**. Give it a name, a description of what it handles, a tone and some general instructions, then click **Create Agent**.
 
-Teach your agent by uploading your existing support materials.
+Then go to **Playbooks** and create a playbook for a situation you handle often. Give it a title, a trigger and instructions, and set its **Status** to **Active** (new playbooks start as Draft and won't run until you change this). Write the instructions in plain language:
 
-1. Go to **Documents** in the left sidebar
-2. Add content using the available buttons:
+```
+Greet the customer warmly. Ask how you can help them today.
+If they ask about orders, check their order status.
+If they need help with products, provide relevant information.
+```
 
-   - **Connected Sources** - Manage connected data sources at `/documents/sources`
-   - **Write Document** - Create a document from scratch at `/documents/new`
-   - **Import Document** - Upload files (PDF, TXT, MD, DOC, DOCX, PPT, PPTX, HTML, JSON, CSV) or import from a website URL
+For anything you always want a person to handle, add a **Handoff to human** step to the playbook. See [Playbooks](/docs/user-guide/playbooks/) for more.
 
-3. When importing from a website, use the **Import from Website** option to auto-crawl the site or provide a sitemap and pull in multiple pages at once
+## Step 4: Test in the Playground
 
-4. Wait a few seconds while Hay processes and learns from your documents
+Go to **Conversations** → **Conversation Playground** and type the way a shopper would:
 
-**What makes good training material?**
+- "Hi, I need help with my order"
+- "What's your return policy?"
+- "Do you ship internationally?"
 
-- ✅ Frequently Asked Questions
-- ✅ Product documentation
-- ✅ Return and refund policies
-- ✅ Shipping information
-- ✅ Common support scenarios
+Check the answers. If something's off, fix the doc or playbook behind it and try again. Test chats are never billed.
 
-> **Tip:** Start with your top 10-20 FAQs. You can always add more later!
+Before going live, check your approval settings under **Settings** → **Assistant** → **Actions**.
 
-## Step 4: Create a Playbook (Optional but Recommended)
+## Step 5: Switch the AI on for shoppers
 
-Playbooks are step-by-step instructions for handling specific situations.
+Add the web chat widget to your site under **Settings** → **Webchat**. The channels that are live are web chat, the [email inbox](/docs/user-guide/integrations/email-inbox/) and [Instagram DMs](/docs/user-guide/integrations/instagram/).
 
-1. Go to **Playbooks** in the left sidebar
-2. Click the **+ icon** or **Generate Playbook**
-3. Set up the basics:
+Then set your business hours under **Settings** → **Channels** → **Business Hours**, and turn on phone alerts from the **Inbox** with **Alerts on this device**, so hand-offs reach you. See [Team alerts and business hours](/docs/user-guide/team-alerts-and-hours/).
 
-   - **Title:** "Welcome New Customers"
-   - **Trigger:** "This playbook activates when the customer greets or says hello"
-   - **Instructions:** What should happen when triggered
-   - **Status:** Set to "Active" (playbooks default to "Draft" and won't trigger until activated)
+## How long does setup take?
 
-4. Write instructions in plain language:
+It depends mostly on how ready your docs and policies are, and on whether your store connects straight away. If your help centre is up to date, most of the work is importing it and checking the answers in the Playground. If your policies live in people's heads, writing them down is the slow part.
 
-   ```
-   Greet the customer warmly. Ask how you can help them today.
-   If they ask about orders, check their order status.
-   If they need help with products, provide relevant information.
-   ```
+Your trial starts at sign-up, not at go-live, so it helps to have your docs and policies to hand before you sign up.
 
-5. Confirm **Status** is set to "Active", then click **Create Playbook**
+## What happens next
 
-> **Common playbook examples:**
->
-> - Order status lookups
-> - Return and refund requests
-> - Product recommendations
-
-## Step 5: Test Your Agent
-
-Before going live with customers, test how your agent responds.
-
-1. Go to **Conversations** in the left sidebar
-2. Click **Conversation Playground**
-3. Start typing messages like a customer would:
-
-   - "Hi, I need help with my order"
-   - "What's your return policy?"
-   - "Do you ship internationally?"
-
-4. Review the responses - do they sound right?
-5. If needed, go back and:
-   - Add more training documents
-   - Adjust agent instructions
-   - Update your playbooks
-
-> **Tip:** Test with real questions your support team receives daily!
-
-## You're All Set! 🎉
-
-Your Hay agent is now ready to start helping customers!
-
-### What Happens Next?
-
-- **Automatic responses:** Your agent handles incoming questions instantly
-- **Human escalation:** Complex issues are automatically sent to your team
-- **Continuous learning:** Your agent gets smarter with every conversation
-
-### Next Steps
-
-Now that you're up and running:
-
-1. **Monitor the Queue** - Visit `/queue` to check for conversations that need human attention
-2. **Review Dashboard** - See how your agent is performing at a glance
-3. **Add More Documents** - Keep training your agent with new information
-4. **Create More Playbooks** - Automate more types of requests
-
-> **Need help?** Head to the [Dashboard](/docs/user-guide/dashboard/) guide to learn about monitoring your conversations.
+- Chats that need a person land in the [Inbox](/docs/user-guide/conversations/).
+- Billable resolutions show on the Usage page under **Settings** → **Billing & Usage** → **Usage**. See [Billing and usage](/docs/user-guide/billing-and-usage/).
+- Add docs and playbooks as new questions come in.

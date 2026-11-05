@@ -63,7 +63,7 @@ Your customer data stays secure and private. Hay is built with GDPR compliance a
 
 ## Running Hay.chat Day to Day
 
-- [Action approvals](/docs/user-guide/action-approvals/): decide which refunds, cancellations and discounts need a person's yes
+- [Action approvals](/docs/user-guide/action-approvals/): decide which refunds, cancellations and discounts need a person's yes. The [human approval page](https://hay.chat/human-approval/) explains what waits by default and why
 - [Team alerts, pause and business hours](/docs/user-guide/team-alerts-and-hours/): get alerted when a shopper needs a person, and pause the AI everywhere
 - [Billing and usage](/docs/user-guide/billing-and-usage/): what counts as a resolution and how to review it
 - [Exports, evidence packs and AI reply review](/docs/user-guide/exports-and-evidence/): export conversations, prepare a payment dispute, download your workspace

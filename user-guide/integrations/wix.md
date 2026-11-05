@@ -7,7 +7,7 @@ section: user-guide
 
 ## What is Wix?
 
-Wix is a website builder with a built-in e-commerce platform, Wix Stores, that many businesses use to sell products online. Connecting your Wix Stores site to Hay lets your AI agent see your real orders, payments, shipments, and product catalog. That means questions like "Where is my order?" or "Can I get a refund?" can be answered — and acted on — directly in the conversation, without anyone switching to the Wix dashboard.
+Wix is a website builder with a built-in e-commerce platform, Wix Stores, that many businesses use to sell products online. Connecting your Wix Stores site to Hay lets your AI agent see your real orders, payments, shipments, and product catalog. That means questions like "Where is my order?" or "Can I get a refund?" can be answered — and acted on — directly in the conversation, without anyone switching to the Wix dashboard. For the overview of what Hay.chat does for Wix stores, see [Hay.chat for Wix](https://hay.chat/integrations/wix-ai-chatbot/).
 
 ## How to Connect Wix
 

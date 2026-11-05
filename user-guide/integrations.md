@@ -36,6 +36,7 @@ Each integration has its own guide covering what it is, how to connect it, and w
 - [Magento](/docs/user-guide/integrations/magento/) - Orders, tracking, cancellations, refunds, and products
 - [Wix](/docs/user-guide/integrations/wix/) - Orders, tracking, cancellations, refunds, and products
 - [Nuvemshop / Tiendanube](/docs/user-guide/integrations/nuvemshop/) - Orders, Pix payment links, tracking, goodwill coupons, and products
+- [No store plugin?](/docs/user-guide/integrations/no-store-plugin/) - Custom and headless shops: answers, playbooks, business hours and hand-off
 
 **Payments & marketing**
 

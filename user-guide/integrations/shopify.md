@@ -9,6 +9,15 @@ section: user-guide
 
 Shopify is one of the world's most popular e-commerce platforms, used by millions of merchants to run their online stores. Connecting Shopify to Hay gives your AI agent direct access to your store's orders, customers, products, and inventory — so it can answer "where is my order?" questions, process cancellations, refunds, and returns, and recommend products from your real catalog, all without a human agent touching the keyboard.
 
+## Questions, one page each
+
+- [Can Hay.chat track a Shopify order for a shopper?](/docs/user-guide/integrations/shopify/order-tracking/)
+- [Can Hay.chat refund a Shopify order?](/docs/user-guide/integrations/shopify/refunds/)
+- [Can Hay.chat cancel a Shopify order?](/docs/user-guide/integrations/shopify/cancel-orders/)
+- [Can Hay.chat change a Shopify shipping address?](/docs/user-guide/integrations/shopify/change-shipping-address/)
+- [Can Hay.chat do Shopify returns and exchanges?](/docs/user-guide/integrations/shopify/returns-and-exchanges/)
+- [What can't Hay.chat do in Shopify?](/docs/user-guide/integrations/shopify/what-it-cant-do/)
+
 ## How to Connect Shopify
 
 1. Go to **Integrations** → **Marketplace** in the Hay dashboard

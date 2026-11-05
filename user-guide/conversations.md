@@ -117,6 +117,8 @@ From a conversation:
 
 When the AI hands a conversation off, everyone in the organization with the dashboard open hears a sound and sees a toast. To be alerted with the dashboard closed, turn on **Alerts on this device** on Home or under **Settings → Profile → Notifications**: your browser or phone then shows a notification that opens the conversation. Each device is enabled separately. On iPhone and iPad, add Hay to the Home Screen first and open it from there, otherwise iOS does not deliver notifications.
 
+For phone alerts, business hours and what the shopper is told when nobody is online, see [Team alerts and business hours](/docs/user-guide/team-alerts-and-hours/).
+
 > **What happens when you take over:**
 >
 > - Status changes to "Manual Control"
