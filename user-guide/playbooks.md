@@ -457,4 +457,4 @@ Yes! Playbooks work across all channels unless you specify otherwise.
 - Create your first playbook with the [Quick Start](/docs/user-guide/quick-start/) guide
 - Set up your [AI assistant](/docs/user-guide/agents/) to customize behavior
 - Explore [Documents](/docs/user-guide/documents/) to give your assistant knowledge
-- Monitor results in [Analytics](/docs/user-guide/analytics/)
+- Monitor results on your [Dashboard](/docs/user-guide/dashboard/) and in [Insights](/docs/user-guide/insights/)

@@ -82,4 +82,4 @@ If you need assistance while using Hay:
 - Contact your account manager
 - Visit our support portal
 
-Let's get started! Head to the [Quick Start](/docs/user-guide/quick-start/) guide to set up your first agent.
+Let's get started! Head to the [Quick Start](/docs/user-guide/quick-start/) guide to set up your assistant.
