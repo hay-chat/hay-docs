@@ -125,11 +125,11 @@ When a human takes over, the AI stops responding. The full conversation history 
 
 ### How long are conversations stored?
 
-By default, conversations are kept indefinitely. If a retention period is configured, conversations are anonymized (messages and personal data removed) after the specified number of days. Check **Settings** → **Customer Privacy** for your specific retention policy.
+New organizations start with a 365-day retention period; older ones may be set to keep conversations forever. When a retention period is set, conversations are anonymized (messages and personal data removed) after the specified number of days. Check **Settings** → **Privacy** → **Customer Privacy** for your specific retention policy.
 
 ### Can I delete conversations?
 
-Conversations can be deleted from the conversation view. If data retention is configured, conversations are automatically anonymized after the retention period. For GDPR deletion requests on behalf of customers, use the data deletion tool in **Settings** → **Customer Privacy**.
+Conversations can be deleted from the conversation view. If data retention is configured, conversations are automatically anonymized after the retention period. For GDPR deletion requests on behalf of customers, use the data deletion tool in **Settings** → **Privacy** → **Customer Privacy**.
 
 ## Integrations
 
@@ -312,7 +312,7 @@ Data is stored in secure, encrypted databases. Contact your account manager for 
 
 ### Can I export my data?
 
-Yes! Go to **Settings** → **Privacy** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Customer Privacy**.
+Yes! Go to **Settings** → **Privacy** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Privacy** → **Customer Privacy**.
 
 > **Note:** Analytics export is not yet available.
 

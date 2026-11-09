@@ -32,7 +32,7 @@ The AI also asks the shopper "Shall I go ahead?" before an action in your store 
 
 ## Approving or declining
 
-Pending requests appear in the conversation, in the Inbox, and on the **Action log** page. For each request you can:
+Pending requests appear in the conversation and in the [Inbox](/docs/user-guide/inbox/) under **Waiting for your approval**. The **Action log** (**Compliance** → **Action log**) lists every tool call the AI made, filterable by **Tool**, **Platform** and **Outcome** (Done, Dry run, Sent for approval, Asking the customer); an approved action shows twice. For each request you can:
 
 - **Approve** it
 - **Lower the amount** and approve (you can reduce a refund or discount, never raise it)
@@ -66,7 +66,7 @@ Integrations that create discount codes (Shopify, WooCommerce, Nuvemshop) have t
 
 ## Approving AI replies is separate
 
-Action approval is about what the AI does in your store. Reviewing the AI's written replies before they send is a different setting, **Test Mode Default** in [Settings](/docs/user-guide/settings/) (also called Require approval for AI messages). It is off by default.
+Action approval is about what the AI does in your store. Reviewing the AI's written replies before they send is a different setting, **Test Mode Default** under **Settings** → **Workspace** → **General** (see [Settings](/docs/user-guide/settings/); also called Require approval for AI messages). It is off by default.
 
 ## Billing
 

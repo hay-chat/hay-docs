@@ -9,7 +9,7 @@ section: user-guide
 
 Hay includes a built-in data retention system that automatically removes personal information from old conversations. This helps you comply with GDPR and other data protection regulations while preserving anonymized metadata for analytics.
 
-Retention is **opt-in** — by default, conversations are kept indefinitely. Once you set a retention period, Hay handles cleanup automatically.
+New organizations start with a retention period of **365 days**. You can shorten it, or choose **Disabled (keep forever)**. Once a period is set, Hay handles cleanup automatically. Organizations created earlier may still be set to keep conversations forever; check the page below.
 
 ## How It Works
 
@@ -28,16 +28,15 @@ When a conversation passes the retention window, Hay **anonymizes** it rather th
 
 - Timestamps (created, closed, updated)
 - Conversation status and channel
-- Agent assignment
 - Organization ID
 
 After anonymization, the conversation record remains with the title `[Anonymized]` and a `deleted_at` timestamp. This lets you keep aggregate metrics (resolution times, volume trends, channel distribution) without retaining any personal data.
 
 ## Configuring Retention
 
-1. Go to **Settings** → **Customer Privacy**
-2. Under **Conversation Retention Period**, choose a timeframe: Disabled (keep forever), 30, 60, 90, 180, or 365 days
-3. Save your changes
+1. Go to **Settings** → **Privacy** → **Customer Privacy**
+2. Under **Conversation Retention Period**, choose a timeframe: Disabled (keep forever), 30, 60, 90, 180, or 365 days (365 days is marked recommended)
+3. Click **Save Retention Policy**
 
 The retention period counts from when a conversation was **closed** (`closed_at`). If a conversation's `closed_at` is not set, the system falls back to its creation date. Only conversations with status `closed` or `resolved` are eligible for anonymization. Open or in-progress conversations are never touched.
 
@@ -91,7 +90,7 @@ No. Anonymization permanently removes personal data. This is by design — GDPR 
 Aggregate analytics (conversation volume, resolution times, channel breakdown) are preserved. Per-conversation details and message content are not.
 
 **What about customer data exports?**
-You can initiate customer data export requests via **Settings** → **Customer Privacy**. The export is delivered to the customer's email with a secure download link. If a conversation has already been anonymized, it will not appear in the export.
+You can initiate customer data export requests via **Settings** → **Privacy** → **Customer Privacy**. The export is delivered to the customer's email with a secure download link. If a conversation has already been anonymized, it will not appear in the export.
 
 **Are embeddings cleaned up too?**
 Yes. All vector embeddings linked to anonymized conversations are deleted, ensuring no semantic traces of the conversation remain in the vector store.

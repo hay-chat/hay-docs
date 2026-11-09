@@ -13,7 +13,7 @@ Open any conversation and use the export actions at the top: **Export as PDF** o
 
 When a customer disputes a payment, your payment provider asks for proof. An evidence pack puts every conversation about an order into one document.
 
-1. Open **Evidence packs** in the sidebar, or choose **Evidence pack for a dispute** from a conversation.
+1. Open **Compliance** → **Evidence packs** in the sidebar (shown to roles that can export conversations), or choose **Evidence pack for a dispute** from a conversation.
 2. Search by **order number**. Hay.chat finds orders it looked up in your store or that a message named (for example "#1001"), or you can build the pack from one conversation only.
 3. Pick the **dispute reason** (general, item not received, item not as described or defective, cancelled order or credit not processed). This decides which store actions and policies the summary puts first. The full conversation is always included.
 4. Download a **PDF**, or a **ZIP**. The ZIP adds the attachments, a README and a SHA-256 manifest so anyone can check that no file was changed.
@@ -40,7 +40,7 @@ When a reply was **replaced by the fallback message** because confidence was too
 
 ## Download your whole workspace
 
-Go to **Settings** → **Privacy** → **Workspace Data** (Admins and Owners) and click **Prepare export**. Hay.chat builds one ZIP with everything the workspace keeps: conversations and messages, customers, documents, playbooks and agent settings.
+Go to **Settings** → **Privacy** → **Workspace data** (Admins and Owners) and click **Prepare export**. Hay.chat builds one ZIP with everything the workspace keeps: conversations and messages, customers, documents, playbooks and assistant settings.
 
 - Each kind of data is a JSON Lines file; conversations, messages and customers are also CSV.
 - Files sent in chats are included, up to 1.5 GB in total.

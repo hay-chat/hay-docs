@@ -17,7 +17,7 @@ The alerts stop as soon as someone replies, takes over or is assigned to the con
 
 ### Turn alerts on
 
-Alerts are set **per device**, so turn them on from each phone or computer you use. Open the **Inbox**, click **Alerts on this device**, and allow notifications when your browser asks. Use **Send a test alert** to check it works.
+Alerts are set **per device**, so turn them on from each phone or computer you use. Open the **Inbox** (or **Settings** → **My Profile**), click **Alerts on this device**, and allow notifications when your browser asks. Use **Send a test alert** to check it works.
 
 - **iPhone:** iOS only shows web alerts when Hay.chat is on your Home Screen. In Safari, add Hay.chat to your Home Screen, open it from the new icon, and then turn alerts on. The Inbox shows these steps.
 - **Hide customer details on the lock screen:** alerts then say only "A customer needs a human". Open Hay.chat to see who. This applies to all your devices.
@@ -31,7 +31,7 @@ On the **Inbox** page, **Pause AI everywhere** stops every AI reply on every cha
 
 - Shoppers who write while the AI is paused get one short message saying your team will reply, and their conversations wait in the Inbox for you.
 - A banner shows that the AI is paused everywhere, who paused it and when.
-- You can also be more precise: turn the AI off on **one channel only** (it then drafts replies for you to send), or switch off **one agent**.
+- You can also be more precise: turn the AI off on **one channel only** (it then drafts replies for you to send).
 
 Switch it back on from the same place when you are ready.
 
