@@ -5,7 +5,7 @@ description: Having issues with Hay? This guide covers common problems and their
 section: user-guide
 ---
 
-## Agent Not Responding
+## Assistant Not Responding
 
 ### Symptoms
 
@@ -15,22 +15,23 @@ section: user-guide
 
 ### Solutions
 
-**Check agent status:**
+**Check whether the AI is paused or off:**
 
-1. Go to **Agents**
-2. Verify agent is **Enabled**
-3. Check if agent has required documents and playbooks
+1. Open the **Inbox**. If it says **AI paused**, click **Resume AI** (see [Team alerts, pause and business hours](/docs/user-guide/team-alerts-and-hours/))
+2. Go to **Settings** → **Privacy** → **Customer Privacy** → **AI on your channels** and check the channel's **AI replies** is **Send automatically**, not **Drafts only** or **Off**
+3. Check **Settings** → **Billing & Usage** → **Usage**: if the plan's resolutions are used up and extra resolutions are off, the AI is paused and conversations wait for your team
+4. Check the assistant has the documents and playbooks it needs
 
 **Check integration:**
 
-1. Go to **Channels** (for channel plugins like WhatsApp, Email) or **Integrations** → **Marketplace** (for data plugins like Shopify, Zendesk)
-2. Verify connection status is **Connected**
+1. Go to **Settings** → **Channels** → **Channel list** (for channel plugins like WhatsApp, Email) or **Integrations** → **Marketplace** (for data plugins like Shopify, Zendesk)
+2. Open the integration and verify its status is **Connected** (a failing channel shows **This channel is failing**)
 3. Test with a sample message
 
 **Check conversation status:**
 
 1. Open the conversation
-2. Check if status is "Open" (not "Closed" or "Human Took Over")
+2. Check if status is "Open" (not "Closed", "Manual Control" or "Awaiting Approval")
 3. Check for error messages in conversation
 
 **If still not working:**
@@ -43,7 +44,7 @@ section: user-guide
 
 ### Symptoms
 
-- Agent gives wrong answers
+- The assistant gives wrong answers
 - Responses are vague or unhelpful
 - Frequent "I don't know" messages
 - Information is outdated
@@ -57,9 +58,9 @@ section: user-guide
 3. Make sure information is clear and complete
 4. Update outdated documents
 
-**Improve agent instructions:**
+**Improve the assistant's instructions:**
 
-1. Go to **Agents** → Your agent
+1. Go to **Settings** → **Assistant** → **Identity**
 2. Review instructions
 3. Add specific examples
 4. Be more explicit about what to do/not do
@@ -73,15 +74,15 @@ section: user-guide
 **Review and learn:**
 
 1. Read recent conversations
-2. See where agent struggles
+2. See where the assistant struggles (**Quality** → **Insights** lists the patterns)
 3. Add documents to fill knowledge gaps
 
 ## High Escalation Rate
 
 ### Symptoms
 
-- Too many conversations going to queue
-- Agent frequently says it can't help
+- Too many conversations landing in the Inbox
+- The assistant frequently says it can't help
 - Lots of "transfer to human" requests
 
 ### Solutions
@@ -104,18 +105,18 @@ section: user-guide
 
 - Solution: Create playbooks for those topics
 - Add focused documentation
-- Update agent instructions
+- Update the assistant's instructions
 
 **Cause: Customer frustration**
 
-- Solution: Train agent on empathy
+- Solution: Add empathy guidance to the assistant's instructions
 - Respond faster
 - Offer alternatives before escalating
 
 **Adjust confidence threshold:**
 
-1. Go to **Settings** → **General**
-2. Lower confidence threshold slightly
+1. Go to **Settings** → **Workspace** → **General** → **AI Confidence Guardrails**
+2. Lower the confidence threshold slightly
 3. Monitor results
 4. Adjust as needed
 
@@ -231,8 +232,8 @@ section: user-guide
    - Contact organization admin
    - Verify email is verified
 
-4. **2FA issues:**
-   - 2FA enforcement is not yet fully implemented. If your organization has enabled the "Require 2FA" policy toggle in Settings → Security, note that backend enforcement is still in progress — contact your organization admin if you're experiencing login issues related to this setting.
+4. **Two-factor issues:**
+   - If your organization requires two-factor authentication, sign-in asks for a 6-digit code from your authenticator app. If you lost your device, enter one of your recovery codes instead (each works once). If you have neither, ask an Owner or Admin for help.
 
 ### Access Denied / Permission Error
 
@@ -240,7 +241,7 @@ section: user-guide
 
 1. **Check your role:**
 
-   - Go to **Settings** → **Users**
+   - Go to **Settings** → **Workspace** → **Users**
    - Verify your role and permissions
    - Contact admin if permissions need changing
 
@@ -273,11 +274,11 @@ section: user-guide
    - Try different network if possible
    - Check if other sites are slow too
 
-### Agent Response Delays
+### Assistant Response Delays
 
 **Solutions:**
 
-1. **Simplify agent:**
+1. **Simplify the setup:**
 
    - Reduce instruction complexity
    - Remove unnecessary playbooks
@@ -303,7 +304,6 @@ section: user-guide
 1. **Check filters:**
 
    - Verify date range is correct
-   - Check channel filters
    - Reset filters and try again
 
 2. **Cache delay:**
@@ -319,7 +319,7 @@ section: user-guide
 
 ### Can't Export Data
 
-**Note:** Exporting data from Analytics is not yet available. The export button is currently a placeholder and does not produce a file. This feature is planned for a future release.
+**Note:** The Dashboard has no export. You can export a conversation as PDF or CSV, the Feedback list (**Export CSV**) and the Usage resolution ledger (**Export CSV**).
 
 ## Notifications Not Working
 
@@ -329,7 +329,7 @@ section: user-guide
 
 1. **Check settings:**
 
-   - The Notification Preferences UI is available in **Settings → General**, with checkboxes for new conversations, escalated conversations, performance alerts, weekly reports, and quiet hours — however, changes made there currently do not persist because the backend wiring is still pending
+   - Alerts for conversations that need a human also go by email to available team members, after the push alerts
    - Verify your SMTP configuration is correct in the server environment
 
 2. **Check spam:**
@@ -356,7 +356,7 @@ section: user-guide
 
 1. **Is it on for this device?**
 
-   - Go to **Settings → Profile → Notifications** (or look at the bell on Inbox)
+   - Go to **Settings** → **My Profile** (**Alerts on this device**), or open the Inbox
    - The switch must be on for _this_ browser or phone; it is per device, not per account
    - Use **Send a test alert** to confirm delivery
 
@@ -384,7 +384,7 @@ section: user-guide
 
 **Symptoms:**
 
-- Agent says "I don't know" despite having relevant docs
+- The assistant says "I don't know" despite having relevant docs
 - Document shows zero usage
 - Responses don't reference documents
 
@@ -410,7 +410,7 @@ section: user-guide
 
 4. **Test search:**
    - Try searching for document content
-   - If you can't find it, neither can the agent
+   - If you can't find it, neither can the assistant
    - Improve titles and descriptions
 
 ### Upload Fails
@@ -452,7 +452,6 @@ section: user-guide
 
 3. **Context:**
    - Conversation ID (if relevant)
-   - Agent ID (if relevant)
    - Integration name
    - Browser and OS version
 
@@ -474,7 +473,7 @@ section: user-guide
 1. Clear description of problem
 2. Steps to reproduce
 3. Screenshots if helpful
-4. Conversation or agent ID
+4. Conversation ID
 5. When problem started
 6. What you've tried
 
@@ -500,7 +499,7 @@ section: user-guide
 **Monthly:**
 
 - Update documents
-- Review and optimize agents
+- Review and optimize the assistant's instructions and playbooks
 - Clean up unused playbooks
 - Check team access
 
@@ -529,7 +528,7 @@ section: user-guide
 
    - Review recent conversations
    - Find areas for improvement
-   - Update agent instructions
+   - Update the assistant instructions
 
 4. **Stay organized**
    - Clear naming conventions
@@ -537,11 +536,6 @@ section: user-guide
    - Archive old/unused items
 
 ## Common Error Messages
-
-### "Agent not found"
-
-**Cause:** Agent was deleted or disabled
-**Fix:** Check agent status or select different agent
 
 ### "Conversation locked"
 
