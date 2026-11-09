@@ -25,6 +25,8 @@ Filter by **Polarity** (Problem, Working well, Neutral), **State**, **Suggested 
 - **Weekly digest email to owners and admins**
 - **Advanced: similarity** (join and merge thresholds). The starting values work for most stores, and changes apply from the next nightly analysis.
 
+Each insight also shows where it came from: **Conversation review**, **Team rating** or **Docs audit** (Hay checked a playbook or document and found a problem, such as a playbook that uses an action no connected integration provides).
+
 ## An insight in detail
 
 Open an insight to see:
