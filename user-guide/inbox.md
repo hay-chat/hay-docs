@@ -32,7 +32,7 @@ If nobody answers in time the customer is told the team will reply and the chat 
 
 ## Actions waiting for approval
 
-When the AI asks to run an action that needs a person's yes (such as a refund), it appears in the Inbox too. See [Action approvals](/docs/user-guide/action-approvals/).
+When the AI asks to run an action that needs a person's yes (such as a refund), it appears in the Inbox too, under **Waiting for your approval**. See [Action approvals](/docs/user-guide/action-approvals/).
 
 ## Alerts and pausing the AI
 
