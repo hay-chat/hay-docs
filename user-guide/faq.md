@@ -21,7 +21,7 @@ No! Hay is designed for non-technical users. You can set up and manage everythin
 
 ### How long does it take to set up?
 
-You can be up and running in about 10 minutes with basic setup. Full optimization typically takes 2-4 weeks as you add more documentation and refine your agents.
+You can be up and running in about 10 minutes with basic setup. Full optimization typically takes 2-4 weeks as you add more documentation and refine your assistant.
 
 ### What languages does Hay support?
 
@@ -69,9 +69,9 @@ To start using Hay effectively, you need:
 3. At least one communication channel to connect
 4. 10-15 minutes for initial setup
 
-### Should I start with one agent or multiple?
+### Can I have more than one assistant?
 
-Start with one general agent. Add specialized agents later only if you have distinctly different use cases (e.g., sales vs. support).
+No. Hay has one AI assistant per organization. For specific situations (refunds, order status, sales questions) write a [playbook](/docs/user-guide/playbooks/).
 
 ### How many documents should I upload initially?
 
@@ -79,9 +79,9 @@ Start with 15-25 essential documents covering your most common customer question
 
 ### Can I test before going live with customers?
 
-Absolutely! Use the Playground mode to test your agent with sample questions before connecting it to real customer channels.
+Absolutely! Use the **Test your assistant** chat on the **Set up** board or the **Conversation Playground** to try sample questions, and **Tests** under **Quality** to replay past conversations, before you connect real customer channels.
 
-## Agents & AI
+## The assistant & AI
 
 ### How does the AI "learn"?
 
@@ -89,7 +89,7 @@ The AI doesn't learn automatically. It gets "smarter" when you:
 
 - Upload more documentation
 - Create better playbooks
-- Refine agent instructions
+- Refine the assistant's instructions
 - Add examples and context
 
 ### Will the AI make mistakes?
@@ -104,7 +104,7 @@ Yes, through integrations. For example, it can look up orders in Shopify or chec
 
 Yes! You control the AI through:
 
-- Agent instructions (tone, style, what to say/not say)
+- Assistant instructions (tone, style, what to say/not say) under **Settings** → **Assistant**
 - Documents (what information to use)
 - Playbooks (specific workflows)
 - Test mode (approve each response)
@@ -147,7 +147,7 @@ Check **Integrations** → **Marketplace** for the complete list.
 
 ### Can I connect multiple channels?
 
-Yes! You can connect as many channels as you need. The same agent can work across all channels, or you can assign different agents to different channels.
+Yes! You can connect as many channels as you need. The same assistant answers on every channel.
 
 ### Do integrations cost extra?
 
@@ -177,7 +177,7 @@ Resolution rate varies by industry:
 Common causes:
 
 - Not enough documentation
-- Unclear agent instructions
+- Unclear assistant instructions
 - Complex questions outside AI's scope
 - Confidence threshold set too high
 
@@ -186,7 +186,7 @@ See the [Troubleshooting](/docs/user-guide/troubleshooting/) guide for solutions
 ### How can I improve customer satisfaction?
 
 1. Upload comprehensive documentation
-2. Write clear, empathetic agent instructions
+2. Write clear, empathetic assistant instructions
 3. Respond quickly to escalations
 4. Regularly review and optimize
 5. Learn from negative feedback
@@ -199,7 +199,7 @@ AI typically responds in:
 - 3-8 seconds for document lookups
 - 8-15 seconds for complex queries
 
-If slower, check your document organization and agent complexity.
+If slower, check your document organization and the length of your instructions and playbooks.
 
 ## Documents & Training
 
@@ -234,7 +234,7 @@ Simply edit or re-upload the correct version. Changes take effect immediately.
 
 Depends on your plan. Contact your account administrator for storage limit details.
 
-## Queue & Escalations
+## Inbox & Escalations
 
 ### Why do conversations escalate?
 
@@ -258,7 +258,7 @@ Set your own SLAs based on your business needs.
 
 ### Can I automatically assign escalations to specific team members?
 
-Today, assignment is manual: a team member can take over a conversation from the queue and it's assigned to them. Automatic routing rules (by topic, time of day, availability, or customer tier) are not yet available — coming soon.
+Today, assignment is manual: a team member can take over a conversation from the Inbox and it's assigned to them. Automatic routing rules (by topic, time of day, availability, or customer tier) are not yet available — coming soon.
 
 ### What if the queue gets too long?
 
@@ -282,7 +282,7 @@ Long term:
 Yes. Hay uses:
 
 - Encryption in transit and at rest
-- Secure password-based authentication (2FA policy toggle available in Settings → Security, backend enforcement in progress)
+- Password sign-in with optional two-factor authentication (authenticator app and recovery codes) that an Owner can require for the whole team under **Settings** → **Workspace** → **General**
 - Regular security audits
 - Compliance with data protection regulations
 
@@ -303,7 +303,7 @@ Yes! Use role-based access control:
 - Admin: Settings and management
 - Member: Standard team access
 - Contributor: Contribute content (documents, playbooks)
-- Agent: Conversations only
+- Agent: conversation handling (cannot open Insights or Feedback)
 - Viewer: Read-only access
 
 ### Where is my data stored?
@@ -312,9 +312,9 @@ Data is stored in secure, encrypted databases. Contact your account manager for 
 
 ### Can I export my data?
 
-Yes! Go to **Settings** → **Privacy** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Privacy** → **Customer Privacy**.
+Yes! Go to **Settings** → **Privacy** → **Workspace data** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Privacy** → **Customer Privacy**.
 
-> **Note:** Analytics export is not yet available.
+> **Note:** Dashboard metrics cannot be exported. You can export the Feedback list and the Usage ledger as CSV.
 
 ## Technical Questions
 
@@ -333,7 +333,7 @@ Always use the latest version for best performance.
 
 Yes, through your phone's browser. There is no app to install. The dashboard adapts to small screens, and the **Inbox** screen is built for the phone: it lists the conversations waiting for a human, longest wait first, with a **Take over** button on each row.
 
-To be alerted when a customer needs a human while the dashboard is closed, turn on **Alerts on this device** (on Inbox, or under **Settings → Profile → Notifications**). On iPhone and iPad, first add Hay to your Home Screen (Share → **Add to Home Screen**) and open it from there; iOS only allows alerts for web apps installed that way.
+To be alerted when a customer needs a human while the dashboard is closed, turn on **Alerts on this device** (on Inbox, or under **Settings** → **My Profile**). On iPhone and iPad, first add Hay to your Home Screen (Share → **Add to Home Screen**) and open it from there; iOS only allows alerts for web apps installed that way.
 
 ### Do I need to install anything?
 
@@ -350,7 +350,7 @@ Yes! Hay has a full API for:
 - Creating conversations
 - Sending messages
 - Accessing analytics
-- Managing agents and documents
+- Managing documents and playbooks
 
 Contact support for API documentation.
 
