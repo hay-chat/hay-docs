@@ -144,6 +144,8 @@ The SDK runner's HTTP server (`packages/plugin-sdk/runner/http-server.ts`) expos
 | `POST /disable`                              | Runs `onDisable`                                                                                                                                                                         |
 | `POST /cron/:name`                           | Runs a registered cron handler                                                                                                                                                           |
 | `POST /mcp/call-tool`, `GET /mcp/list-tools` | MCP tool invocation / discovery                                                                                                                                                          |
+| `POST /setup/status`                         | Setup status check — reports the plugin's configuration/readiness state                                                                                                                  |
+| `POST /webchat/gate/:event`                  | Webchat gating — lets plugins intercept webchat lifecycle events                                                                                                                         |
 | _(dynamic)_                                  | Any route the plugin declared via `register.route(method, path, handler)` — mounted verbatim on the Express app (this is how channel plugins expose `/webhook`, `/deliver`, `/escalate`) |
 
 All dashboard/webhook traffic to a worker goes through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The proxy resolves the organization **only** from the `organizationId` query param or the `x-organization-id` header (`extractorganizationId`) — both are validated as a UUID and checked against the DB before use. There is no subdomain-based resolution. A third path, resolving the org from an auth token (JWT) for authenticated webhook endpoints, is marked `// TODO` in the code and not implemented. Once resolved, the proxy starts the worker on demand, bumps its activity timestamp, strips credential-bearing headers (`authorization`, `cookie`, `proxy-authorization`, etc.), and forwards the request.
@@ -211,6 +213,7 @@ One row per `(organizationId, pluginId)` — the org's enablement, config, auth,
 | `runtimeState`                                                                        | varchar                     | the current state machine field (`PluginInstanceRuntimeState`)                                                                        |
 | `lastActivityAt`                                                                      | timestamptz                 | idle-kill input                                                                                                                       |
 | `priority`                                                                            | integer                     |                                                                                                                                       |
+| `channelHealth`                                                                       | jsonb, nullable             | Channel health status reporting                                                                                                       |
 
 ### `plugin_webhook_routes` (`plugin-webhook-route.entity.ts`)
 
@@ -292,11 +295,20 @@ Workers call back into core over tRPC-HTTP using the `HAY_API_URL`/`HAY_API_TOKE
 
 - `messages.receive` — input `{ from, content, channel, metadata?, senderType?, externalConversationId? }`; finds/creates the Customer (keyed on `external_id` per channel) and conversation, adds the message
 - `messages.send`, `messages.getByConversation`
+- `messages.updateStatus` — update delivery status of a sent message
 - `conversations.updateStatusByExternalId`
 - `customers.get`, `customers.findByExternalId`, `customers.upsert`
 - `sources.register`
 - `mcp.registerLocal`, `mcp.registerRemote`
-- `products.upsertMany`, `products.delete` (source is the authenticated plugin ID — a plugin can only touch its own products)
+- `products.upsertMany`, `products.delete`, `products.prune` (source is the authenticated plugin ID — a plugin can only touch its own products)
+- `media.upload` — upload media/attachments on behalf of the plugin
+- `connection.revoke` — revoke the plugin's connection for an org
+- `channel.reportHealth` — report channel health status
+- `email.sendingDomain` — manage email sending domain configuration
+- `webhooks.setRoutingKeys` — update webhook routing keys
+- `state.get`, `state.set`, `state.delete` — plugin key-value state storage
+- `disputes.report` — report a dispute event
+- `privacy.eraseCustomer`, `privacy.exportCustomer` — GDPR privacy operations
 
 The router self-describes as a "simplified initial implementation" — expect this surface to grow.
 
@@ -306,8 +318,8 @@ The router self-describes as a "simplified initial implementation" — expect th
 
 **Files**: `server/routes/v1/plugins/index.ts` (router), `server/routes/v1/plugins/plugins.handler.ts` (implementations). All procedures are `authenticatedProcedure`.
 
-- **Queries**: `plugins.getAll`, `plugins.get`, `plugins.getInstances`, `plugins.getUITemplate`, `plugins.getMCPTools`, `plugins.getMenuItems`, `plugins.testConnection`, `plugins.getPluginTranslations`, `plugins.oauth.isAvailable`, `plugins.oauth.status`
-- **Mutations**: `plugins.enable`, `plugins.disable`, `plugins.restart`, `plugins.configure`, `plugins.refreshMCPTools`, `plugins.validateAuth`, `plugins.oauth.initiate`, `plugins.oauth.revoke`
+- **Queries**: `plugins.getAll`, `plugins.get`, `plugins.getInstances`, `plugins.getUITemplate`, `plugins.getMCPTools`, `plugins.getMenuItems`, `plugins.testConnection`, `plugins.getPluginTranslations`, `plugins.setupStatus`, `plugins.getUiAssetUrls`, `plugins.oauth.isAvailable`, `plugins.oauth.status`
+- **Mutations**: `plugins.enable`, `plugins.disable`, `plugins.restart`, `plugins.configure`, `plugins.refreshMCPTools`, `plugins.validateAuth`, `plugins.callUiRoute`, `plugins.oauth.initiate`, `plugins.oauth.revoke`, `plugins.oauth.completeWithCode`
 
 There is **no** generic `plugins.invokeTool` mutation — MCP tool invocation happens inside the orchestrator via the worker's `POST /mcp/call-tool`.
 
@@ -329,7 +341,7 @@ Things a contributor should know exist (or don't) before building on them:
 - **`onEnable` is dead code** — typed in the SDK but invoked by neither the runner nor core.
 - **Document importers bypass the worker model.** Plugins with `autoActivate: true` + `trpcRouter` (e.g. `plugins/core/atlassian`) load a tRPC router in-process at boot via `server/services/plugin-router-registry.service.ts`, coupled to `@server/*` internals. This is the legacy special case, not the pattern to extend.
 - **`onConfigUpdate` is also uncalled** — the runner exposes `POST /config-update`, but core applies config changes by restarting the worker (see the hooks table).
-- **`PluginApiClient` is duplicated per channel plugin** (`plugins/core/instagram/src/plugin-api.ts`, and likewise in `chatwoot`, `email`) instead of being an SDK export.
+- **`PluginApiClient` is duplicated per channel plugin** (`plugins/core/instagram/src/plugin-api.ts`, and likewise in `chatwoot`, `email`, `whatsapp`, `messenger`) instead of being an SDK export.
 - **Webhook signature format** is limited to `sha256-hmac` in `WebhookRoutingDescriptor`.
 - **The instance pool's `queuedRequests` stat is tracked but never incremented** — pool limiting works via polling (`waitForAvailableSlot`), not a real queue.
 - The `plugin_instances.status` column is legacy; `runtimeState` is the field the runner actually maintains.

@@ -96,12 +96,17 @@ The fields core actually reads from `package.json → "hay-plugin"` (interface `
 | `entry`            | `string`   | Path to the compiled entry module (e.g. `"./dist/index.js"`)                                                                                                  |
 | `displayName`      | `string`   | Human-readable name shown in the marketplace                                                                                                                  |
 | `category`         | `string`   | One of `integration \| channel \| tool \| analytics \| products` (SDK `PluginCategory`); document importers are marked via `documentImporter`, not a category |
-| `capabilities`     | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `cron`, `email`                                        |
+| `capabilities`     | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `cron`, `email`, `disputes`, `tickets`, `privacy`, `webchat` |
 | `env`              | `string[]` | Allow-list of host env var names that config fields may fall back to via their `env:` property                                                                |
 | `channel`          | `string`   | Channel plugins only: the channel slug (e.g. `"instagram"`); matched by `pluginManagerService.findPluginIdByChannel()` for outbound delivery                  |
 | `autoActivate`     | `boolean`  | Legacy (document importers)                                                                                                                                   |
 | `trpcRouter`       | `string`   | Legacy (document importers): path to a tRPC router loaded in-process                                                                                          |
 | `documentImporter` | `boolean`  | Legacy: marks a document importer plugin                                                                                                                      |
+| `rendering`        | `object`   | Channel rendering options (e.g. message format capabilities)                                                                                                  |
+| `inactivity`       | `object`   | Channel-specific inactivity timing overrides                                                                                                                  |
+| `defaultEnabled`   | `boolean`  | Auto-enable for all orgs (system plugins)                                                                                                                     |
+| `oauthHosts`       | `string[]` | Allowed OAuth redirect hosts for this plugin                                                                                                                  |
+| `setup`            | `object`   | Plugin setup flow descriptor                                                                                                                                  |
 | `config`           | `object`   | Legacy: manifest-style config schema, copied into the registry manifest's `configSchema` (new plugins use `register.config` instead)                          |
 | `auth`             | `object`   | Legacy: manifest-style auth config, copied into the registry manifest (new plugins use `register.auth.*` instead)                                             |
 
@@ -193,8 +198,8 @@ All context interfaces live in `packages/plugin-sdk/types/contexts.ts`.
 
 | Context                                         | Fields                                                                                                                                                                                         |
 | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `HayGlobalContext` (onInitialize + factory arg) | `register: HayRegisterAPI`, `config: HayConfigDescriptorAPI` (field references only — `config.field(name)`), `logger: HayLogger`                                                               |
-| `HayStartContext` (onStart)                     | `org: HayOrg`, `config: HayConfigRuntimeAPI`, `auth: HayAuthRuntimeAPI`, `mcp: HayMcpRuntimeAPI`, `productSource?: HayProductSourceRuntimeAPI` (only with the `products` capability), `logger` |
+| `HayGlobalContext` (onInitialize + factory arg) | `register: HayRegisterAPI`, `config: HayConfigDescriptorAPI` (field references only — `config.field(name)`), `logger: HayLogger`, `state?: HayPluginStateAPI`                                            |
+| `HayStartContext` (onStart)                     | `org: HayOrg`, `config: HayConfigRuntimeAPI`, `auth: HayAuthRuntimeAPI`, `mcp: HayMcpRuntimeAPI`, `productSource?: HayProductSourceRuntimeAPI` (only with `products`), `disputes?: HayDisputeSourceRuntimeAPI` (only with `disputes`), `logger` |
 | `HayConnectedContext` (onConnected)             | `org`, `config`, `auth` (fresh tokens), `logger`                                                                                                                                               |
 | `HayAuthValidationContext` (onValidateAuth)     | `org`, `config`, `auth`, `logger`                                                                                                                                                              |
 | `HayConfigUpdateContext` (onConfigUpdate)       | `org`, `config`, `logger`                                                                                                                                                                      |
@@ -229,6 +234,8 @@ Defines configuration fields; the dashboard generates the settings form from thi
 | `env`         | `string`                                            | Host env var fallback. **Must be listed in `hay-plugin.env`** — validated at load time.     |
 | `options`     | `Array<{ label: string; value: string \| number }>` | Renders a dropdown instead of free text                                                     |
 | `showWhen`    | `ShowWhen`                                          | Declarative visibility: `{ field, equals? \| in? \| notEquals? }` referencing another field |
+| `serverOnly`  | `boolean`                                           | Server-only field — never sent to the worker process                                        |
+| `advanced`    | `boolean`                                           | Show in the dashboard's Advanced settings tab                                               |
 
 ```typescript
 register.config({
@@ -399,9 +406,11 @@ For providers that deliver **every org's events to a single shared webhook URL w
 
 | Field                   | Description                                                                                                                                                                                                                                                                              |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `signature`             | `{ header, format: "sha256-hmac", secretEnv }` — core verifies HMAC-SHA256 over the exact raw request bytes with the secret from `process.env[secretEnv]` (must be in the `hay-plugin.env` allow-list); timing-safe compare, `sha256=` prefix stripped. Only `sha256-hmac` is supported. |
+| `signature`             | `{ header, format, secretEnv }` — core verifies the signature over the exact raw request bytes with the secret from `process.env[secretEnv]` (must be in the `hay-plugin.env` allow-list); timing-safe compare. Supported formats: `"sha256-hmac"` (hex digest, `sha256=` prefix stripped), `"sha256-hmac-base64"` (base64 digest), `"svix"` (Svix webhook verification). |
 | `verificationChallenge` | Optional GET handshake: `{ modeParam, verifyTokenParam, challengeParam, verifyTokenEnv? \| verifyTokenConfigField? }` — core echoes the challenge when mode is `subscribe` and the token matches.                                                                                        |
-| `routeKeyPath`          | `{ itemsPath, keyPath, nested? }` — dot-paths (no eval, no DSL) to the events array and the per-event routing key. Optional `nested: { itemsPath, keyPath }` names a sub-array inside each item whose elements carry their own routing key (see below).                                  |
+| `routeKeyPath`          | `{ itemsPath, keyPath, nested?, keyTransform? }` — dot-paths (no eval, no DSL) to the events array and the per-event routing key. Optional `nested: { itemsPath, keyPath }` names a sub-array inside each item whose elements carry their own routing key (see below). Optional `keyTransform: "email-address"` normalizes the extracted key (e.g. lowercasing an email). |
+| `deauthorization`       | Optional `{ format, param, secretEnv, keyPath }` — descriptor for handling provider deauthorization callbacks (e.g. Facebook data deletion requests).                                                                                                                                      |
+| `dedupe`                | Optional `{ source: "raw-body", windowSeconds }` — server-side payload deduplication; core hashes the raw body and drops duplicate payloads within the specified window.                                                                                                                   |
 
 Routing keys are matched against the keys persisted from `onConnected` to resolve the target org.
 

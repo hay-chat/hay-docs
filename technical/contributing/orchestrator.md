@@ -35,6 +35,14 @@ This guide covers how the pieces fit together and where to make changes. For cod
 | `server/services/core/action-claim-guardrail.service.ts`                    | Stage 0 guardrail: action-claim vs. tool-call consistency                           |
 | `server/services/core/company-interest-guardrail.service.ts`                | Stage 1 guardrail: company interest                                                 |
 | `server/services/core/confidence-guardrail.service.ts`                      | Stage 2 guardrail: fact grounding                                                   |
+| `server/services/core/link-guardrail.service.ts`                            | Link guardrail: URL validation between Stage 0 and Stage 1                          |
+| `server/orchestrator/reply-guard.ts`                                        | Reply-guard logic for response validation                                           |
+| `server/orchestrator/handoff-copy.ts`                                       | Handoff message composition                                                         |
+| `server/orchestrator/closure-copy.ts`                                       | Closure message composition                                                         |
+| `server/orchestrator/local-time.ts`                                         | Local-time utilities for org timezone awareness                                     |
+| `server/orchestrator/paused-notice.ts`                                      | Paused/suspended conversation notice handling                                       |
+| `server/orchestrator/suspended-holding-reply.ts`                            | Holding reply for suspended conversations                                           |
+| `server/orchestrator/decided-actions.ts`                                    | Decided-action tracking and processing                                              |
 | `server/prompts/en/{perception,retrieval,execution,conversation,playbook}/` | All LLM prompt templates (also `pt/`, `es/`)                                        |
 
 ## End-to-End Flow
@@ -67,12 +75,15 @@ customer message ──> Conversation.addMessage()
 
 | Trigger            | Fired from                                                                                            |
 | ------------------ | ----------------------------------------------------------------------------------------------------- |
-| `customer_message` | `Conversation.addMessage()` for customer messages (`server/database/entities/conversation.entity.ts`) |
-| `creation`         | `server/services/conversation.service.ts` when a conversation is created                              |
-| `ai_return`        | Conversation entity, when a human hands the conversation back to the AI                               |
-| `recovery`         | `server/services/message-recovery.service.ts` (stale-message recovery)                                |
-| `inactivity`       | `Orchestrator.checkInactivity()` after sending an inactivity warning                                  |
-| `sweep`            | The `orchestrator-sweep` scheduled job (safety net, see below)                                        |
+| `customer_message`  | `Conversation.addMessage()` for customer messages (`server/database/entities/conversation.entity.ts`) |
+| `creation`          | `server/services/conversation.service.ts` when a conversation is created                              |
+| `ai_return`         | Conversation entity, when a human hands the conversation back to the AI                               |
+| `recovery`          | `server/services/message-recovery.service.ts` (stale-message recovery)                                |
+| `inactivity`        | `Orchestrator.checkInactivity()` after sending an inactivity warning                                  |
+| `sweep`             | The `orchestrator-sweep` scheduled job (safety net, see below)                                        |
+| `approval_decided`  | When a human approves or rejects a pending AI response                                                |
+| `simulation`        | Playground / test-mode conversations                                                                  |
+| `form_submission`   | Customer submits a form presented by the AI                                                           |
 
 The queue message is an `OrchestratorMessage`: `{ messageId, conversationId, organizationId, trigger, timestamp, attempt }`.
 
@@ -139,11 +150,11 @@ Prompts are file-based markdown templates resolved by `PromptService.getPrompt()
 
 `options` (`ExecuteOptions`) also carries per-turn state owned by the run loop and shared by reference across re-plans: `toolsCalledThisTurn` (the tool ledger) and `turnGuardrailState` (retry budgets).
 
-One structured LLM call against `buildPlannerSchema(allToolNames)` returns `{ step, userMessage, toolName, toolArgs, handoffReason, closeReason, rationale, playbookFits }` with `step ∈ ASK | RESPOND | CALL_TOOL | HANDOFF | CLOSE`. `playbookFits` is the planner's verdict on whether the active playbook still matches the conversation (`null` when none is active) — it feeds the playbook gate. When tools exist, `toolName` is **enum-constrained in the schema** to the allowed set, so the model can't emit a malformed name. The layer then auto-corrects common LLM mistakes: missing step with a tool → `CALL_TOOL`; `RESPOND` with a tool but no message → `CALL_TOOL`; `CALL_TOOL` with a `userMessage` → the message is stripped; invalid tool name or `ASK`/`RESPOND` without a `userMessage` → return `null`, which makes the loop retry the planner.
+One structured LLM call against `buildPlannerSchema(allToolNames)` returns `{ step, userMessage, toolName, toolArgs, handoffReason, closeReason, rationale, playbookFits, teamQuestion, formJson, aiUnavailable, planningExhausted, badLinks, linkRetryAttempted }` with `step ∈ ASK | RESPOND | CALL_TOOL | HANDOFF | CLOSE | ASK_TEAM | ASK_FORM`. `ASK_TEAM` routes the question to the team (when quickCheck is enabled); `ASK_FORM` presents a structured form to the customer. `playbookFits` is the planner's verdict on whether the active playbook still matches the conversation (`null` when none is active) — it feeds the playbook gate. When tools exist, `toolName` is **enum-constrained in the schema** to the allowed set, so the model can't emit a malformed name. The layer then auto-corrects common LLM mistakes: missing step with a tool → `CALL_TOOL`; `RESPOND` with a tool but no message → `CALL_TOOL`; `CALL_TOOL` with a `userMessage` → the message is stripped; invalid tool name or `ASK`/`RESPOND` without a `userMessage` → return `null`, which makes the loop retry the planner.
 
 ## The Execution Loop (`run.ts::handleExecutionLoop`)
 
-Caps: `MAX_ITERATIONS = 15`, `MAX_EMPTY_RETRIES = 3` (after which a canned fallback message is sent). The loop owns the per-turn tool ledger (`toolsCalledThisTurn`) and the guardrail retry budgets (`turnGuardrailState`). Each iteration calls `executionLayer.execute()` and dispatches:
+Caps: `MAX_ITERATIONS = 15`, `MAX_EMPTY_RETRIES = 3` (after which a canned fallback message is sent), `TOOL_CALL_BUDGET = 8` (maximum tool calls per turn — exceeding it forces a handoff). The loop owns the per-turn tool ledger (`toolsCalledThisTurn`) and the guardrail retry budgets (`turnGuardrailState`). Each iteration calls `executionLayer.execute()` and dispatches:
 
 - **`playbookFits === false`** — the planner says the customer moved on (e.g. order status → refund): the verdict is persisted to `conversation.metadata.playbookFits`, the selector re-runs, and the plan is discarded and re-made without spending an iteration. Bounded to **one re-selection per turn** so the planner can't ping-pong between playbooks.
 - **`CALL_TOOL`** — a `TOOL`-type message is written with `toolStatus: "RUNNING"`, then `ToolExecutionService.handleToolExecution()` runs the tool and updates the message in place; the outcome is recorded in the tool ledger and the loop continues so the planner can read the result. A guard in `run.ts` blocks non-core tools not present in `enabled_tools` — the blocked call is fed back to the model as a `TOOL` error message and does **not** count against the iteration cap. After a successful `recommend_products` call, `maybeEmitProductRecommendation()` emits a separate `PRODUCT_RECOMMENDATION` message carrying the product payload for the webchat/dashboard cards.
@@ -157,10 +168,12 @@ Applied by `ExecutionLayer.applyConfidenceGuardrails()` **only to `RESPOND` step
 
 0. **Action-claim consistency** (`action-claim-guardrail.service.ts`, prompt `execution/action-claim-check`) — runs first, _before_ the intent exemption, so a false "I've cancelled it, glad I could help!" on a closing turn is still caught. An LLM extracts state-changing action claims from the drafted response and checks them against the turn's tool ledger (failed calls don't back a claim). On violation the planner gets one corrective re-plan with explicit feedback (`maxRetries: 1` per turn); if the retry still can't back its claim, the result becomes a `HANDOFF` (or the fallback message when `escalateOnFailure` is off). Defaults in `DEFAULT_ACTION_CLAIM_GUARDRAIL_CONFIG` (`server/types/organization-settings.types.ts`): `{ enabled: true, maxRetries: 1, escalateOnFailure: true }`, org-overridable via `settings.actionClaimGuardrail`.
 
-Stages 1–2 are skipped for `GREET` / `CLOSE_SATISFIED` / `CLOSE_UNSATISFIED` intents:
+   **Link guardrail** (`link-guardrail.service.ts`) runs next, validating URLs in the drafted response. It has its own retry budget (`turnGuardrailState.linkRetries`).
+
+Stages 1–2 are skipped for `GREET` / `CLOSE_SATISFIED` / `CLOSE_UNSATISFIED` intents (unless the reply contains factual specifics — numbers, amounts, or links):
 
 1. **Company interest** (`company-interest-guardrail.service.ts`) — an LLM assesses the drafted response and returns `{ violationType, severity, requiresFactCheck }`. Critical severity blocks the response — but first the planner gets one corrective re-plan carrying the reviewer's reasoning (`maxRetries: 1` per turn, same philosophy as Stage 0); only if that fails does it become a `HANDOFF` with a fallback message, the original text preserved in metadata.
-2. **Fact grounding** (`confidence-guardrail.service.ts`) — runs only when Stage 1 sets `requiresFactCheck`. Weighted score = grounding 0.6 + retrieval 0.3 + certainty 0.1; default tiers `high ≥ 0.8`, `medium ≥ 0.5`, `low < 0.5` (org-overridable via organization settings, merged by `mergeConfig`). Recent successful tool results (last 3 non-error `TOOL` messages) **and the active playbook's rendered instructions** count as authoritative synthetic documents (similarity 0.95) — without the latter, playbook-driven policy statements would be flagged as ungrounded. Medium tier triggers one `performRecheck()` with relaxed retrieval (threshold 0.3, up to 10 docs), kept only if the score improves. Low tier converts to `HANDOFF` (if `enableEscalation`) or a fallback message.
+2. **Fact grounding** (`confidence-guardrail.service.ts`) — runs on every reply. Full assessment when Stage 1 sets `requiresFactCheck`; lighter grounding-only check (`assessUnflaggedResponseGrounding()`) otherwise — a low grounding score still triggers the full recheck/escalation path. Weighted score = grounding 0.6 + retrieval 0.3 + certainty 0.1; default tiers `high ≥ 0.8`, `medium ≥ 0.5`, `low < 0.5` (org-overridable via organization settings, merged by `mergeConfig`). Recent successful tool results (last 3 non-error `TOOL` messages) **and the active playbook's rendered instructions** count as authoritative synthetic documents (similarity 0.95) — without the latter, playbook-driven policy statements would be flagged as ungrounded. Medium tier triggers one `performRecheck()` with relaxed retrieval (threshold 0.3, up to 10 docs), kept only if the score improves. Low tier converts to `HANDOFF` (if `enableEscalation`) or a fallback message.
 
 Fallback messages are no longer only canned: `composeContextualFallbackMessage()` asks an LLM (prompt `execution/contextual-fallback`, tier `"medium"`) to acknowledge the customer's actual request from the last few customer-visible messages — deliberately _without_ seeing the blocked response, so unverified claims can't leak through — and falls back to the static configured message on error.
 
@@ -168,11 +181,12 @@ All Stage 1/2 outcomes are appended to `orchestration_status.guardrailLog` (plus
 
 ## Inactivity Lifecycle
 
-`Orchestrator.checkInactivity()` (`server/orchestrator/index.ts`), helpers in `conversation-utils.ts`. Thresholds derive from `config.conversation.inactivityInterval`:
+`Orchestrator.checkInactivity()` (`server/orchestrator/index.ts`), helpers in `conversation-utils.ts`. Thresholds are **per-channel**:
 
-- **½×** — LLM-generated warning message (marked `metadata.isInactivityWarning`), conversation re-enqueued with trigger `"inactivity"`.
-- **1×** — close with a message.
-- **2×** — close silently; empty conversations older than 2× are deleted outright.
+- **Webchat** — fixed thresholds from `WEB_INACTIVITY` in `server/lib/inactivity-timing.ts`: warning at 15 min, close at 30 min, silent close at 60 min.
+- **External channels** — each plugin declares its own `InactivityTiming` in its manifest (`inactivity` field in the `hay-plugin` block). Plugins without timing fall back to the env-based `inactivityInterval` (½×, 1×, 2× pattern).
+
+The warning sends an LLM-generated message (marked `metadata.isInactivityWarning`) but does **not** re-enqueue the conversation. The `orchestrator-inactivity-check` job handles warning/close directly.
 
 Closures set `status: "resolved"`, fire the `conversation.resolved` hook, and trigger title generation (prompt `conversation/title-generation`, first 10 public messages, 255-char cap).
 

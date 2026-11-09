@@ -15,11 +15,11 @@ section: user-guide
 
 ### Solutions
 
-**Check agent status:**
+**Check assistant status:**
 
-1. Go to **Agents**
-2. Verify agent is **Enabled**
-3. Check if agent has required documents and playbooks
+1. Go to **Settings** → **Assistant**
+2. Verify the assistant is configured with instructions
+3. Check if assistant has required documents and playbooks
 
 **Check integration:**
 
@@ -57,9 +57,9 @@ section: user-guide
 3. Make sure information is clear and complete
 4. Update outdated documents
 
-**Improve agent instructions:**
+**Improve assistant instructions:**
 
-1. Go to **Agents** → Your agent
+1. Go to **Settings** → **Assistant**
 2. Review instructions
 3. Add specific examples
 4. Be more explicit about what to do/not do

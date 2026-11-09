@@ -85,7 +85,7 @@ Each entry in the list shows the rating badge, the source channel, the rated mes
 
 ### Export CSV
 
-Click **Export CSV** to download your feedback as `feedback-export-<date>.csv`. The export respects the **Rating**, **Start Date**, and **End Date** filters (the **Source** filter is not applied to the export). This is currently the only working data export in Hay's analytics.
+Click **Export CSV** to download your feedback as `feedback-export-<date>.csv`. The export respects the **Rating**, **Start Date**, and **End Date** filters (the **Source** filter is not applied to the export).
 
 ## Using Feedback to Improve
 
@@ -98,21 +98,15 @@ A practical review routine:
 
 While testing a new agent, rate its messages liberally - the feedback history becomes your quality log.
 
-## Demo / Preview Pages
+## Insights
 
-The following pages exist in the product but display **hardcoded demo data**. Do not use them to make decisions.
+**Insights** (`/insights`) provides AI-powered conversation cluster analysis. It groups recent conversations into clusters based on topic similarity, showing:
 
-### `/analytics` - Analytics
+- **Polarity** — how conversations in each cluster skew (positive, negative, neutral)
+- **States** — the resolution outcomes within each cluster
+- **Action types** — what actions (tool calls, escalations, etc.) were taken
 
-Shows KPI cards (Total Conversations, Resolution Rate, Avg Response Time, Customer Satisfaction), Response Time Distribution, Top Issues, an Agent Performance table, and Channel Performance. All of these figures are demo placeholders. The Customer Satisfaction KPI card shows a percentage format, while the Agent Performance table uses star-based satisfaction scores. The timeframe selector, **Export**, and **Refresh** buttons do nothing yet. The two chart areas ("Conversation Volume", "Resolution Rate Trend") are empty placeholders. The only real element is the list of channels itself, which reflects your enabled channel plugins - the metrics next to them do not.
-
-### `/analytics/reports` - Custom Reports
-
-A preview of a report builder (Report Configuration, Metrics Selection, Grouping & Filters, Visualization, Quick Templates, Recent Reports). Generating, saving, scheduling, viewing, and downloading reports are all not implemented - the buttons do nothing yet, and the "Recent Reports" list is demo data.
-
-### `/insights` - Insights
-
-Renders a full demo UI with interactive filters, stat cards, and AI-generated improvement suggestions. Accepting or rejecting suggestions only updates the demo list on screen - nothing is saved. The page also displays a "Coming soon" notice alongside the demo content.
+Use the period filter to change the time window. A backfill indicator shows when cluster data is still being generated. Admins can configure cluster analysis settings from the settings dialog on this page.
 
 ## Common Analytics Questions
 
@@ -126,7 +120,7 @@ If you saw it on the `/analytics` page, it is demo data. Hay's real quality sign
 
 ### Can I export analytics data?
 
-Yes, one export works today: **Export CSV** on the Feedback Insights page. PDF exports and scheduled reports are not implemented.
+Yes — click **Export CSV** on the Feedback page to download your feedback data. PDF exports and scheduled reports are not yet available.
 
 ### What's a "good" resolution rate?
 
@@ -142,6 +136,6 @@ Brand new agents need time: expect metrics to improve over 2-4 weeks as you add 
 ## Next Steps
 
 - Review real metrics on your [Dashboard](/docs/user-guide/dashboard/)
-- Use feedback insights to improve your [Agents](/docs/user-guide/agents/)
+- Use feedback insights to improve your [AI Assistant](/docs/user-guide/agents/)
 - Add [Documents](/docs/user-guide/documents/) for topics with negative feedback
 - Monitor your [Conversations](/docs/user-guide/conversations/) for escalation patterns

@@ -9,21 +9,31 @@ section: user-guide
 
 Click **Settings** in the left sidebar to expand the settings menu. What you see depends on your role:
 
-**Admins and Owners** see the full menu:
+**Admins and Owners** see the full menu, organized into sections:
 
-- **General** — organization details, platform preferences, AI confidence guardrails
-- **Agents** — manage your AI agents (see the [Agents guide](/docs/user-guide/agents/))
-- **Channels** — manage communication channels
-- **Users** — team members and invitations
-- **Privacy & Data** — your own GDPR rights (export/delete your account)
-- **API Tokens** — organization-level API access
-- **Webchat** — website chat widget configuration
-- **Git Connections** — install plugins from GitHub repositories
-- **AI Models** — the AI provider and models behind your agents
+- **Assistant**
+  - **Identity** — name, description, instructions, tone, greeting, and things to avoid
+  - **Actions** — action approval settings for store operations (refunds, cancellations, etc.)
+  - **LLM Providers** — the AI provider, models, and processing region behind your assistant
+- **Channels**
+  - **Channel List** — manage connected communication channels
+  - **Webchat** — website chat widget configuration
+  - **Business Hours** — set operating hours and out-of-hours behavior
+- **Workspace**
+  - **General** — organization details, platform preferences, AI confidence guardrails
+  - **Users** — team members and invitations
+- **Privacy**
+  - **Workspace Data** — your own GDPR rights (export/delete your account)
+  - **Customer Privacy** — GDPR requests on behalf of customers, and the data retention policy
+- **Developers**
+  - **API Tokens** — organization-level API access
+  - **Git Connections** — install plugins from GitHub repositories
+- **Billing & Usage**
+  - **Usage** — plan details, resolution usage, and billing
 
 **All roles** see:
 
-- **Customer Privacy** — GDPR requests on behalf of customers, and the data retention policy
+- **Customer Privacy** (under Privacy) — GDPR requests on behalf of customers
 - **My Profile** — your personal profile, email, and password
 
 Installed plugins can add their own entries to the Settings menu (these are shown to Admins and Owners only).
@@ -36,6 +46,7 @@ Installed plugins can add their own entries to the Settings menu (these are show
 
 - **Organization Name** — the name of your organization
 - **About Organization** — a free-text description of what your organization does (max 10,000 characters). This is not just cosmetic: it's given to the AI assistant as business context, so a good description improves response quality.
+- **Website** — your organization's website URL
 - **Logo** — upload a square image, max 2MB (JPG, PNG, WebP, or GIF). You can remove it at any time.
 
 ### Platform Settings
@@ -44,8 +55,7 @@ Installed plugins can add their own entries to the Settings menu (these are show
 - **Timezone** — used for displaying timestamps
 - **Date Format** — MM/DD/YYYY (US), DD/MM/YYYY (EU), YYYY-MM-DD (ISO), or DD MMM YYYY, with a live preview
 - **Time Format** — 12-hour (AM/PM) or 24-hour, with a live preview
-- **Default Agent** — the agent that handles conversations when no specific agent is assigned
-- **Test Mode Default** — when the "Require approval for AI messages by default" checkbox is enabled, AI messages require human approval before being sent to customers. Individual agents can override this setting, and playground conversations always auto-send regardless. This is separate from approving store actions such as refunds; see [Action approvals](/docs/user-guide/action-approvals/).
+- **Test Mode Default** — when the "Require approval for AI messages by default" checkbox is enabled, AI messages require human approval before being sent to customers. Playground conversations always auto-send regardless. This is separate from approving store actions such as refunds; see [Action approvals](/docs/user-guide/action-approvals/).
 
 ### AI Confidence Guardrails
 
@@ -95,9 +105,9 @@ Hay has six roles: **Owner**, **Admin**, **Contributor**, **Member**, **Viewer**
 - **Remove Member** — remove someone from the organization (Owners only; cannot be undone)
 - **Pending Invitations** — see invitations that haven't been accepted yet, with options to **resend** or **cancel** each one
 
-## Privacy & Data (Your Own Data)
+## Workspace Data (Your Own Data)
 
-**Settings** → **Privacy & Data** covers _your_ personal data as a Hay user, under GDPR. (For your customers' data, see [Customer Privacy](#customer-privacy) below.)
+**Settings** → **Privacy** → **Workspace Data** covers _your_ personal data as a Hay user, under GDPR. (For your customers' data, see [Customer Privacy](#customer-privacy) below.)
 
 ### Export Your Data
 
@@ -183,21 +193,25 @@ The page provides a ready-to-copy **Installation Code** snippet — add it to yo
 - **Select a repository** — pick a repository and click **Install Plugin** to install it as a Hay plugin
 - **Git Plugins** — plugins installed from Git, each showing sync status (Up to date / Update available), last sync time, commit, and a **Sync Now** button
 
-## AI Models
+## LLM Providers
 
-**Settings** → **AI Models** ("Choose which AI provider and models power your agents").
+**Settings** → **Assistant** → **LLM Providers** ("Choose which AI provider and models power your assistant").
 
-This page is gated behind an advanced-settings warning — "**Advanced — changes here affect every agent**" — because changing the defaults can radically change response quality, cost, latency, and reliability for all agents in the organization. Click "I understand — let me edit" to unlock editing.
+This page is gated behind an advanced-settings warning — "**Advanced — changes here affect your assistant**" — because changing the defaults can radically change response quality, cost, latency, and reliability. Click "I understand — let me edit" to unlock editing.
+
+### AI Region
+
+At the top of the page you can select the **AI processing region**. Toggle **EU processing** to ensure all AI requests are routed through EU-based infrastructure for data residency compliance.
 
 ### Chat Provider
 
-- **Provider** — the provider used to generate agent responses. Choose from **OpenAI**, **Anthropic (Claude)**, **Google Gemini**, **Mistral**, **xAI Grok**, **Custom (OpenAI-compatible)**, or **Custom — supports tool calling (OpenAI-compatible)** (seven options total).
+- **Provider** — the provider used to generate assistant responses. Choose from **OpenAI**, **Anthropic (Claude)**, **Google Gemini**, **Mistral**, **xAI Grok**, **Custom (OpenAI-compatible)**, or **Custom — supports tool calling (OpenAI-compatible)** (seven options total).
 - **Base URL** — the provider's OpenAI-compatible API base URL. Shown only for Mistral, Grok, and custom endpoints.
 - **Use my own API key** — when off, Hay's managed AI is used (billed with your plan). When on, enter your own provider **API Key** — it is stored encrypted and never shown again after saving.
 
 ### Model Tiers
 
-Agents pick a tier by task complexity; map each tier to a model for your provider:
+The assistant picks a tier by task complexity; map each tier to a model for your provider:
 
 - **Hard (most capable)** — orchestration, planning, and guardrails
 - **Medium (balanced)** — audits and translations
@@ -259,7 +273,7 @@ Go to **Settings** → **API Tokens** — the **Connection details** card shows 
 
 ### How do I put AI messages under human review?
 
-Enable **Test Mode Default** in **Settings** → **General** → **Platform Settings**. Pending AI messages then appear in the conversation view for approval before being sent. Individual agents can override the default.
+Enable **Test Mode Default** in **Settings** → **General** → **Platform Settings**. Pending AI messages then appear in the conversation view for approval before being sent.
 
 ### Does Hay have billing, 2FA, or webhook settings?
 
@@ -272,6 +286,6 @@ Your workspace has used 80 % or more of its included resolutions for the period.
 ## Next Steps
 
 - Set up [Integrations](/docs/user-guide/integrations/) after configuring settings
-- Configure your [Agents](/docs/user-guide/agents/)
+- Configure your [AI Assistant](/docs/user-guide/agents/)
 - Review the [Data Retention & Privacy](/docs/user-guide/data-retention/) guide for compliance details
 - Invite your team members to get started

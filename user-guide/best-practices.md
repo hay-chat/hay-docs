@@ -440,34 +440,35 @@ Since there's no built-in SLA tracking, these targets are something your team ag
 
 ### A/B Testing
 
-Test changes before rolling out everywhere:
+Test instruction changes sequentially to measure their impact:
 
-**Example: Testing agent instructions**
+**Example: Testing assistant instructions**
 
-1. **Current state:**
+1. **Measure baseline (1 week):**
 
-   - Agent A: Current instructions
-   - Resolution rate: 75%
+   - Record current resolution rate, satisfaction, escalation rate
+   - Note the current instructions
 
-2. **Create test variant:**
+2. **Apply the change:**
 
-   - Agent B: New instructions
-   - Same documents, same playbooks
+   - Update assistant instructions with the new approach
+   - Keep documents and playbooks the same
 
 3. **Run for 1 week:**
 
-   - Split traffic 50/50
-   - Track metrics separately
+   - Monitor metrics daily
+   - Track the same KPIs as baseline
 
 4. **Compare results:**
 
-   - Which has better resolution?
-   - Which has higher satisfaction?
+   - Did resolution rate improve?
+   - Did satisfaction change?
    - Are escalations different?
 
-5. **Roll out winner:**
-   - Apply winning approach
-   - Measure continued performance
+5. **Decide:**
+   - Keep the change if metrics improved
+   - Revert if metrics declined
+   - Iterate on the instructions if results were mixed
 
 ## Integration Strategy
 
@@ -497,14 +498,14 @@ Test changes before rolling out everywhere:
 **Phase 2: Secondary Channel (Week 3-4)**
 
 - Add next channel
-- Test with same agent
+- Test with same assistant
 - Adjust tone if needed for channel
 - Monitor cross-channel performance
 
 **Phase 3: Expansion (Month 2+)**
 
 - Add remaining channels
-- Consider specialized agents per channel
+- Adjust assistant instructions per channel if needed
 - Optimize for channel-specific needs
 
 ### Channel-Specific Optimization
@@ -537,13 +538,13 @@ Test changes before rolling out everywhere:
 **Day 1: Introduction**
 
 - Tour of dashboard
-- Review organization's agents
+- Review assistant settings
 - Read key documentation
 - Watch AI handle conversations
 
 **Week 1: Supervised Practice**
 
-- Enable Message Approval (the "Require Approval" option) on the agent
+- Enable Message Approval in organization settings (Settings → General)
 - Review and approve responses before they reach customers
 - Provide feedback
 - Share best practices
@@ -640,7 +641,7 @@ Quarterly:
 **What changes:**
 
 - Need better organization
-- More specialized agents
+- More refined assistant instructions
 - Stricter quality control
 - Team workflows matter more
 
@@ -648,8 +649,8 @@ Quarterly:
 
 1. **Better segmentation:**
 
-   - Route by topic/complexity
-   - Specialized agents
+   - Route by topic/complexity via playbooks
+   - Refined assistant instructions per scenario
    - Priority queues
 
 2. **Automation focus:**
@@ -688,7 +689,7 @@ Quarterly:
 
 ### Mistake 2: Over-complicating Too Soon
 
-**Problem:** Too many agents, playbooks, features at once
+**Problem:** Too many playbooks, features, and integrations at once
 **Solution:** Start simple, add complexity gradually
 
 ### Mistake 3: Set and Forget
@@ -711,7 +712,7 @@ Quarterly:
 **Problem:** Customers experience issues
 **Solution:** Use playground/test mode extensively
 
-### Mistake 7: Generic Agent Instructions
+### Mistake 7: Generic Assistant Instructions
 
 **Problem:** Vague, unhelpful responses
 **Solution:** Specific, detailed, example-rich instructions
@@ -722,7 +723,7 @@ Ready to excel with Hay? Check these boxes:
 
 **Foundation:**
 
-- ☐ Clear, specific agent instructions
+- ☐ Clear, specific assistant instructions
 - ☐ 20+ core FAQ documents
 - ☐ At least 2-3 essential playbooks
 - ☐ Team trained on queue management

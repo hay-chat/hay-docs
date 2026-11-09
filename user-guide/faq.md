@@ -21,7 +21,7 @@ No! Hay is designed for non-technical users. You can set up and manage everythin
 
 ### How long does it take to set up?
 
-You can be up and running in about 10 minutes with basic setup. Full optimization typically takes 2-4 weeks as you add more documentation and refine your agents.
+You can be up and running in about 10 minutes with basic setup. Full optimization typically takes 2-4 weeks as you add more documentation and refine your assistant.
 
 ### What languages does Hay support?
 
@@ -69,9 +69,9 @@ To start using Hay effectively, you need:
 3. At least one communication channel to connect
 4. 10-15 minutes for initial setup
 
-### Should I start with one agent or multiple?
+### How should I set up my AI assistant?
 
-Start with one general agent. Add specialized agents later only if you have distinctly different use cases (e.g., sales vs. support).
+Each workspace has one AI assistant. Write clear, detailed instructions covering your main use cases (e.g., support, sales inquiries). Use playbooks to handle distinct workflows.
 
 ### How many documents should I upload initially?
 
@@ -79,9 +79,9 @@ Start with 15-25 essential documents covering your most common customer question
 
 ### Can I test before going live with customers?
 
-Absolutely! Use the Playground mode to test your agent with sample questions before connecting it to real customer channels.
+Absolutely! Use the Playground mode to test your assistant with sample questions before connecting it to real customer channels.
 
-## Agents & AI
+## AI Assistant
 
 ### How does the AI "learn"?
 
@@ -89,7 +89,7 @@ The AI doesn't learn automatically. It gets "smarter" when you:
 
 - Upload more documentation
 - Create better playbooks
-- Refine agent instructions
+- Refine assistant instructions
 - Add examples and context
 
 ### Will the AI make mistakes?
@@ -104,7 +104,7 @@ Yes, through integrations. For example, it can look up orders in Shopify or chec
 
 Yes! You control the AI through:
 
-- Agent instructions (tone, style, what to say/not say)
+- Assistant instructions (tone, style, what to say/not say)
 - Documents (what information to use)
 - Playbooks (specific workflows)
 - Test mode (approve each response)
@@ -147,7 +147,7 @@ Check **Integrations** → **Marketplace** for the complete list.
 
 ### Can I connect multiple channels?
 
-Yes! You can connect as many channels as you need. The same agent can work across all channels, or you can assign different agents to different channels.
+Yes! You can connect as many channels as you need. The same assistant works across all connected channels.
 
 ### Do integrations cost extra?
 
@@ -177,7 +177,7 @@ Resolution rate varies by industry:
 Common causes:
 
 - Not enough documentation
-- Unclear agent instructions
+- Unclear assistant instructions
 - Complex questions outside AI's scope
 - Confidence threshold set too high
 
@@ -186,7 +186,7 @@ See the [Troubleshooting](/docs/user-guide/troubleshooting/) guide for solutions
 ### How can I improve customer satisfaction?
 
 1. Upload comprehensive documentation
-2. Write clear, empathetic agent instructions
+2. Write clear, empathetic assistant instructions
 3. Respond quickly to escalations
 4. Regularly review and optimize
 5. Learn from negative feedback
@@ -199,7 +199,7 @@ AI typically responds in:
 - 3-8 seconds for document lookups
 - 8-15 seconds for complex queries
 
-If slower, check your document organization and agent complexity.
+If slower, check your document organization and instruction complexity.
 
 ## Documents & Training
 
@@ -282,7 +282,7 @@ Long term:
 Yes. Hay uses:
 
 - Encryption in transit and at rest
-- Secure password-based authentication (2FA policy toggle available in Settings → Security, backend enforcement in progress)
+- Secure password-based authentication with session management
 - Regular security audits
 - Compliance with data protection regulations
 
@@ -350,7 +350,7 @@ Yes! Hay has a full API for:
 - Creating conversations
 - Sending messages
 - Accessing analytics
-- Managing agents and documents
+- Managing assistant settings and documents
 
 Contact support for API documentation.
 
