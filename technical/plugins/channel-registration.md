@@ -158,10 +158,9 @@ Input schema (`server/routes/v1/plugin-api/trpc.ts`, requires the `messages` cap
 What core does with it:
 
 1. **Customer** — finds or creates a `Customer` keyed on `external_id` = `from` for the org. `metadata.profileName` backfills the name, `metadata.phone` the phone; all metadata is stored under `customer.external_metadata[channel]`.
-2. **Agent** — resolves the responding agent for the channel: agents explicitly assigned to the channel first (preferring the org default agent, then the earliest-created), then the org default agent, then the first available agent. If the org has no agents at all, the call fails with `NOT_FOUND`.
-3. **Conversation** — reuses the customer's active conversation on that channel or creates one. `externalConversationId` is stored in `conversation.metadata[channel].conversationId` so outbound delivery can reuse it.
-4. **Dedupe** — if `metadata.mid` is a non-empty string, core claims it atomically in Redis (24h TTL). Redelivered webhooks with the same `mid` return `{ processed: false, deduped: true }` and create no message. **Channels that don't pass `mid` get no dedupe** — always set it if the provider gives you a message id. (Of the shipped plugins, only Instagram does; WhatsApp and Chatwoot pass provider message ids under other metadata keys, which core ignores for dedupe.)
-5. **Human-agent forwarding** — `senderType: "human_agent"` (a human replied on the external system, e.g. a Chatwoot agent) records the message as a human-agent message, tags it `externalOrigin: true` so it is never echoed back to the channel, and flips the conversation to `human-took-over` so the AI orchestrator stops responding.
+2. **Conversation** — reuses the customer's active conversation on that channel or creates one. `externalConversationId` is stored in `conversation.metadata[channel].conversationId` so outbound delivery can reuse it.
+3. **Dedupe** — if `metadata.mid` is a non-empty string, core claims it atomically in Redis (24h TTL). Redelivered webhooks with the same `mid` return `{ processed: false, deduped: true }` and create no message. **Channels that don't pass `mid` get no dedupe** — always set it if the provider gives you a message id. (Of the shipped plugins, Instagram and WhatsApp set it; Chatwoot passes the provider message id under a different metadata key, which core ignores for dedupe.)
+4. **Human-agent forwarding** — `senderType: "human_agent"` (a human replied on the external system, e.g. a Chatwoot agent) records the message as a human-agent message, tags it `externalOrigin: true` so it is never echoed back to the channel, and flips the conversation to `human-took-over` so the AI orchestrator stops responding.
 
 Return value: `{ messageId, conversationId, processed, deduped }`.
 
@@ -175,8 +174,8 @@ Other plugin API procedures useful to channel plugins (same auth, capability-gat
 
 When the orchestrator (or a human agent in the dashboard) produces a reply on a non-web channel, `server/services/channel-delivery.service.ts` picks it up from the Redis `websocket:events` stream and delivers it via your plugin:
 
-1. Only `BotAgent` / `HumanAgent` messages with `deliveryState === "sent"` are delivered. Messages queued for approval by test mode (`deliveryState === "queued"`) are skipped until approved, and messages tagged `externalOrigin: true` are never echoed back.
-2. Core looks up your plugin with `findPluginIdByChannel(conversation.channel)`, starts the org's worker if needed, and POSTs to the worker's `/deliver` route:
+1. Only `BotAgent` / `HumanAgent` / `PRODUCT_RECOMMENDATION` messages with `deliveryState === "sent"` are delivered. Messages queued for approval by test mode (`deliveryState === "queued"`) are skipped until approved, and messages tagged `externalOrigin: true` are never echoed back.
+2. Core looks up your plugin with `findPluginIdByChannel(orgId, conversation.channel)`, starts the org's worker if needed, and POSTs to the worker's `/deliver` route:
 
 ```typescript
 // Request body
@@ -187,6 +186,14 @@ When the orchestrator (or a human agent in the dashboard) produces a reply on a 
   conversationId: string;
   conversationMetadata: Record<string, unknown> | null;  // includes metadata[channel].conversationId if set
   messageMetadata: Record<string, unknown> | null;
+  messageType: string;                               // e.g. "BotAgent", "HumanAgent", "PRODUCT_RECOMMENDATION"
+  language: string | null;                           // conversation language
+  attachments: Array<{                               // signed attachment URLs
+    name: string;
+    url: string;
+    type: string;
+    size: number;
+  }>;
 }
 
 // Expected response body
@@ -201,7 +208,7 @@ When the orchestrator (or a human agent in the dashboard) produces a reply on a 
 
 ### Escalation: `POST /escalate` (optional)
 
-When a conversation flips to `pending-human` on a non-web channel, core POSTs `{ conversationId, conversationMetadata, reason: "orchestrator_handoff" }` to the worker's `/escalate` route so the plugin can perform a provider-side handoff (e.g. Chatwoot reopens the ticket and assigns a team). This is **best-effort**: if your plugin doesn't register `/escalate`, the resulting 404 is silently tolerated.
+When a conversation flips to `pending-human` on a non-web channel, core POSTs `{ conversationId, conversationMetadata, reason: "orchestrator_handoff", attachments }` to the worker's `/escalate` route so the plugin can perform a provider-side handoff (e.g. Chatwoot reopens the ticket and assigns a team). The `attachments` array contains up to 20 of the latest customer file attachments (signed URLs). This is **best-effort**: if your plugin doesn't register `/escalate`, the resulting 404 is silently tolerated.
 
 ---
 
