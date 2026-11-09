@@ -11,7 +11,7 @@ section: user-guide
 
 **Week 1: Foundation**
 
-- Create 1-2 agents maximum
+- Fill in the assistant's **Identity** and run the **Set up** board
 - Upload 10-20 core FAQs
 - Connect 1 primary channel
 - Test thoroughly before going live
@@ -27,7 +27,7 @@ section: user-guide
 
 - Analyze performance data
 - Expand to edge cases
-- Add specialized agents if needed
+- Add playbooks for the situations that need their own steps
 - Fine-tune based on patterns
 
 **Why this works:**
@@ -54,7 +54,7 @@ section: user-guide
 - ⚠️ Unique edge cases not in documentation
 - ⚠️ Situations requiring human judgment
 
-## Agent Configuration
+## Assistant Configuration
 
 ### Writing Great Instructions
 
@@ -69,7 +69,7 @@ Help customers with orders.
 Good:
 
 ```
-You are a friendly customer support agent for [Company].
+You are a friendly customer support assistant for [Company].
 
 Your main responsibilities:
 1. Answer questions about orders, shipping, and products
@@ -82,43 +82,15 @@ Always use the customer's name if you know it
 If you're not 100% confident, say so and offer to connect them with a specialist
 ```
 
-### Agent Specialization Strategy
+### One assistant, many playbooks
 
-**Option 1: Single Generalist Agent**
-Best for:
+Hay has a single assistant per organization, so specialization happens in playbooks, not in separate agents. Keep the assistant's instructions for standing rules (tone, what to avoid, when to escalate) and put each situation in its own playbook:
 
-- Small teams
-- Simple product lines
-- Under 100 conversations/day
-- Similar types of questions
+- **Support:** order status, returns, refunds, basic troubleshooting
+- **Sales:** product questions, recommendations, pricing
+- **Technical:** error messages, how-to steps, bug reports
 
-**Option 2: Multiple Specialized Agents**
-Best for:
-
-- Different departments (sales vs support)
-- Multiple product lines
-- High volume (500+ conversations/day)
-- Distinct use cases
-
-**Example specialized setup:**
-
-_First-Line Support Agent_
-
-- Handles: FAQs, basic troubleshooting
-- Escalates: Technical bugs, billing issues
-- Tone: Friendly and helpful
-
-_Technical Support Agent_
-
-- Handles: Complex technical issues, API questions
-- Escalates: Bugs, feature requests
-- Tone: Professional and detailed
-
-_Sales Agent_
-
-- Handles: Product questions, pricing, demos
-- Escalates: Negotiation, custom deals
-- Tone: Enthusiastic and consultative
+Each playbook has its own trigger, so the right one applies to each conversation. Different tone per department is not possible; pick one tone that fits your brand.
 
 ## Document Management
 
@@ -308,18 +280,16 @@ Escalate to human if:
 
 ## Managing Escalated Conversations
 
-Hay doesn't have a separate SLA-based escalation queue. Instead, escalated conversations live in the regular **Conversations** list, distinguished by status. (Note: the `/queue` page in the dashboard is unrelated — it tracks background job processing like document uploads, emails, and exports, not customer conversations. It currently shows no live data: the fetch, retry, and cancel functions behind that page are unimplemented stubs.)
+Hay doesn't have SLA-based escalation tracking. Conversations that need a person appear in the **Inbox**. (Note: the `/queue` page in the dashboard is unrelated: it is a **Job Queue** for background processing such as document uploads, emails and exports, not customer conversations.)
 
 ### Finding Conversations That Need You
 
-Go to **Conversations** in the left sidebar and filter by **Status**:
+Open **Inbox** in the left sidebar. **Waiting for a human** lists conversations longest wait first, **You're handling** lists the ones you took over and **Teammates are handling** the rest. The sidebar badge shows how many are waiting. In **Conversations** the matching statuses are:
 
 | Status                                     | What It Means                    |
 | ------------------------------------------- | --------------------------------- |
-| **Pending Human** (shown as "Needs Attention") | Customer needs human help — nobody has picked it up yet |
-| **Human Took Over** (shown as "Manual Control") | A team member is actively handling it |
-
-Sort by **Last message** (oldest first) to see which conversations have been waiting longest.
+| **Needs Attention** | Customer needs human help — nobody has picked it up yet |
+| **Manual Control** | A team member is actively handling it |
 
 **Set your own response time targets:**
 
@@ -329,28 +299,27 @@ Sort by **Last message** (oldest first) to see which conversations have been wai
 | 🟡 Standard Escalation | 30 minutes      |
 | 🟢 Low Priority        | 4 hours         |
 
-Since there's no built-in SLA tracking, these targets are something your team agrees on and self-monitors — check the "Needs Attention" filter regularly rather than relying on the dashboard to flag overdue items.
+Since there's no built-in SLA tracking, these targets are something your team agrees on and self-monitors. Turn on **Alerts on this device** so you hear about new hand-offs; Hay alerts again after 10 minutes and then emails available team members.
 
 ### Daily Workflow
 
 **Morning routine (5 minutes):**
 
-1. Filter Conversations by "Needs Attention"
-2. Sort by oldest first and scan for urgent cases
-3. Open one and click **Take Over** to start handling it
+1. Open the **Inbox**
+2. Scan **Waiting for a human** for urgent cases and answer any **Questions for the team**
+3. Click **Take over** on one to start handling it
 4. Respond within your target time
 
 **Throughout day:**
 
-- Re-check the "Needs Attention" filter every 30-60 minutes
-- Take over new escalations promptly
-- Use **Release Conversation → Return to Queue** if you need to hand a conversation to another team member (it goes back to "Needs Attention" for someone else to pick up)
+- Keep the Inbox badge in view and take over new escalations promptly
+- Use **Release Conversation → Return to Queue** if you need to hand a conversation to another team member (it goes back to **Waiting for a human** for someone else to pick up)
 - Keep customers informed
 
 **End of day:**
 
-- Review remaining "Needs Attention" conversations
-- Leave conversations you're mid-way through in "Manual Control" so teammates know they're owned
+- Review what is still under **Waiting for a human**
+- Leave conversations you're mid-way through in **You're handling** so teammates know they're owned
 - Note follow-ups needed
 - Set reminders for tomorrow
 
@@ -381,7 +350,7 @@ Since there's no built-in SLA tracking, these targets are something your team ag
    - Have coverage during busy periods
    - Consider time zones for global support
 
-## Analytics & Optimization
+## Measuring and Optimizing
 
 ### Metrics That Matter
 
@@ -393,25 +362,24 @@ Since there's no built-in SLA tracking, these targets are something your team ag
    - Higher = AI handling more independently
    - Review: Weekly
 
-2. **Customer Satisfaction**
+2. **Customer feedback**
 
-   - Target: 85%+
-   - Based on thumbs up/down ratings
-   - Review: Daily
-   - **Note:** The Customer Satisfaction figure shown in Analytics is currently demo/placeholder data, not a live calculation. The thumbs-up/down control is also internal QA review tooling used by your team when reading back conversation transcripts — it isn't a rating customers submit themselves. Treat this as an aspirational target you track manually until real feedback aggregation ships.
+   - Target: 85%+ positive
+   - **Quality** → **Feedback** shows your team's good/bad ratings of AI replies and a **Positive Rate**. If you enable CSAT in the Webchat settings, web chat visitors can also rate a finished conversation
+   - Review: Weekly
 
 3. **Escalation Rate**
 
    - Target: 15-30%
    - Lower = more efficient AI
    - Review: Weekly
-   - **Note:** Escalation Rate isn't computed anywhere in the app yet — there's no dashboard metric or backend calculation for it today. Treat this as an aspirational target you'd need to track manually (e.g., by counting "Needs Attention"/"Manual Control" conversations) until it's built.
+   - **Note:** Hay doesn't compute an escalation rate. The Dashboard's **Human escalations** card shows takeovers for today and this week; compare them with **Total Conversations**.
 
 4. **Response Time**
    - Target: Under 5 seconds for AI
    - Should be consistent
    - Review: Weekly
-   - **Note:** Response time analytics aren't available in the dashboard yet — the backend currently returns placeholder data. Treat this as an aspirational target you track manually until in-app reporting ships.
+   - **Note:** The Dashboard's **Avg Response Time** card shows the average and the median.
 
 ### Weekly Review Ritual
 
@@ -431,7 +399,7 @@ Since there's no built-in SLA tracking, these targets are something your team ag
 3. **Identify one improvement**
 
    - Add a document
-   - Update an agent
+   - Update the assistant's instructions
    - Create a playbook
    - Fix a recurring issue
 
@@ -440,52 +408,16 @@ Since there's no built-in SLA tracking, these targets are something your team ag
    - Monitor impact over next week
    - Keep if it works, revert if it doesn't
 
-### A/B Testing
+### Testing changes before you roll them out
 
-Test changes before rolling out everywhere:
+There is one assistant, so there is no traffic split between variants. Test a change against real history instead:
 
-**Example: Testing agent instructions**
+1. Edit a playbook: your changes are saved as a **draft** and do not reach customers until you **Publish**
+2. In the playbook's **More actions** menu, choose **Test this draft** to try it in a test conversation, or **Replay past conversations** to see how it answers your closed conversations
+3. Save good conversations as **test cases**; before you publish, the test cases run against the draft and warn you about failures
+4. Publish when the report looks right, then watch **Quality** → **Insights** to see whether the problem shows as **Fixed**
 
-1. **Current state:**
-
-   - Agent A: Current instructions
-   - Resolution rate: 75%
-
-2. **Create test variant:**
-
-   - Agent B: New instructions
-   - Same documents, same playbooks
-
-3. **Run for 1 week:**
-
-   - Split traffic 50/50
-   - Track metrics separately
-
-4. **Compare results:**
-
-   - Which has better resolution?
-   - Which has higher satisfaction?
-   - Are escalations different?
-
-5. **Roll out winner:**
-   - Apply winning approach
-   - Measure continued performance
-
-## Integration Strategy
-
-### Start With One Channel
-
-**First integration should be:**
-
-- Your highest volume channel
-- Where customers prefer to contact you
-- Easiest to set up and test
-
-**Examples:**
-
-- E-commerce → Shopify + Web Chat
-- SaaS → In-app chat + Email
-- Local business → WhatsApp + Web Chat
+See [Tests](/docs/user-guide/tests/).
 
 ### Multi-Channel Rollout
 
@@ -499,14 +431,14 @@ Test changes before rolling out everywhere:
 **Phase 2: Secondary Channel (Week 3-4)**
 
 - Add next channel
-- Test with same agent
+- Test with the same assistant
 - Adjust tone if needed for channel
 - Monitor cross-channel performance
 
 **Phase 3: Expansion (Month 2+)**
 
 - Add remaining channels
-- Consider specialized agents per channel
+- Adjust playbooks for channel-specific needs
 - Optimize for channel-specific needs
 
 ### Channel-Specific Optimization
@@ -539,13 +471,13 @@ Test changes before rolling out everywhere:
 **Day 1: Introduction**
 
 - Tour of dashboard
-- Review organization's agents
+- Review the assistant's instructions and playbooks
 - Read key documentation
 - Watch AI handle conversations
 
 **Week 1: Supervised Practice**
 
-- Enable Message Approval (the "Require Approval" option) on the agent
+- Turn on **Test Mode Default** (Require approval for AI messages) under **Settings** → **Workspace** → **General**
 - Review and approve responses before they reach customers
 - Provide feedback
 - Share best practices
@@ -642,7 +574,7 @@ Quarterly:
 **What changes:**
 
 - Need better organization
-- More specialized agents
+- More playbooks for specific situations
 - Stricter quality control
 - Team workflows matter more
 
@@ -651,8 +583,8 @@ Quarterly:
 1. **Better segmentation:**
 
    - Route by topic/complexity
-   - Specialized agents
-   - Priority queues
+   - Playbooks per topic
+   - Clear Inbox ownership
 
 2. **Automation focus:**
 
@@ -661,7 +593,7 @@ Quarterly:
    - Faster escalation resolution
 
 3. **Team structure:**
-   - Dedicated queue managers
+   - Dedicated Inbox owners
    - Specialists for complex issues
    - Clear escalation paths
 
@@ -690,7 +622,7 @@ Quarterly:
 
 ### Mistake 2: Over-complicating Too Soon
 
-**Problem:** Too many agents, playbooks, features at once
+**Problem:** Too many playbooks, channels and features at once
 **Solution:** Start simple, add complexity gradually
 
 ### Mistake 3: Set and Forget
@@ -698,7 +630,7 @@ Quarterly:
 **Problem:** No ongoing optimization
 **Solution:** Weekly reviews and continuous improvement
 
-### Mistake 4: Ignoring Analytics
+### Mistake 4: Ignoring the Data
 
 **Problem:** Flying blind, missing opportunities
 **Solution:** Data-driven decision making
@@ -706,14 +638,14 @@ Quarterly:
 ### Mistake 5: No Human Backup
 
 **Problem:** Escalations go unanswered
-**Solution:** Clear queue management process
+**Solution:** Clear Inbox ownership and alerts turned on
 
 ### Mistake 6: Testing in Production
 
 **Problem:** Customers experience issues
-**Solution:** Use playground/test mode extensively
+**Solution:** Use the Conversation Playground, Tests and Test Mode extensively
 
-### Mistake 7: Generic Agent Instructions
+### Mistake 7: Generic Assistant Instructions
 
 **Problem:** Vague, unhelpful responses
 **Solution:** Specific, detailed, example-rich instructions
@@ -724,18 +656,18 @@ Ready to excel with Hay? Check these boxes:
 
 **Foundation:**
 
-- ☐ Clear, specific agent instructions
+- ☐ Clear, specific assistant instructions
 - ☐ 20+ core FAQ documents
 - ☐ At least 2-3 essential playbooks
-- ☐ Team trained on queue management
+- ☐ Team trained on the Inbox
 - ☐ Regular review schedule established
 
 **Optimization:**
 
 - ☐ 70%+ resolution rate
-- ☐ 85%+ customer satisfaction
+- ☐ 85%+ positive feedback
 - ☐ Sub-30 minute escalation response
-- ☐ Weekly analytics reviews
+- ☐ Weekly Dashboard and Insights reviews
 - ☐ Continuous documentation updates
 
 **Excellence:**
