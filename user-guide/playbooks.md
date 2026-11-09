@@ -1,20 +1,20 @@
 ---
 layout: docs.njk
 title: Automation Playbooks
-description: Playbooks are step-by-step workflows that teach your AI agent how to handle specific situations. Think of them as detailed instruction manuals for common scenarios.
+description: Playbooks are step-by-step workflows that teach your AI assistant how to handle specific situations. Think of them as detailed instruction manuals for common scenarios.
 section: user-guide
 ---
 
 ## What is a Playbook?
 
-A playbook tells your agent:
+A playbook tells your assistant:
 
 - **When** to activate (the trigger)
 - **What** to do (step-by-step instructions)
 - **How** to respond (specific guidance)
 - **When** to escalate (handoff conditions)
 
-Unlike general agent instructions, playbooks are focused on specific scenarios and provide detailed guidance.
+Unlike the assistant's general instructions, playbooks are focused on specific scenarios and provide detailed guidance.
 
 ## When to Use Playbooks
 
@@ -41,16 +41,16 @@ Unlike general agent instructions, playbooks are focused on specific scenarios a
 Before you start, think about:
 
 - What situation are you handling?
-- What steps should the agent follow?
+- What steps should the assistant follow?
 - What information needs to be collected?
 - When should a human take over?
 
 ### Step 2: Create New Playbook
 
-1. Click **Playbooks** in the sidebar
+1. Click **Playbooks** in the sidebar (under **Knowledge**)
 2. Click the **+** button to create a new playbook
 
-> **Tip:** You can also use the AI wizard to generate a playbook automatically. On the playbooks list page, click the **Generate Playbook** button (with the sparkles icon). The wizard walks you through five steps (Purpose, Actions, Documents, Boundaries, Generate) and produces a draft you can review and edit.
+> **Tip:** Two faster ways to start. **From template** (a menu next to the **+** button) creates a draft playbook from a ready-made template for you to review and activate. **Generate Playbook** (with the sparkles icon) opens the AI wizard, which walks you through five steps (Purpose, Actions, Documents, Boundaries, Generate) and produces a draft you can review and edit. The **Set up** board can also write playbooks for you; see [Set Up Your Assistant](/docs/user-guide/setup/).
 
 ### Step 3: Basic Information
 
@@ -158,11 +158,11 @@ Status is set when you create the playbook:
 **Active** - Live and ready to handle conversations
 **Archived** - No longer in use
 
-Click **Create Playbook**
+Click **Create Playbook**.
 
-> **What's live vs. what's versioned:** Identity fields — **Title**, **Trigger**, **Description**, and **Assigned Agents** — save immediately when you click **Save Changes** and take effect right away, no publishing required. Only the **Instructions** content goes through draft/publish versioning: edits to Instructions auto-save to a hidden draft, and the agent keeps using the last published version until you click **Publish**, which sets the playbook's status to **Active** and creates an immutable snapshot of the Instructions at that point in time. You can browse previous versions in the **Version History** panel, roll back to an earlier published version, or discard a draft to revert to the live version.
+> **What's live vs. what's versioned:** Identity fields — **Title**, **Trigger** and **Description** — save immediately when you click **Save Changes** and take effect right away, no publishing required. Only the **Instructions** content goes through draft/publish versioning: edits to Instructions auto-save to a hidden draft ("All changes saved"), and the assistant keeps using the last published version until you click **Publish**, which sets the playbook's status to **Active** and creates a snapshot of the Instructions at that point in time. You can add an optional note about what changed. Open **Version History** (in the **More actions** menu) to browse previous versions, **Restore** an earlier one, or **Discard** a draft to revert to the live version. **Compare with active** shows what changed against the live version.
 >
-> **Coming Soon:** There is currently no UI control to archive a playbook after creation. This capability is planned.
+> Playbooks can also approve actions: see [Approval for one playbook](/docs/user-guide/action-approvals/#approval-for-one-playbook).
 
 ## Playbook Instructions Best Practices
 
@@ -232,15 +232,9 @@ Escalate to human if:
 - You're not confident in the answer
 ```
 
-## Assigning Playbooks to Agents
+## One assistant, all playbooks
 
-You can assign playbooks to specific agents from the playbook editor:
-
-1. Open the playbook
-2. In the sidebar, check the agents under **Assigned Agents**
-3. Click **Save Changes**
-
-**Note:** Agent assignment is organizational metadata for your own reference. All active playbooks are evaluated for every conversation regardless of which agents are assigned — the orchestrator retrieves all active playbooks and scores them against the conversation context.
+Playbooks are not assigned to agents: Hay has one assistant, and every active playbook is evaluated for every conversation. The orchestrator scores the active playbooks against the conversation context and applies the best match.
 
 ## Managing Playbooks
 
@@ -250,25 +244,28 @@ You can assign playbooks to specific agents from the playbook editor:
 2. Make your changes
 3. Click **Save Changes**
 
-**Save Changes** applies immediately to Title, Trigger, Description, and Assigned Agents — no publishing needed. If you also edited the Instructions, those changes auto-save to a draft and won't affect live conversations until you click **Publish**.
+**Save Changes** applies immediately to Title, Trigger and Description — no publishing needed. If you also edited the Instructions, those changes auto-save to a draft and won't affect live conversations until you click **Publish**.
 
 ### Testing a Playbook
 
-A playbook must be **Active** (published) to be evaluated by the agent — Draft playbooks are not matched to conversations. Note that this only concerns the Instructions version: changes to the Trigger, Title, and Description take effect immediately on **Save Changes**, so an active playbook can start (or stop) matching conversations right away even without a publish. To test safely:
+A playbook must be **Active** (published) to be evaluated by the assistant — Draft playbooks are not matched to conversations. Note that this only concerns the Instructions version: changes to the Trigger, Title, and Description take effect immediately on **Save Changes**, so an active playbook can start (or stop) matching conversations right away even without a publish. You can test a draft before it goes live:
 
-1. Publish the playbook (or create a narrow-trigger test version)
-2. Create a test conversation via the **Conversation Playground**
-3. Send messages that match the trigger scenario
-4. See if agent follows the steps correctly
-5. Adjust instructions as needed and re-publish
+1. Edit the playbook so there is a draft, then open the **More actions** menu (the **...** button in the editor header)
+2. Choose **Test this draft** to start a test conversation that uses the draft, not the published version, or **Replay past conversations** to see how the draft answers your closed conversations
+3. Send messages that match the trigger scenario and see if the assistant follows the steps correctly
+4. Adjust the instructions as needed, then **Publish**
+
+If the playbook has saved test cases, they run against the draft when you publish and you are warned about failures. See [Tests](/docs/user-guide/tests/).
+
+**Improve with AI.** The same **More actions** menu has **Improve with AI**: describe what is wrong and the AI proposes a revised version of the instructions, shown as added, modified and removed changes. Click **Apply to draft** to accept it. From a conversation you can use **Improve playbook** for the same thing.
 
 ### Viewing Playbook Performance
 
 > **Coming Soon:** Playbook-level analytics (usage count, success rate, completion time, escalation rate) are not yet available. Monitor playbook effectiveness by reviewing conversations manually in the **Conversations** section.
 
-### Deactivating a Playbook
+### Archiving, duplicating and deleting
 
-> **Coming Soon:** There is currently no UI control to archive a playbook after creation. Status is set when the playbook is created (**Draft**) and moves to **Active** when published. Until archiving is available, keep a playbook's trigger narrow or remove its instructions to stop it from being used.
+On the **Playbooks** list, each row has a **More actions** menu with **Edit**, **Duplicate** (creates "<name> (copy)"), **Archive** and, for archived playbooks, **Restore as draft**. **Delete Playbook** is in the **More actions** menu in the editor and cannot be undone. An archived playbook is not used by the assistant. The list shows **Total Playbooks**, **Active** and **Total Triggers** cards, and can be filtered by category and status.
 
 ## Common Playbook Templates
 
@@ -458,6 +455,6 @@ Yes! Playbooks work across all channels unless you specify otherwise.
 ## Next Steps
 
 - Create your first playbook with the [Quick Start](/docs/user-guide/quick-start/) guide
-- Learn about [Agents](/docs/user-guide/agents/) to customize behavior
-- Explore [Documents](/docs/user-guide/documents/) to give your agent knowledge
+- Set up your [AI assistant](/docs/user-guide/agents/) to customize behavior
+- Explore [Documents](/docs/user-guide/documents/) to give your assistant knowledge
 - Monitor results in [Analytics](/docs/user-guide/analytics/)
