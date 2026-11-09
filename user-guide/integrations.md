@@ -69,8 +69,8 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 
 **How to set up:**
 
-1. Go to **Settings** → **Webchat**
-2. Copy the embed code
+1. Go to **Settings** → **Channels** → **Webchat**
+2. Copy the **Installation Code**
 3. Paste it into your website (usually before the closing `</body>` tag)
 4. Customize colors, position, and welcome message
 5. Save and test!
@@ -87,29 +87,28 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 
 ### Viewing Installed Integrations
 
-**Integrations** in the sidebar is not itself a page — it's a parent item that expands to show a **Marketplace** link plus a link for each plugin you've enabled.
+**Integrations** in the sidebar is not itself a page — it's a parent item that expands to show a **Marketplace** link plus a link for each integration you've enabled.
 
-- The **Marketplace** page shows aggregate stats: total plugins, installed count, channels, and MCP connectors
-- Each enabled plugin's own settings page shows its connection status (✅ Connected or ⚠️ Connection Failed)
+- The **Marketplace** page shows aggregate stats: **Total Integrations**, **Installed**, **Channels** and **MCP Connectors**
+- Each integration's own settings page shows its status (**Connected**, **Needs action** or **Not set up**) and has three tabs: **Setup**, **What it can do** and, when the integration has technical values, **Advanced**
+- **Settings** → **Channels** → **Channel list** lists your active communication channels, each with a **Configure** button
 
 ### Configuring an Integration
 
 To adjust settings:
 
-1. Click on the integration
-2. Click **Settings** or **Configure**
-3. Make your changes
-4. Test the connection
-5. Save
+1. Open the integration from the **Integrations** sidebar entry, or click **Configure** on its Marketplace card
+2. On the **Setup** tab, change your details and click **Save**
+3. Use **Test connection** under **Check the connection**
 
 ### Disconnecting an Integration
 
 To remove an integration:
 
-1. Go to the integration
-2. Click **Remove** (from the Marketplace) or **Disable Integration** (from the integration's settings page)
-3. Confirm the action
-4. Integration is removed
+1. Go to the integration's settings page
+2. Open the **More options** menu and choose **Disconnect and remove** (or click **Remove** on its Marketplace card)
+3. Confirm with **Disconnect**
+4. The integration stops working for your workspace; its settings are kept in case you connect it again
 
 > ⚠️ **Note:** Active conversations on that channel may need to be handled manually after disconnection.
 
@@ -118,19 +117,18 @@ To remove an integration:
 ### Browsing Available Integrations
 
 1. Go to **Integrations** → **Marketplace**
-2. Browse the available integrations
-3. Click any integration to learn more
+2. Browse the available integrations, or use **Search integrations...**
+3. Narrow the list with the **Categories** filter: All Integrations, Channels, MCP Connectors, Document Importers, Retrievers or Playbooks
 
-> **Note:** Category filtering is not currently available in the UI. All integrations are listed together.
+Admins can also use **Upload Integration** to add a custom integration as a ZIP file, and **Manage Custom** to enable, disable or delete the ones they uploaded.
 
 ### Installing from Marketplace
 
 1. Find the integration you want
-2. Click **Install**
-3. Follow the setup wizard
-4. Authorize necessary permissions
-5. Test the integration
-6. Start using it!
+2. Click **Connect**
+3. Fill in your details on the **Setup** tab, or sign in to the platform when asked to give Hay.chat access
+4. Use **Test connection** to check it works
+5. Start using it!
 
 ## Channel-Specific Features
 
@@ -191,11 +189,11 @@ Different channels may have different needs:
 
 ### Customize Per Channel
 
-You can assign different:
+Hay has one assistant for the whole organization, so it answers the same way on every channel. What you can set per channel:
 
-- Agents to different channels
-- Playbooks based on channel
-- Response styles (formal on email, casual on WhatsApp)
+- Whether the AI replies on its own, only drafts replies for a person to approve, or is off (**Settings** → **Privacy** → **Customer Privacy** → **AI on your channels**)
+- Opening hours (**Settings** → **Channels** → **Business Hours**)
+- The label that tells shoppers a reply comes from AI
 
 ## Troubleshooting Integrations
 
@@ -324,8 +322,7 @@ Each integration requests only what it needs:
 
 Across all channels:
 
-- Use same agent instructions
-- Same tone and style
+- One assistant, one set of instructions and one tone
 - Same documentation
 - Same escalation procedures
 
@@ -345,13 +342,13 @@ Yes! Connect as many as you need. Each channel works independently.
 
 Best practice is to be transparent. Most integrations let you customize the greeting to mention AI assistance.
 
-### Can I use the same agent across all channels?
+### Can I use a different assistant on each channel?
 
-Yes, or you can assign different agents to different channels based on your needs.
+No. Hay has a single assistant per organization and it answers on every channel. Use [Playbooks](/docs/user-guide/playbooks/) for situation-specific behavior.
 
 ### What happens if an integration fails?
 
-You'll be notified immediately. Hay continues working, but new messages on that channel won't come through until reconnected.
+A failing channel shows **This channel is failing** on its settings page, and owners and admins are notified by email and push. Hay continues working, but messages on that channel may not come through until it is reconnected.
 
 ### Are there limits on message volume?
 
@@ -364,6 +361,6 @@ Yes! Hay supports custom integrations via API. See the Developer documentation o
 ## Next Steps
 
 - Set up your first integration with [Quick Start](/docs/user-guide/quick-start/)
-- Configure [Agents](/docs/user-guide/agents/) for different channels
-- Create channel-specific [Playbooks](/docs/user-guide/playbooks/)
-- Monitor performance in [Analytics](/docs/user-guide/analytics/)
+- Set up your [AI assistant](/docs/user-guide/agents/)
+- Create [Playbooks](/docs/user-guide/playbooks/)
+- Monitor performance on your [Dashboard](/docs/user-guide/dashboard/)
