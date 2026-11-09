@@ -230,6 +230,14 @@ Configure automatic anonymization of closed conversations:
 
 > For full details on anonymization, legal holds, and the cleanup schedule, see the [Data Retention & Privacy](/docs/user-guide/data-retention/) guide.
 
+### AI processing, AI label and customer files
+
+Also on this page:
+
+- **AI processing** shows the region (**EU only (EU data centres)** or **Any region**), the provider, and whether **Photos and PDFs** are read, with a **Change in AI Models** link.
+- **AI on your channels** sets the **Label text** that tells shoppers a reply comes from AI (leave it empty to use "AI assistant" in the shopper's language) and, **per channel**, whether to **Show label** and what **AI replies** do: **Send automatically**, **Drafts only (a person approves)** or **Off (your team replies)**. For organizations that serve the EU, the label is always shown. **Start on Web Chat only** sets every other channel to Off.
+- **Customer photos and files** has **Read images** (the AI looks at photos and PDFs shoppers send), **Let the AI read ID documents** (off by default, Owner only) and **Product case email**, where Hay.chat sends the summary when the AI completes a product-problem case.
+
 ### Initiate Privacy Request
 
 Start a GDPR data export or deletion request on behalf of a customer:
