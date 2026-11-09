@@ -50,15 +50,15 @@ Field-by-field (interface `HayPluginBlock` in `server/services/plugin-manager.se
 | Field          | Value for a channel plugin                                                                                                                                                                        |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `category`     | `"channel"`                                                                                                                                                                                       |
-| `channel`      | The channel slug (e.g. `"instagram"`, `"chatwoot"`). This is the value stored on `conversation.channel` and on `agent.channels`, and the key core uses to find your plugin for outbound delivery. |
+| `channel`      | The channel slug (e.g. `"instagram"`, `"chatwoot"`), validated as `/^[a-z0-9][a-z0-9_-]*$/` (max 64 chars). This is the value stored on `conversation.channel` and the key core uses to find your plugin for outbound delivery. |
 | `capabilities` | `["messages", "customers"]` — grants the worker's JWT access to the `messages.*` and `customers.*` plugin API procedures.                                                                         |
 | `env`          | Allow-list of host env var names that config fields may fall back to (optional).                                                                                                                  |
 
 **Channel slug rules:**
 
-- One plugin per slug. Core resolves the channel with `pluginManagerService.findPluginIdByChannel(channel)`, which returns the first loaded plugin whose `hay-plugin.channel` matches — there is no conflict handling, so pick a slug no other plugin uses.
+- One plugin per slug. Core resolves the channel with `pluginManagerService.findPluginIdByChannel(organizationId, channel)`, which returns the first enabled plugin for that org whose `hay-plugin.channel` matches — there is no conflict handling, so pick a slug no other plugin uses.
 - `"web"` is reserved for the built-in webchat/dashboard channel; the delivery service explicitly skips it.
-- The plugin API validates `channel` as a 1–64 character string. Use lowercase.
+- The plugin API validates `channel` against the regex `/^[a-z0-9][a-z0-9_-]*$/` (1–64 characters, lowercase only).
 
 ---
 

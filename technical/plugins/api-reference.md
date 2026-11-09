@@ -543,6 +543,8 @@ Endpoints the SDK runner mounts on every worker (`packages/plugin-sdk/runner/htt
 | `POST /cron/:name`    | Invokes the named cron handler                                                                            |
 | `POST /mcp/call-tool` | Executes an MCP tool                                                                                      |
 | `GET /mcp/list-tools` | Lists MCP tools (cached by core)                                                                          |
+| `POST /setup/status`  | Setup status check — reports the plugin's configuration/readiness state                                   |
+| `POST /webchat/gate/:event` | Webchat gating — lets plugins intercept webchat lifecycle events                                     |
 | _(plugin routes)_     | Anything registered via `register.route` (e.g. `/webhook`, `/deliver`, `/escalate`)                       |
 
 External traffic reaches worker routes only through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The org is resolved from the `organizationId` query param or the `x-organization-id` header (both UUID-validated against the DB) — auth-token-based org resolution is a TODO, not yet implemented — or, for a `POST /webhook` with no org identifier and a declared `webhookRouting` descriptor, the request is diverted to the shared webhook router.

@@ -73,7 +73,7 @@ section: user-guide
 **Review and learn:**
 
 1. Read recent conversations
-2. See where agent struggles
+2. See where the assistant struggles
 3. Add documents to fill knowledge gaps
 
 ## High Escalation Rate
@@ -104,7 +104,7 @@ section: user-guide
 
 - Solution: Create playbooks for those topics
 - Add focused documentation
-- Update agent instructions
+- Update assistant instructions
 
 **Cause: Customer frustration**
 
@@ -231,8 +231,8 @@ section: user-guide
    - Contact organization admin
    - Verify email is verified
 
-4. **2FA issues:**
-   - 2FA enforcement is not yet fully implemented. If your organization has enabled the "Require 2FA" policy toggle in Settings → Security, note that backend enforcement is still in progress — contact your organization admin if you're experiencing login issues related to this setting.
+4. **Still can't log in:**
+   - Contact your organization admin to verify your account status and permissions.
 
 ### Access Denied / Permission Error
 
@@ -277,7 +277,7 @@ section: user-guide
 
 **Solutions:**
 
-1. **Simplify agent:**
+1. **Simplify instructions:**
 
    - Reduce instruction complexity
    - Remove unnecessary playbooks
@@ -452,7 +452,7 @@ section: user-guide
 
 3. **Context:**
    - Conversation ID (if relevant)
-   - Agent ID (if relevant)
+   - Organization ID (if relevant)
    - Integration name
    - Browser and OS version
 

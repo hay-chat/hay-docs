@@ -410,7 +410,7 @@ One subtlety worth copying: `onStart` does **not** re-run on reconnect, so Insta
 5. Outbound: implement `/deliver` with the 200-`success:false` convention for permanent provider errors.
 6. Optionally implement `/escalate` for provider-side human handoff.
 
-**Reference implementations:** `plugins/core/instagram` (shared-app model, declarative webhook routing, declarative token exchange/refresh, and the only plugin that passes `metadata.mid`) and `plugins/core/chatwoot` (per-instance signature verification, escalation, human-agent forwarding, `externalConversationId`). Avoid copying the inbound handler of `plugins/core/chatwoot` verbatim — it passes no `metadata.mid`, so its inbound path has no dedupe; prefer Instagram's `<channel>:<id>` convention for `from` in new plugins.
+**Reference implementations:** `plugins/core/instagram` (shared-app model, declarative webhook routing, declarative token exchange/refresh, passes `metadata.mid` for dedupe) and `plugins/core/chatwoot` (per-instance signature verification, escalation, human-agent forwarding, `externalConversationId`). WhatsApp also passes `metadata.mid` (wamid). Avoid copying the inbound handler of `plugins/core/chatwoot` verbatim — it passes no `metadata.mid`, so its inbound path has no dedupe; prefer Instagram's `<channel>:<id>` convention for `from` in new plugins.
 
 ### Known gaps and stubs (as of this writing)
 
