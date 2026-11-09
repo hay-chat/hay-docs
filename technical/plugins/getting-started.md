@@ -101,7 +101,7 @@ Key points:
 - **`name`** is the plugin ID used everywhere (API calls, worker routing, UI asset paths). The convention is `hay-plugin-<name>` for integrations and `hay-channel-<name>-<provider>` for channels.
 - **`hay-plugin`** is what makes this directory a plugin — the discovery loop in `server/services/plugin-manager.service.ts` skips any directory without it.
 - **`category`** must be one of `integration | channel | tool | analytics | products`.
-- **`capabilities`** are declarative: `mcp | auth | config | ui | routes | cron | products` (channels additionally use `messages`, `customers`, `sources`). They drive marketplace classification and the scope of the JWT the worker uses to call back into core.
+- **`capabilities`** are declarative: `mcp | auth | config | routes | ui | cron | products | disputes | tickets | privacy | email | webchat` (channels additionally use `messages`, `customers`, `sources`). They drive marketplace classification and the scope of the JWT the worker uses to call back into core.
 - **`env`** is an allow-list of host environment variable names that config fields may fall back to. Leave it empty unless self-hosters need to set credentials via `process.env`.
 - **`"type": "module"`** is required — the loader dynamically `import()`s the entry.
 - The SDK dependency path is `file:../../../packages/plugin-sdk` (note the `packages/` segment).
@@ -249,7 +249,7 @@ What's happening here:
 - **`onValidateAuth`** is invoked by core when the user saves credentials. Do a real API round-trip and return `true`/`false`. If the hook throws, the runner catches it and treats the result as invalid — the message lands in the worker log, and the dashboard shows a generic "Auth validation failed" error. If you don't implement the hook at all, credentials are assumed valid.
 - **`onStart`** runs per org whenever the worker starts (including respawns after idle-kill). Credentials may legitimately be absent — a user can enable a plugin before configuring it — so gate and return instead of throwing.
 - Config and credentials arrive through `ctx.config` / `ctx.auth`, **not** through `process.env` in the entry. Core injects them into the worker; per-org secrets never sit in raw host environment variables.
-- Do **not** implement `onEnable` — it exists in the SDK types but the runner never calls it.
+- `onEnable` exists in the SDK types but is a **core-only hook** — the worker runner never calls it. Core may invoke it during plugin installation. Most plugins can safely omit it.
 
 ### Step 5: Write the MCP Server
 

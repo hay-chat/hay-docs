@@ -11,13 +11,14 @@ navOrder: 2
 
 ## Overview
 
-Hay runs every AI `RESPOND` step through a three-stage guardrail pipeline before delivery:
+Hay runs every AI `RESPOND` step through a multi-stage guardrail pipeline before delivery:
 
 - **Stage 0 — Action-Claim Consistency**: blocks responses that claim a state-changing action was performed when no tool call backs it this turn.
+- **Link Guardrail**: validates URLs in the drafted response (between Stage 0 and Stage 1).
 - **Stage 1 — Company Interest Protection**: blocks responses that harm company interests (off-topic, competitor info, fabrications).
-- **Stage 2 — Fact Grounding**: verifies company-specific claims against retrieved documents, tool results, and the active playbook.
+- **Stage 2 — Fact Grounding**: verifies company-specific claims against retrieved documents, tool results, and the active playbook. Runs on every reply — full assessment when Stage 1 sets `requiresFactCheck`, lighter grounding-only check otherwise.
 
-The pipeline lives in `applyConfidenceGuardrails()` in `/server/orchestrator/execution.layer.ts`. Stage 0 runs first — even for conversational intents — while Stages 1 and 2 are skipped entirely when the customer's last message has an exempt intent (`GREET`, `CLOSE_SATISFIED`, `CLOSE_UNSATISFIED`), so a false "I've cancelled it, glad I could help!" on a closing message is still caught.
+The pipeline lives in `applyConfidenceGuardrails()` in `/server/orchestrator/execution.layer.ts`. Stage 0 runs first — even for conversational intents. The link guardrail runs next. Stages 1 and 2 are skipped when the customer's last message has an exempt intent (`GREET`, `CLOSE_SATISFIED`, `CLOSE_UNSATISFIED`) **and** the AI reply does not contain factual specifics (numbers, amounts, or links) — so a false "I've cancelled it, glad I could help!" on a closing message is still caught.
 
 ## Architecture
 
@@ -107,7 +108,7 @@ A **failed** tool call does not back a success claim.
 
 ### Failure Mode
 
-Stage 0 **fails open**: on any evaluation error it returns a passing assessment ("never block conversations on guardrail outages").
+On evaluation error, Stage 0 **blocks** if tools were called this turn or the reply looks write-adjacent (contains amounts, links, or state-changing verbs). It passes only for safe-looking replies with no tool calls — so it errs on the side of caution for risky responses while avoiding blocking simple conversational replies on guardrail outages.
 
 ## Stage 1: Company Interest Protection
 
@@ -160,13 +161,13 @@ Each violation carries a `severity` (`critical` | `moderate` | `low` | `none`). 
 
 ### Failure Mode
 
-On evaluation error, Stage 1 allows the response but forces `requiresFactCheck: true`.
+On evaluation error, Stage 1 **blocks** write-adjacent replies (those containing amounts, links, or state-changing verbs). For other replies, it allows the response but forces `requiresFactCheck: true`.
 
 ## Stage 2: Fact Grounding
 
 ### Purpose
 
-Only activated when Stage 1 passes AND sets `requiresFactCheck: true`. Verifies that factual claims about the company are grounded in evidence. Implemented by `ConfidenceGuardrailService` (`assessConfidence()`).
+Runs on **every** reply. When Stage 1 sets `requiresFactCheck: true`, a full assessment is performed. When `requiresFactCheck` is false, a lighter grounding-only check runs — a low grounding score still triggers the full recheck/escalation path. Verifies that factual claims about the company are grounded in evidence. Implemented by `ConfidenceGuardrailService` (`assessConfidence()`, `assessUnflaggedResponseGrounding()`).
 
 ### Grounding Sources
 
@@ -242,7 +243,7 @@ Guardrail config lives in the organization `settings` JSONB (`OrganizationSettin
 
   // Stage 1: Company Interest Protection
   "companyInterestGuardrail": {
-    "enabled": true,
+    "enabled": true,             // Master switch for Stage 1
     "blockOffTopic": true,
     "blockCompetitorInfo": true,
     "blockFabrications": true,
@@ -471,7 +472,8 @@ conversation.messages.forEach((message) => {
 - `/server/services/core/company-interest-guardrail.service.ts`
 - `/server/services/core/confidence-guardrail.service.ts`
 - `/server/orchestrator/execution.layer.ts` - pipeline wiring (`applyConfidenceGuardrails`, `applyActionClaimGuardrail`)
-- `/server/orchestrator/run.ts` - tool ledger, per-turn retry budgets, metadata and log persistence
+- `/server/services/core/link-guardrail.service.ts` - Link guardrail: URL validation between Stage 0 and Stage 1
+- `/server/orchestrator/run.ts` - tool ledger, per-turn retry budgets (`turnGuardrailState`: `actionClaimRetries`, `companyInterestRetries`, `linkRetries`), metadata and log persistence
 - `/server/orchestrator/types.ts` - `GuardrailLogEntry`
 - `/server/types/organization-settings.types.ts` - config types and defaults
 

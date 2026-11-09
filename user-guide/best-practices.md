@@ -11,7 +11,7 @@ section: user-guide
 
 **Week 1: Foundation**
 
-- Create 1-2 agents maximum
+- Configure your AI assistant
 - Upload 10-20 core FAQs
 - Connect 1 primary channel
 - Test thoroughly before going live
@@ -27,8 +27,8 @@ section: user-guide
 
 - Analyze performance data
 - Expand to edge cases
-- Add specialized agents if needed
-- Fine-tune based on patterns
+- Refine assistant instructions based on patterns
+- Fine-tune based on feedback
 
 **Why this works:**
 
@@ -54,7 +54,7 @@ section: user-guide
 - ⚠️ Unique edge cases not in documentation
 - ⚠️ Situations requiring human judgment
 
-## Agent Configuration
+## Assistant Configuration
 
 ### Writing Great Instructions
 
@@ -69,7 +69,7 @@ Help customers with orders.
 Good:
 
 ```
-You are a friendly customer support agent for [Company].
+You are a friendly customer support assistant for [Company].
 
 Your main responsibilities:
 1. Answer questions about orders, shipping, and products
@@ -82,39 +82,37 @@ Always use the customer's name if you know it
 If you're not 100% confident, say so and offer to connect them with a specialist
 ```
 
-### Agent Specialization Strategy
+### Customizing Your Assistant
 
-**Option 1: Single Generalist Agent**
-Best for:
+Your workspace has a single AI assistant that handles all conversations. Customize it for your needs:
 
-- Small teams
-- Simple product lines
-- Under 100 conversations/day
-- Similar types of questions
+**For simple setups** (small teams, under 100 conversations/day):
 
-**Option 2: Multiple Specialized Agents**
-Best for:
+- Write general-purpose instructions
+- Cover FAQs, basic troubleshooting, and common requests
+- Set a friendly, professional tone
 
-- Different departments (sales vs support)
-- Multiple product lines
-- High volume (500+ conversations/day)
-- Distinct use cases
+**For complex setups** (high volume, multiple departments):
 
-**Example specialized setup:**
+- Write detailed instructions covering different scenarios
+- Use playbooks to handle distinct workflows (sales inquiries vs support issues vs technical questions)
+- Be explicit about when to escalate for different types of issues
 
-_First-Line Support Agent_
+**Example instruction sections:**
+
+_General support:_
 
 - Handles: FAQs, basic troubleshooting
 - Escalates: Technical bugs, billing issues
 - Tone: Friendly and helpful
 
-_Technical Support Agent_
+_Technical topics:_
 
 - Handles: Complex technical issues, API questions
 - Escalates: Bugs, feature requests
 - Tone: Professional and detailed
 
-_Sales Agent_
+_Sales inquiries:_
 
 - Handles: Product questions, pricing, demos
 - Escalates: Negotiation, custom deals
@@ -431,7 +429,7 @@ Since there's no built-in SLA tracking, these targets are something your team ag
 3. **Identify one improvement**
 
    - Add a document
-   - Update an agent
+   - Update assistant instructions
    - Create a playbook
    - Fix a recurring issue
 

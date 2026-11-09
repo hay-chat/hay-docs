@@ -39,17 +39,20 @@ There is no `manifest.json`. All metadata lives in the plugin's `package.json` u
     "category": "channel",
     "channel": "instagram",
     "capabilities": ["messages", "customers"],
-    "env": ["META_APP_ID", "META_APP_SECRET", "META_VERIFY_TOKEN"]
+    "env": ["META_APP_ID", "META_APP_SECRET", "META_VERIFY_TOKEN"],
+    "inactivity": { "warning": 900, "close": 1800, "silentClose": 3600 },
+    "rendering": { "markdown": true },
+    "oauthHosts": ["instagram.com", "api.instagram.com", "graph.instagram.com"]
   }
 }
 ```
 
-_(verbatim from `plugins/core/instagram/package.json`)_
+_(condensed from `plugins/core/instagram/package.json` — showing the channel-relevant fields)_
 
 The load-bearing fields:
 
 - **`category: "channel"`** — classifies the plugin in the marketplace.
-- **`channel: "<slug>"`** — the channel slug (e.g. `"instagram"`). This is the join key for outbound delivery: `Conversation.channel` is a free-form string, and core resolves which plugin owns a channel via `pluginManagerService.findPluginIdByChannel(channel)`, which matches this field.
+- **`channel: "<slug>"`** — the channel slug (e.g. `"instagram"`), validated as `/^[a-z0-9][a-z0-9_-]*$/` (max 64 chars). This is the join key for outbound delivery: `Conversation.channel` is a free-form string, and core resolves which plugin owns a channel via `pluginManagerService.findPluginIdByChannel(organizationId, channel)`, which matches this field.
 - **`capabilities: ["messages", "customers"]`** — scopes the worker's Plugin API JWT so it may call `messages.*` and `customers.*` procedures.
 
 The entry module registers Express-style routes on the worker in `onInitialize`:
@@ -130,7 +133,7 @@ Instagram's declaration (`plugins/core/instagram/src/index.ts`):
 register.webhookRouting({
   signature: {
     header: "x-hub-signature-256",
-    format: "sha256-hmac", // the only supported format
+    format: "sha256-hmac", // also supports "sha256-hmac-base64" and "svix"
     secretEnv: "META_APP_SECRET",
   },
   verificationChallenge: {
@@ -143,13 +146,23 @@ register.webhookRouting({
     itemsPath: "entry", // dot-path to the array of items
     keyPath: "id", // dot-path within each item to the routing key
   },
+  dedupe: {
+    source: "raw-body",
+    windowSeconds: 86400,
+  },
+  deauthorization: {
+    format: "signed-request",
+    param: "signed_request",
+    secretEnv: "META_APP_SECRET",
+    keyPath: "user_id",
+  },
 });
 ```
 
 Core's side (`server/services/webhook-router.service.ts`) then handles the shared URL:
 
 1. **GET** → verification handshake. Core checks `hub.mode === "subscribe"` and the verify token against the declared env var, then echoes `hub.challenge`. The worker never sees GET requests — Instagram registers no GET route.
-2. **POST** → core verifies the HMAC-SHA256 signature **once over the exact raw bytes** (timing-safe compare, `sha256=` prefix tolerated — `verifyHmacSha256` in `server/services/plugin-route.service.ts`), responds `200 { received: true }` immediately, then fans out asynchronously.
+2. **POST** → core verifies the HMAC-SHA256 signature **once over the exact raw bytes** (timing-safe compare, `sha256=` prefix tolerated — `verifyHmacSha256` in `server/lib/hmac-signature.ts`), responds `200 { received: true }` immediately, then fans out asynchronously.
 3. **Fan-out** — for each item under `itemsPath`, core extracts the value at `keyPath` (a safe dot-path getter, no eval), looks up which org owns that routing key (`plugin-webhook-route.repository`), groups items per org, reconstructs a per-org body containing only that org's items, and POSTs it to each org worker's `/webhook` with the internal header **`x-hay-webhook-verified: true`**. Unknown routing keys are logged and dropped. When `routeKeyPath.nested` is declared (e.g. WhatsApp `changes[]` keyed by `value.metadata.phone_number_id`), each item's sub-array is additionally filtered per org: sub-items go to the org owning their nested key, sub-items without a nested key go to the item-level owner, unknown nested keys are dropped, and each org gets a clone of the item holding only its own sub-items.
 
 **Where routing keys come from:** the `onConnected` lifecycle hook. Right after OAuth tokens are stored, core calls the worker's `/on-connected`; the plugin returns opaque routing keys that core persists. Instagram resolves the connected IG business account ID(s) via the Graph API and returns them — those IDs are exactly what appears in `entry[].id` on inbound webhooks (condensed from `plugins/core/instagram/src/index.ts`):
@@ -161,18 +174,17 @@ async onConnected(ctx) {
   const client = new GraphClient({ logger: ctx.logger });
   // (the real handler also refreshes the worker's closure-held token/client
   //  and re-subscribes the account to the app's webhooks — see below)
-  const routingKeys = await client.getConnectedAccountIds(token);
-  return { routingKeys };
+  const connected = await client.getConnectedAccount(token);
+  return {
+    routingKeys: connected.ids,
+    account: { label: connected.username, avatarUrl: connected.profilePictureUrl },
+  };
 }
 ```
 
 `onConnected` never fails the OAuth flow — throwing is tolerated and core reconciles later.
 
 One provider-side prerequisite Instagram handles here (and in `onStart`): app-level webhook field subscription alone does not deliver messages — the connected account must also be subscribed via `/me/subscribed_apps`. The plugin calls `graphClient.subscribeToWebhooks()` idempotently on both hooks and treats failures as non-fatal.
-
-### Legacy per-instance webhook path
-
-A separate route family, `ALL /plugins/webhooks/:pluginName/:webhookPath` plus `GET /plugins/webhooks/:pluginName` for verification challenges (handled by `pluginRouteService.handleWebhook` / `handleWebhookVerification` in `server/services/plugin-route.service.ts`), predates the worker proxy and is still mounted in `server/main.ts`. New channel plugins should use the `/v1/plugins/:pluginId/webhook` proxy path.
 
 ---
 

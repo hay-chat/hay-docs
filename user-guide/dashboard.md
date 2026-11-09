@@ -19,17 +19,16 @@ Inbox updates live as conversations arrive, are taken over or released. The side
 
 The **Dashboard** entry in the sidebar shows the most important metrics and activity at a glance. You'll see four KPI cards at the top:
 
-- **Active Agents** - how many agents are currently configured and active
 - **Total Conversations** - total conversations handled
 - **Resolution Rate** - how many conversations were solved without human help
 - **Avg Messages per Conversation** - average number of messages exchanged per conversation
+- **Avg Response Time** - average and median time from customer message to first reply
 
 Below the KPI cards you'll also find:
 
 - **Activity** - a line chart of conversation volume over time
-- **Top Performing Agents** - your agents ranked by conversation volume and resolution rate
 - **Recent Conversations** - the latest conversations across your organization
-- **Active Conversations (live)** - conversations currently in progress, across Hay and human agents
+- **Active Conversations (live)** - conversations currently in progress
 - **Human escalations** - escalation counts for today and this week
 - **Attention Needed** - conversations awaiting a human response
 - **Sentiment Score Gauge** - an overall sentiment score for the selected period
@@ -37,10 +36,6 @@ Below the KPI cards you'll also find:
 - **Document Status Overview** - your knowledge base documents grouped by status
 
 ## Understanding Your Metrics
-
-### Active Agents
-
-The number of agents currently configured and active in your workspace.
 
 ### Total Conversations
 
@@ -62,6 +57,10 @@ The percentage of conversations solved completely by AI without human interventi
 ### Avg Messages per Conversation
 
 The average number of messages exchanged across all conversations. Lower values typically indicate faster resolution.
+
+### Avg Response Time
+
+The average and median time between a customer message and the first reply (AI or human). Shows "—" when no replies have been recorded yet.
 
 ### Human escalations
 
@@ -89,19 +88,7 @@ Click on any conversation to:
 
 ### Check the Queue
 
-See conversations waiting for human attention. The Queue is accessible at `/queue` but does not appear in the main sidebar navigation.
-
-- Navigate to `/queue` to view pending conversations
-- Open any conversation to respond
-- Take over to chat directly with the customer
-
-### Monitor Agents
-
-- View which agents are handling the most conversations
-- See performance per agent
-- Check if any agents need adjustments
-
-> **Note:** The resolution rate shown in the Top Performing Agents widget is currently sample/demo data. Real per-agent analytics are still being developed.
+The `/queue` page shows background job processing (document uploads, imports, exports), not conversations. For conversations awaiting human attention, use **Inbox** in the sidebar.
 
 ## Real-Time Updates
 
@@ -152,11 +139,11 @@ Some metrics are calculated every few minutes, not instantly. Refresh your brows
 
 ### What are the possible conversation statuses?
 
-Conversations move through these statuses: `open`, `processing`, `pending-human`, `human-took-over`, `resolved`, and `closed`. There is no "active" status.
+Conversations move through these statuses: `open`, `processing`, `pending-human`, `awaiting-approval`, `human-took-over`, `resolved`, `unresolved`, and `closed`. There is no "active" status.
 
 ### Can I export this data?
 
-Exporting data isn't available from the Dashboard page itself. The Analytics Reports page (`/analytics/reports`) has a report-builder UI, but report generation and export are not implemented yet. The only working export today is **Export CSV** on the Feedback Insights page.
+Exporting data isn't available from the Dashboard page itself. Use the **Insights** page (`/insights`) for conversation analysis and the **Feedback** page (`/insights/feedback`) for feedback data with CSV export.
 
 ## Next Steps
 

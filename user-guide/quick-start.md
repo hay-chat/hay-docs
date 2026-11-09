@@ -10,12 +10,12 @@ section: user-guide
 Make sure you have:
 
 - A Hay account (sign up at your organization's Hay dashboard)
-- At least one support document or FAQ (we'll use this to train your agent)
+- At least one support document or FAQ (we'll use this to train your assistant)
 - 10 minutes to complete the setup
 
 ## Guided Onboarding
 
-Hay also provides an automated, checklist-style walkthrough of these steps at **Getting Started** in the left sidebar (`/getting-started`). It tracks your progress and links directly into each step. The steps build on each other: you'll need an agent before adding documents, documents before creating a playbook, and a playbook before testing.
+Hay also provides an automated, checklist-style walkthrough of these steps at **Setup** in the left sidebar (`/setup`). It tracks your progress and links directly into each step. The steps build on each other: you'll need to configure your assistant before adding documents, documents before creating a playbook, and a playbook before testing.
 
 ## Step 1: Choose Your Integrations
 
@@ -33,29 +33,28 @@ Hay works where your team already does. You can connect integrations now or skip
 - **HubSpot** - Sync contacts and tickets from your CRM
 - **Zendesk** - Sync with your help desk
 
-> **Tip:** You can also add a chat widget to your website under **Settings** → **Webchat**.
+> **Tip:** You can also add a chat widget to your website under **Settings** → **Channels** → **Webchat**.
 
-## Step 2: Create Your First Agent
+## Step 2: Configure Your AI Assistant
 
-Your agent is your AI assistant. Give it a personality and purpose.
+Your assistant is the AI that talks to customers. Give it a personality and purpose.
 
-1. Go to **Settings** → **Agents**
-2. Click **Create Agent**
-3. Fill in the basic information:
+1. Go to **Settings** → **Assistant**
+2. Fill in the basic information:
 
-   - **Name:** Something descriptive like "Customer Support Agent"
-   - **Description:** What this agent handles (e.g., "Handles order questions and product inquiries")
-   - **Tone:** Choose how your agent should communicate (Professional, Casual, or Enthusiastic)
-   - **Instructions:** Define the agent's general behavior using the rich text editor (e.g., how to greet customers, what topics to avoid, when to escalate to a human)
-   - **Initial Greeting Message** _(optional)_**:** The first message the agent sends when a conversation starts
+   - **Name:** Something descriptive like "Customer Support Assistant"
+   - **Description:** What your assistant handles (e.g., "Handles order questions and product inquiries")
+   - **Tone:** Choose how your assistant should communicate (Professional, Casual, or Enthusiastic)
+   - **Instructions:** Define the assistant's general behavior using the rich text editor (e.g., how to greet customers, what topics to avoid, when to escalate to a human)
+   - **Initial Greeting Message** _(optional)_**:** The first message the assistant sends when a conversation starts
 
-4. Click **Create Agent**
+3. Click **Save**
 
-> **Example:** "Support Agent" with a "Casual" tone that "helps customers with orders, shipping, and product questions"
+> **Example:** "Support Assistant" with a "Casual" tone that "helps customers with orders, shipping, and product questions"
 
 ## Step 3: Upload Training Documents
 
-Teach your agent by uploading your existing support materials.
+Teach your assistant by uploading your existing support materials.
 
 1. Go to **Documents** in the left sidebar
 2. Add content using the available buttons:
@@ -107,9 +106,9 @@ Playbooks are step-by-step instructions for handling specific situations.
 > - Return and refund requests
 > - Product recommendations
 
-## Step 5: Test Your Agent
+## Step 5: Test Your Assistant
 
-Before going live with customers, test how your agent responds.
+Before going live with customers, test how your assistant responds.
 
 1. Go to **Conversations** in the left sidebar
 2. Click **Conversation Playground**
@@ -122,28 +121,28 @@ Before going live with customers, test how your agent responds.
 4. Review the responses - do they sound right?
 5. If needed, go back and:
    - Add more training documents
-   - Adjust agent instructions
+   - Adjust assistant instructions
    - Update your playbooks
 
 > **Tip:** Test with real questions your support team receives daily!
 
 ## You're All Set! 🎉
 
-Your Hay agent is now ready to start helping customers!
+Your Hay assistant is now ready to start helping customers!
 
 ### What Happens Next?
 
-- **Automatic responses:** Your agent handles incoming questions instantly
+- **Automatic responses:** Your assistant handles incoming questions instantly
 - **Human escalation:** Complex issues are automatically sent to your team
-- **Continuous learning:** Your agent gets smarter with every conversation
+- **Continuous learning:** Your assistant gets smarter with every conversation
 
 ### Next Steps
 
 Now that you're up and running:
 
-1. **Monitor the Queue** - Visit `/queue` to check for conversations that need human attention
-2. **Review Dashboard** - See how your agent is performing at a glance
-3. **Add More Documents** - Keep training your agent with new information
+1. **Monitor your Inbox** - Visit `/inbox` to check for conversations that need human attention
+2. **Review Dashboard** - See how your assistant is performing at a glance
+3. **Add More Documents** - Keep training your assistant with new information
 4. **Create More Playbooks** - Automate more types of requests
 
 > **Need help?** Head to the [Dashboard](/docs/user-guide/dashboard/) guide to learn about monitoring your conversations.

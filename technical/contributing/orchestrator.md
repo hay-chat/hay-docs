@@ -121,12 +121,11 @@ Prompts are file-based markdown templates resolved by `PromptService.getPrompt()
 ### Perception (`perception.layer.ts`)
 
 - `perceive(message, conversationId, organizationId)` — one structured-output LLM call (tier `"medium"`, prompt `perception/intent-analysis`) returning `{ intent: {label, score}, sentiment: {label, score}, language }`. Intent/sentiment labels are schema-enum-constrained to `MessageIntent` / `MessageSentiment`; language is an ISO 639-1 code enforced by the JSON-schema pattern `^[a-z]{2}$`.
-- `getAgentCandidate()` exists (prompt `perception/agent-selection`, score threshold > 0.7) but is **not called from `runConversation()`** — agents are assigned at conversation creation with a fallback to the organization default. Don't wire new features through it without reconsidering that decision.
 
 ### Retrieval (`retrieval.layer.ts`)
 
 - `getPlaybookCandidate(messages, playbooks, orgId)` — an LLM (tier `"medium"`) scores active playbooks against the conversation (prompt `retrieval/playbook-selection`); accepted only if score > 0.7, otherwise `null`. Because of the playbook gate, this ideally runs once per conversation rather than every turn.
-- `getRelevantDocuments(messages, orgId)` — builds the query from the **last 3 customer messages**, runs `vectorStoreService.search(orgId, query, 5)` (top-5 chunks, pgvector), and keeps results with similarity > 0.4. Errors return `[]` — retrieval failure never fails the run.
+- `getRelevantDocuments(messages, orgId)` — builds the query from the **last 3 customer messages**, runs `vectorStoreService.search(orgId, query, 5)` (top-5 chunks, pgvector), and keeps results with similarity >= 0.25 (`MIN_DOCUMENT_SIMILARITY`). Errors return `[]` — retrieval failure never fails the run.
 
 ### Execution (`execution.layer.ts`)
 

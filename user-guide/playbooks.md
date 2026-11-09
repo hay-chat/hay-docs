@@ -160,9 +160,9 @@ Status is set when you create the playbook:
 
 Click **Create Playbook**
 
-> **What's live vs. what's versioned:** Identity fields — **Title**, **Trigger**, **Description**, and **Assigned Agents** — save immediately when you click **Save Changes** and take effect right away, no publishing required. Only the **Instructions** content goes through draft/publish versioning: edits to Instructions auto-save to a hidden draft, and the agent keeps using the last published version until you click **Publish**, which sets the playbook's status to **Active** and creates an immutable snapshot of the Instructions at that point in time. You can browse previous versions in the **Version History** panel, roll back to an earlier published version, or discard a draft to revert to the live version.
+> **What's live vs. what's versioned:** Identity fields — **Title**, **Trigger**, and **Description** — save immediately when you click **Save Changes** and take effect right away, no publishing required. Only the **Instructions** content goes through draft/publish versioning: edits to Instructions auto-save to a hidden draft, and the agent keeps using the last published version until you click **Publish**, which sets the playbook's status to **Active** and creates an immutable snapshot of the Instructions at that point in time. You can browse previous versions in the **Version History** panel, roll back to an earlier published version, or discard a draft to revert to the live version.
 >
-> **Coming Soon:** There is currently no UI control to archive a playbook after creation. This capability is planned.
+> **Archiving:** To archive a playbook, go to the playbooks list page, click the overflow menu (three dots) on the playbook card, and select **Archive**. Archived playbooks are no longer evaluated by the orchestrator. To restore an archived playbook, use the same menu and select **Restore as Draft**.
 
 ## Playbook Instructions Best Practices
 
@@ -232,15 +232,9 @@ Escalate to human if:
 - You're not confident in the answer
 ```
 
-## Assigning Playbooks to Agents
+## How Playbooks Are Matched
 
-You can assign playbooks to specific agents from the playbook editor:
-
-1. Open the playbook
-2. In the sidebar, check the agents under **Assigned Agents**
-3. Click **Save Changes**
-
-**Note:** Agent assignment is organizational metadata for your own reference. All active playbooks are evaluated for every conversation regardless of which agents are assigned — the orchestrator retrieves all active playbooks and scores them against the conversation context.
+All active playbooks are automatically evaluated for every conversation. The orchestrator scores each playbook's trigger against the conversation context and selects the best match — you do not need to assign playbooks manually.
 
 ## Managing Playbooks
 
@@ -250,7 +244,7 @@ You can assign playbooks to specific agents from the playbook editor:
 2. Make your changes
 3. Click **Save Changes**
 
-**Save Changes** applies immediately to Title, Trigger, Description, and Assigned Agents — no publishing needed. If you also edited the Instructions, those changes auto-save to a draft and won't affect live conversations until you click **Publish**.
+**Save Changes** applies immediately to Title, Trigger, and Description — no publishing needed. If you also edited the Instructions, those changes auto-save to a draft and won't affect live conversations until you click **Publish**.
 
 ### Testing a Playbook
 
@@ -268,7 +262,7 @@ A playbook must be **Active** (published) to be evaluated by the agent — Draft
 
 ### Deactivating a Playbook
 
-> **Coming Soon:** There is currently no UI control to archive a playbook after creation. Status is set when the playbook is created (**Draft**) and moves to **Active** when published. Until archiving is available, keep a playbook's trigger narrow or remove its instructions to stop it from being used.
+To stop a playbook from being used, archive it from the playbooks list page: click the overflow menu (three dots) on the card and select **Archive**. Archived playbooks are hidden from the active list and are not evaluated by the orchestrator. You can restore them as drafts at any time from the same menu.
 
 ## Common Playbook Templates
 
@@ -458,6 +452,6 @@ Yes! Playbooks work across all channels unless you specify otherwise.
 ## Next Steps
 
 - Create your first playbook with the [Quick Start](/docs/user-guide/quick-start/) guide
-- Learn about [Agents](/docs/user-guide/agents/) to customize behavior
+- Configure your [AI Assistant](/docs/user-guide/agents/) to customize behavior
 - Explore [Documents](/docs/user-guide/documents/) to give your agent knowledge
 - Monitor results in [Analytics](/docs/user-guide/analytics/)

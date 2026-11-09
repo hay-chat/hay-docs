@@ -121,7 +121,7 @@ There is no in-process plugin loading and no generic "process manager" service �
    - `HAY_ORG_CONFIG` — JSON: `{ org: { id }, config: <resolved config> }`
    - `HAY_ORG_AUTH` — JSON-serialized `AuthState` (decrypted credentials)
    - `HAY_API_URL` + `HAY_API_TOKEN` — a JWT (`generatePluginJWT`) scoped to `{ organizationId, pluginId, scope: "plugin-api", capabilities }`, expiring in 24h, so the worker can call back into core
-   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through a deny-pattern list (`SECRET`, `PASSWORD`, `TOKEN`, `PRIVATE_KEY`, `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`) so secret-looking names are blocked by default
+   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through a two-tier deny system (logic in `server/lib/plugin-env.ts`): **`CORE_RESERVED_ENV_PATTERNS`** (blocked for all plugins: `^DB_`, `^DATABASE`, `^REDIS`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`, `^RABBITMQ`, `^LLM_`, `^ENCRYPTION`, `^INTERNAL_API`, `^VAPID_PRIVATE`, `^STRIPE_SECRET_KEY$`, `^STRIPE_WEBHOOK_SECRET$`, `^RESEND_EVENTS_WEBHOOK_SECRET$`) and **`SECRET_ENV_PATTERNS`** (blocked only for non-core plugins: `SECRET`, `PASSWORD`, `TOKEN`, `PRIVATE_KEY`, `CREDENTIAL`). Core-shipped plugins may access env vars matching secret patterns. A `PUBLIC_ENV_EXCEPTIONS` list allows specific vars through (e.g. `SMTP_FROM_EMAIL`, `SMTP_FROM_NAME`)
 6. Wait for the worker's **`GET /metadata`** endpoint to respond (up to 20 attempts × 500ms) — not `/health`.
 7. Update the `PluginInstance` row: `runtimeState = "ready"`, `running = true`, `processId`, health `"healthy"`. On failure: `runtimeState = "error"` + `lastError`.
 8. Kick off MCP tool discovery in the background (`fetchAndStoreTools` in `server/services/plugin-tools.service.ts`, which caches the worker's `GET /mcp/list-tools` result).
@@ -191,6 +191,7 @@ One row per discovered plugin (global, not per-org). Unique index on `pluginId`.
 | `organizationId`                                                                                       | uuid, nullable                | set for custom plugins                                                                            |
 | `zipFilePath`, `zipUploadId`, `uploadedById`, `uploadedAt`                                             |                               | custom-plugin upload provenance                                                                   |
 | `gitConnectionId`, `gitRepoFullName`, `gitBranch`, `gitLastCommitSha`, `gitLastSyncAt`, `gitSyncError` |                               | git-sourced plugin fields                                                                         |
+| `gitAvailableCommitSha`                                                                                | varchar(64), nullable         | latest available commit SHA from the remote for change detection                                   |
 
 ### `plugin_instances` (`plugin-instance.entity.ts`)
 
@@ -231,7 +232,7 @@ A plugin's entry module default-exports `defineHayPlugin(factory)`; the factory 
 | `onDisable`      | Core `POST /disable` on disable/uninstall and before SIGTERM                       | Tear down resources.                                                                                                                                                                              |
 | `onEnable`       | **Never.**                                                                         | Typed in the SDK (`types/plugin.ts`, marked "CORE-ONLY, not called by runner") — but nothing in core calls it either. Reserved for a future core-side path; do not build on it.                   |
 
-The `register.*` API available in `onInitialize` (`packages/plugin-sdk/types/register.ts`): `register.config(schema)`, `register.auth.apiKey(...)` / `register.auth.oauth2(...)`, `register.route(method, path, handler)`, `register.ui.page(...)`, `register.cron(options)`, `register.webhookRouting(descriptor)`. Everything registered surfaces as data in `GET /metadata`, which core caches on `plugin_registry.metadata`.
+The `register.*` API available in `onInitialize` (`packages/plugin-sdk/types/register.ts`): `register.config(schema)`, `register.auth.apiKey(...)` / `register.auth.oauth2(...)`, `register.route(method, path, handler)`, `register.ui.page(...)`, `register.cron(options)`, `register.webhookRouting(descriptor)`, `register.setup(descriptor)`. Everything registered surfaces as data in `GET /metadata`, which core caches on `plugin_registry.metadata`.
 
 **OAuth is entirely core-side.** `server/services/oauth.service.ts` runs authorization, token exchange, and refresh — including non-standard flows a plugin declares via `tokenExchange`/`tokenRefresh` descriptors (`packages/plugin-sdk/types/auth.ts`), executed declaratively by core (used by the Instagram plugin's `ig_exchange_token`/`ig_refresh_token`). Plugins never call OAuth endpoints themselves; the runner also refreshes expiring tokens before worker start (see [The Worker Runtime](#the-worker-runtime)).
 
@@ -261,7 +262,7 @@ Some providers (e.g. Meta) deliver all events for all customers to **one** webho
 The dispatch point is in the proxy (`server/routes/v1/plugins/proxy.ts`): a request to `.../webhook` with **no** org identifier, for a plugin that declared a routing descriptor, is diverted to `webhookRouterService.handle()` (`server/services/webhook-router.service.ts`), which:
 
 1. Answers the provider's GET verification handshake if declared (echoes the challenge param after checking the verify token).
-2. For POSTs, verifies the HMAC over the raw body bytes (`verifyHmacSha256` from `server/services/plugin-route.service.ts`).
+2. For POSTs, verifies the HMAC over the raw body bytes (`verifyHmacSha256` from `server/lib/hmac-signature.ts`).
 3. Extracts a routing key per payload entry (`routeKeyPath`), resolves key → org via `plugin_webhook_routes`, and fans each entry out to the right org's worker `POST /webhook` (with credential-bearing headers stripped). With `nested`, each entry's sub-array is filtered per org first: sub-items route by their own key, keyless sub-items go to the entry owner, unknown nested keys are dropped, and each org gets a clone of the entry with only its sub-items.
 
 Core never learns which provider it's routing for — all provider knowledge is in the plugin's declaration.

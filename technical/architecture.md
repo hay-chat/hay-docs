@@ -74,7 +74,7 @@ Persistent storage with caching:
 
 - **PostgreSQL**: Primary data store for conversations, users, settings
 - **Redis**: Caching layer and pub/sub for real-time features
-- **File Storage**: Attachments and media files (local filesystem by default, optional S3)
+- **File Storage**: Attachments and media files via S3-compatible storage (MinIO for local development)
 
 ### Data Flow
 
@@ -111,7 +111,7 @@ graph LR
 ```
 
 - **Client**: Browser cache for static assets
-- **Asset Domain**: Optional configurable domain for serving static assets (not a CDN caching layer)
+- **CDN Domain**: Optional configurable domain (`CDN_DOMAIN`) for serving static assets (not a CDN caching layer)
 - **Redis**: In-memory cache for hot data
 - **Database**: Source of truth
 
@@ -130,7 +130,7 @@ RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-b
 Multiple security layers:
 
 1. **Network**: TLS/SSL encryption for all traffic
-2. **Authentication**: JWT with configurable expiration (default 7 days, refresh tokens 30 days)
+2. **Authentication**: JWT with configurable expiration (default 7 days), session-based auth with 90-day idle timeout
 3. **Authorization**: Role-based access control (RBAC)
 4. **Input Validation**: Sanitize all user input
 5. **Output Encoding**: Prevent XSS attacks

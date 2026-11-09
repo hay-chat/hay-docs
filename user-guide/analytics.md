@@ -7,25 +7,24 @@ section: user-guide
 
 ## Where Analytics Live Today
 
-Hay's working analytics are found in two places:
+Hay's analytics are found in three places:
 
-- **The Dashboard** (`/dashboard`) - real conversation metrics, sentiment analysis, and live widgets. See [Dashboard Overview](/docs/user-guide/dashboard/).
-- **Feedback Insights** (`/insights/feedback`) - real analysis of message feedback given by your team, with CSV export.
+- **The Dashboard** (`/dashboard`) — real conversation metrics, sentiment analysis, and live widgets. See [Dashboard Overview](/docs/user-guide/dashboard/).
+- **Insights** (`/insights`) — AI-powered conversation cluster analysis with polarity, state breakdowns, and action types.
+- **Feedback** (`/insights/feedback`) — analysis of message feedback given by your team, with CSV export.
 
-> **Important:** The pages at `/analytics`, `/analytics/reports`, and `/insights` also exist, but they are **UI previews populated with demo data** - the numbers shown there are not calculated from your account. They are covered at the end of this guide so you can tell them apart from real data.
-
-Only the Dashboard has a sidebar entry. There is no Analytics or Insights entry in the sidebar - Feedback Insights and the preview pages are reached by direct URL.
+The Dashboard, Insights, and Feedback all have sidebar entries (Insights and Feedback are under the **Quality** section).
 
 ## Real Metrics (Dashboard)
 
-The Dashboard shows metrics calculated from your actual conversations. **Total Conversations**, **Resolution Rate**, and **Avg Messages per Conversation** accept a date range filter and default to the last 30 days. **Active Agents** always shows the current snapshot and is not affected by the date filter.
+The Dashboard shows metrics calculated from your actual conversations. All metric cards accept a date range filter and default to the last 30 days.
 
 **Metric Cards**
 
-- **Active Agents** - count of enabled agents, with new agents added this week
-- **Total Conversations** - count of conversations in the selected period
-- **Resolution Rate** - percentage of conversations marked resolved
-- **Avg Messages per Conversation** - average number of messages exchanged
+- **Total Conversations** — count of conversations in the selected period
+- **Resolution Rate** — percentage of conversations marked resolved
+- **Avg Messages per Conversation** — average number of messages exchanged
+- **Avg Response Time** — average and median time from a customer message to the first reply
 
 **Conversation Activity**
 
@@ -41,21 +40,16 @@ Your knowledge base documents grouped by processing status.
 
 **Additional Widgets**
 
-- **Top Performing Agents** - agents ranked by conversation count with resolution rate
-- **Recent Conversations** - last 4 conversations with status and last message
-- **Active Conversations** - live widget showing currently active conversations
-- **Escalations** - conversations that have been escalated
-- **Attention Needed** - conversations requiring attention
-
-> **Note:** The per-agent resolution rate shown in the Top Performing Agents widget is currently placeholder/demo data, randomized between 90-99%. Real per-agent resolution analytics are still being developed.
-
-> **Not yet implemented:** Response time analytics exist as an API endpoint but currently always return zero - the calculation is a placeholder. Any "average response time" figure you see in the product is not real data yet.
+- **Recent Conversations** — last 4 conversations with status and last message
+- **Active Conversations** — live widget showing currently active conversations
+- **Escalations** — conversations that have been escalated
+- **Attention Needed** — conversations requiring attention
 
 For a walkthrough of each Dashboard widget, see [Dashboard Overview](/docs/user-guide/dashboard/).
 
 ## Feedback Insights
 
-**Feedback Insights** (`/insights/feedback`) is the one fully functional analytics page beyond the Dashboard. Its purpose: "Analyze AI response quality through user feedback."
+**Feedback** (`/insights/feedback`) lets you analyze AI response quality through user feedback.
 
 ### How feedback is collected
 
@@ -87,7 +81,7 @@ Narrow the feedback list by:
 
 ### Feedback History
 
-Each entry in the list shows the rating badge, the source channel, any comment left, a shortened message ID, and the reviewer's email. The list is paginated (20 entries per page). The rated message's text itself is not shown, and the link icon next to each entry does not navigate anywhere yet.
+Each entry in the list shows the rating badge, the source channel, the rated message's text, any comment left, a shortened message ID, and the reviewer's email. The list is paginated (20 entries per page). Click **Open Conversation** on an entry to navigate to the conversation scrolled to the rated message.
 
 ### Export CSV
 

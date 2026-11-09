@@ -25,7 +25,7 @@ Go to **Conversations** in the left sidebar to see all your interactions.
 
 - **Conversation** - Title and truncated ID
 - **Channel** - Where the conversation came from (shown when multiple channels are active)
-- **Status** - Current state (Open, Processing, Needs Attention, Manual Control, Resolved, Closed)
+- **Status** - Current state (Open, Processing, Needs Attention, Awaiting Approval, Manual Control, Resolved, Unresolved, Closed)
 - **Assigned To** - Human agent, if the conversation has been taken over
 - **Duration** - How long the conversation has been active
 - **Satisfaction** - Customer satisfaction rating
@@ -44,12 +44,12 @@ Find specific conversations quickly:
 
 **Filter by:**
 
-- **Status** - All Status, Active, Resolved, Escalated, Closed
+- **Status** - All Status, Active, Resolved, Unresolved, Escalated, Closed
 - **Timeframe** - Today, This Week, This Month, All Time (preset options)
 
 > **Note:** The timeframe filter is not yet functional — selecting a timeframe currently has no effect. Channel and agent filters are planned but not yet available.
 
-> **Note:** The "Active" and "Escalated" status filters don't currently match any real conversation status. The filter does a strict equality check against actual status values (`open`, `processing`, `pending-human`, `human-took-over`, `resolved`, `closed`), so selecting "Active" or "Escalated" may return no results.
+> **Note:** The "Active" and "Escalated" status filters don't currently match any real conversation status. The filter does a strict equality check against actual status values (`open`, `processing`, `pending-human`, `awaiting-approval`, `human-took-over`, `resolved`, `unresolved`, `closed`), so selecting "Active" or "Escalated" may return no results.
 
 ## Conversation Statuses
 
@@ -61,7 +61,9 @@ Understanding what each status means:
 | **Processing**      | AI is thinking and preparing a response  | Wait a few seconds           |
 | **Needs Attention** | Customer needs human help | Appears in your Queue        |
 | **Manual Control** | A team member is now handling it | AI stops responding          |
+| **Awaiting Approval** | AI response is held for human review before sending | Team member reviews and approves or blocks the message |
 | **Resolved**        | Issue was solved successfully            | Conversation is complete     |
+| **Unresolved**      | Conversation ended without resolution    | May need follow-up           |
 | **Closed**          | Conversation ended                       | No further action needed     |
 
 ## Opening a Conversation
@@ -194,7 +196,7 @@ Practice and test your agent without affecting real customers.
 Save a complete record:
 
 1. Click **Export** button
-2. Choose format (PDF or CSV)
+2. Choose format (PDF, CSV, or Evidence pack for a dispute)
 3. Download includes all messages, timestamps, and metadata
 
 **Perfect for:**
@@ -218,6 +220,7 @@ Save a complete record:
 - 📄 **Document** - Document reference
 - 📋 **Playbook** - Playbook step
 - 🛒 **ProductRecommendation** - Suggested product(s)
+- 📝 **Form** - Form presented to the customer
 
 > **Note:** Feedback (👍/👎) is an action on a BotAgent message, not a separate message type. File and image attachments are shown via a 📎 paperclip icon on the message that carries them, not as their own message type.
 

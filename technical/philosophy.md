@@ -29,7 +29,7 @@ We believe that happy developers build better software.
 // Good: Clear, typed interface
 interface CreateConversationInput {
   title?: string;
-  agentId?: string;
+  customerId?: string;
   language?: string;
   metadata?: Record<string, unknown>;
   status?: string;
@@ -51,7 +51,7 @@ Sensible defaults that work out of the box.
 - Intelligent defaults that can be overridden
 
 ```typescript
-// Convention: Plugins auto-discovered from plugins/core/ and plugins/custom/{orgId}/
+// Convention: Plugins auto-discovered from plugins/core/ and plugins/custom/
 // No configuration needed — discovery runs automatically at startup via PluginManagerService.discoverPlugins()
 ```
 
@@ -73,7 +73,7 @@ throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid email format' });
 
 #### 4. Plugin-First Architecture
 
-External integrations are always plugins, never bolted directly onto core logic. Core features (conversations, agents, orchestration, documents) live in the server codebase, but all third-party service integrations are implemented as plugins.
+External integrations are always plugins, never bolted directly onto core logic. Core features (conversations, AI assistant, orchestration, documents) live in the server codebase, but all third-party service integrations are implemented as plugins.
 
 **Why:**
 
@@ -84,7 +84,7 @@ External integrations are always plugins, never bolted directly onto core logic.
 
 **In practice:**
 
-Plugins are discovered dynamically from `plugins/core/` (built-in plugins) and `plugins/custom/{organizationId}/` (org-specific plugins). The core source code never hardcodes plugin IDs.
+Plugins are discovered dynamically from `plugins/core/` (built-in plugins) and `plugins/custom/` (custom plugins). The core source code never hardcodes plugin IDs.
 
 #### 5. Data Ownership and Privacy
 

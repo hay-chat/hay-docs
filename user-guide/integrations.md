@@ -40,6 +40,7 @@ Each integration has its own guide covering what it is, how to connect it, and w
 **Payments & marketing**
 
 - [Stripe](/docs/user-guide/integrations/stripe/) - Payments, refunds, subscriptions, and invoices
+- [Mercado Pago](/docs/user-guide/integrations/mercadopago/) - Payments and order data for Latin American markets
 - [Klaviyo](/docs/user-guide/integrations/klaviyo/) - Profiles, subscriptions, campaigns, and flows
 
 **CRM & scheduling**
@@ -53,6 +54,10 @@ Each integration has its own guide covering what it is, how to connect it, and w
 - [Zendesk](/docs/user-guide/integrations/zendesk/) - Tickets, users, macros, and Help Center articles
 - [Atlassian (Jira & Confluence)](/docs/user-guide/integrations/atlassian/) - Jira issues plus Confluence page import
 - [Notion](/docs/user-guide/integrations/notion/) - Import Notion pages into your knowledge base
+
+**Business tools**
+
+- [Spacebring](/docs/user-guide/integrations/spacebring/) - Coworking space management and member support
 
 ### Web Chat
 
@@ -121,7 +126,7 @@ To remove an integration:
 2. Browse the available integrations
 3. Click any integration to learn more
 
-> **Note:** Category filtering is not currently available in the UI. All integrations are listed together.
+> **Tip:** Use the category buttons at the top of the Marketplace page to filter integrations by type.
 
 ### Installing from Marketplace
 

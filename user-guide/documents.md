@@ -407,7 +407,7 @@ To find your order number:
 
 After uploading:
 
-1. Go to Playground
+1. Go to **Conversations** and start a new conversation
 2. Ask questions as a customer would
 3. See if answers are accurate
 4. Adjust documents as needed

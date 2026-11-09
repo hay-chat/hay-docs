@@ -23,6 +23,7 @@ When a conversation passes the retention window, Hay **anonymizes** it rather th
 - Context and metadata
 - Linked document references
 - Associated vector embeddings
+- Media files and attachments
 
 **Preserved (for analytics):**
 
@@ -39,7 +40,7 @@ After anonymization, the conversation record remains with the title `[Anonymized
 2. Under **Conversation Retention Period**, choose a timeframe: Disabled (keep forever), 30, 60, 90, 180, or 365 days
 3. Save your changes
 
-The retention period counts from when a conversation was **closed** (`closed_at`). If a conversation's `closed_at` is not set, the system falls back to its creation date. Only conversations with status `closed` or `resolved` are eligible for anonymization. Open or in-progress conversations are never touched.
+The retention period counts from when a conversation was **closed** (`closed_at`). If a conversation's `closed_at` is not set, the system falls back to its creation date. Only conversations with status `closed`, `resolved`, or `unresolved` are eligible for anonymization. Open or in-progress conversations are never touched.
 
 ## Legal Hold
 
@@ -73,6 +74,7 @@ Every retention cleanup is logged in the audit trail with:
 - Number of conversations anonymized
 - Number of messages deleted
 - Number of embeddings deleted
+- Number of media files deleted
 - The retention period that was applied
 - The cutoff date used
 - The list of affected conversation IDs

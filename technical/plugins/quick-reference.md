@@ -52,7 +52,7 @@ navOrder: 5
 ```
 
 - **Categories**: `integration | channel | tool | analytics | products` (document importers are marked separately via `"documentImporter": true` in the `hay-plugin` block, not a category)
-- **Capabilities**: `mcp | auth | config | routes | ui | cron | products` (+ `messages | customers | sources` for channels)
+- **Capabilities**: `mcp | auth | config | routes | ui | cron | products | disputes | tickets | privacy | email | webchat` (+ `messages | customers | sources` for channels)
 - **SDK path** is `file:../../../packages/plugin-sdk` — note `packages/`
 - Channel plugins add `"channel": "<slug>"` and (if needed) `"env": ["VAR_A", "VAR_B"]` — the allow-list for host env fallbacks
 
@@ -111,7 +111,7 @@ export default defineHayPlugin((globalCtx) => ({
 | `onConfigUpdate(ctx)` | Settings saved                  | Platform restarts registered MCP servers itself              |
 | `onDisable(ctx)`      | Disable/uninstall               | Tear down pollers/clients                                    |
 
-`onEnable` exists in the types but **the runner never calls it** — don't rely on it.
+`onEnable` exists in the types but is a **core-only hook** — the worker runner never calls it. Core may invoke it during plugin installation; most plugins can safely omit it.
 
 ---
 
@@ -290,7 +290,7 @@ Optional: implement `POST /escalate` for human-handoff notifications — core to
 
 All under `pluginApi.*`, capability-gated via the worker JWT (`server/routes/v1/plugin-api/trpc.ts`):
 
-`messages.receive` · `messages.send` · `messages.getByConversation` · `conversations.updateStatusByExternalId` · `customers.get` · `customers.findByExternalId` · `customers.upsert` · `sources.register` · `mcp.registerLocal` · `mcp.registerRemote` · `products.upsertMany` · `products.delete`
+`messages.receive` · `messages.send` · `messages.getByConversation` · `messages.updateStatus` · `conversations.updateStatusByExternalId` · `customers.get` · `customers.findByExternalId` · `customers.upsert` · `sources.register` · `mcp.registerLocal` · `mcp.registerRemote` · `products.upsertMany` · `products.delete` · `products.prune` · `media.upload` · `connection.revoke` · `channel.reportHealth` · `email.sendingDomain` · `webhooks.setRoutingKeys` · `state.get` · `state.set` · `state.delete` · `disputes.report` · `privacy.eraseCustomer` · `privacy.exportCustomer`
 
 ---
 
@@ -399,11 +399,11 @@ cd plugins/core/myservice/mcp
 PRIVATE_API_KEY=test_key node index.js
 
 # Run a worker manually (what core does per org)
-node packages/plugin-sdk/dist/runner/index.js \
+npx hay-plugin-runner \
   --plugin-path=plugins/core/myservice --org-id=<orgId> --port=4001
 ```
 
-Workers expose: `GET /health`, `GET /metadata`, `POST /validate-auth`, `POST /on-connected`, `POST /config-update`, `POST /disable`, `POST /cron/:name`, `POST /mcp/call-tool`, `GET /mcp/list-tools`, plus your registered routes.
+Workers expose: `GET /health`, `GET /metadata`, `POST /validate-auth`, `POST /on-connected`, `POST /config-update`, `POST /disable`, `POST /cron/:name`, `POST /mcp/call-tool`, `GET /mcp/list-tools`, `POST /setup/status`, `POST /webchat/gate/:event`, plus your registered routes.
 
 ---
 
