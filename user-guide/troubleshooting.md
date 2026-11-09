@@ -463,18 +463,12 @@ section: user-guide
 - support@hay.ai
 - Include "URGENT" in subject if critical
 
-**In-App:**
-
-- Click **Help** icon
-- Start chat with support team
-- Available during business hours
-
 **What to include:**
 
 1. Clear description of problem
 2. Steps to reproduce
 3. Screenshots if helpful
-4. Conversation or agent ID
+4. Conversation or organization ID
 5. When problem started
 6. What you've tried
 
@@ -500,7 +494,7 @@ section: user-guide
 **Monthly:**
 
 - Update documents
-- Review and optimize agents
+- Review and optimize assistant instructions
 - Clean up unused playbooks
 - Check team access
 
@@ -529,7 +523,7 @@ section: user-guide
 
    - Review recent conversations
    - Find areas for improvement
-   - Update agent instructions
+   - Update assistant instructions
 
 4. **Stay organized**
    - Clear naming conventions
@@ -540,8 +534,8 @@ section: user-guide
 
 ### "Agent not found"
 
-**Cause:** Agent was deleted or disabled
-**Fix:** Check agent status or select different agent
+**Cause:** Assistant configuration issue
+**Fix:** Check assistant settings in **Settings** → **Assistant**
 
 ### "Conversation locked"
 

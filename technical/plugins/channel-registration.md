@@ -19,7 +19,9 @@ Channel registration in Hay is **declarative**. A plugin does not call a registr
 2. **HTTP routes on the plugin worker** — `POST /webhook` (inbound) and `POST /deliver` (outbound), registered with `register.route()` from the SDK.
 3. **The plugin API callback `messages.receive`** — how the worker hands an inbound message to core, which creates the customer, conversation, and message.
 
-Once the plugin is enabled for an organization, the channel automatically appears in the agent settings page (`dashboard/pages/agents/[id].vue` lists every enabled plugin whose type includes `channel` and that declares a `channel` slug, alongside the built-in `web` channel). No separate registration step exists or is needed.
+Once the plugin is enabled for an organization, the channel is automatically available for message routing. No separate registration step exists or is needed.
+
+> **Note:** The `HayPluginBlock` interface also supports additional channel-relevant fields not shown above: `inactivity` (per-channel warning/close/silent-close timings), `rendering` (markdown support), `oauthHosts` (allowed OAuth redirect hosts), `setup` (guided setup steps), and `defaultEnabled` (auto-enable for new orgs). See the [API Reference](/docs/technical/plugins/api-reference/) for the full field list.
 
 > **Note:** an older version of this guide documented a `sources.register` API as the registration mechanism. That API is a **stub** — see [The `sources` API (not the registration mechanism)](#the-sources-api-not-the-registration-mechanism) below.
 
@@ -135,10 +137,21 @@ Input schema (`server/routes/v1/plugin-api/trpc.ts`, requires the `messages` cap
 {
   from: string;                     // channel-scoped customer identity, e.g. "instagram:<psid>"
   content: string;
-  channel: string;                  // your channel slug
+  channel: string;                  // your channel slug, regex /^[a-z0-9][a-z0-9_-]*$/, max 64
   metadata?: Record<string, any>;   // see below
   senderType?: "customer" | "human_agent";  // default "customer"
   externalConversationId?: string;  // provider-side conversation id, if any
+  conversationId?: string;          // recover existing Hay conversation (UUID)
+  title?: string;                   // title for newly created conversations (max 255)
+  replyWindowExpiresAt?: string;    // ISO datetime — channel reply window deadline
+  holdForHuman?: boolean;           // park the conversation for human handling
+  attachments?: Array<{             // media already uploaded via media.upload
+    id?: string;
+    name: string;
+    url: string;
+    type: string;
+    size: number;
+  }>;
 }
 ```
 
