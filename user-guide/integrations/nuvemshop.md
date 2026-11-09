@@ -12,7 +12,7 @@ Nuvemshop (Brazil) and Tiendanube (Spanish-speaking Latin America) are the same 
 ## How to Connect Nuvemshop
 
 1. Go to **Integrations** → **Marketplace** in the Hay.chat dashboard
-2. Find **Nuvemshop** and click **Install**
+2. Find **Nuvemshop** and click **Connect**
 3. Click **Connect with Nuvemshop**, sign in to your store admin and approve the Hay.chat app
 
 Tokens do not expire, so there is nothing to refresh. The connection ends if you uninstall the app from your store.

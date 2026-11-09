@@ -22,7 +22,7 @@ Hay connects **directly to Meta's WhatsApp Cloud API** — no third-party messag
    - **Messaging limit:** how many new customers you can message per day
 5. If the settings page says no payment method is on file, click **Add payment method in WhatsApp Manager**, add a card there, and come back. Hay re-checks automatically
 
-Then assign the channel to an agent: open your agent's settings, and under **Channels** select WhatsApp.
+Incoming messages are then answered by your Hay assistant. There is no per-channel assistant to pick.
 
 **Who pays for messages?** Meta bills your own WhatsApp Business account directly; Hay adds no messaging fee. Each phone number gets 1,000 free service messages (replies inside the 24-hour window) per month. Beyond that, and for any message you start with a template, Meta needs a payment method on file.
 
@@ -33,7 +33,7 @@ Then assign the channel to an agent: open your agent's settings, and under **Cha
 - **Receive messages** — text, button replies, locations, shared contacts, images, videos, documents and voice notes appear as conversations in your Hay inbox, with the customer's WhatsApp profile name and phone number attached to the customer record
 - **Voice notes** — Hay transcribes voice notes, so the agent can answer them; the original audio stays in the conversation
 - **Delivery status** — replies show as sent, delivered or read, and a failed reply shows why
-- **AI replies** — the agent assigned to the WhatsApp channel answers automatically, and replies (including files) are delivered back to the customer's WhatsApp chat
+- **AI replies** — the Hay assistant answers automatically, and replies (including files) are delivered back to the customer's WhatsApp chat
 - **Human takeover** — your team can step in on any WhatsApp conversation from the Conversations view, just like any other channel
 
 **24-hour reply window.** WhatsApp only allows businesses to send free-form replies within 24 hours of the customer's last message. If that window has closed, the conversation shows a notice and the reply waits until the customer writes again — this is a WhatsApp rule, not a Hay setting.

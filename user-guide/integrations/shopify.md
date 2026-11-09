@@ -12,7 +12,7 @@ Shopify is one of the world's most popular e-commerce platforms, used by million
 ## How to Connect Shopify
 
 1. Go to **Integrations** → **Marketplace** in the Hay dashboard
-2. Find **Shopify** and click **Install**
+2. Find **Shopify** and click **Connect**
 3. Leave **Connection mode** set to **Managed (recommended)**
 4. Enter your **Store domain** — your myshopify.com address, e.g. `mystore.myshopify.com` (without https://). You can find it in your Shopify admin under **Settings** → **Domains**
 5. Save, then click **Connect with Shopify**
@@ -42,6 +42,10 @@ The plugin also has a **Self-hosted (own app)** connection mode for teams that r
 ### Goodwill coupons
 
 The agent can create a single-use discount code as an apology. In the plugin settings, **Allow goodwill coupons** (on by default), **maximum percentage** (default 10%), **maximum fixed amount** (default 0, which turns fixed coupons off) and **validity in days** (default 30) set the limits. A coupon above the limits waits for a person to approve it.
+
+### Other settings
+
+On the Shopify settings page (**Setup** tab) you can also set **Stale tracking: domestic (days)** and **Stale tracking: international (days)**, which decide when a shipment counts as stuck because its tracking has not moved, and **How to return**: your return process in your own words (where to send items, any link or form, deadlines). Hay.chat relays it as written when a customer asks how to return something. If it is empty, those questions go to your team.
 
 ### Refunds & Returns
 

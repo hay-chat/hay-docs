@@ -14,7 +14,7 @@ It also lets the agent email your team, for example to flag a conversation that 
 ## How to Connect Your Inbox
 
 1. In the Hay dashboard, go to **Integrations** → **Marketplace**
-2. Find **Email inbox** and click **Install**
+2. Find **Email inbox** and click **Connect**
 3. Enter **Your support address** — the address customers write to, for example `support@yourstore.com` — and save. Optionally set a **Sender name** (defaults to your workspace name) and turn on **Keep a copy in my inbox** if you want every reply Hay sends BCC'd to your support address
 4. Below the settings, copy **Your Hay forwarding address**. It looks like `in-3f9a2b7c1d@inbound.hay.chat` and only your workspace can use it
 5. Set up forwarding in your mail provider:
@@ -23,7 +23,7 @@ It also lets the agent email your team, for example to flag a conversation that 
    - **Other providers** — any mailbox that can auto-forward works. Forward a copy rather than redirect-and-delete so your inbox keeps the original
 6. Send a test email to your support address from a personal account. It appears under **Conversations** as an email conversation and the agent replies to you by email
 
-Then make sure an agent handles the channel: open the agent's settings and under **Channels** select **Email inbox**. If no agent is assigned, your default agent answers.
+Your Hay assistant answers on the Email inbox channel like on any other channel. There is no per-channel assistant to pick.
 
 ## What Hay Can Do with Email
 

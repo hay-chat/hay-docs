@@ -12,7 +12,7 @@ Stripe is one of the most widely used payment platforms, handling payments, subs
 ## How to Connect Stripe
 
 1. In the Hay dashboard, go to **Integrations** → **Marketplace**.
-2. Find **Stripe** and click **Install** or **Connect**.
+2. Find **Stripe** and click **Connect**.
 3. Get your Stripe API key: log in to your Stripe Dashboard and go to **Developers → API keys**. For production, create a restricted key with only the permissions you need; for testing, use your test mode secret key. The key starts with `sk_test_` or `sk_live_`.
 4. Paste it into the **API Key** field in Hay. It's stored encrypted and treated as a secret.
 5. Save. Hay verifies the key by making a test call to your Stripe account and tells you if the credentials aren't valid.

@@ -12,7 +12,7 @@ Magento (Adobe Commerce) is a powerful open-source e-commerce platform popular w
 ## How to Connect Magento
 
 1. Go to **Integrations** → **Marketplace** in the Hay dashboard
-2. Find **Magento** and click **Install**
+2. Find **Magento** and click **Connect**
 3. Enter your **Magento Base URL** — your Magento 2 REST API address, e.g. `https://yourdomain.com/rest/V1`
 4. Enter your **API Token**. Create one in your Magento admin under **System** → **Integrations**: add a new integration, grant it access to the Sales, Catalog and Customers resources, activate it, and copy the access token
 5. Save — Hay tests the connection against your store and confirms the credentials work

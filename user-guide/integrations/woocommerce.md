@@ -12,7 +12,7 @@ WooCommerce is the most widely used e-commerce plugin for WordPress, powering on
 ## How to Connect WooCommerce
 
 1. Go to **Integrations** → **Marketplace** in the Hay dashboard
-2. Find **WooCommerce** and click **Install**
+2. Find **WooCommerce** and click **Connect**
 3. Enter your **WordPress Site URL** — your WordPress/WooCommerce site address, e.g. `https://mystore.com`
 4. Enter your **Consumer Key** and **Consumer Secret**. Generate these in your store's admin under **WooCommerce** → **Settings** → **Advanced** → **REST API** → **Add key** (give the key Read/Write permissions so the agent can cancel and refund orders when you allow it to)
 5. Save. Hay.chat tests the connection against your store and confirms it's working

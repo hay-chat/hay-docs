@@ -12,7 +12,7 @@ Wix is a website builder with a built-in e-commerce platform, Wix Stores, that m
 ## How to Connect Wix
 
 1. In the Hay dashboard, go to **Integrations** → **Marketplace**.
-2. Find **Wix Stores** and click **Install** or **Connect**.
+2. Find **Wix Stores** and click **Connect**.
 3. Get your Wix API key: in your Wix account, open **Settings → API Keys** and create a new key. Grant it only these permission scopes: Stores - Orders (read & manage), Stores - Order Transactions / Order Billing (for refunds), Stores - Order Fulfillments (read), and Stores - Catalog (read).
 4. Paste the key into the **API Key** field in Hay. It's stored encrypted and treated as a secret.
 5. Fill in the **Site ID** field — this identifies which Wix site the key belongs to. You can find it in your Wix dashboard URL (the long identifier that appears after `/dashboard/`).

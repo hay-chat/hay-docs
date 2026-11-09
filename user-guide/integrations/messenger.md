@@ -20,14 +20,14 @@ You need to manage the Facebook Pages you connect.
 
 There are no tokens to copy and paste. To add another Page later, connect again and select it.
 
-Then assign an agent: go to **Settings** → **Channels** and select an agent for the Messenger channel.
+Incoming messages are then answered by your Hay assistant. To see the channel or change whether the AI replies on it, see **Settings** → **Channels** → **Channel list** and **Settings** → **Privacy** → **Customer Privacy** → **AI on your channels**.
 
 **Self-hosted?** Messenger uses a Hay.chat-managed Meta app. A self-hosted installation needs its own Meta app credentials configured on the server (`META_MESSENGER_APP_ID`, `META_MESSENGER_APP_SECRET`, `META_VERIFY_TOKEN`).
 
 ## What Hay.chat Can Do with Messenger
 
 - **Receive messages**: new Messenger conversations appear in your inbox. Photos, videos, voice messages and files are kept, and voice messages are transcribed so the AI can answer them. Stickers, locations and shared links show as a short note
-- **AI replies**: the agent assigned to the channel answers automatically. The AI and your team can send photos, videos, audio and PDFs back
+- **AI replies**: the Hay assistant answers automatically. The AI and your team can send photos, videos, audio and PDFs back
 - **Human takeover**: replies you send from your Page inbox or Meta Business Suite also appear in Hay.chat, and the AI stops answering that conversation
 
 ## The 24-hour window
