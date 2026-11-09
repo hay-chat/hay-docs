@@ -11,7 +11,7 @@ section: user-guide
 
 Only **Owners and Admins** can open it. Other roles see "Only owners and admins can set up Hay".
 
-**Set up** stays in the sidebar, with a progress badge such as `3/15`, until the board is finished. A **Setup progress** widget at the bottom of the sidebar shows how many requests are ready and links to **Continue setup**. New workspaces land on the board when they first sign in; if you choose **Finish later** it goes away from the landing route but stays in the sidebar.
+**Set up** stays in the sidebar, with a progress badge such as `3/15`, until the board is finished. A **Setup progress** widget at the bottom of the sidebar shows how many requests are ready and links to **Continue setup**. New workspaces that haven't finished or set aside setup land on the board when they sign in.
 
 ## Step 1: Answer three questions
 

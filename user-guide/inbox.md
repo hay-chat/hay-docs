@@ -7,7 +7,7 @@ section: user-guide
 
 ## What is the Inbox?
 
-**Inbox** is the second item under **Dashboard** in the sidebar. It is not a report: it lists only conversations that need a person. On a phone you land on the Inbox when you open Hay; on a desktop you land on the Dashboard.
+**Inbox** sits right below **Dashboard** in the sidebar. It is not a report: it lists only conversations that need a person. On a phone you land on the Inbox when you open Hay; on a desktop you land on the Dashboard.
 
 The headline says how many conversations are waiting for a human ("Nothing is waiting for a human", "3 conversations are waiting for a human") and the line below it shows the longest wait or how many conversations the AI is handling. A badge on the sidebar entry (and the bell in the top bar on phones) shows the waiting count. The page updates live.
 
@@ -24,11 +24,15 @@ When nothing is waiting the page says **All quiet**.
 When the AI doesn't know a fact, it can ask your team and keep answering the customer's other questions meanwhile. These appear under **Questions for the team** with what the customer wrote. For each one:
 
 1. Type **Your answer**.
-2. Choose how it goes out: **Send as written** (exactly your words) or let the AI pass it on in the customer's language using only what you wrote.
-3. Tick **Save to knowledge** to keep the answer for next time.
+2. Choose how it goes out. With the **Send as written** switch on, your words go to the customer exactly as you wrote them. With it off, the AI passes your answer on in the customer's language, using only what you wrote.
+3. **Save to knowledge** is ticked by default, which keeps the answer for next time. Untick it to send the answer without saving it.
 4. Click **Send answer**, or **Dismiss**.
 
 If nobody answers in time the customer is told the team will reply and the chat moves to **Waiting for a human**. Team members also get a notification and an email with a link to a page titled **A customer is waiting on this question**, so they can answer without opening the dashboard. Business hours and timing are set under **Quick check with the team**; see [Team alerts, pause and business hours](/docs/user-guide/team-alerts-and-hours/).
+
+## Actions waiting for approval
+
+When the AI asks to run an action that needs a person's yes (such as a refund), it appears in the Inbox too. See [Action approvals](/docs/user-guide/action-approvals/).
 
 ## Alerts and pausing the AI
 
