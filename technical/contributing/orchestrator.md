@@ -132,7 +132,7 @@ Prompts are file-based markdown templates resolved by `PromptService.getPrompt()
 
 `execute(conversation, customerLanguage, options)` assembles a single planner prompt from:
 
-- the base planner prompt (`execution/planner`), including the combined tool name list (playbook `enabled_tools` + always-available core tools from `coreToolRegistry` in `server/services/core/core-tools`);
+- the base planner prompt (`execution/planner`), including the combined tool name list (playbook `enabled_tools` + the core tools `coreToolRegistry.listFor(conversation)` offers in this conversation, from `server/services/core/core-tools`);
 - a language-enforcement block (only while the conversation has ≤ 3 customer messages);
 - a user-context block (`buildContextPrompt()`) — merged customer `external_metadata` + conversation `context`, plus Redis secret **key names** to be referenced as `<<secret.key>>` in tool args (values are never exposed to the model);
 - a knowledge block (`buildKnowledgePrompt()`) — the last 5 attached documents, each truncated to 8,000 chars;
@@ -182,7 +182,7 @@ Closures set `status: "resolved"`, fire the `conversation.resolved` hook, and tr
 - **Change LLM behavior** — edit the prompt file under `server/prompts/en/…` (and translations under `pt/`, `es/`); keep the JSON schema in the layer in sync if the output shape changes.
 - **New planner step type** — extend the `step` enum in `buildPlannerSchema()` and `ExecutionResult` (`execution.layer.ts`), then add a branch in `handleExecutionLoop()` (`run.ts`).
 - **New processing trigger** — add it to `OrchestratorTrigger` and call `orchestratorQueueService.enqueue()` from wherever the event originates. Never call `runConversation()` directly from request handlers; go through the queue so locking, retries, and the sweep apply.
-- **New always-available tool** — register it in the core tool registry (`server/services/core/core-tools`); it will be merged into the planner's tool list and exempted from the `enabled_tools` gate automatically.
+- **New always-available tool** — register it in the core tool registry (`server/services/core/core-tools`); it will be merged into the planner's tool list and exempted from the `enabled_tools` gate automatically. A tool that only works in some conversations sets `isAvailable(conversation)`, and the planner is offered it only there: `add_to_cart` and `go_to_checkout` (`core-tools/store-cart.ts`) are offered only while the shopper's widget is connected from the store's own site, and run in the shopper's browser.
 - **New early-exit condition** — if it should not be retried, add its error message to `isNonRetryableError()` in `orchestrator.worker.ts`.
 - **New guardrail stage** — follow the Stage 0 pattern: a service with `getDefaultConfig()`/`mergeConfig()`, a per-turn retry budget in `turnGuardrailState`, and corrective `plannerFeedback` before escalating.
 
