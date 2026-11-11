@@ -163,6 +163,7 @@ For each token you can see its status (Active / Inactive / Expired), creation da
 ### Widget Behavior
 
 - **Show greeting message when chat opens** — toggle, plus a customizable **Greeting Message**
+- **Teaser Message** — a short message (up to 200 characters) shown next to the chat button before the visitor opens the chat. Leave it empty to show nothing. See [Teaser message](#teaser-message) below.
 - **Customer Satisfaction (CSAT)** — ask visitors for a 1-5 emoji rating when a conversation ends, with an optional **Rating Question**
 
 ### Security & Access
@@ -180,6 +181,50 @@ For each token you can see its status (Active / Inactive / Expired), creation da
 ### Installation Code
 
 The page provides a ready-to-copy **Installation Code** snippet — add it to your website before the closing `</body>` tag.
+
+### Teaser message
+
+The teaser is a small bubble above the chat button that invites visitors to start a conversation, for example "Questions about pricing? Chat with us!". Clicking it opens the chat, and the visitor can dismiss it with the ✕. It goes away once the chat is opened, and it is not shown to a visitor who already has a conversation in progress.
+
+There are two ways to set it.
+
+**In the dashboard:** fill in **Teaser Message** under **Widget Behavior** and save. The change reaches your website straight away; you don't need to copy the Installation Code again.
+
+**In code:** add `teaserMessage` to the widget config. A value here replaces the dashboard one on that page, so you can use a different message on different pages. An empty string (`""`) turns the teaser off for that page.
+
+```html
+<script>
+  window.HayChat = window.HayChat || {};
+  window.HayChat.config = {
+    organizationId: "your-org-id",
+    baseUrl: "https://your-api-domain.com",
+    teaserMessage: "👋 Questions about pricing? Chat with us!",
+  };
+</script>
+<script src="https://your-api-domain.com/v1/webchat/widget.js" async></script>
+```
+
+To show or change the teaser later, after a delay or when the visitor does something, call `HayChat.setTeaserMessage`:
+
+```js
+// Show or replace the teaser
+window.HayChat.setTeaserMessage("Still deciding? Ask us anything");
+
+// Remove it
+window.HayChat.setTeaserMessage("");
+
+// Example: after 30 seconds on the page
+setTimeout(() => {
+  window.HayChat?.setTeaserMessage?.("Need a hand? We're here.");
+}, 30000);
+```
+
+Good to know:
+
+- `setTeaserMessage` is available once the widget script has loaded. For a message that should be there from the start, use `teaserMessage` in the config.
+- A message set with `setTeaserMessage` shows even if the visitor dismissed an earlier one, but never while the chat is open.
+- A dismissed teaser comes back on the next page load until the visitor starts a conversation.
+- If the widget is set to `loading: "interaction"`, the dashboard message is not fetched up front, so only a message set in code shows.
 
 ## Git Connections
 

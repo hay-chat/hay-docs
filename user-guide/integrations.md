@@ -82,6 +82,7 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 - Widget position (right or left)
 - Theme colors (blue, green, purple, black)
 - Greeting message
+- Teaser message next to the chat button, set in the dashboard or in code (see [Teaser message](/docs/user-guide/settings/#teaser-message))
 
 ## Managing Integrations
 
