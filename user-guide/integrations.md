@@ -83,31 +83,31 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 
 ### Viewing Installed Integrations
 
-Go to **Integrations** in the sidebar to see:
+Go to **Integrations** → **Marketplace**. The **Connected** list at the top shows every integration you have added, with its status:
 
-- All installed integrations
-- Connection status (✅ Connected or ⚠️ Issue)
-- Last sync time
-- Usage statistics
+- **Connected**: working.
+- **Finish setup**: added, but something is still missing (a sign-in, a required setting).
+
+Connected integrations also appear under **Integrations** in the sidebar. An amber dot next to one means it still needs setup.
 
 ### Configuring an Integration
 
 To adjust settings:
 
-1. Click on the integration
-2. Click **Settings** or **Configure**
-3. Make your changes
-4. Test the connection
-5. Save
+1. Click **Configure** next to the integration in the **Connected** list, or click it in the sidebar
+2. Make your changes
+3. Test the connection
+4. Save
 
 ### Disconnecting an Integration
 
 To remove an integration:
 
-1. Go to the integration
-2. Click **Disconnect** or **Uninstall**
+1. Open the integration's page
+2. Open the **⋯** menu and choose **Disconnect and remove**
 3. Confirm the action
-4. Integration is removed
+
+Its settings are kept in case you connect it again. Admins can delete a plugin their organisation uploaded from the same menu, or from the plugin's page when it is not connected.
 
 > ⚠️ **Note:** Active conversations on that channel may need to be handled manually after disconnection.
 
@@ -116,19 +116,19 @@ To remove an integration:
 ### Browsing Available Integrations
 
 1. Go to **Integrations** → **Marketplace**
-2. Browse the available integrations
-3. Click any integration to learn more
+2. Search by name or by what you need (for example "refunds"), or pick a category: Channels, E-commerce, Payments and shipping, CRM and support, Knowledge and bookings, Security
+3. Click any integration to open its page
 
-> **Note:** Category filtering is not currently available in the UI. All integrations are listed together.
+Each card shows what the integration adds (for example "Agent tools · Catalog sync"). A green dot after the name means it is connected; an amber dot means it needs setup.
 
-### Installing from Marketplace
+Can't find what you use? **Request an integration** at the bottom of the page, or build your own plugin and upload it for your organisation.
 
-1. Find the integration you want
-2. Click **Install** or **Connect**
-3. Follow the setup wizard
-4. Authorize necessary permissions
-5. Test the integration
-6. Start using it!
+### Connecting an Integration
+
+1. Open the integration's page. It shows what your agent can do with it, how connecting works, and the data it works with
+2. Click **Connect**
+3. Follow the setup steps (sign in, or enter the details it asks for)
+4. Test the connection
 
 ## Channel-Specific Features
 

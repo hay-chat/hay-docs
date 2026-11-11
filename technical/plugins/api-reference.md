@@ -91,19 +91,22 @@ Build from the repo root with `npm --workspace=plugins/core/<name> run build`; `
 
 The fields core actually reads from `package.json → "hay-plugin"` (interface `HayPluginBlock` in `server/services/plugin-manager.service.ts`):
 
-| Field              | Type       | Description                                                                                                                                                   |
-| ------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `entry`            | `string`   | Path to the compiled entry module (e.g. `"./dist/index.js"`)                                                                                                  |
-| `displayName`      | `string`   | Human-readable name shown in the marketplace                                                                                                                  |
-| `category`         | `string`   | One of `integration \| channel \| tool \| analytics \| products` (SDK `PluginCategory`); document importers are marked via `documentImporter`, not a category |
-| `capabilities`     | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `cron`                                        |
-| `env`              | `string[]` | Allow-list of host env var names that config fields may fall back to via their `env:` property                                                                |
-| `channel`          | `string`   | Channel plugins only: the channel slug (e.g. `"instagram"`); matched by `pluginManagerService.findPluginIdByChannel()` for outbound delivery                  |
-| `autoActivate`     | `boolean`  | Legacy (document importers)                                                                                                                                   |
-| `trpcRouter`       | `string`   | Legacy (document importers): path to a tRPC router loaded in-process                                                                                          |
-| `documentImporter` | `boolean`  | Legacy: marks a document importer plugin                                                                                                                      |
-| `config`           | `object`   | Legacy: manifest-style config schema, copied into the registry manifest's `configSchema` (new plugins use `register.config` instead)                          |
-| `auth`             | `object`   | Legacy: manifest-style auth config, copied into the registry manifest (new plugins use `register.auth.*` instead)                                             |
+| Field                 | Type       | Description                                                                                                                                                   |
+| --------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `entry`               | `string`   | Path to the compiled entry module (e.g. `"./dist/index.js"`)                                                                                                  |
+| `displayName`         | `string`   | Human-readable name shown in the marketplace                                                                                                                  |
+| `category`            | `string`   | One of `integration \| channel \| tool \| analytics \| products` (SDK `PluginCategory`); document importers are marked via `documentImporter`, not a category |
+| `marketplaceCategory` | `string`   | Marketplace section: one of `channels \| commerce \| payments \| crm \| knowledge \| security`. Plugins without one are listed under "Other"                  |
+| `capabilities`        | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `cron`                                        |
+| `env`                 | `string[]` | Allow-list of host env var names that config fields may fall back to via their `env:` property                                                                |
+| `channel`             | `string`   | Channel plugins only: the channel slug (e.g. `"instagram"`); matched by `pluginManagerService.findPluginIdByChannel()` for outbound delivery                  |
+| `autoActivate`        | `boolean`  | Legacy (document importers)                                                                                                                                   |
+| `trpcRouter`          | `string`   | Legacy (document importers): path to a tRPC router loaded in-process                                                                                          |
+| `documentImporter`    | `boolean`  | Legacy: marks a document importer plugin                                                                                                                      |
+| `config`              | `object`   | Legacy: manifest-style config schema, copied into the registry manifest's `configSchema` (new plugins use `register.config` instead)                          |
+| `auth`                | `object`   | Legacy: manifest-style auth config, copied into the registry manifest (new plugins use `register.auth.*` instead)                                             |
+
+Two more things feed the marketplace: the top-level `package.json` `homepage` (an `https` URL, shown as the plugin's setup guide link) and a `summary` string in each `i18n/<locale>.json` (one short sentence for the marketplace card; falls back to `description`).
 
 Capabilities are **declarative**: they drive marketplace classification, plugin type inference, and the scope of the worker's callback JWT — they are not hard-enforced against your implementation.
 
@@ -152,12 +155,8 @@ export default defineHayPlugin((globalCtx) => ({
   name: "My Plugin", // the ONLY required field
 
   onInitialize() {
-    globalCtx.register.config({
-      /* ... */
-    });
-    globalCtx.register.auth.apiKey({
-      /* ... */
-    });
+    globalCtx.register.config({/* ... */});
+    globalCtx.register.auth.apiKey({/* ... */});
   },
 
   async onStart(ctx) {
@@ -166,9 +165,7 @@ export default defineHayPlugin((globalCtx) => ({
       ctx.logger.warn("Not configured yet — skipping startup");
       return;
     }
-    await ctx.mcp.startLocalStdio({
-      /* ... */
-    });
+    await ctx.mcp.startLocalStdio({/* ... */});
   },
 }));
 ```
