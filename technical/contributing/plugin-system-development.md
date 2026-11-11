@@ -77,7 +77,7 @@ The fields core actually reads (interface `HayPluginBlock` in `plugin-manager.se
 ```typescript
 interface HayPluginBlock {
   displayName?: string;
-  category?: PluginType;        // integration | channel | tool | analytics
+  category?: PluginType;        // mcp-connector | channel | retriever | playbook | document_importer | system | products
   entry?: string;               // e.g. "./dist/index.js"
   capabilities?: string[];      // routes | mcp | auth | config | ui | messages | customers | sources | products
   config?: ...;                 // config schema (usually declared in code instead)
@@ -146,7 +146,7 @@ The SDK runner's HTTP server (`packages/plugin-sdk/runner/http-server.ts`) expos
 | `POST /mcp/call-tool`, `GET /mcp/list-tools` | MCP tool invocation / discovery                                                                                                                                                          |
 | _(dynamic)_                                  | Any route the plugin declared via `register.route(method, path, handler)` — mounted verbatim on the Express app (this is how channel plugins expose `/webhook`, `/deliver`, `/escalate`) |
 
-All dashboard/webhook traffic to a worker goes through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The proxy resolves the organization from auth, subdomain, or query param, starts the worker on demand, bumps its activity timestamp, strips credential-bearing headers (`authorization`, `cookie`, `proxy-authorization`, etc.), and forwards the request.
+All dashboard/webhook traffic to a worker goes through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The proxy resolves the organization **only** from the `organizationId` query param or the `x-organization-id` header (`extractorganizationId`) — both are validated as a UUID and checked against the DB before use. There is no subdomain-based resolution. A third path, resolving the org from an auth token (JWT) for authenticated webhook endpoints, is marked `// TODO` in the code and not implemented. Once resolved, the proxy starts the worker on demand, bumps its activity timestamp, strips credential-bearing headers (`authorization`, `cookie`, `proxy-authorization`, etc.), and forwards the request.
 
 ---
 
@@ -156,6 +156,7 @@ All dashboard/webhook traffic to a worker goes through the core proxy: `ALL /v1/
 
 - `ensureInstanceRunning(organizationId, pluginId)` — the on-demand entry point. Deduplicates concurrent startups via a `startupQueue` map, checks pool limits, and delegates the actual spawn to the runner service.
 - **Idle cleanup**: `INACTIVITY_TIMEOUT_MS = 5 minutes`. `cleanupInactiveInstances()` is **not** run by an internal timer — it's invoked by the platform scheduler job `plugin-instance-cleanup` (see `server/services/scheduled-jobs.registry.ts`), which runs every 60 seconds. Activity is tracked both in memory (`instanceActivity` map) and in the `last_activity_at` column.
+  - **Overlapping job**: `scheduled-jobs.registry.ts` also registers `plugin-worker-cleanup`, running every 5 minutes, which calls `pluginManagerService.cleanupInactiveWorkers()` — a separate worker-cleanup path that runs alongside `plugin-instance-cleanup`. The two jobs are redundant; this has not been consolidated.
 - **Pool limits**: each plugin's `plugin_registry.max_concurrent_instances` (default 10) caps concurrent workers across orgs. `ensureInstanceRunning` waits up to 30 seconds for a slot (`waitForAvailableSlot`) before throwing.
 - `updateActivityTimestamp()` is called from the proxy on every forwarded request so active workers aren't reaped mid-conversation.
 - `stopAllForOrganization(organizationId)` tears down every worker for an org.
@@ -255,13 +256,13 @@ Jobs are unregistered when the plugin is disabled for the org.
 
 ### Inbound: shared-webhook fan-out
 
-Some providers (e.g. Meta) deliver all events for all customers to **one** webhook URL that carries no org identifier. A plugin can declare a `WebhookRoutingDescriptor` via `register.webhookRouting` (`packages/plugin-sdk/types/webhook-routing.ts`) — pure data, no code: an HMAC-SHA256 signature spec (`header`, `format: "sha256-hmac"`, secret source), an optional GET verification-challenge spec, and dot-path extraction rules (`routeKeyPath: { itemsPath, keyPath }`).
+Some providers (e.g. Meta) deliver all events for all customers to **one** webhook URL that carries no org identifier. A plugin can declare a `WebhookRoutingDescriptor` via `register.webhookRouting` (`packages/plugin-sdk/types/webhook-routing.ts`) — pure data, no code: an HMAC-SHA256 signature spec (`header`, `format: "sha256-hmac"`, secret source), an optional GET verification-challenge spec, and dot-path extraction rules (`routeKeyPath: { itemsPath, keyPath, nested? }` — `nested: { itemsPath, keyPath }` names a sub-array inside each item whose elements carry their own routing key, e.g. WhatsApp `changes[]` under `entry[]`).
 
 The dispatch point is in the proxy (`server/routes/v1/plugins/proxy.ts`): a request to `.../webhook` with **no** org identifier, for a plugin that declared a routing descriptor, is diverted to `webhookRouterService.handle()` (`server/services/webhook-router.service.ts`), which:
 
 1. Answers the provider's GET verification handshake if declared (echoes the challenge param after checking the verify token).
 2. For POSTs, verifies the HMAC over the raw body bytes (`verifyHmacSha256` from `server/services/plugin-route.service.ts`).
-3. Extracts a routing key per payload entry (`routeKeyPath`), resolves key → org via `plugin_webhook_routes`, and fans each entry out to the right org's worker `POST /webhook` (with credential-bearing headers stripped).
+3. Extracts a routing key per payload entry (`routeKeyPath`), resolves key → org via `plugin_webhook_routes`, and fans each entry out to the right org's worker `POST /webhook` (with credential-bearing headers stripped). With `nested`, each entry's sub-array is filtered per org first: sub-items route by their own key, keyless sub-items go to the entry owner, unknown nested keys are dropped, and each org gets a clone of the entry with only its sub-items.
 
 Core never learns which provider it's routing for — all provider knowledge is in the plugin's declaration.
 
@@ -309,6 +310,13 @@ The router self-describes as a "simplified initial implementation" — expect th
 
 There is **no** generic `plugins.invokeTool` mutation — MCP tool invocation happens inside the orchestrator via the worker's `POST /mcp/call-tool`.
 
+**Transport dispatch**: the orchestrator doesn't call the worker directly — it goes through `MCPClientFactory.createClient(organizationId, pluginId)` (`server/services/mcp-client-factory.service.ts`), which picks one of two `MCPClient` implementations based on the plugin's manifest:
+
+- `LocalHTTPMCPClient` (`server/services/local-http-mcp-client.service.ts`) — the default and only path any current plugin actually takes; this is the documented worker `POST /mcp/call-tool` / `GET /mcp/list-tools` HTTP surface above.
+- `RemoteMCPClient` (`server/services/remote-mcp-client.service.ts`) — talks to an external MCP server directly over JSON-RPC 2.0 via HTTP with SSE-stream support, bypassing the worker entirely.
+
+See [Known Gaps and Legacy Paths](#known-gaps-and-legacy-paths) for why the `RemoteMCPClient` branch is currently unreachable.
+
 Non-tRPC HTTP: the catch-all worker proxy `ALL /v1/plugins/:pluginId/*` (`proxy.ts`), and plugin UI assets served at `/plugins/ui/:pluginName/:assetPath`.
 
 ---
@@ -320,9 +328,10 @@ Things a contributor should know exist (or don't) before building on them:
 - **`onEnable` is dead code** — typed in the SDK but invoked by neither the runner nor core.
 - **Document importers bypass the worker model.** Plugins with `autoActivate: true` + `trpcRouter` (e.g. `plugins/core/atlassian`) load a tRPC router in-process at boot via `server/services/plugin-router-registry.service.ts`, coupled to `@server/*` internals. This is the legacy special case, not the pattern to extend.
 - **`onConfigUpdate` is also uncalled** — the runner exposes `POST /config-update`, but core applies config changes by restarting the worker (see the hooks table).
-- **`PluginApiClient` is duplicated per channel plugin** (`plugins/core/instagram/src/plugin-api.ts`, and likewise in `chatwoot`, `email`, `whatsapp`) instead of being an SDK export.
+- **`PluginApiClient` is duplicated per channel plugin** (`plugins/core/instagram/src/plugin-api.ts`, and likewise in `chatwoot`, `email`) instead of being an SDK export.
 - **Webhook signature format** is limited to `sha256-hmac` in `WebhookRoutingDescriptor`.
 - **The instance pool's `queuedRequests` stat is tracked but never incremented** — pool limiting works via polling (`waitForAvailableSlot`), not a real queue.
 - The `plugin_instances.status` column is legacy; `runtimeState` is the field the runner actually maintains.
+- **`MCPClientFactory`'s remote-MCP branch is effectively unreachable.** It selects `RemoteMCPClient` by checking `manifest.capabilities.mcp.connection.type === "remote"` — a shape from the old `manifest.json` model. The current package.json-driven registry manifest (`RegistryManifest`, built by `plugin-manager.service.ts`) never produces a `capabilities.mcp.connection` object, so this branch never fires and every plugin resolves to `LocalHTTPMCPClient`.
 
 When contributing to any of the above: follow existing patterns in the neighboring services, keep the core plugin-agnostic (never hardcode plugin IDs — resolve behavior from the manifest/metadata), and remove legacy paths outright rather than layering compatibility shims (this codebase is in alpha; breaking changes are preferred over dead code).

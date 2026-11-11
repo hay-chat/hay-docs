@@ -20,14 +20,14 @@ Before you start, you need an Instagram **Professional account** (Business or Cr
 5. Approve the requested permissions (basic account access and permission to manage messages)
 6. You're returned to Hay with the connection saved — there are no tokens or keys to copy and paste, and Hay keeps the connection refreshed automatically
 
-Finally, assign the channel to an agent: open your agent's settings, and under **Channels** select Instagram. Incoming DMs are then routed to that agent for automatic replies.
+Incoming DMs are then answered by your Hay assistant. There is no per-channel assistant to pick.
 
 **Self-hosted?** Instagram uses a shared Hay-managed Meta app, so self-hosted deployments need their own Meta app credentials configured at the platform level. See the [plugin README on GitHub](https://github.com/hay-chat/hay-core/tree/master/plugins/core/instagram) for details.
 
 ## What Hay Can Do with Instagram
 
 - **Receive DMs** — new direct messages to your connected account appear as conversations in your Hay inbox, with the sender's Instagram username and name attached to the customer record when available
-- **AI replies** — the agent assigned to the Instagram channel answers automatically, and its replies are delivered back into the customer's Instagram thread
+- **AI replies** — the Hay assistant answers automatically, and its replies are delivered back into the customer's Instagram thread
 - **Human takeover** — your team can step in on any Instagram conversation from the Conversations view, just like any other channel
 
 **Current limitations (worth knowing):**

@@ -1,13 +1,13 @@
 ---
 layout: docs.njk
 title: Knowledge Base Documents
-description: Documents are how you train your Hay agent. Every piece of information you upload becomes knowledge your agent can use to answer customer questions accurately.
+description: Documents are how you train your Hay assistant. Every piece of information you upload becomes knowledge your assistant can use to answer customer questions accurately.
 section: user-guide
 ---
 
 ## What Are Documents?
 
-Documents are your agent's knowledge base - everything from FAQs to policy manuals. When a customer asks a question, Hay searches through your documents to find relevant information and generates accurate responses.
+Documents are your assistant's knowledge base - everything from FAQs to policy manuals. When a customer asks a question, Hay searches through your documents to find relevant information and generates accurate responses.
 
 Think of it like training a new employee by giving them all your company documentation.
 
@@ -15,14 +15,14 @@ Think of it like training a new employee by giving them all your company documen
 
 **With good documentation:**
 
-- ✅ Agent answers accurately
+- ✅ The assistant answers accurately
 - ✅ Customers get consistent information
 - ✅ Resolution rate increases
 - ✅ Fewer escalations to humans
 
 **Without enough documentation:**
 
-- ❌ Agent guesses or says "I don't know"
+- ❌ The assistant guesses or says "I don't know"
 - ❌ Inconsistent answers
 - ❌ More escalations
 - ❌ Frustrated customers
@@ -31,8 +31,8 @@ Think of it like training a new employee by giving them all your company documen
 
 ### Step 1: Go to Documents
 
-1. Click **Documents** in the left sidebar
-2. Click **Import Documents**
+1. Click **Documents** in the left sidebar (under **Knowledge**)
+2. Click **Import Document** (or **Write Document** to compose one in Hay, or **Connected sources** to manage synced sources)
 
 ### Step 2: Choose Your Method
 
@@ -48,20 +48,26 @@ Think of it like training a new employee by giving them all your company documen
 - Word documents (.doc, .docx)
 - Text files (.txt)
 - Markdown files (.md)
-- CSV files (for data)
+- CSV files (.csv) — processed as plain text
 - HTML files (.html)
 - PowerPoint presentations (.ppt, .pptx)
-- JSON files (.json)
+- JSON files (.json) — processed as plain text
 
 > **File size limit:** The maximum upload size is 10 MB per file (configurable via the `UPLOAD_MAX_SIZE_MB` environment variable).
 
 > **Write a document from scratch:** To compose a document directly in Hay without uploading a file, go to **/documents/new** and use the **Write Document** editor.
 
-**Import from URL**
+**Import from Website**
 
-- Paste a website URL and Hay will crawl the entire site — it follows the sitemap and discovers same-domain pages automatically
+- Choose **Import from Website**, enter the **Documentation URL** and click **Discover Pages**. Hay checks for a sitemap first and otherwise follows internal links; only pages from the same domain are found (this typically takes 1-3 minutes)
+- Select the pages you want. Filters such as **URL contains** and **Path starts with** help you narrow the list
+- Click **Next: Add Metadata**, choose the **Document Type**, **Status** and **Visibility**, then **Start Import**. Each page becomes a separate document, converted to markdown
+- The website is connected as a synced source and kept up to date. Manage it under **Connected sources**; a document from a source can be refreshed with **Update from Source**
 - Useful for importing an existing help center or documentation site
-- All discovered pages are processed and added as separate documents
+
+**Integrations**
+
+- Some integrations (for example Notion or Confluence through Atlassian) can import pages into your knowledge base; choose **Integration** as the source
 
 ### Step 3: Processing
 
@@ -69,7 +75,7 @@ Hay processes your documents:
 
 1. Extracts text and content
 2. Breaks into searchable chunks
-3. Creates smart connections
+3. Generates vector embeddings for AI-powered search
 4. Makes it instantly available
 
 **Usually takes:** 5-30 seconds depending on size
@@ -81,7 +87,10 @@ After upload:
 - Give document a clear title
 - Add a description (what information does it contain?)
 - Select a **category** from the dropdown: product, api, faq, legal, training, technical, or other
-- Set the document status: **Draft**, **Published**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually.
+
+  > **Note:** Category isn't a separate field stored alongside Type — it maps directly to the document's **Type** (see [Viewing Documents](#viewing-documents)). "API" and "Technical" both map to the **Reference** type.
+
+- Set the document status: **Draft**, **Published**, or **Archived**. Hay also sets a document to **Processing** while it's being ingested, or **Error** if ingestion fails — these two are system-managed and not chosen manually. A document can also briefly be in an internal **Under Review** state, which isn't user-selectable.
 - Click **Save**
 
 ## Types of Documents to Upload
@@ -158,7 +167,7 @@ Basic facts about your business:
 
 ### Writing for AI
 
-Your agent understands documents better when they're clear and structured.
+Your assistant understands documents better when they're clear and structured.
 
 **✅ Do:**
 
@@ -210,15 +219,19 @@ Refunds: 30 days. See mgr for exceptions.
 
 ### Organizing Documents
 
-Use the **category** dropdown when uploading a document to keep your knowledge base organized:
+Use the **Category** dropdown when importing a document to keep your knowledge base organized. The category you select determines the document type shown in the documents list:
 
-- **faq** - Frequently asked questions
-- **product** - Product descriptions and specs
-- **api** - API references and developer docs
-- **legal** - Terms of service, privacy policy, etc.
-- **training** - Internal training and onboarding content
-- **technical** - Troubleshooting guides and technical docs
-- **other** - Everything else
+| Category | Document type |
+|-----------------|---------------|
+| **product** | Guide |
+| **api** | Reference |
+| **faq** | FAQ |
+| **legal** | Policy |
+| **training** | Tutorial |
+| **technical** | Reference |
+| **other** | Article |
+
+> **Note:** Category isn't a persisted field of its own — it's just how the upload form sets the document's **Type**. Each category maps directly to a Type value, and both **api** and **technical** map to **Reference**.
 
 ### Keep Documents Updated
 
@@ -247,7 +260,7 @@ Go to **Documents** to see all uploaded content.
 - **Name** - Document title
 - **Type** - The document's content type (Article, Guide, FAQ, Tutorial, Reference, Policy)
 - **Source** - Where the document came from (upload, URL crawl, etc.)
-- **Status** - Draft, Published, Archived, Processing, or Error
+- **Status** - Draft, Published, Archived, Processing, or Error (documents can also briefly hold an internal **Under Review** status, which isn't user-selectable)
 - **Last Modified** - When the document was last updated
 
 ### Editing Documents
@@ -265,14 +278,18 @@ Changes are reflected immediately.
 
 Use the search bar to find specific documents:
 
-- Search by title
-- Search by content
+- Type in the search bar ("Search documents by keyword or natural language...") and press Enter or click **Search**. Natural-language questions work, not just keywords
+- Filter by **Type** and **Status**, or use **Clear Filters**
 
 ### Archiving Documents
 
 You can mark a document as **Archived** from the documents list without deleting it, using the archive action on each row or in bulk.
 
 > ⚠️ **Note:** Archiving from the documents list is not yet fully functional — the action currently only updates what you see on screen and does not persist to the backend. Don't rely on it yet to keep a document out of use.
+
+### Improving a document with AI
+
+From a conversation, **Improve knowledge** analyzes what the AI got wrong and proposes either an edit to a document it used (**Edit document**) or a **New Q&A**. Saving an edit updates the document right away and the AI uses it in its next replies. Adding creates a published Q&A document. Fill in any bracketed placeholder such as "[to confirm: ...]" before saving. From a document you can also describe what is wrong or missing and the AI proposes a revised version.
 
 ### Deleting Documents
 
@@ -282,7 +299,7 @@ To remove a document:
 2. Click **Delete**
 3. Confirm
 
-> ⚠️ **Warning:** Deleting is permanent. Agent will no longer have access to this information.
+> ⚠️ **Warning:** Deleting is permanent. The assistant will no longer have access to this information.
 
 ## Advanced Features
 
@@ -290,7 +307,7 @@ To remove a document:
 
 Hay remembers where information comes from:
 
-When the agent uses a document to answer a question, the conversation shows a document icon with "Agent is using a document to provide the answer" and a link to the source document's title, for example "Shipping Policy" or "Product Manual - Setup Guide". There are no page numbers — the citation points to the document itself.
+When the assistant uses a document to answer a question, the conversation shows a document icon with "Agent is using a document to provide the answer" (as the conversation shows it) and a link to the source document's title, for example "Shipping Policy" or "Product Manual - Setup Guide". There are no page numbers — the citation points to the document itself.
 
 This helps with:
 
@@ -300,7 +317,7 @@ This helps with:
 
 ## Common Scenarios
 
-### "My agent gives wrong answers"
+### "The assistant gives wrong answers"
 
 **Solutions:**
 
@@ -309,7 +326,7 @@ This helps with:
 3. If exists but wrong → Update the document
 4. If document is confusing → Rewrite more clearly
 
-### "Agent says 'I don't know' too often"
+### "The assistant says 'I don't know' too often"
 
 **Solutions:**
 
@@ -334,7 +351,7 @@ This helps with:
 1. Consolidate similar documents
 2. Use clear naming convention
 3. Archive old/unused documents
-4. Use tags effectively
+4. Filter the list by **Type** and **Status**
 
 ## Document Checklist
 
@@ -370,7 +387,7 @@ Before going live, make sure you have:
 Don't try to upload everything at once:
 
 1. Start with 10-20 most important FAQs
-2. Test your agent
+2. Test your assistant
 3. See what questions it struggles with
 4. Add more documentation to fill gaps
 
@@ -400,7 +417,7 @@ To find your order number:
 
 After uploading:
 
-1. Go to Playground
+1. Use the **Test your assistant** chat on the **Set up** board, or the **Conversation Playground**
 2. Ask questions as a customer would
 3. See if answers are accurate
 4. Adjust documents as needed
@@ -421,15 +438,15 @@ Usually 5-30 seconds after upload. Large documents may take up to a minute.
 
 ### Can I upload confidential documents?
 
-Hay keeps all documents secure and private to your organization. However, only upload information you're comfortable your AI agent sharing with customers.
+Hay keeps all documents secure and private to your organization. However, only upload information you're comfortable your AI assistant sharing with customers.
 
 ### What if my document contains errors?
 
-Simply edit or re-upload the correct version. The agent will use the updated information immediately.
+Simply edit or re-upload the correct version. The assistant will use the updated information immediately.
 
 ## Next Steps
 
-- Create [Agents](/docs/user-guide/agents/) that use your documents
+- Set up your [AI assistant](/docs/user-guide/agents/) to use your documents
 - Set up [Playbooks](/docs/user-guide/playbooks/) for structured workflows
 - Review [Conversations](/docs/user-guide/conversations/) to see documents in action
-- Monitor [Analytics](/docs/user-guide/analytics/) to optimize document usage
+- Use [Insights](/docs/user-guide/insights/) to find topics where knowledge is missing

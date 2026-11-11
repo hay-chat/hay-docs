@@ -12,7 +12,7 @@ Klaviyo is a marketing automation platform used for email and SMS marketing — 
 ## How to Connect Klaviyo
 
 1. In the Hay dashboard, go to **Integrations** → **Marketplace**.
-2. Find **Klaviyo** and click **Install** or **Connect**.
+2. Find **Klaviyo** and click **Connect**.
 3. Get your Klaviyo private API key: in Klaviyo, go to **Account → Settings → API Keys** and create a private key (it starts with `pk_`).
 4. Paste it into the **Private API Key** field in Hay. It's stored encrypted and treated as a secret.
 5. Save. Hay verifies the key against your Klaviyo account and tells you if the credentials aren't valid.

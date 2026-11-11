@@ -46,7 +46,7 @@ Backend:
 - PostgreSQL for data persistence
 - Redis for caching and real-time features
 - RabbitMQ (amqplib) for message queues
-- OpenAI for embeddings and chat
+- Multi-provider AI (OpenAI, Anthropic, Google Gemini) for embeddings and chat
 
 Infrastructure:
 - Docker for containerization
@@ -64,7 +64,7 @@ Hay uses an event-driven architecture to enable:
 
 #### Plugin System
 
-Everything in Hay is a plugin, including core features. This allows for:
+Hay uses a plugin system for all external integrations and extensions. Core features (conversations, agents, orchestration) live in the server, while third-party service integrations are implemented as plugins. This allows for:
 - Maximum flexibility
 - Easy customization
 - Clean separation of concerns

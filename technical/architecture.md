@@ -56,17 +56,17 @@ Business logic organized as modular services:
 
 Hay's extensibility mechanism:
 
-Plugins are defined using `defineHayPlugin()` from `@hay/plugin-sdk`. The plugin contract is `HayPluginManifest` in `/server/types/plugin-sdk.types.ts`, exposing capabilities via a runtime `/metadata` endpoint and interacting with the platform via `HayGlobalContext`.
+Plugins are defined using `defineHayPlugin()` from `@hay/plugin-sdk`. The manifest (`HayPluginManifest` in `packages/plugin-sdk/types/manifest.ts`) is a minimal `package.json` block declaring entry point, category, and capabilities. Runtime metadata (config schema, auth methods, UI extensions) is exposed via a `/metadata` endpoint and typed as `PluginMetadata` in `/server/types/plugin-sdk.types.ts`.
 
 Each plugin can:
-- Register event listeners
-- Extend the API
+- Register hooks (`onInitialize`, `onStart`, `onConnected`, `onValidateAuth`, `onConfigUpdate`, `onDisable`, `onEnable`)
+- Expose HTTP routes and MCP tools
 - Add new UI components
 - Access core services
 
 #### 4. Real-Time & Background Messaging
 
-There is no single event bus module. Real-time events are published to Redis pub/sub channels via `ConversationEventsService`. Background processing tasks are queued via RabbitMQ (`rabbitmqService`) and a Redis-backed `JobQueueService`.
+There is no single event bus module. Real-time events are published to Redis pub/sub channels via `ConversationEventsService`. Background processing tasks are queued via RabbitMQ (`rabbitmqService`) and a Postgres-backed `JobQueueService` (using `SKIP LOCKED`), with Redis pub/sub used for status-update notifications.
 
 #### 5. Data Layer
 
@@ -74,7 +74,7 @@ Persistent storage with caching:
 
 - **PostgreSQL**: Primary data store for conversations, users, settings
 - **Redis**: Caching layer and pub/sub for real-time features
-- **Object Storage**: Attachments and media files
+- **File Storage**: Attachments and media files (local filesystem by default, optional S3)
 
 ### Data Flow
 
@@ -95,7 +95,7 @@ Hay is designed to scale horizontally:
 
 - **Stateless API servers**: Scale by adding more instances
 - **Background workers**: Scale job processing independently
-- **Database read replicas**: Distribute read load
+- **Database connection pooling**: Efficient query distribution
 
 #### Caching Strategy
 
@@ -103,16 +103,15 @@ Multi-layer caching reduces database load:
 
 ```mermaid
 graph LR
-  A["fa:fa-browser Client Cache"] --> B["fa:fa-cloud CDN"] --> C["fa:fa-bolt Redis"] --> D["fa:fa-database Database"]
+  A["fa:fa-browser Client Cache"] --> B["fa:fa-bolt Redis"] --> C["fa:fa-database Database"]
 
   style A fill:#e8f3ff,stroke:#568aff,color:#0a155c
   style B fill:#e8f3ff,stroke:#568aff,color:#0a155c
-  style C fill:#e8f3ff,stroke:#568aff,color:#0a155c
-  style D fill:#f5f5f5,stroke:#d4d4d4,color:#404040
+  style C fill:#f5f5f5,stroke:#d4d4d4,color:#404040
 ```
 
 - **Client**: Browser cache for static assets
-- **CDN**: Configurable asset-domain URL helper for serving static assets from a separate domain, not an integrated CDN caching layer
+- **Asset Domain**: Optional configurable domain for serving static assets (not a CDN caching layer)
 - **Redis**: In-memory cache for hot data
 - **Database**: Source of truth
 
@@ -123,7 +122,6 @@ RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-b
 - Failed jobs are marked as `FAILED` by `JobQueueService.failJob()`; there is no automatic retry
 - Job priority is ordered via a SQL column, not a Bull-style priority queue
 - No rate limiting per job type
-- Monitoring and alerting
 
 ### Security Architecture
 
@@ -132,7 +130,7 @@ RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-b
 Multiple security layers:
 
 1. **Network**: TLS/SSL encryption for all traffic
-2. **Authentication**: JWT with short expiration
+2. **Authentication**: JWT with configurable expiration (default 7 days, refresh tokens 30 days)
 3. **Authorization**: Role-based access control (RBAC)
 4. **Input Validation**: Sanitize all user input
 5. **Output Encoding**: Prevent XSS attacks
@@ -140,10 +138,10 @@ Multiple security layers:
 
 #### Data Privacy
 
-- **Encryption at rest**: Database encryption enabled
-- **Encryption in transit**: TLS 1.3 required
-- **PII handling**: Separate tables with restricted access
-- **Audit logs**: All data access logged
+- **Encryption at rest**: Depends on infrastructure provider's PostgreSQL configuration
+- **Encryption in transit**: TLS handled by reverse proxy (the application runs plain HTTP)
+- **PII handling**: PII lives in standard entity tables; logger-level redaction via `REDACT_PATHS`
+- **Audit logs**: Administrative actions (create/update/delete operations) are logged via `AuditLogService`
 
 ### Monitoring and Observability
 

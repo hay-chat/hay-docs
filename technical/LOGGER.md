@@ -1,4 +1,11 @@
-# Logging Guide
+---
+layout: docs.njk
+title: Logging Guide
+description: Structured, PII-redacting logging with Pino across the Hay server.
+section: technical
+navGroup: Core Systems
+navOrder: 3
+---
 
 Hay uses [Pino](https://getpino.io/) for structured, PII-redacting logging across the server.
 
