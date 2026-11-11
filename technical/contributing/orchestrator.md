@@ -49,7 +49,7 @@ customer message ──> Conversation.addMessage()
               orchestrator.process queue
                        │
                        ▼
-  OrchestratorWorker.startConsuming()  (prefetch: ORCHESTRATOR_CONCURRENCY, default 32)
+  OrchestratorWorker.startConsuming()  (prefetch: ORCHESTRATOR_CONCURRENCY, default 8)
                        │
                        ▼
   Orchestrator.processConversation() ──> runConversation()
