@@ -52,3 +52,31 @@ The agent can create a single-use coupon as an apology. You set the limits in th
 - Check stock for a product or a specific variation SKU
 
 Your agent uses these tools automatically in conversations: when a customer asks "where is my order?" or "is this still in stock?", the agent queries your store in real time and answers with actual order and product data.
+
+## Add to Cart from Chat
+
+When the chat widget is on your store and your agent recommends a product, the product card shows an **Add to cart** button. One click puts the product in the shopper's own cart, without leaving the page, and the button becomes a **Checkout** link. The agent can also add a product itself when a shopper asks it to.
+
+This is on by default once WooCommerce is connected and your catalog has synced. To turn it off, open the WooCommerce integration settings and switch off **Add to cart from chat**; cards then show only the link to the product.
+
+### Which products get the button
+
+- Simple products that are in stock or on backorder
+- Variations where every option is set (for example Size: M, Colour: Red)
+
+Products the shopper has to configure first still link to their product page: external and grouped products, sold-out products, and variations with an option left on "Any".
+
+### Settings you may need to change
+
+| Setting | Default | Change it when |
+| --- | --- | --- |
+| **Checkout page path** | `/checkout/` | Your checkout page has another address, e.g. `/finalizar-compra/` |
+| **Cart API path: add item** | `/wp-json/wc/store/v1/cart/add-item` | WordPress is installed in a folder (`/shop/wp-json/wc/store/v1/cart/add-item`) or uses plain permalinks (`/?rest_route=/wc/store/v1/cart/add-item`) |
+| **Cart API path: cart** | `/wp-json/wc/store/v1/cart` | Same cases as above (`/shop/wp-json/wc/store/v1/cart` or `/?rest_route=/wc/store/v1/cart`) |
+
+### Good to know
+
+- The button only appears on your store's own site, because the request goes to your store's cart from the shopper's browser.
+- It uses the WooCommerce Store API. If a security plugin or your host blocks `/wp-json/wc/store/`, the card falls back to the product's buy link.
+- After a product is added, your theme's cart icon should update on its own. On some themes it updates on the next page.
+- Orders that start from the button are not marked as coming from the chat in WooCommerce.
