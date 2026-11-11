@@ -95,15 +95,16 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 
 **Integrations** in the sidebar is not itself a page — it's a parent item that expands to show a **Marketplace** link plus a link for each integration you've enabled.
 
-- The **Marketplace** page shows aggregate stats: **Total Integrations**, **Installed**, **Channels** and **MCP Connectors**
-- Each integration's own settings page shows its status (**Connected**, **Needs action** or **Not set up**) and has three tabs: **Setup**, **What it can do** and, when the integration has technical values, **Advanced**
+- The **Marketplace** page starts with a **Connected** list of every integration you have added, each marked **Connected** or **Finish setup**
+- In the sidebar, an amber dot next to an integration means it still needs setup
+- Each integration's own settings page shows its status (**Connected**, **Needs action** or **Not working**) and has three tabs: **Setup**, **What it can do** and, when the integration has technical values, **Advanced**
 - **Settings** → **Channels** → **Channel list** lists your active communication channels, each with a **Configure** button
 
 ### Configuring an Integration
 
 To adjust settings:
 
-1. Open the integration from the **Integrations** sidebar entry, or click **Configure** on its Marketplace card
+1. Open the integration from the **Integrations** sidebar entry, or click **Configure** next to it in the Marketplace's **Connected** list
 2. On the **Setup** tab, change your details and click **Save**
 3. Use **Test connection** under **Check the connection**
 
@@ -112,9 +113,11 @@ To adjust settings:
 To remove an integration:
 
 1. Go to the integration's settings page
-2. Open the **More options** menu and choose **Disconnect and remove** (or click **Remove** on its Marketplace card)
+2. Open the **More options** menu and choose **Disconnect and remove**
 3. Confirm with **Disconnect**
 4. The integration stops working for your workspace; its settings are kept in case you connect it again
+
+Admins can delete an integration their organisation uploaded with **Delete plugin**: in the same menu when it is connected, or under **Details** on its page when it is not.
 
 > ⚠️ **Note:** Active conversations on that channel may need to be handled manually after disconnection.
 
@@ -123,14 +126,17 @@ To remove an integration:
 ### Browsing Available Integrations
 
 1. Go to **Integrations** → **Marketplace**
-2. Browse the available integrations, or use **Search integrations...**
-3. Narrow the list with the **Categories** filter: All Integrations, Channels, MCP Connectors, Document Importers, Retrievers or Playbooks
+2. Search by name or by what you need (for example "refunds")
+3. Narrow the list with a category: Channels, E-commerce, Payments and shipping, CRM and support, Knowledge and bookings, or Security
+4. Click any integration to open its page
 
-Admins can also use **Upload Integration** to add a custom integration as a ZIP file, and **Manage Custom** to enable, disable or delete the ones they uploaded.
+Each card shows what the integration adds (for example "Agent tools · Catalog sync"). A green dot after the name means it is connected; an amber dot means it needs setup.
 
-### Installing from Marketplace
+Can't find what you use? Use **Request an integration** at the bottom of the page. Admins can also use **Upload plugin** to add a custom integration as a ZIP file, and **Manage custom** to enable, disable or delete the ones they uploaded.
 
-1. Find the integration you want
+### Connecting an Integration
+
+1. Open the integration's page. Before you connect, it shows what your agent can do with it, how connecting works and the data it works with
 2. Click **Connect**
 3. Fill in your details on the **Setup** tab, or sign in to the platform when asked to give Hay.chat access
 4. Use **Test connection** to check it works
