@@ -72,6 +72,16 @@ On the Shopify settings page (**Setup** tab) you can also set **Stale tracking: 
 
 Beyond the tools above, the Shopify plugin syncs your full product catalog into Hay in the background. That means your agent can search and recommend real products — with accurate prices, options, images, and availability — directly in conversations. The catalog re-syncs automatically on a schedule, and in self-hosted mode a background job also keeps your Shopify access token fresh so the connection never silently expires.
 
+### Add to cart from chat
+
+When the chat widget is on your Shopify storefront, the products your agent recommends show an **Add to cart** button. One click puts the product in the shopper's own cart without leaving the page, and the card then offers a **Checkout** link.
+
+- **Turn it on or off** with the **Add to cart from chat** setting in the Shopify plugin settings. It is on by default. When it is off, cards show only the link to the product.
+- **Which products get the button:** products published to your online store, with a variant that is available for sale. After you connect the store or change the setting, buttons appear once the next catalog sync has finished.
+- **Where it works:** on stores that use a Shopify theme. On a headless storefront the card falls back to its buy link.
+- **Seeing which orders came from chat:** each item added from chat carries a hidden property, `_hay_conversation`, with the conversation's id. Shopify hides it from the shopper at checkout and shows it on the order in your Shopify admin. Most themes also hide it on the cart page; if yours shows it, your theme prints every item property and needs to skip names starting with `_`.
+- **Your theme's cart icon** may not update until the next page load. If you want it to refresh immediately, your theme developer can listen for the `hay:cart-updated` event the widget fires on the page after each add.
+
 Shopify gives the agent 25 tools. Refunds, cancellations, discounts and exchanges wait for a person to approve them by default; see [Action approvals](/docs/user-guide/action-approvals/).
 
 Your agent uses all of these tools automatically: when a customer asks "where's my order #1042?" or "can I get a refund?", the agent picks the right tool, checks your store, and answers with real data — escalating to your team when a decision needs a human.
