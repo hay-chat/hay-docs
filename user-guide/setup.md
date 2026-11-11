@@ -18,7 +18,7 @@ Only **Owners and Admins** can open it. Other roles see "Only owners and admins 
 The first time, Hay asks a few questions. Use **Back** and **Continue** to move, or **Skip questions** to go straight to the board.
 
 1. **What kind of business is this?** Enter **Your website** and choose a **Business type**: Online store, Software or SaaS, Service provider, or Something else. Hay reads your website to suggest a type ("Looks like you, from your website") and to tailor what it asks next.
-2. **What do you already use?** Choose everything that applies, grouped as where customers contact you, where you sell, payments, customers and CRM, support, marketing, docs and knowledge, and bookings. This decides what your assistant can do for customers.
+2. **What do you already use?** Choose everything that applies, grouped as where customers contact you, where you sell, shipping, payments, customers and CRM, support, marketing, docs and knowledge, and bookings. This decides what your assistant can do for customers.
 3. **What do customers ask most?** Review the suggested questions, remove the ones that don't fit and add your own with **Add a question customers ask**. Hay tests your assistant on these.
 
 Finish with **See what your assistant can do**. A **Your list so far** panel on the side shows the list as you build it and the progress of reading your website.

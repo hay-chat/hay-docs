@@ -37,6 +37,11 @@ Each integration has its own guide covering what it is, how to connect it, and w
 - [Wix](/docs/user-guide/integrations/wix/) - Orders, tracking, cancellations, refunds, and products
 - [Nuvemshop / Tiendanube](/docs/user-guide/integrations/nuvemshop/) - Orders, Pix payment links, tracking, goodwill coupons, and products
 
+**Shipping**
+
+- [Correios](/docs/user-guide/integrations/correios/) - Track parcels posted under your Correios contract
+- [Melhor Envio](/docs/user-guide/integrations/melhor-envio/) - Shipment status, carrier, and tracking for labels bought through Melhor Envio
+
 **Payments & marketing**
 
 - [Stripe](/docs/user-guide/integrations/stripe/) - Payments, refunds, subscriptions, and invoices
