@@ -107,13 +107,15 @@ The chat shows "· AI" next to the assistant's name. The label is set in **Custo
 
 The top of the Install tab shows whether the chat is running on your website:
 
-- **Working** — "Seen on shop.com 2 minutes ago." with a link to open that site. The chat counts as seen each time it loads on a page
+- **Working** — "Seen on shop.com 2 minutes ago." with a link to open that site. The chat counts as seen when it loads on a page of one of your **Allowed websites** while it is switched on
 - **Not installed yet** — "Add the code below to your website. This changes to Working once a page with the chat loads."
 - **Off** — "The chat is switched off. Turn on “Show on your website” and save to go live."
 
 ### Add to your website
 
 Copy the code and paste it before the closing `</body>` tag on every page of your site. If someone else looks after your website, click **Email these steps to a developer** to send them the code.
+
+The code includes your chat title, button position and greeting, and the values in the code win over the dashboard. If you change those later, copy the code again and update your website. Everything else (logo, colour, theme, heading and the rest) updates on your site as soon as you save.
 
 Developers can find every option the code accepts in the [Webchat embed reference](/docs/technical/webchat-embed/).
 
