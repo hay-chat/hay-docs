@@ -27,11 +27,12 @@ We believe that happy developers build better software.
 
 ```typescript
 // Good: Clear, typed interface
-interface CreateConversationParams {
-  customerId: string;
-  channel: 'email' | 'chat' | 'social';
-  subject?: string;
-  initialMessage: string;
+interface CreateConversationInput {
+  title?: string;
+  agentId?: string;
+  language?: string;
+  metadata?: Record<string, unknown>;
+  status?: string;
 }
 
 // Bad: Unclear, any types
@@ -50,12 +51,8 @@ Sensible defaults that work out of the box.
 - Intelligent defaults that can be overridden
 
 ```typescript
-// Convention: Plugins auto-discovered from /plugins directory
-// Configuration: Override defaults only when needed
-{
-  pluginDirectory: './custom-plugins',  // optional
-  autoDiscovery: true                    // default
-}
+// Convention: Plugins auto-discovered from plugins/core/ and plugins/custom/{orgId}/
+// No configuration needed — discovery runs automatically at startup via PluginManagerService.discoverPlugins()
 ```
 
 #### 3. Fail Fast, Fail Loud
@@ -173,7 +170,7 @@ describe("AutomationService", () => {
 
 - **TSDoc comments**: On all public APIs
 - **README in each package**: Setup and usage
-- **Architecture Decision Records**: For major decisions
+- **Architecture Decision Records**: For major decisions (planned — not yet adopted)
 - **Inline comments**: Only for "why", not "what"
 
 ````typescript
@@ -212,7 +209,7 @@ When contributing to Hay:
 
 ### Learning Resources
 
-- **[Architecture Guide](/docs/technical/architecture)** - System design details
+- **[Architecture Guide](/docs/technical/architecture/)** - System design details
 - **[Plugin Development](/docs/technical/plugins/getting-started/)** - Build your first plugin
 - **[Contributing Guide](/docs/technical/)** - How to contribute
 

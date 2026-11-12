@@ -11,9 +11,9 @@ navOrder: 1
 
 The orchestrator turns an incoming customer message into a bot reply. It is **event-driven**: messages are enqueued to RabbitMQ and consumed by a worker that runs a single pipeline — Perception → Retrieval → Execution — with tool calling, human handoff, and confidence guardrails along the way.
 
-This guide covers how the pieces fit together and where to make changes. For code-organization rules (repository vs. entity vs. service responsibilities), read [`server/orchestrator/ARCHITECTURE.md`](../../../server/orchestrator/ARCHITECTURE.md) — that document defines the layering conventions; this one describes the runtime flow.
+This guide covers how the pieces fit together and where to make changes. For code-organization rules (repository vs. entity vs. service responsibilities), read [`server/orchestrator/ARCHITECTURE.md`](https://github.com/hay-chat/hay-core/blob/master/server/orchestrator/ARCHITECTURE.md) — that document defines the layering conventions; this one describes the runtime flow.
 
-> **Note:** Older docs described an 8-phase polling architecture with cooldowns, runtime agent routing, and "plan/ender" modules. That design is gone. Agents are assigned at conversation creation, cooldowns no longer gate processing (`Conversation.addMessage()` still writes `cooldown_until`, but only the disabled legacy polling path and the unused `findReadyForProcessing()` repository method read it), and processing is triggered by queue messages, not polling.
+> **Note:** Older docs described an 8-phase polling architecture with cooldowns, runtime agent routing, and "plan/ender" modules. That design is gone. Agents are assigned at conversation creation, cooldowns no longer gate processing (`Conversation.addMessage()` still writes `cooldown_until`, and it still feeds the `orchestrator-stale-message-check` safety net (`stale-message-detector.service.ts`'s `COOLDOWN_STUCK` check) and gets cleared by `message-recovery.service.ts` — but the disabled legacy polling path and the unused `findReadyForProcessing()` method are the only places that treat it as a processing gate), and processing is triggered by queue messages, not polling.
 
 ## File Map
 
@@ -102,7 +102,7 @@ Registered in `server/services/scheduled-jobs.registry.ts`:
 The pipeline in `server/orchestrator/run.ts` is numbered `00`–`04` in code comments:
 
 1. **Skip check** — conversations with `status === "human-took-over"` or an `assigned_user_id` are skipped entirely. Human takeover works by setting those fields; `"ai_return"` re-enqueues when handed back.
-2. **Lock (00)** — `conversation.lock()` returns a `lockerId` or bails (lock contention is not an error, just "someone else is on it"). A heartbeat refreshes the lock every 5 s (`LOCK_HEARTBEAT_INTERVAL_MS`) so long LLM/tool calls don't look abandoned. The `finally` block does an ownership-checked unlock.
+2. **Lock (00)** — `conversation.lock()` returns a `lockerId` or bails (lock contention is not an error, just "someone else is on it"). The lock lasts 15 seconds (`LOCK_DURATION_MS`) and a heartbeat refreshes it every 5 s (`LOCK_HEARTBEAT_INTERVAL_MS`) so long LLM/tool calls don't look abandoned. The `finally` block does an ownership-checked unlock.
 3. **Bootstrap** — seeds initial system, agent-instruction, and bot messages if absent. Throws the two non-retryable errors if `needs_processing` is false or there is no customer message.
 4. **Perception (01)** — intent/sentiment/language on the last customer message, saved via `message.savePerception()`. If the intent is `close_satisfied`/`close_unsatisfied` (or `greet` plus a gratitude regex), `validateConversationClosure()` re-checks against the full transcript; a confirmed closure generates a title, resolves the conversation, purges Redis secrets (`conversationSecretService`), sends an LLM-generated closing message, and exits early.
 5. **Retrieval (02)** — the active-playbook fetch and vector search run in parallel (`Promise.all`). Playbook **selection** is gated by `shouldReselectPlaybook()` (`playbook-gate.ts`): the selector LLM runs only when no playbook is set yet or the planner's last verdict was that the current one no longer fits (`conversation.metadata.playbookFits !== true`) — otherwise the previous selection stands. Selected playbooks are stored with `conversation.updatePlaybook()`, which populates `enabled_tools`. Matched documents are attached via `conversation.addDocument()`.
@@ -120,7 +120,7 @@ Prompts are file-based markdown templates resolved by `PromptService.getPrompt()
 
 ### Perception (`perception.layer.ts`)
 
-- `perceive(message, conversationId, organizationId)` — one structured-output LLM call (prompt `perception/intent-analysis`) returning `{ intent: {label, score}, sentiment: {label, score}, language }`. Intent/sentiment labels are schema-enum-constrained to `MessageIntent` / `MessageSentiment`; language is an ISO 639-1 code enforced by the JSON-schema pattern `^[a-z]{2}$`.
+- `perceive(message, conversationId, organizationId)` — one structured-output LLM call (tier `"medium"`, prompt `perception/intent-analysis`) returning `{ intent: {label, score}, sentiment: {label, score}, language }`. Intent/sentiment labels are schema-enum-constrained to `MessageIntent` / `MessageSentiment`; language is an ISO 639-1 code enforced by the JSON-schema pattern `^[a-z]{2}$`.
 - `getAgentCandidate()` exists (prompt `perception/agent-selection`, score threshold > 0.7) but is **not called from `runConversation()`** — agents are assigned at conversation creation with a fallback to the organization default. Don't wire new features through it without reconsidering that decision.
 
 ### Retrieval (`retrieval.layer.ts`)
@@ -167,7 +167,7 @@ Stages 1–2 are skipped for `GREET` / `CLOSE_SATISFIED` / `CLOSE_UNSATISFIED` i
 
 Fallback messages are no longer only canned: `composeContextualFallbackMessage()` asks an LLM (prompt `execution/contextual-fallback`, tier `"medium"`) to acknowledge the customer's actual request from the last few customer-visible messages — deliberately _without_ seeing the blocked response, so unverified claims can't leak through — and falls back to the static configured message on error.
 
-All Stage 1/2 outcomes are appended to `orchestration_status.guardrailLog` (plus a legacy `confidenceLog`) by `saveConfidenceLog()` in `run.ts`; Stage 0 results ride on message metadata (`actionClaim`, `actionClaimRetryAttempted`). The full guardrail design is documented in [`docs/technical/guardrails.md`](../guardrails.md).
+All Stage 1/2 outcomes are appended to `orchestration_status.guardrailLog` (plus a legacy `confidenceLog`) by `saveConfidenceLog()` in `run.ts`; Stage 0 results ride on message metadata (`actionClaim`, `actionClaimRetryAttempted`). The full guardrail design is documented in [`docs/technical/guardrails.md`](/docs/technical/guardrails/).
 
 ## Inactivity Lifecycle
 
@@ -188,7 +188,7 @@ Closures set `status: "resolved"`, fire the `conversation.resolved` hook, and tr
 - **New early-exit condition** — if it should not be retried, add its error message to `isNonRetryableError()` in `orchestrator.worker.ts`.
 - **New guardrail stage** — follow the Stage 0 pattern: a service with `getDefaultConfig()`/`mergeConfig()`, a per-turn retry budget in `turnGuardrailState`, and corrective `plannerFeedback` before escalating.
 
-Follow the layering rules in [`server/orchestrator/ARCHITECTURE.md`](../../../server/orchestrator/ARCHITECTURE.md): DB access through repositories, entity state changes through entity methods, business logic in the layers.
+Follow the layering rules in [`server/orchestrator/ARCHITECTURE.md`](https://github.com/hay-chat/hay-core/blob/master/server/orchestrator/ARCHITECTURE.md): DB access through repositories, entity state changes through entity methods, business logic in the layers.
 
 ## Testing and Debugging
 

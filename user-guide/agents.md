@@ -1,367 +1,149 @@
 ---
 layout: docs.njk
-title: AI Agents Configuration
-description: Agents are your AI assistants. Think of each agent as a team member with a specific personality, expertise, and way of handling customer conversations.
+title: Your AI Assistant
+description: Hay has one AI assistant for your whole organization. Give it a name, a tone, standing rules and a hand-off procedure, and it answers on every channel.
 section: user-guide
 ---
 
-## What is an Agent?
+## What is the assistant?
 
-An agent is a configured AI assistant that:
+Your organization has **one AI assistant**. It answers customers on every channel (web chat, WhatsApp, Instagram, Messenger, email and the rest) and:
 
-- Has a specific **name** and **purpose**
-- Follows **instructions** you provide
-- Speaks in a particular **tone** or **style**
-- Handles conversations for specific **channels** or **topics**
-- Uses your **documents** and **playbooks** to answer questions
+- Has a **name** customers see in the chat widget
+- Follows the **instructions** you write
+- Speaks in the **tone** you choose
+- Uses your [documents](/docs/user-guide/documents/) and [playbooks](/docs/user-guide/playbooks/) to answer questions
+- Hands conversations to your team following your **Human escalation** rules
 
-You can have multiple agents, each specialized for different needs.
+There are no separate agents to create, enable, assign to channels or pick between. Earlier versions of Hay let you create several agents; that is gone. To make the assistant behave differently in one situation, write a [playbook](/docs/user-guide/playbooks/): all active playbooks apply to every conversation.
 
-## Creating an Agent
+## Where to find it
 
-### Step 1: Navigate to Agents
+Go to **Settings** → **Assistant** in the left sidebar (Admins and Owners). The page has three tabs: **Identity**, **Actions** and **AI Models**.
 
-1. Click **Agents** in the left sidebar
-2. Click **Create Agent** button
+- **Identity** is described below
+- **Actions** decides which store actions need a person's approval (see [Action approvals](/docs/user-guide/action-approvals/))
+- **AI Models** chooses the AI provider and models (see [Settings](/docs/user-guide/settings/#ai-models))
 
-### Step 2: Basic Information
+## Identity
 
-Fill in the essentials:
+Fill in the fields, then click **Save Changes** (or **Discard changes** to go back). Changes take effect for new conversations.
 
-**Agent Name**
+**Name**
 
-- Something descriptive: "Customer Support Agent", "Sales Assistant", "Technical Support Bot"
-- Visible to your team (not to customers)
+- Shown to customers in the chat widget. Leave it empty to show the widget title instead.
 
-**Description** (Optional but recommended)
+**Description**
 
-- What does this agent handle?
-- Example: "Handles order questions, shipping inquiries, and basic product information"
-
-### Step 3: Configure Behavior
+- An internal note. Customers and the assistant never see it.
 
 **Instructions**
 
-Tell your agent how to behave. Write in plain English:
+The assistant's general behavior and standing rules, written in a rich text editor. Type `@` to insert an action or document, `/` for blocks. Put situation-specific steps in Playbooks, not here.
 
 ```
-You are a helpful customer support agent for an online store.
+You are a helpful customer support assistant for an online store.
 
 Your job is to:
 - Answer questions about orders, shipping, and products
 - Be friendly and patient
 - Always check our documentation before answering
-- Escalate to a human if you're not confident
 
 Important guidelines:
 - Never make promises about shipping dates
 - Always verify order numbers before looking them up
-- If someone is frustrated, offer to connect them with a manager
 ```
+
+**Initial Greeting Message**
+
+The first message customers see when they start a conversation. If you leave it empty, a default greeting is used. It is translated to the conversation's language automatically.
 
 **Tone**
 
-Choose how your agent should communicate:
+Pick **Professional**, **Casual** or **Enthusiastic**. Each fills the text box under the cards with a description of that tone, and you can edit it freely or write your own.
 
-| Tone               | When to Use                    | Example                                                                      |
-| ------------------ | ------------------------------ | ---------------------------------------------------------------------------- |
-| **Professional**   | B2B, enterprise customers      | "Thank you for contacting us. I'd be happy to assist you with that inquiry." |
-| **Casual**         | Young audience, informal brand | "Hey! No worries, I got you. Let's figure this out together."                |
-| **Enthusiastic**   | Energetic, upbeat brand voice  | "Awesome, let's get this sorted for you right away!"                         |
+| Tone             | When to use                    |
+| ---------------- | ------------------------------ |
+| **Professional** | B2B, enterprise customers      |
+| **Casual**       | Young audience, informal brand |
+| **Enthusiastic** | Energetic, upbeat brand voice  |
 
-**Language**
+**Things to Avoid**
 
-Select the language your agent should respond in. Hay supports 33 languages, allowing you to serve customers in their preferred language.
-
-**Things to Avoid** (Optional)
-
-List topics or phrases your agent should never use:
+Topics or phrases the assistant should never use:
 
 ```
 - Don't promise specific dates without checking systems
 - Avoid technical jargon with non-technical customers
 - Never say "that's not possible" without offering alternatives
-- Don't make pricing decisions without approval
 ```
 
-### Step 4: Initial Greeting
+**Language.** The assistant answers in the customer's language and falls back to the organization's default language in **Settings** → **Workspace** → **General**. There is no per-assistant language setting.
 
-Set a welcoming first message customers see:
+## Human escalation
 
-**Examples:**
+Under **Human escalation**, tell the assistant what to do when a customer needs a person.
 
-_E-commerce:_
-
-```
-Hi! Welcome to [Store Name]! I'm here to help with orders,
-products, and shipping. What can I help you with today?
-```
-
-_SaaS Support:_
+**If any human agent is available** - instructions for that case. Leave it empty to simply move the conversation to the queue (it then shows up in the [Inbox](/docs/user-guide/inbox/)).
 
 ```
-Hello! I'm your [Product Name] assistant. I can help with
-account questions, troubleshooting, or feature guidance.
-How can I assist you?
+Let the customer know you'll connect them with a teammate.
+Give a short summary of what was discussed.
 ```
 
-_General Support:_
+**If all human agents are unavailable** - what happens outside business hours or when nobody is online. Choose one:
 
-```
-Hi there! Thanks for reaching out. I'm here to help!
-What brings you in today?
-```
+- **Follow my instructions** - write them yourself, for example "Apologize, collect their email and say someone will reply within 2 business hours."
+- **Create a ticket** - the assistant makes sure it has the customer's email, raises a ticket with a summary and the full conversation, and tells the customer the team will get back to them. The conversation is then closed instead of waiting in the queue. This needs a connected helpdesk such as Zendesk: pick it under **Helpdesk**, and use **Prefill every ticket with** to set default ticket fields. Without a helpdesk the page links to **Browse integrations**.
 
-### Step 5: Enable and Save
+See [Team alerts, pause and business hours](/docs/user-guide/team-alerts-and-hours/) for how opening hours change what shoppers are told.
 
-- Toggle **Enabled** to activate your agent
-- Click **Create Agent**
+## Reviewing replies before they send
 
-Your agent is now ready to start handling conversations!
+There is no per-assistant approval switch. To hold the AI's written replies for a person to approve, use **Test Mode Default** under **Settings** → **Workspace** → **General**, or set a channel to **Drafts only** under **Settings** → **Privacy** → **Customer Privacy** → **AI on your channels**. See [Settings](/docs/user-guide/settings/) and [Conversations](/docs/user-guide/conversations/#supervision-mode).
 
-## Editing an Existing Agent
-
-Need to make changes? Easy!
-
-1. Go to **Agents** in the sidebar
-2. Click on the agent you want to edit
-3. Make your changes
-4. Click **Save Changes**
-
-**Changes take effect immediately** for new conversations.
-
-## Agent Settings
-
-### Message Approval
-
-Control whether the agent's responses are sent automatically or require human review before delivery.
-
-**Options:**
-
-- **Inherit from Organization** - Uses the organization-level default setting
-- **Require Approval** - Agent generates responses but a team member must approve each one before it is sent to the customer; ideal for quality assurance and training
-- **Auto-Send** - Agent sends responses immediately without manual review
-
-**How to configure:**
-
-1. Open your agent settings
-2. Under **Message Approval**, select the desired option
-3. Changes take effect for all new conversations with this agent
-
-### Human Handoff Instructions
-
-Tell your agent exactly how to handle escalations:
-
-**When Human is Available:**
-
-```
-Let the customer know that you'll connect them with a specialist
-who can help. Transfer the conversation and provide a summary of
-what was discussed.
-```
-
-**When Human is NOT Available:**
-
-```
-Apologize and let the customer know you'll have someone reach out
-within 2 business hours. Collect their email if you don't have it.
-Ask if there's anything else you can help with while they wait.
-```
-
-### Trigger Conditions
-
-The **Trigger** field is a free-text description of when this agent should be selected for a conversation. Rather than matching exact keywords, Hay uses an LLM to semantically compare the incoming message against each enabled agent's trigger (along with its name and description) and picks the best match.
-
-Write it like you're briefing a teammate on when to step in:
-
-```
-Handles order questions, shipping inquiries, and delivery tracking.
-Also covers returns and refund requests.
-```
-
-```
-Handles bug reports, error messages, and anything related to the
-product not working as expected.
-```
-
-```
-Handles pricing questions, plan comparisons, and upgrade/downgrade requests.
-```
-
-Since matching is semantic, you don't need to enumerate every possible keyword — a clear, descriptive sentence works better than a long list of exact phrases.
-
-> **Note:** Trigger conditions currently don't support scheduling (e.g., business hours vs. after hours). This is a potential future feature.
-
-Assigning an agent to specific channels (WhatsApp, website chat, email, etc.) is configured separately in the **Channels** section of the agent form, not through the trigger field.
-
-### Default Agent
-
-Every organization needs a fallback for conversations that don't clearly match any agent's trigger. Mark one agent as the **Default Agent** and Hay will assign it to those conversations automatically.
-
-**To set an agent as default:**
-
-1. Open the agent you want to use as the fallback
-2. Click **Set as Default**
-
-Only one agent can be the default at a time — setting a new one automatically replaces the previous default.
-
-## Multiple Agents Strategy
-
-### When to Use Multiple Agents
-
-**Good reasons:**
-
-- Different expertise areas (sales vs support)
-- Different channels (WhatsApp vs email)
-- Different languages or regions
-- Different customer tiers (free vs premium)
-
-**Not necessary for:**
-
-- Slight tone differences
-- Similar topics
-- Same channel
-
-### Agent Specialization Examples
-
-**Example 1: E-commerce Store**
-
-_Support Agent_
-
-- Handles: Order questions, shipping, returns
-- Tone: Friendly and helpful
-- Channels: All
-
-_Sales Agent_
-
-- Handles: Product questions, recommendations
-- Tone: Enthusiastic and knowledgeable
-- Channels: Website chat only
-
-**Example 2: SaaS Company**
-
-_First-line Support_
-
-- Handles: Account questions, basic troubleshooting
-- Escalates: Technical bugs, billing issues
-- Channels: In-app chat, email
-
-_Technical Support_
-
-- Handles: Complex technical issues, API questions
-- Tone: Professional and detailed
-- Channels: Email, priority queue
-
-## Agent Performance
-
-### Monitoring Your Agents
-
-Go to **Analytics** and scroll to the **Agent Performance** table to see:
-
-- **Conversations handled** - Total volume per agent
-- **Resolution rate** - How many issues they solved
-- **Average response time** - Speed of responses
-- **Escalation rate** - How often they need human help
-- **Customer satisfaction** - Ratings from customers
-
-> **Note:** Agent performance analytics currently display sample data while this feature is being developed. Live per-agent metrics are coming soon.
-
-### Improving Agent Performance
-
-**If resolution rate is low:**
-
-1. Review conversations the agent struggled with
-2. Add more training documents on those topics
-3. Update agent instructions with examples
-4. Create specific playbooks for common issues
-
-**If escalation rate is high:**
-
-1. Check why conversations are escalating
-2. Give agent more confidence in instructions
-3. Add "decision trees" in playbooks
-4. Expand knowledge base coverage
-
-**If responses are too slow:**
-
-1. Simplify agent instructions
-2. Organize documents better
-3. Reduce unnecessary playbook steps
-
-**If customer ratings are low:**
-
-1. Review exact conversations with poor ratings
-2. Adjust tone settings
-3. Add more empathy to instructions
-4. Train on better response examples
-
-## Best Practices
-
-### Writing Great Instructions
+## Writing great instructions
 
 **Do:**
 
-- ✅ Be specific and clear
-- ✅ Use examples
-- ✅ Include what TO do, not just what NOT to do
-- ✅ Think like you're training a new employee
+- Be specific and clear
+- Use examples
+- Include what to do, not just what not to do
+- Think like you're training a new employee
 
 **Don't:**
 
-- ❌ Be vague ("be helpful")
-- ❌ Use technical jargon
-- ❌ Write a novel (keep it under 500 words)
-- ❌ Contradict yourself
+- Be vague ("be helpful")
+- Use technical jargon
+- Write a novel
+- Contradict yourself
 
-### Starting Simple
+Start simple: write basic, clear instructions, [test the assistant](/docs/user-guide/quick-start/#step-5-test-your-assistant), handle one main purpose well, and expand based on real conversations.
 
-For your first agent:
+## Improving results
 
-1. Start with basic, clear instructions
-2. Test in playground mode
-3. Handle one main purpose well
-4. Expand gradually based on real conversations
+Your Dashboard and [Quality](/docs/user-guide/analytics/) pages show where the assistant struggles.
 
-### Regular Maintenance
+- **Low resolution rate or many hand-offs:** read recent conversations, then add documents or a playbook for the topics it misses. **Insights** (under **Quality**) lists these patterns for you.
+- **Wrong or risky answers:** rate the reply in the conversation, then fix the document or playbook it relied on.
+- **Wrong tone:** adjust **Tone** and **Things to Avoid**.
 
-Set a reminder to review your agents:
+## Common questions
 
-**Weekly:**
+### Can I have more than one assistant?
 
-- Check performance metrics
-- Review a few conversations
-- Update instructions if needed
+No. Hay has one assistant per organization.
 
-**Monthly:**
+### Can the assistant learn on its own?
 
-- Deep dive into problem areas
-- Add new capabilities
-- Retire unused agents
+It improves based on the documents you add and playbooks you write. It does not change itself without your guidance. Insights can suggest edits, but you review them before anything is saved.
 
-## Common Questions
+### Can the assistant use a different language per channel?
 
-### Can I have multiple agents responding to the same customer?
+It answers in the customer's language on every channel.
 
-No, Hay assigns one agent per conversation to maintain consistency. You can manually reassign if needed.
+## Next steps
 
-### What happens if I disable an agent?
-
-New conversations won't be assigned to this agent. Existing conversations continue with the same agent.
-
-### Can agents learn on their own?
-
-Agents improve based on the documents you add and playbooks you create. They don't automatically "learn" without your guidance.
-
-### How many agents should I have?
-
-Most businesses start with 1-2 agents. You only need more if you have truly different use cases or channels.
-
-### Can I clone an agent?
-
-Agent cloning is not currently implemented. To reuse a configuration, create a new agent and manually copy the instructions and settings from an existing one.
-
-## Next Steps
-
-- Set up [Playbooks](/docs/user-guide/playbooks/) to give your agent step-by-step workflows
-- Upload [Documents](/docs/user-guide/documents/) to train your agent
-- Review [Conversations](/docs/user-guide/conversations/) to see your agent in action
+- Set up [Playbooks](/docs/user-guide/playbooks/) to give the assistant step-by-step workflows
+- Upload [Documents](/docs/user-guide/documents/) to train it
+- Review [Conversations](/docs/user-guide/conversations/) to see it in action
