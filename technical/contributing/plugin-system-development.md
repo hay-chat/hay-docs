@@ -152,13 +152,13 @@ All dashboard/webhook traffic to a worker goes through the core proxy: `ALL /v1/
 
 ## Instance Lifecycle Management
 
-**File**: `server/services/plugin-instance-manager.service.ts` (`PluginInstanceManagerService`)
+**Files**: `server/services/plugin-manager.service.ts` (`getOrStartWorker`, `startPluginWorker`) and `server/services/plugin-runner.service.ts` (`PluginRunnerService`)
 
-- `ensureInstanceRunning(organizationId, pluginId)` — the on-demand entry point. Deduplicates concurrent startups via a `startupQueue` map, checks pool limits, and delegates the actual spawn to the runner service.
-- **Idle cleanup**: `INACTIVITY_TIMEOUT_MS = 5 minutes`. `cleanupInactiveInstances()` is **not** run by an internal timer — it's invoked by the platform scheduler job `plugin-instance-cleanup` (see `server/services/scheduled-jobs.registry.ts`), which runs every 60 seconds. Activity is tracked both in memory (`instanceActivity` map) and in the `last_activity_at` column.
-- **Pool limits**: each plugin's `plugin_registry.max_concurrent_instances` (default 10) caps concurrent workers across orgs. `ensureInstanceRunning` waits up to 30 seconds for a slot (`waitForAvailableSlot`) before throwing.
-- `updateActivityTimestamp()` is called from the proxy on every forwarded request so active workers aren't reaped mid-conversation.
-- `stopAllForOrganization(organizationId)` tears down every worker for an org.
+- `pluginManagerService.getOrStartWorker(organizationId, pluginId)` is the on-demand entry point (chat turns, tools, the plugin proxy, webhooks, product sync). Concurrent callers for the same org and plugin share one in-flight start (`startWorker`), so a burst of turns spawns one worker.
+- **Activity**: every call bumps the worker's in-memory `lastActivity`.
+- **Idle cleanup**: the `plugin-worker-cleanup` job runs every 5 minutes and stops workers idle for more than 5 minutes, so an idle worker lives 5-10 minutes.
+- **Pool limits**: each plugin's `plugin_registry.max_concurrent_instances` (default 10) caps concurrent workers across orgs. When the pool is full, the least recently active worker of that plugin is stopped first (`makeRoomInPool`).
+- A worker start runs the plugin's `onStart` again (for Shopify, a catalog push), so cold starts are not free.
 
 Implication for plugin behavior: **workers are ephemeral**. Anything a plugin needs long-lived (schedules, webhook subscriptions) must be delegated to core (`register.cron`, `register.webhookRouting`) rather than held in worker memory.
 
