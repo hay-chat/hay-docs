@@ -155,8 +155,12 @@ export default defineHayPlugin((globalCtx) => ({
   name: "My Plugin", // the ONLY required field
 
   onInitialize() {
-    globalCtx.register.config({/* ... */});
-    globalCtx.register.auth.apiKey({/* ... */});
+    globalCtx.register.config({
+      /* ... */
+    });
+    globalCtx.register.auth.apiKey({
+      /* ... */
+    });
   },
 
   async onStart(ctx) {
@@ -165,7 +169,9 @@ export default defineHayPlugin((globalCtx) => ({
       ctx.logger.warn("Not configured yet — skipping startup");
       return;
     }
-    await ctx.mcp.startLocalStdio({/* ... */});
+    await ctx.mcp.startLocalStdio({
+      /* ... */
+    });
   },
 }));
 ```
@@ -266,19 +272,19 @@ register.auth.oauth2(options: OAuth2AuthOptions): void
 
 `OAuth2AuthOptions` (`packages/plugin-sdk/types/auth.ts`):
 
-| Property              | Type                     | Description                                                                                                                                     |
-| --------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                  | `string`                 | Auth method id                                                                                                                                  |
-| `label`               | `string`                 | UI label                                                                                                                                        |
-| `authorizationUrl`    | `string`                 | Provider authorize URL                                                                                                                          |
-| `tokenUrl`            | `string`                 | Provider token URL                                                                                                                              |
-| `scopes`              | `string[]`               | Requested scopes (optional)                                                                                                                     |
-| `clientId`            | `ConfigFieldReference`   | Created with `ctx.config.field("clientId")`                                                                                                     |
-| `clientSecret`        | `ConfigFieldReference`   | Created with `ctx.config.field("clientSecret")`                                                                                                 |
-| `authorizationParams` | `Record<string, string>` | Extra static authorize-URL params. Reserved params (`client_id`, `redirect_uri`, `response_type`, `state`, `scope`, etc.) cannot be overridden. |
-| `scopeSeparator`      | `string`                 | Scope join delimiter; defaults to a space. Instagram needs `","`.                                                                               |
-| `tokenExchange`       | `OAuthTokenOp`           | Declarative one-time token transform run by core right after the code exchange (e.g. Instagram `ig_exchange_token` short→long-lived swap)       |
-| `tokenRefresh`        | `OAuthTokenOp`           | Declarative custom refresh strategy for providers without a standard `refresh_token` grant (e.g. Instagram `ig_refresh_token`)                  |
+| Property              | Type                     | Description                                                                                                                                                                |
+| --------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                  | `string`                 | Auth method id                                                                                                                                                             |
+| `label`               | `string`                 | UI label                                                                                                                                                                   |
+| `authorizationUrl`    | `string`                 | Provider authorize URL                                                                                                                                                     |
+| `tokenUrl`            | `string`                 | Provider token URL                                                                                                                                                         |
+| `scopes`              | `string[]`               | Requested scopes (optional)                                                                                                                                                |
+| `clientId`            | `ConfigFieldReference`   | Created with `ctx.config.field("clientId")`                                                                                                                                |
+| `clientSecret`        | `ConfigFieldReference`   | Created with `ctx.config.field("clientSecret")`                                                                                                                            |
+| `authorizationParams` | `Record<string, string>` | Extra static authorize-URL params. Reserved params (`client_id`, `redirect_uri`, `response_type`, `state`, `scope`, etc.) cannot be overridden.                            |
+| `scopeSeparator`      | `string`                 | Scope join delimiter; defaults to a space. Instagram needs `","`.                                                                                                          |
+| `tokenExchange`       | `OAuthTokenOp`           | Declarative one-time token transform run by core right after the code exchange (e.g. Instagram `ig_exchange_token` short→long-lived swap). If it fails, the connect fails. |
+| `tokenRefresh`        | `OAuthTokenOp`           | Declarative custom refresh strategy for providers without a standard `refresh_token` grant (e.g. Instagram `ig_refresh_token`)                                             |
 
 ```typescript
 interface OAuthTokenOp {
@@ -378,7 +384,10 @@ register.cron({
   handler: async (ctx) => {
     const fresh = await refreshSomehow(ctx.auth.get());
     // Buffered, returned to core, persisted encrypted; worker restarted.
-    ctx.auth.update({ accessToken: fresh.accessToken, expiresAt: fresh.expiresAt });
+    ctx.auth.update({
+      accessToken: fresh.accessToken,
+      expiresAt: fresh.expiresAt,
+    });
   },
   retryPolicy: { maxRetries: 3, backoff: "exponential" },
 });
