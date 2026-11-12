@@ -21,10 +21,6 @@ Source of truth: `webchat/src/types/index.ts` (`HayChatConfig`, `PublicConfig`) 
   window.HayChat.config = {
     organizationId: "YOUR_ORG_ID",
     baseUrl: "https://hay.example.com",
-    widgetTitle: "Chat with us",
-    position: "right",
-    showGreeting: true,
-    greetingMessage: "Hi! How can we help you today?",
   };
 </script>
 <script src="https://hay.example.com/v1/webchat/widget.js" async></script>
@@ -34,7 +30,7 @@ Source of truth: `webchat/src/types/index.ts` (`HayChatConfig`, `PublicConfig`) 
 
 ## Precedence
 
-Most options are also set in the dashboard. A value given in the embed config wins over the dashboard value; leave an option out to use the dashboard's. The dashboard snippet includes `widgetTitle`, `position`, `showGreeting` and `greetingMessage` (the last two only while the chat is switched on), so a site keeps the values it was embedded with until the snippet is copied again.
+Most options are also set in the dashboard. A value given in the embed config wins over the dashboard value; leave an option out to use the dashboard's. The dashboard snippet sets only `organizationId` and `baseUrl`, so every dashboard change reaches the site without updating the code.
 
 ## Config options
 

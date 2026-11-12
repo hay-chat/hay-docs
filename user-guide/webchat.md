@@ -115,7 +115,9 @@ The top of the Install tab shows whether the chat is running on your website:
 
 Copy the code and paste it before the closing `</body>` tag on every page of your site. If someone else looks after your website, click **Email these steps to a developer** to send them the code.
 
-The code includes your chat title, button position and greeting, and the values in the code win over the dashboard. If you change those later, copy the code again and update your website. Everything else (logo, colour, theme, heading and the rest) updates on your site as soon as you save.
+You only add the code once. Everything you change here (logo, colour, title, position, greeting and the rest) updates on your site as soon as you save.
+
+If your site has an older version of the code that also sets the title, position or greeting, those values win over the dashboard. Copy the code again to replace it.
 
 Developers can find every option the code accepts in the [Webchat embed reference](/docs/technical/webchat-embed/).
 
