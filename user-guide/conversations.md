@@ -80,6 +80,8 @@ For each AI response, you can see:
 
 - 👍 👎 **Feedback** - Rate the quality of the response
 
+> **Webchat visitors see when you've read their message.** Opening a webchat conversation in the inbox shows the visitor **Seen** under their last message. Only a person opening the conversation does this; the AI never does.
+
 ### Conversation Info Panel
 
 On the right side, view:
@@ -232,7 +234,7 @@ Make it a habit to review conversations to improve your agent:
 
 ### Responding to Feedback
 
-When customers rate messages with 👍 or 👎:
+Webchat visitors can rate the latest AI answer with 👍 or 👎 (their ratings show up in [Feedback Insights](/docs/user-guide/analytics/#feedback-insights)). When customers rate messages with 👍 or 👎:
 
 - Read those conversations carefully
 - Update documents if information was wrong

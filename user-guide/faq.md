@@ -137,7 +137,7 @@ Conversations are archived rather than deleted for compliance and learning. For 
 
 Popular integrations include:
 
-- Web Chat (embed on your website)
+- Web Chat (built in: **Channels** → **Webchat**, then embed on your website)
 - WhatsApp Business
 - Email
 - Shopify

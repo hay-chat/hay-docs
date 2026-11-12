@@ -55,29 +55,32 @@ Each integration has its own guide covering what it is, how to connect it, and w
 
 ### Web Chat
 
-Add a live chat widget to your website. Web Chat is a built-in Hay feature, not a marketplace plugin.
+Add a live chat to your website. Web Chat is a built-in Hay feature, not a marketplace plugin, and it is always the first card in **Channels**.
 
 **What it does:**
 
-- Embeds a chat button on your site
-- Customers click and start chatting instantly
-- Conversations go straight to your Hay dashboard
-- Fully customizable appearance
+- Adds a chat button to your site, in your brand colour
+- Visitors ask a question from the chat's home view and the AI answers straight away
+- Conversations go straight to your Hay inbox, where your team can take over
+- Your logo and brand colour come from your website automatically
 
 **How to set up:**
 
-1. Go to **Settings** → **Webchat**
-2. Copy the embed code
-3. Paste it into your website (usually before the closing `</body>` tag)
-4. Customize colors, position, and welcome message
-5. Save and test!
+1. Set your website in **Settings** → **General** so Hay can bring in your logo and colour
+2. Go to **Channels** and click the **Webchat** card
+3. On the **Install** tab, copy the code and paste it before the closing `</body>` tag on every page
+4. Adjust the look on **Appearance** and the wording on **Content**, watching the live preview
+5. Save. The Install tab shows **Working** once a page with the chat loads
 
 **Customization options:**
 
-- Button position (bottom-right, bottom-left, etc.)
-- Brand colors
-- Welcome message
-- Chat window size
+- Logo and any brand colour
+- Theme: Light, Dark, or Match the visitor
+- Button position (bottom right or bottom left)
+- Home heading, greeting, and a message next to the chat button
+- Pre-chat form and end-of-chat rating
+
+See the [Webchat](/docs/user-guide/webchat/) guide for every setting and for what your visitors see.
 
 ## Managing Integrations
 

@@ -33,7 +33,7 @@ Hay works where your team already does. You can connect integrations now or skip
 - **Shopify** - Access order and product information
 - **Zendesk** - Sync with your help desk
 
-> **Tip:** You can start with just the Web Chat widget and add more integrations later!
+> **Tip:** You can start with just the Web Chat widget and add more integrations later! Web Chat is built in: go to **Channels** and click the **Webchat** card to get the code for your website. See [Webchat](/docs/user-guide/webchat/).
 
 ## Step 2: Create Your First Agent
 

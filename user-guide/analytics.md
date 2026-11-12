@@ -48,14 +48,21 @@ For a walkthrough of each Dashboard widget, see [Dashboard Overview](/docs/user-
 
 ### How feedback is collected
 
-Feedback comes from **your team, not from customers**. When a dashboard user reviews a conversation, each AI message shows thumbs up / thumbs down controls. Clicking one opens a dialog with:
+Feedback comes from two places:
+
+- **Your team** — when a dashboard user reviews a conversation, each AI message shows thumbs up / thumbs down controls.
+- **Your website visitors** — in the [Webchat](/docs/user-guide/webchat/#in-a-conversation), the latest AI answer has thumbs up and thumbs down buttons. A thumbs up is recorded as `good`, a thumbs down as `bad`. Visitors can't leave a comment, and rating again replaces their earlier rating.
+
+When a team member clicks a thumb, a dialog opens with:
 
 - **Good** / **Bad** buttons
 - An optional **Comment (optional)** field ("What could be improved?")
 
 Once submitted, the message shows "Feedback recorded" with an **Edit** link to change it later.
 
-Ratings are stored as `good`, `bad`, or `neutral` - there is **no star rating and no 1-5 scale**. End customers cannot rate messages: the webchat widget has no feedback UI. Every rating is recorded with the reviewer who gave it.
+Ratings are stored as `good`, `bad`, or `neutral` - there is **no star rating and no 1-5 scale**. A team rating is recorded with the reviewer who gave it; a visitor rating has no reviewer. In the CSV export, the **Given By** column says `operator` (your team) or `visitor`.
+
+The separate end-of-chat rating in the Webchat (five faces, from Very bad to Great) rates the whole conversation, not a single message, and is not part of Feedback Insights.
 
 ### Stats cards
 
@@ -113,11 +120,11 @@ Shows sample AI-generated improvement suggestions. Accepting or rejecting them o
 
 ### Can customers rate my agent's responses?
 
-Not yet. Rating is an internal review tool: dashboard users rate AI messages with thumbs up/down inside the conversation view. The webchat widget shown to customers has no rating UI.
+Yes, in the Webchat. Visitors can give the latest AI answer a thumbs up or thumbs down, and those ratings appear in Feedback Insights next to your team's. When rating is turned on in the Webchat **Content** tab, visitors are also asked to rate the whole conversation when it ends.
 
 ### Where did the "Customer Satisfaction" score come from?
 
-If you saw it on the `/analytics` page, it is demo data. Hay's real quality signal is the **Success Rate** on Feedback Insights, calculated from your team's good/bad ratings.
+If you saw it on the `/analytics` page, it is demo data. Hay's real quality signal is the **Success Rate** on Feedback Insights, calculated from the good/bad ratings given by your team and your website visitors.
 
 ### Can I export analytics data?
 

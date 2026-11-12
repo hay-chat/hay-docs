@@ -1,29 +1,25 @@
 ---
 layout: docs.njk
 title: Account & Workspace Settings
-description: Configure your Hay organization, team, privacy, API access, webchat widget, Git connections, and AI models.
+description: Configure your Hay organization, team, business hours, privacy, API access, Git connections, and AI models.
 section: user-guide
 ---
 
 ## Accessing Settings
 
-Click **Settings** in the left sidebar to expand the settings menu. What you see depends on your role:
+Click **Settings** in the left sidebar to expand the settings menu. The menu is grouped into sections. What you see depends on your role:
 
 **Admins and Owners** see the full menu:
 
-- **General** — organization details, platform preferences, AI confidence guardrails
-- **Agents** — manage your AI agents (see the [Agents guide](/docs/user-guide/agents/))
-- **Channels** — manage communication channels
-- **Users** — team members and invitations
-- **Privacy & Data** — your own GDPR rights (export/delete your account)
-- **API Tokens** — organization-level API access
-- **Webchat** — website chat widget configuration
-- **Git Connections** — install plugins from GitHub repositories
-- **AI Models** — the AI provider and models behind your agents
+- **Assistant** — **Identity** (the assistant's name and avatar), **Actions**, and **AI Models** (the AI provider and models behind your agents)
+- **Channels** — **Channel list**: where customers reach you. **Webchat** is always the first card; it opens the [Webchat](/docs/user-guide/webchat/) settings page
+- **Workspace** — **General** (organization details, website, platform preferences, AI confidence guardrails), **Users** (team members and invitations), **Business Hours**, and **Single sign-on** (Owners only)
+- **Privacy** — **Workspace data** and **Customer Privacy** (GDPR requests on behalf of customers, and the data retention policy)
+- **Developers** — **API Tokens** (organization-level API access) and **Git Connections** (install plugins from GitHub repositories)
+- **Billing & Usage** — **Usage**
 
 **All roles** see:
 
-- **Customer Privacy** — GDPR requests on behalf of customers, and the data retention policy
 - **My Profile** — your personal profile, email, and password
 
 Installed plugins can add their own entries to the Settings menu (these are shown to Admins and Owners only).
@@ -35,8 +31,9 @@ Installed plugins can add their own entries to the Settings menu (these are show
 ### Organization
 
 - **Organization Name** — the name of your organization
+- **Website** — your store's website (for example `shop.com`). Hay reads its sitemap so the AI links only to pages that exist, and brings in the Webchat logo and brand colour from it (see [Webchat](/docs/user-guide/webchat/#brand-logo-and-colour-from-your-website))
 - **About Organization** — a free-text description of what your organization does (max 10,000 characters). This is not just cosmetic: it's given to the AI assistant as business context, so a good description improves response quality.
-- **Logo** — upload a square image, max 2MB (JPG, PNG, WebP, or GIF). You can remove it at any time.
+- **Logo** — upload a square image, max 2MB (JPG, PNG, WebP, or GIF). You can remove it at any time. The Webchat uses this logo when it has no logo of its own.
 
 ### Platform Settings
 
@@ -97,7 +94,7 @@ Hay has six roles: **Owner**, **Admin**, **Contributor**, **Member**, **Viewer**
 
 ## Privacy & Data (Your Own Data)
 
-**Settings** → **Privacy & Data** covers _your_ personal data as a Hay user, under GDPR. (For your customers' data, see [Customer Privacy](#customer-privacy) below.)
+**Settings** → **Privacy** → **Workspace data** (the page is titled **Privacy & Data**) covers _your_ personal data as a Hay user, under GDPR. (For your customers' data, see [Customer Privacy](#customer-privacy) below.)
 
 ### Export Your Data
 
@@ -152,28 +149,19 @@ For each token you can see its status (Active / Inactive / Expired), creation da
 
 > 🔒 **Security tip:** Treat API tokens like passwords. Never share them publicly or commit them to code repositories.
 
-## Webchat Settings
+## Business Hours
 
-**Settings** → **Webchat** ("Customize your website chat widget appearance and behavior").
+**Settings** → **Workspace** → **Business Hours** ("When your team answers each channel. Outside these hours the AI keeps answering, and conversations that need a person wait in the queue until you open."). Business Hours used to sit under **Channels**; it is now part of the **Workspace** section.
 
-### Widget Appearance
+- **Add schedule** — give it a **Name**, a **Timezone**, the **Channels** it covers, **Weekly hours**, and **Holidays and closures**. Leave every channel unticked to make a schedule the default for channels without their own schedule
+- **Right now** — what a shopper who asks for a person would be told on each channel at this moment
+- **Quick check with the team** — when the AI doesn't know a fact, it asks your team instead of handing the whole chat over
 
-- **Widget Title** (e.g., "Chat with us") and **Widget Subtitle** (e.g., "We typically reply within minutes")
-- **Position** — Left or Right side of the page
-- **Theme** — Blue, Green, Purple, or Black
+With no schedule, every channel counts as open. The Webchat uses your business hours for its status line ("Typically replies in …", "Back Mon 09:00").
 
-### Widget Behavior
+## Webchat
 
-- **Show greeting message when chat opens** — toggle, plus a customizable **Greeting Message**
-
-### Security & Access
-
-- **Allowed Domains** — one domain per line; use `*` to allow all domains. Controls where the widget can be embedded.
-- **Enable webchat widget** — master on/off toggle
-
-### Installation Code
-
-The page provides a ready-to-copy **Installation Code** snippet — add it to your website before the closing `</body>` tag.
+Webchat settings are no longer under **Settings** → **Webchat**. They have their own page, opened from the **Webchat** card in **Channels**. See the [Webchat](/docs/user-guide/webchat/) guide.
 
 ## Git Connections
 
@@ -212,7 +200,7 @@ Embeddings are always managed by Hay and pinned to 1536 dimensions. You can pick
 
 ## Customer Privacy
 
-**Settings** → **Customer Privacy** ("Manage GDPR data requests for your customers"). Available to all roles.
+**Settings** → **Privacy** → **Customer Privacy** ("Manage GDPR data requests for your customers").
 
 ### Data Retention Policy
 
@@ -252,7 +240,7 @@ View and track all customer privacy requests initiated by your organization.
 
 ### Who can access settings?
 
-Owners and Admins see the full settings menu. All other roles can access **Customer Privacy** and **My Profile**. Only Owners can delete the organization.
+Owners and Admins see the full settings menu. All other roles see **My Profile**. Only Owners can delete the organization or set up single sign-on.
 
 ### Where do I find my organization ID?
 
