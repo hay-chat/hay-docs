@@ -49,7 +49,7 @@ customer message ──> Conversation.addMessage()
               orchestrator.process queue
                        │
                        ▼
-  OrchestratorWorker.startConsuming()  (prefetch: 2)
+  OrchestratorWorker.startConsuming()  (prefetch: ORCHESTRATOR_CONCURRENCY, default 8)
                        │
                        ▼
   Orchestrator.processConversation() ──> runConversation()
@@ -155,6 +155,8 @@ Caps: `MAX_ITERATIONS = 15`, `MAX_EMPTY_RETRIES = 3` (after which a canned fallb
 ## Guardrails (Three-Stage)
 
 Applied by `ExecutionLayer.applyConfidenceGuardrails()` **only to `RESPOND` steps**:
+
+The stages decide in the order below, but their LLM calls overlap: unless the reply is exempt (greeting or goodbye without factual specifics), the Stage 1 company-interest check and the Stage 2 grounding check start together with Stage 0, and Stage 2's grounding and certainty calls run in parallel. If an earlier stage stops the reply, the early results are dropped; if the link check rewrites it, Stages 1 and 2 run again on the text that is sent.
 
 0. **Action-claim consistency** (`action-claim-guardrail.service.ts`, prompt `execution/action-claim-check`) — runs first, _before_ the intent exemption, so a false "I've cancelled it, glad I could help!" on a closing turn is still caught. An LLM extracts state-changing action claims from the drafted response and checks them against the turn's tool ledger (failed calls don't back a claim). On violation the planner gets one corrective re-plan with explicit feedback (`maxRetries: 1` per turn); if the retry still can't back its claim, the result becomes a `HANDOFF` (or the fallback message when `escalateOnFailure` is off). Defaults in `DEFAULT_ACTION_CLAIM_GUARDRAIL_CONFIG` (`server/types/organization-settings.types.ts`): `{ enabled: true, maxRetries: 1, escalateOnFailure: true }`, org-overridable via `settings.actionClaimGuardrail`.
 
