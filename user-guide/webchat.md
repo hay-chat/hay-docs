@@ -156,7 +156,7 @@ If the visitor already has a conversation in progress, opening the chat goes str
 
 ### Your conversations
 
-Returning visitors see **Your conversations** on the home view: a conversation still in progress first (marked **Open**, with its last message), then up to three recent ended conversations with their date. A visitor can open one to read it again. The list only appears once the visitor has agreed to the chat storing data on their device, so it never shows on a first visit.
+Returning visitors see **Your conversations** on the home view: up to three of their conversations, one still in progress first (marked **Open**, with its last message), then ended ones with their date. A visitor can open one to read it again. The conversation open in the current browser tab is always listed; earlier ones appear once the visitor has agreed to the chat storing data on their device, so a first visit shows none. A signed-in customer also sees conversations they started on another device; those are listed but can only be opened on the device where they started, and the chat says so.
 
 ### In a conversation
 
