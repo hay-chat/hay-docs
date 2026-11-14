@@ -26,6 +26,7 @@ Hay plugins are **code-first**: a plugin is an npm package whose `package.json` 
   - [register.ui.page](#registeruipage)
   - [register.cron](#registercron)
   - [register.webhookRouting](#registerwebhookrouting)
+  - [register.webchat](#registerwebchat)
 - [Runtime APIs](#runtime-apis)
   - [ctx.config](#ctxconfig)
   - [ctx.auth](#ctxauth)
@@ -439,6 +440,50 @@ register.webhookRouting({
 });
 ```
 
+### register.webchat
+
+`RegisterWebchatAPI` (`packages/plugin-sdk/types/webchat.ts`) — for plugins that declare the `webchat` capability. A plugin extends the webchat widget with **data, never code**: it declares a contribution of a fixed, versioned type, Core validates the props against the schema it owns for that type, and the widget acts on it with its own built-in code. Props are literals or `config.field("name")` references.
+
+| Type          | What it does                                                                                   |
+| ------------- | ---------------------------------------------------------------------------------------------- |
+| `challenge@1` | A bot check shown before a conversation starts (see `plugins/core/turnstile`).                 |
+| `cart@1`      | Tells the widget how to add a product to the cart of the store it is embedded on (see below). |
+
+#### `cart@1`: add to cart from the chat
+
+A store plugin describes its platform's cart requests. The widget sends them from the shopper's browser, to the page's own origin only, in two cases: the shopper clicks **Add to cart** on a product card, or the AI calls the core tools `add_to_cart` / `go_to_checkout`.
+
+```typescript
+register.webchat.contribution({
+  id: "cart",
+  type: "cart@1",
+  props: {
+    enabled: config.field("cartActions"), // the org's switch, usually a boolean defaulting to true
+    addPath: "/cart/add",
+    addBody: '{"id":{{cartItemId}},"quantity":{{quantity}}}',
+    checkoutPath: "/checkout",
+  },
+});
+```
+
+| Prop                                                      | Required | Notes                                                                                                                                                                             |
+| --------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`                                                 | no       | Default `true`. `false` withdraws the contribution.                                                                                                                               |
+| `addPath`                                                 | yes      | Path the widget POSTs to. One leading slash: it can only name the page's own origin.                                                                                              |
+| `addBody`                                                 | yes      | The JSON body as text. The widget fills `{{cartItemId}}`, `{{quantity}}` and `{{conversationId}}`; quote a placeholder where the store expects a string. Must be JSON once filled. |
+| `checkoutPath`                                            | yes      | Where the card's **Checkout** link and `go_to_checkout` take the shopper.                                                                                                         |
+| `tokenPath`, `tokenResponseHeader`, `tokenRequestHeader` | no       | For stores that want a token on cart writes: the widget GETs `tokenPath`, reads the response header and sends it back as the request header. Set all three or none.               |
+| `afterAddEvents`                                          | no       | JSON array as text of DOM events fired after a successful add so the theme refreshes its cart: `[{ "name": "…", "target": "body" \| "window", "detail": { … } }]`, at most 8.      |
+| `rootPathGlobal`                                          | no       | Dotted name of a page global holding the storefront's root path (a locale folder such as `/en-ca/`), put in front of the cart paths.                                              |
+
+A product is offered for adding when all of these hold:
+
+- its catalog `source` is the contributing plugin,
+- the page the widget is on belongs to the same site as the product's `sourceUrl`,
+- the variant carries a `cartItemId` (see [ctx.productSource](#ctxproductsource)).
+
+The widget always fires `hay:cart-updated` on `document.body` after a successful add, so a theme can refresh its cart with one listener. If the store refuses the request, the card falls back to the variant's `buyUrl`.
+
 ---
 
 ## Runtime APIs
@@ -512,7 +557,7 @@ productSource.upsert(products: CanonicalProduct[]): Promise<{ upserted: number; 
 productSource.delete(externalId: string): Promise<{ removed: boolean }>
 ```
 
-`CanonicalProduct` (same file) is the canonical catalog shape: `externalId`, `handle`, `title`, `variants: CanonicalVariant[]` (required), plus optional `descriptionHtml`, `vendor`, `productType`, `status: "active" | "draft" | "archived"`, `tags`, `categories`, `options`, `images`, `currency`, `sourceUrl`, `attributes`. Variants carry `externalId`, `title`, and optional `sku`, `price`, `compareAtPrice`, `inventoryQuantity`, `availability: "in_stock" | "out_of_stock" | "backorder"`, etc. Upserts are idempotent on `(source, externalId)`; core stamps `source` from the authenticated plugin id. See `plugins/core/shopify` for a full sync implementation (initial sync via cron + webhook-driven updates).
+`CanonicalProduct` (same file) is the canonical catalog shape: `externalId`, `handle`, `title`, `variants: CanonicalVariant[]` (required), plus optional `descriptionHtml`, `vendor`, `productType`, `status: "active" | "draft" | "archived"`, `tags`, `categories`, `options`, `images`, `currency`, `sourceUrl`, `attributes`. Variants carry `externalId`, `title`, and optional `sku`, `price`, `compareAtPrice`, `inventoryQuantity`, `availability: "in_stock" | "out_of_stock" | "backorder"`, etc. Two optional variant fields let shoppers buy from the chat: `buyUrl`, a link that puts the variant in the cart or opens checkout with it (shown as a **Buy** button on product cards and as a link on text channels), and `cartItemId`, the id the store's own cart takes for the variant, used by the plugin's [`cart@1` contribution](#cart1-add-to-cart-from-the-chat). Upserts are idempotent on `(source, externalId)`; core stamps `source` from the authenticated plugin id. See `plugins/core/shopify` for a full sync implementation (initial sync via cron + webhook-driven updates).
 
 ---
 
