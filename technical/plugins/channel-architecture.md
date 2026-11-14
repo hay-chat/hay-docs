@@ -279,13 +279,14 @@ The convention (established by Chatwoot, followed by Instagram in `plugins/core/
 
 Instagram's mapping:
 
-| Condition                                                      | Response                                              |
-| -------------------------------------------------------------- | ----------------------------------------------------- |
-| Sent OK                                                        | `200 { success: true, providerMessageId }`            |
-| 24h messaging window expired (Graph code 10 / subcode 2534022) | `200 { success: false, error: "24h_window_expired" }` |
-| Other Graph 4xx                                                | `200 { success: false, error: "graph_<status>" }`     |
-| Network error / Graph 5xx                                      | `500 { success: false, error }`                       |
-| Credentials not loaded                                         | `503 { success: false, error }`                       |
+| Condition                                                      | Response                                                                   |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Sent OK                                                        | `200 { success: true, providerMessageId }`                                 |
+| 24h messaging window expired (Graph code 10 / subcode 2534022) | `200 { success: false, error: "24h_window_expired" }`                      |
+| Token expired or revoked (Graph code 190)                      | `200 { success: false, error: "token_revoked" }`, then `connection.revoke` |
+| Other Graph 4xx                                                | `200 { success: false, error: "graph_<code>" }`                            |
+| Network error / Graph 5xx                                      | `500 { success: false, error }`                                            |
+| Credentials not loaded                                         | `503 { success: false, error }`                                            |
 
 Core specifically recognizes `"24h_window_expired"` and logs it as a warning rather than an error.
 
