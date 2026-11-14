@@ -274,6 +274,14 @@ To update existing document:
 
 Changes are reflected immediately.
 
+### Visibility
+
+Every document has a visibility, shown on its page. Anyone who can edit documents can change it there.
+
+- **Private**: the assistant can use it, and it is never published.
+- **Internal**: the assistant can use it, but never shows a link to it to a customer, even for pages imported from a website.
+- **Public**: the assistant may show customers a link to it when it has one, and it can appear on your [help center](/docs/user-guide/help-center/) once it is published and placed in a collection. Making a document public asks you to confirm.
+
 ### Searching Documents
 
 Use the search bar to find specific documents:
