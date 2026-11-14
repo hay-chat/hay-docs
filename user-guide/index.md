@@ -69,6 +69,7 @@ Your customer data stays secure and private. Hay is built with GDPR compliance a
 
 - [Inbox](/docs/user-guide/inbox/): the conversations that need a person right now, quick questions from the AI, and spam you can check
 - [Quality: Feedback, Insights and Tests](/docs/user-guide/analytics/): rate replies, read the nightly [Insights](/docs/user-guide/insights/) and replay past conversations with [Tests](/docs/user-guide/tests/)
+- [Help center](/docs/user-guide/help-center/): publish your documents as a public website your customers can search, on a Hay address or your own domain
 - [Action approvals](/docs/user-guide/action-approvals/): decide which refunds, cancellations and discounts need a person's yes
 - [Team alerts, pause and business hours](/docs/user-guide/team-alerts-and-hours/): get alerted when a shopper needs a person, and pause the AI everywhere
 - [Billing and usage](/docs/user-guide/billing-and-usage/): what counts as a resolution and how to review it

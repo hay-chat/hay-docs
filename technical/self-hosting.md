@@ -1,7 +1,7 @@
 ---
 layout: docs.njk
 title: Self-Hosting Configuration
-description: Environment variables for self-hosted Hay.chat installations - AI providers, EU-only processing, push alerts, telemetry and operator integrations.
+description: Environment variables for self-hosted Hay.chat installations - AI providers, EU-only processing, push alerts, telemetry, help centers and operator integrations.
 section: technical
 navGroup: Introduction
 navOrder: 4
@@ -63,6 +63,22 @@ Two optional settings let an external operator (for example a billing system) ma
 ## Conversation timing
 
 `CONVERSATION_INACTIVITY_INTERVAL` (milliseconds, default 1800000) sets when quiet conversations close: a warning at half the value, a close with a sign-off message at the value and a silent close at double. See [Billing and Usage](/docs/user-guide/billing-and-usage/#how-conversations-close-by-themselves).
+
+## Help center
+
+Each organization can publish a public [help center](/docs/user-guide/help-center/), served by the Hay server itself at `<subdomain>.<HELP_CENTER_DOMAIN>` and, optionally, on a custom domain the organization owns. The feature is off until `HELP_CENTER_DOMAIN` is set.
+
+1. Reserve a domain or subdomain for help centers, for example `help.example.com`. It must not be `HAY_DOMAIN`. A different registered domain from the dashboard's is safer, because help centers show content written by your organizations and browsers treat subdomains of one domain as the same site.
+2. Create a wildcard DNS record `*.help.example.com` (A, and AAAA if you use IPv6) pointing at the server.
+3. Set `HELP_CENTER_DOMAIN=help.example.com` (host name only, no `https://`) and restart with `docker compose up -d`.
+
+**Certificates.** The bundled Caddy gets a certificate for each help center hostname on its first request. Before asking Let's Encrypt it calls `/internal/help-center/tls-ask` on the server, which only says yes for an existing subdomain or a verified custom domain. That endpoint is unauthenticated: never expose `/internal/*` through your reverse proxy (the bundled Caddyfile blocks it).
+
+**Custom domains.** The organization adds a CNAME pointing at `hc-<random>.<HELP_CENTER_DOMAIN>` (or a TXT record when its DNS provider hides CNAMEs). The domain must resolve straight to your server, not to a CDN that ends TLS in front of it. Verified domains are re-checked daily and stop routing after three failed checks in a row.
+
+**Rate limits.** Every help center subdomain counts towards Let's Encrypt's weekly limit for `HELP_CENTER_DOMAIN`'s registered domain. If you expect many help centers, serve the subdomains with one wildcard certificate using a Caddy build with your DNS provider's module. `SELF_HOSTING.md` in the repository has a Caddyfile example.
+
+Behind your own proxy instead of the bundled Caddy, send every request for a help center hostname (all paths except `/internal/*`) to the server on port 3001 with the `Host` header unchanged, since the server picks the site from it. Add the request header `X-Hay-Edge: help-center` on that route, so a hostname that is not a help center gets a 404 instead of the API.
 
 ## Other optional settings
 
