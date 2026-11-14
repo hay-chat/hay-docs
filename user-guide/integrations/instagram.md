@@ -18,7 +18,7 @@ Before you start, you need an Instagram **Professional account** (Business or Cr
 3. Click **Connect Instagram**
 4. You'll be taken to Instagram to sign in. Log in with the Instagram Professional account you want Hay to manage
 5. Approve the requested permissions (basic account access and permission to manage messages)
-6. You're returned to Hay with the connection saved — there are no tokens or keys to copy and paste, and Hay keeps the connection refreshed automatically
+6. You're returned to Hay with the connection saved — there are no tokens or keys to copy and paste, and Hay keeps the connection refreshed automatically. If Instagram refuses to renew it, owners and admins are emailed about 3 days before it expires so they can reconnect
 
 Incoming DMs are then answered by your Hay assistant. There is no per-channel assistant to pick.
 

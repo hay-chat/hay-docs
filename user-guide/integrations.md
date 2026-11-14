@@ -362,6 +362,12 @@ No. Hay has a single assistant per organization and it answers on every channel.
 
 A failing channel shows **This channel is failing** on its settings page, and owners and admins are notified by email and push. Hay continues working, but messages on that channel may not come through until it is reconnected.
 
+If a connection was revoked or expired, the email subject starts with **Action needed** and asks you to reconnect. Open the channel's settings page from the email and sign in again.
+
+### Will Hay warn me before a connection expires?
+
+Yes. Hay renews connections such as Instagram automatically, well before they expire. If the provider keeps refusing to renew one, owners and admins get an **Action needed** email and push about 3 days before it expires, and the channel's settings page shows **This channel's connection is about to expire** with the date. Reconnect before then and messages keep flowing. The warning clears by itself if a later renewal succeeds.
+
 ### Are there limits on message volume?
 
 Depends on the integration. Hay itself has no limits, but some platforms (like WhatsApp) have their own rate limits.
