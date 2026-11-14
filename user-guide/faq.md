@@ -137,7 +137,7 @@ Conversations can be deleted from the conversation view. If data retention is co
 
 Popular integrations include:
 
-- Web Chat (embed on your website)
+- Web Chat (built in: **Channels** → **Webchat**, then embed on your website)
 - WhatsApp Business
 - Email
 - Shopify

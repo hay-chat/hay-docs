@@ -1,7 +1,7 @@
 ---
 layout: docs.njk
 title: Account & Workspace Settings
-description: Configure your Hay organization, team, privacy, API access, webchat widget, Git connections, and AI models.
+description: Configure your Hay organization, team, business hours, privacy, API access, Git connections, and AI models.
 section: user-guide
 ---
 
@@ -12,8 +12,8 @@ Click **Settings** in the left sidebar to expand the settings menu. Each entry i
 **Admins and Owners** see:
 
 - **Assistant** - tabs **Identity**, **Actions** and **AI Models** (see the [AI assistant guide](/docs/user-guide/agents/) and [Action approvals](/docs/user-guide/action-approvals/))
-- **Channels** - tabs **Channel list**, **Webchat** and **Business Hours**
-- **Workspace** - tabs **General** and **Users**
+- **Channels** - **Channel list**: where customers reach you. **Webchat** is always the first card and opens the [Webchat](/docs/user-guide/webchat/) settings page
+- **Workspace** - tabs **General**, **Users**, **Business Hours** and **Single sign-on** (Owners only)
 - **Privacy** - tabs **Workspace data** and **Customer Privacy**
 - **Developers** - tabs **API Tokens** and **Git Connections**
 - **Billing & Usage** - **Usage** (see [Billing and usage](/docs/user-guide/billing-and-usage/))
@@ -30,9 +30,9 @@ Installed integrations can add their own entries to the Settings menu (shown to 
 ### Organization
 
 - **Organization Name** — the name of your organization
+- **Website** — your store's website (for example `shop.com`). Hay reads its sitemap so the AI links only to pages that exist, and brings in the Webchat logo and brand colour from it (see [Webchat](/docs/user-guide/webchat/#brand-logo-and-colour-from-your-website))
 - **About Organization** — a free-text description of what your organization does (max 10,000 characters). This is not just cosmetic: it's given to the AI assistant as business context, so a good description improves response quality.
-- **Website** — your store's website (for example `shop.com`). Hay.chat reads its sitemap so the AI links only to pages that exist.
-- **Logo** — upload a square image, max 2MB (JPG, PNG, WebP, or GIF). You can remove it at any time.
+- **Logo** — upload a square image, max 2MB (JPG, PNG, WebP, or GIF). You can remove it at any time. The Webchat uses this logo when it has no logo of its own.
 
 ### Platform Settings
 
@@ -150,100 +150,19 @@ For each token you can see its status (Active / Inactive / Expired), creation da
 
 > 🔒 **Security tip:** Treat API tokens like passwords. Never share them publicly or commit them to code repositories.
 
-## Webchat Settings
+## Business Hours
 
-**Settings** → **Channels** → **Webchat** ("Customize your website chat widget appearance and behavior").
+**Settings** → **Workspace** → **Business Hours** ("When your team answers each channel. Outside these hours the AI keeps answering, and conversations that need a person wait in the queue until you open."). Business Hours used to sit under **Channels**; it is now part of the **Workspace** section.
 
-### Widget Appearance
+- **Add schedule** — give it a **Name**, a **Timezone**, the **Channels** it covers, **Weekly hours**, and **Holidays and closures**. Leave every channel unticked to make a schedule the default for channels without their own schedule
+- **Right now** — what a shopper who asks for a person would be told on each channel at this moment
+- **Quick check with the team** — when the AI doesn't know a fact, it asks your team instead of handing the whole chat over
 
-The **Appearance** tab. The preview next to the settings updates as you change them; show it as the **Button**, **Home**, **Chat** or **Ended**, on **Desktop** or **Mobile**, in **Light** or **Dark**. Changes go live when you click **Save** in the bar at the bottom. Uploads apply straight away.
+With no schedule, every channel counts as open. The Webchat uses your business hours for its status line ("Typically replies in …", "Back Mon 09:00").
 
-- **Logo** — taken from your website icon, or upload your own (PNG, JPG, WebP or GIF, up to 2 MB). Without one, the chat shows your first letter.
-- **Brand colour** — colours found in your website icon, or pick any colour. Text on it stays readable automatically.
-- **Theme** — Light, Dark, or Match the visitor
-- **Button position** — Bottom right or Bottom left
+## Webchat
 
-#### Chat button
-
-The round button visitors click to open the chat, in your brand colour.
-
-- **Icon** — Chat bubble, Sparkle or Robot
-- **Icon style** — Outline or Filled
-- **Upload your own SVG** — up to 100 KB. It shows in one colour, white or dark to suit your brand colour, and becomes the **Your icon** choice. **Remove** goes back to the chat bubble.
-
-#### Assistant
-
-How the assistant appears in the chat header and next to its replies. They belong to your assistant, so they also show elsewhere in Hay. You can change the name in **Settings** → **Assistant** too.
-
-- **Name** — the assistant's name, for example "Ava"
-- **Avatar** — Sparkle, Sparkles or Robot, drawn in your brand colour. Or **Upload a picture** (PNG, JPG, WebP or GIF, up to 2 MB), which shows instead of the icon; pick an icon again to remove the picture.
-
-### Widget Behavior
-
-- **Chat title** — shown at the top of a conversation when the assistant has no name
-- **Show greeting message when chat opens** — toggle, plus a customizable **Greeting Message**
-- **Teaser Message** — a short message (up to 200 characters) shown next to the chat button before the visitor opens the chat. Leave it empty to show nothing. See [Teaser message](#teaser-message) below.
-- **Customer Satisfaction (CSAT)** — ask visitors for a 1-5 emoji rating when a conversation ends, with an optional **Rating Question**
-
-### Security & Access
-
-- **Allowed Domains** — one domain per line, for example `shop.com` or `*.shop.com` for every subdomain (`www.shop.com` needs its own line or the wildcard); `*` allows all domains. Controls where the widget can be embedded.
-- **Enable webchat widget** — master on/off toggle
-
-### Spam protection and other options
-
-- **Spam protection** — Hay.chat screens the first messages of every web chat conversation and holds spam from the AI. Spam never counts toward your bill. **Double-check suspicious chats with AI** and **Guidance for the spam check** tune it.
-- **Under-attack mode** — makes every visitor solve a bot check before their first message. It turns on by itself after an unusual burst of new chats; **Turn on** / **Turn off** lets you control it.
-- **Page tools** — let the AI use actions your own web pages register in the visitor's browser. Off until you tick **Allow page tools**; **Sites allowed to register page tools** lists the origins.
-- **Signed-in customers** — to link a chat to a signed-in customer, your website's server signs the customer ID with a secret. **Show secret** and **Replace secret** (admins only).
-
-### Installation Code
-
-The page provides a ready-to-copy **Installation Code** snippet — add it to your website before the closing `</body>` tag.
-
-### Teaser message
-
-The teaser is a small bubble above the chat button that invites visitors to start a conversation, for example "Questions about pricing? Chat with us!". Clicking it opens the chat, and the visitor can dismiss it with the ✕. It goes away once the chat is opened, and it is not shown to a visitor who already has a conversation in progress.
-
-There are two ways to set it.
-
-**In the dashboard:** fill in **Teaser Message** under **Widget Behavior** and save. The change reaches your website straight away; you don't need to copy the Installation Code again.
-
-**In code:** add `teaserMessage` to the widget config. A value here replaces the dashboard one on that page, so you can use a different message on different pages. An empty string (`""`) turns the teaser off for that page.
-
-```html
-<script>
-  window.HayChat = window.HayChat || {};
-  window.HayChat.config = {
-    organizationId: "your-org-id",
-    baseUrl: "https://your-api-domain.com",
-    teaserMessage: "👋 Questions about pricing? Chat with us!",
-  };
-</script>
-<script src="https://your-api-domain.com/v1/webchat/widget.js" async></script>
-```
-
-To show or change the teaser later, after a delay or when the visitor does something, call `HayChat.setTeaserMessage`:
-
-```js
-// Show or replace the teaser
-window.HayChat.setTeaserMessage("Still deciding? Ask us anything");
-
-// Remove it
-window.HayChat.setTeaserMessage("");
-
-// Example: after 30 seconds on the page
-setTimeout(() => {
-  window.HayChat?.setTeaserMessage?.("Need a hand? We're here.");
-}, 30000);
-```
-
-Good to know:
-
-- `setTeaserMessage` is available once the widget script has loaded. For a message that should be there from the start, use `teaserMessage` in the config.
-- A message set with `setTeaserMessage` shows even if the visitor dismissed an earlier one, but never while the chat is open.
-- A dismissed teaser comes back on the next page load until the visitor starts a conversation.
-- If the widget is set to `loading: "interaction"`, the dashboard message is not fetched up front, so only a message set in code shows.
+Webchat settings are no longer under **Settings** → **Webchat**. They have their own page, opened from the **Webchat** card in **Channels**. See the [Webchat](/docs/user-guide/webchat/) guide.
 
 ## Git Connections
 
@@ -333,7 +252,7 @@ View and track all customer privacy requests initiated by your organization.
 
 ### Who can access settings?
 
-Owners and Admins see the full settings menu. All other roles see **My Profile** only. Only Owners can delete the organization.
+Owners and Admins see the full settings menu. All other roles see **My Profile**. Only Owners can delete the organization or set up single sign-on.
 
 ### Where do I find my organization ID?
 

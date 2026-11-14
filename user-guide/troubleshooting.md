@@ -184,28 +184,37 @@ section: user-guide
 
 **Solutions:**
 
-1. **Verify embed code:**
+1. **Check the install status:**
 
-   - Check code is placed before `</body>` tag
+   - Go to **Channels** → **Webchat** → **Install**
+   - **Working** means the chat has loaded on a page of your site; the line next to it says where and when
+   - **Not installed yet** means no page with the chat has loaded yet
+   - **Off** means **Show on your website** is switched off. Turn it on and click **Save**
+
+2. **Verify embed code:**
+
+   - Copy the code again from the **Install** tab
+   - Check code is placed before `</body>` tag on every page
    - Ensure no extra characters or spaces
-   - Verify script URL is correct
+   - Verify the script URL is correct
 
-2. **Check conflicts:**
+3. **Check conflicts:**
 
    - Other chat widgets may interfere
    - Check browser console for JavaScript errors
    - Test on different browser
 
-3. **Cache issues:**
+4. **Cache issues:**
 
    - Clear browser cache
    - Hard refresh (Ctrl+Shift+R or Cmd+Shift+R)
    - Try incognito/private browsing
 
-4. **Domain restrictions:**
-   - Verify domain is allowed
-   - Check integration settings
-   - Add domain if needed
+5. **Domain restrictions:**
+   - On the **Install** tab, check **Allowed websites**
+   - Add your domain (one per line, `*.shop.com` for every subdomain) and click **Save**
+
+See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
 
 ## Login & Access Issues
 

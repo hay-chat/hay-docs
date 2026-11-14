@@ -364,6 +364,7 @@ The rules baked into this file matter:
 - Credentials come in via `process.env` here (they were passed by `startLocalStdio`'s `env` option) — this is the one place `process.env` is correct.
 - `stdout` carries JSON-RPC; anything you `console.log` corrupts the protocol. Log to `console.error`.
 - Rich tool descriptions and zod schemas with `.describe()` on every parameter are what make the agent call your tools correctly. Cross-tool hints ("use X for Y instead") help even more.
+- Optionally give each tool a progress label for the webchat ("Looking up your order" / "Checked your order"). `server.tool()` can't carry them; use `server.registerTool()` with `_meta: { "chat.hay/label": …, "chat.hay/doneLabel": … }`. See [Tool progress labels](/docs/technical/plugins/api-reference/#tool-progress-labels).
 
 **How `mcp/` dependencies get installed:** the `mcp/` directory is **not** part of the npm workspace, so its dependencies are installed separately from the plugin root's. Two paths handle it for you:
 

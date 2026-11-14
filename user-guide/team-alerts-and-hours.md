@@ -37,7 +37,7 @@ Switch it back on from the same place when you are ready.
 
 ## Business hours
 
-Go to **Settings** → **Channels** → **Business Hours** (Admins and Owners).
+Go to **Settings** → **Workspace** → **Business Hours** (Admins and Owners).
 
 - Add a **schedule** with weekly opening hours in your store's time zone. A closing time earlier than the opening time runs past midnight.
 - Add **holidays and closures**: whole days your team is closed.

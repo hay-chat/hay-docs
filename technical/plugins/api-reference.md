@@ -31,6 +31,7 @@ Hay plugins are **code-first**: a plugin is an npm package whose `package.json` 
   - [ctx.config](#ctxconfig)
   - [ctx.auth](#ctxauth)
   - [ctx.mcp](#ctxmcp)
+  - [Tool progress labels](#tool-progress-labels)
   - [ctx.productSource](#ctxproductsource)
 - [Worker HTTP Contract](#worker-http-contract)
 - [Plugin → Core Callback API](#plugin--core-callback-api)
@@ -556,6 +557,36 @@ await ctx.mcp.startLocal("my-mcp", (mcpCtx) => new MyMcpServer(mcpCtx));
 ```
 
 > **Known framework gap:** nothing runs `npm install` inside `mcp/` at build time (and `node_modules` is gitignored repo-wide). Plugins with a local stdio MCP server must either ensure `mcp/node_modules` exists on the host (run `npm install` inside `mcp/` manually, as `plugins/core/klaviyo` requires) or use only Node built-ins.
+
+### Tool progress labels
+
+While the AI runs a tool in a webchat conversation, the widget replaces its typing dots with a progress line, then keeps a short "done" line above the answer. A tool definition can name both. They are optional, under 80 characters (longer text is cut), written for the shopper, in sentence case:
+
+| Field       | Shown                       | Example                 |
+| ----------- | --------------------------- | ----------------------- |
+| `label`     | while the tool runs         | `Looking up your order` |
+| `doneLabel` | once it finished (with a ✓) | `Checked your order`    |
+
+Without them the widget says "Working on it…" and "Done". Tools listed as plain objects (an in-process server's `listTools()`) set `label` / `doneLabel` on the tool. MCP SDK servers only send standard fields in `tools/list`, so they set the same in the tool's `_meta` under `chat.hay/label` and `chat.hay/doneLabel` (types `ToolActivityLabels` / `ToolActivityLabelsMeta` in `@hay/plugin-sdk/types`):
+
+```js
+server.registerTool(
+  "store_get_order",
+  {
+    description: "…",
+    inputSchema: shape,
+    _meta: {
+      "chat.hay/label": "Looking up your order",
+      "chat.hay/doneLabel": "Checked your order",
+    },
+  },
+  handler,
+);
+```
+
+A remote server started with `startExternal` shows labels only if it sends these `_meta` keys itself. Core reads the labels from its tool cache (`server/services/plugin-tools.service.ts`, refreshed when the worker starts), so a change shows after the plugin restarts. The widget receives them in the `agent_activity` socket frame (see the [Webchat Embed Reference](/docs/technical/webchat-embed/#live-updates-in-the-widget)). Page tools registered by the merchant's website keep their own overlay.
+
+These labels are not the `tools.<name>.label` in the plugin's [i18n bundle](#internationalization-i18n), which is the tool's display name in the dashboard.
 
 ### ctx.productSource
 

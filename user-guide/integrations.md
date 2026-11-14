@@ -61,33 +61,37 @@ Each integration has its own guide covering what it is, how to connect it, and w
 
 ### Web Chat
 
-Add a live chat widget to your website. Web Chat is a built-in Hay feature, not a marketplace plugin.
+Add a live chat to your website. Web Chat is a built-in Hay feature, not a marketplace plugin, and it is always the first card in **Channels**.
 
 **What it does:**
 
-- Embeds a chat button on your site
-- Customers click and start chatting instantly
-- Conversations go straight to your Hay dashboard
-- Fully customizable appearance
+- Adds a chat button to your site, in your brand colour
+- Visitors ask a question from the chat's home view and the AI answers straight away
+- Conversations go straight to your Hay inbox, where your team can take over
+- Your logo and brand colour come from your website automatically
 - Shoppers can attach photos (JPG, PNG, GIF, WebP) or PDFs up to 10 MB, and the AI reads them
 - Optional bot protection with Cloudflare Turnstile (see below)
 
 **How to set up:**
 
-1. Go to **Settings** → **Channels** → **Webchat**
-2. Copy the **Installation Code**
-3. Paste it into your website (usually before the closing `</body>` tag)
-4. Customize colors, position, and welcome message
-5. Save and test!
+1. Set your website in **Settings** → **Workspace** → **General** so Hay can bring in your logo and colour
+2. Go to **Settings** → **Channels** and click the **Webchat** card
+3. On the **Install** tab, copy the code and paste it before the closing `</body>` tag on every page
+4. Adjust the look on **Appearance** and the wording on **Content**, watching the live preview
+5. Save. The Install tab shows **Working** once a page with the chat loads
 
 **Bot protection:** install the **Turnstile** plugin to stop bots from opening conversations. **Invisible** (recommended) checks visitors in the background and asks for a click only when Cloudflare is unsure; **Challenge everyone** shows the check before a visitor's first message; **Off** disables it. If one workspace suddenly gets a flood of new chats, Hay.chat can challenge every visitor for a few hours automatically.
 
 **Customization options:**
 
-- Widget position (right or left)
-- Theme colors (blue, green, purple, black)
-- Greeting message
-- Teaser message next to the chat button, set in the dashboard or in code (see [Teaser message](/docs/user-guide/settings/#teaser-message))
+- Logo and any brand colour
+- Theme: Light, Dark, or Match the visitor
+- Button position (bottom right or bottom left) and the chat button icon
+- The assistant's name and avatar
+- Home heading, greeting, and a message next to the chat button (see [Message next to the chat button](/docs/user-guide/webchat/#message-next-to-the-chat-button))
+- Pre-chat form and end-of-chat rating
+
+See the [Webchat](/docs/user-guide/webchat/) guide for every setting and for what your visitors see.
 
 ## Managing Integrations
 
@@ -98,7 +102,7 @@ Add a live chat widget to your website. Web Chat is a built-in Hay feature, not 
 - The **Marketplace** page starts with a **Connected** list of every integration you have added, each marked **Connected** or **Finish setup**
 - In the sidebar, an amber dot next to an integration means it still needs setup
 - Each integration's own settings page shows its status (**Connected**, **Needs action** or **Not working**) and has three tabs: **Setup**, **What it can do** and, when the integration has technical values, **Advanced**
-- **Settings** → **Channels** → **Channel list** lists your active communication channels, each with a **Configure** button
+- **Settings** → **Channels** → **Channel list** shows **Webchat** first, then your active channel integrations; click a card to open its settings
 
 ### Configuring an Integration
 
@@ -204,7 +208,7 @@ Different channels may have different needs:
 Hay has one assistant for the whole organization, so it answers the same way on every channel. What you can set per channel:
 
 - Whether the AI replies on its own, only drafts replies for a person to approve, or is off (**Settings** → **Privacy** → **Customer Privacy** → **AI on your channels**)
-- Opening hours (**Settings** → **Channels** → **Business Hours**)
+- Opening hours (**Settings** → **Workspace** → **Business Hours**)
 - The label that tells shoppers a reply comes from AI
 
 ## Troubleshooting Integrations

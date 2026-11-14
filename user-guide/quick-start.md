@@ -33,7 +33,7 @@ Hay works where your team already does. You can connect integrations now or skip
 - **HubSpot** - Sync contacts and tickets from your CRM
 - **Zendesk** - Sync with your help desk
 
-> **Tip:** You can also add a chat widget to your website under **Settings** → **Channels** → **Webchat**.
+> **Tip:** You can also add a chat widget to your website: go to **Settings** → **Channels** and click the **Webchat** card to get the code. See [Webchat](/docs/user-guide/webchat/).
 
 ## Step 2: Set Up Your Assistant
 

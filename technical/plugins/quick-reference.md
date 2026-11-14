@@ -138,6 +138,24 @@ async onStart(ctx) {
 
 > **`mcp/` deps:** `mcp/` is not part of the npm workspace, but its dependencies are installed for you — enabling the plugin (`installPlugin`) and `scripts/build-plugins.sh` both run `npm install` inside `mcp/` when `mcp/node_modules` is missing. Commit `mcp/package-lock.json` (not the modules) and keep the dependency list minimal.
 
+### Tool Progress Labels (Webchat)
+
+Optional, per tool: what the webchat shows while the tool runs and once it is done (else "Working on it…" / "Done"). Under 80 characters, sentence case, written for the shopper.
+
+```js
+// MCP SDK server: in _meta
+server.registerTool("store_get_order", {
+  description: "…",
+  inputSchema: shape,
+  _meta: { "chat.hay/label": "Looking up your order", "chat.hay/doneLabel": "Checked your order" },
+}, handler);
+
+// listTools() of an in-process server: on the tool
+{ name: "get_order", description: "…", inputSchema, label: "Looking up your order", doneLabel: "Checked your order" }
+```
+
+Picked up when the worker restarts. See [Tool progress labels](/docs/technical/plugins/api-reference/#tool-progress-labels).
+
 ### Remote Hosted MCP Server (Archetype B)
 
 ```typescript

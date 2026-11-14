@@ -79,7 +79,7 @@ Hay checks connected domains again every day. If the record is missing three day
 
 ## The chat widget on your help center
 
-When your [web chat](/docs/user-guide/settings/#webchat-settings) is turned on, the chat widget appears on every page of your help center, and article pages end with a "Still need help?" note pointing to it. On an article, the assistant is told which article the visitor is reading.
+When your [web chat](/docs/user-guide/webchat/) is turned on, the chat widget appears on every page of your help center, and article pages end with a "Still need help?" note pointing to it. On an article, the assistant is told which article the visitor is reading.
 
 ## Known limits
 
