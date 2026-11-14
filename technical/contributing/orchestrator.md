@@ -11,9 +11,9 @@ navOrder: 1
 
 The orchestrator turns an incoming customer message into a bot reply. It is **event-driven**: messages are enqueued to RabbitMQ and consumed by a worker that runs a single pipeline — Perception → Retrieval → Execution — with tool calling, human handoff, and confidence guardrails along the way.
 
-This guide covers how the pieces fit together and where to make changes. For code-organization rules (repository vs. entity vs. service responsibilities), read [`server/orchestrator/ARCHITECTURE.md`](../../../server/orchestrator/ARCHITECTURE.md) — that document defines the layering conventions; this one describes the runtime flow.
+This guide covers how the pieces fit together and where to make changes. For code-organization rules (repository vs. entity vs. service responsibilities), read [`server/orchestrator/ARCHITECTURE.md`](https://github.com/hay-chat/hay-core/blob/master/server/orchestrator/ARCHITECTURE.md) — that document defines the layering conventions; this one describes the runtime flow.
 
-> **Note:** Older docs described an 8-phase polling architecture with cooldowns, runtime agent routing, and "plan/ender" modules. That design is gone. Agents are assigned at conversation creation, cooldowns no longer gate processing (`Conversation.addMessage()` still writes `cooldown_until`, but only the disabled legacy polling path and the unused `findReadyForProcessing()` repository method read it), and processing is triggered by queue messages, not polling.
+> **Note:** Older docs described an 8-phase polling architecture with cooldowns, runtime agent routing, and "plan/ender" modules. That design is gone. Agents are assigned at conversation creation, cooldowns no longer gate processing (`Conversation.addMessage()` still writes `cooldown_until`, and it still feeds the `orchestrator-stale-message-check` safety net (`stale-message-detector.service.ts`'s `COOLDOWN_STUCK` check) and gets cleared by `message-recovery.service.ts` — but the disabled legacy polling path and the unused `findReadyForProcessing()` method are the only places that treat it as a processing gate), and processing is triggered by queue messages, not polling.
 
 ## File Map
 
@@ -49,7 +49,7 @@ customer message ──> Conversation.addMessage()
               orchestrator.process queue
                        │
                        ▼
-  OrchestratorWorker.startConsuming()  (prefetch: 2)
+  OrchestratorWorker.startConsuming()  (prefetch: ORCHESTRATOR_CONCURRENCY, default 8)
                        │
                        ▼
   Orchestrator.processConversation() ──> runConversation()
@@ -102,7 +102,7 @@ Registered in `server/services/scheduled-jobs.registry.ts`:
 The pipeline in `server/orchestrator/run.ts` is numbered `00`–`04` in code comments:
 
 1. **Skip check** — conversations with `status === "human-took-over"` or an `assigned_user_id` are skipped entirely. Human takeover works by setting those fields; `"ai_return"` re-enqueues when handed back.
-2. **Lock (00)** — `conversation.lock()` returns a `lockerId` or bails (lock contention is not an error, just "someone else is on it"). A heartbeat refreshes the lock every 5 s (`LOCK_HEARTBEAT_INTERVAL_MS`) so long LLM/tool calls don't look abandoned. The `finally` block does an ownership-checked unlock.
+2. **Lock (00)** — `conversation.lock()` returns a `lockerId` or bails (lock contention is not an error, just "someone else is on it"). The lock lasts 15 seconds (`LOCK_DURATION_MS`) and a heartbeat refreshes it every 5 s (`LOCK_HEARTBEAT_INTERVAL_MS`) so long LLM/tool calls don't look abandoned. The `finally` block does an ownership-checked unlock.
 3. **Bootstrap** — seeds initial system, agent-instruction, and bot messages if absent. Throws the two non-retryable errors if `needs_processing` is false or there is no customer message.
 4. **Perception (01)** — intent/sentiment/language on the last customer message, saved via `message.savePerception()`. If the intent is `close_satisfied`/`close_unsatisfied` (or `greet` plus a gratitude regex), `validateConversationClosure()` re-checks against the full transcript; a confirmed closure generates a title, resolves the conversation, purges Redis secrets (`conversationSecretService`), sends an LLM-generated closing message, and exits early.
 5. **Retrieval (02)** — the active-playbook fetch and vector search run in parallel (`Promise.all`). Playbook **selection** is gated by `shouldReselectPlaybook()` (`playbook-gate.ts`): the selector LLM runs only when no playbook is set yet or the planner's last verdict was that the current one no longer fits (`conversation.metadata.playbookFits !== true`) — otherwise the previous selection stands. Selected playbooks are stored with `conversation.updatePlaybook()`, which populates `enabled_tools`. Matched documents are attached via `conversation.addDocument()`.
@@ -120,7 +120,7 @@ Prompts are file-based markdown templates resolved by `PromptService.getPrompt()
 
 ### Perception (`perception.layer.ts`)
 
-- `perceive(message, conversationId, organizationId)` — one structured-output LLM call (prompt `perception/intent-analysis`) returning `{ intent: {label, score}, sentiment: {label, score}, language }`. Intent/sentiment labels are schema-enum-constrained to `MessageIntent` / `MessageSentiment`; language is an ISO 639-1 code enforced by the JSON-schema pattern `^[a-z]{2}$`.
+- `perceive(message, conversationId, organizationId)` — one structured-output LLM call (tier `"medium"`, prompt `perception/intent-analysis`) returning `{ intent: {label, score}, sentiment: {label, score}, language }`. Intent/sentiment labels are schema-enum-constrained to `MessageIntent` / `MessageSentiment`; language is an ISO 639-1 code enforced by the JSON-schema pattern `^[a-z]{2}$`.
 - `getAgentCandidate()` exists (prompt `perception/agent-selection`, score threshold > 0.7) but is **not called from `runConversation()`** — agents are assigned at conversation creation with a fallback to the organization default. Don't wire new features through it without reconsidering that decision.
 
 ### Retrieval (`retrieval.layer.ts`)
@@ -132,7 +132,7 @@ Prompts are file-based markdown templates resolved by `PromptService.getPrompt()
 
 `execute(conversation, customerLanguage, options)` assembles a single planner prompt from:
 
-- the base planner prompt (`execution/planner`), including the combined tool name list (playbook `enabled_tools` + always-available core tools from `coreToolRegistry` in `server/services/core/core-tools`);
+- the base planner prompt (`execution/planner`), including the combined tool name list (playbook `enabled_tools` + the core tools `coreToolRegistry.listFor(conversation)` offers in this conversation, from `server/services/core/core-tools`);
 - a language-enforcement block (only while the conversation has ≤ 3 customer messages);
 - a user-context block (`buildContextPrompt()`) — merged customer `external_metadata` + conversation `context`, plus Redis secret **key names** to be referenced as `<<secret.key>>` in tool args (values are never exposed to the model);
 - a knowledge block (`buildKnowledgePrompt()`) — the last 5 attached documents, each truncated to 8,000 chars;
@@ -156,6 +156,8 @@ Caps: `MAX_ITERATIONS = 15`, `MAX_EMPTY_RETRIES = 3` (after which a canned fallb
 
 Applied by `ExecutionLayer.applyConfidenceGuardrails()` **only to `RESPOND` steps**:
 
+The stages decide in the order below, but their LLM calls overlap: unless the reply is exempt (greeting or goodbye without factual specifics), the Stage 1 company-interest check and the Stage 2 grounding check start together with Stage 0, and Stage 2's grounding and certainty calls run in parallel. If an earlier stage stops the reply, the early results are dropped; if the link check rewrites it, Stages 1 and 2 run again on the text that is sent.
+
 0. **Action-claim consistency** (`action-claim-guardrail.service.ts`, prompt `execution/action-claim-check`) — runs first, _before_ the intent exemption, so a false "I've cancelled it, glad I could help!" on a closing turn is still caught. An LLM extracts state-changing action claims from the drafted response and checks them against the turn's tool ledger (failed calls don't back a claim). On violation the planner gets one corrective re-plan with explicit feedback (`maxRetries: 1` per turn); if the retry still can't back its claim, the result becomes a `HANDOFF` (or the fallback message when `escalateOnFailure` is off). Defaults in `DEFAULT_ACTION_CLAIM_GUARDRAIL_CONFIG` (`server/types/organization-settings.types.ts`): `{ enabled: true, maxRetries: 1, escalateOnFailure: true }`, org-overridable via `settings.actionClaimGuardrail`.
 
 Stages 1–2 are skipped for `GREET` / `CLOSE_SATISFIED` / `CLOSE_UNSATISFIED` intents:
@@ -165,7 +167,7 @@ Stages 1–2 are skipped for `GREET` / `CLOSE_SATISFIED` / `CLOSE_UNSATISFIED` i
 
 Fallback messages are no longer only canned: `composeContextualFallbackMessage()` asks an LLM (prompt `execution/contextual-fallback`, tier `"medium"`) to acknowledge the customer's actual request from the last few customer-visible messages — deliberately _without_ seeing the blocked response, so unverified claims can't leak through — and falls back to the static configured message on error.
 
-All Stage 1/2 outcomes are appended to `orchestration_status.guardrailLog` (plus a legacy `confidenceLog`) by `saveConfidenceLog()` in `run.ts`; Stage 0 results ride on message metadata (`actionClaim`, `actionClaimRetryAttempted`). The full guardrail design is documented in [`docs/technical/guardrails.md`](../guardrails.md).
+All Stage 1/2 outcomes are appended to `orchestration_status.guardrailLog` (plus a legacy `confidenceLog`) by `saveConfidenceLog()` in `run.ts`; Stage 0 results ride on message metadata (`actionClaim`, `actionClaimRetryAttempted`). The full guardrail design is documented in [`docs/technical/guardrails.md`](/docs/technical/guardrails/).
 
 ## Inactivity Lifecycle
 
@@ -182,11 +184,11 @@ Closures set `status: "resolved"`, fire the `conversation.resolved` hook, and tr
 - **Change LLM behavior** — edit the prompt file under `server/prompts/en/…` (and translations under `pt/`, `es/`); keep the JSON schema in the layer in sync if the output shape changes.
 - **New planner step type** — extend the `step` enum in `buildPlannerSchema()` and `ExecutionResult` (`execution.layer.ts`), then add a branch in `handleExecutionLoop()` (`run.ts`).
 - **New processing trigger** — add it to `OrchestratorTrigger` and call `orchestratorQueueService.enqueue()` from wherever the event originates. Never call `runConversation()` directly from request handlers; go through the queue so locking, retries, and the sweep apply.
-- **New always-available tool** — register it in the core tool registry (`server/services/core/core-tools`); it will be merged into the planner's tool list and exempted from the `enabled_tools` gate automatically.
+- **New always-available tool** — register it in the core tool registry (`server/services/core/core-tools`); it will be merged into the planner's tool list and exempted from the `enabled_tools` gate automatically. A tool that only works in some conversations sets `isAvailable(conversation)`, and the planner is offered it only there: `add_to_cart` and `go_to_checkout` (`core-tools/store-cart.ts`) are offered only while the shopper's widget is connected from the store's own site, and run in the shopper's browser.
 - **New early-exit condition** — if it should not be retried, add its error message to `isNonRetryableError()` in `orchestrator.worker.ts`.
 - **New guardrail stage** — follow the Stage 0 pattern: a service with `getDefaultConfig()`/`mergeConfig()`, a per-turn retry budget in `turnGuardrailState`, and corrective `plannerFeedback` before escalating.
 
-Follow the layering rules in [`server/orchestrator/ARCHITECTURE.md`](../../../server/orchestrator/ARCHITECTURE.md): DB access through repositories, entity state changes through entity methods, business logic in the layers.
+Follow the layering rules in [`server/orchestrator/ARCHITECTURE.md`](https://github.com/hay-chat/hay-core/blob/master/server/orchestrator/ARCHITECTURE.md): DB access through repositories, entity state changes through entity methods, business logic in the layers.
 
 ## Testing and Debugging
 

@@ -1,52 +1,21 @@
 ---
 layout: docs.njk
-title: Analytics & Performance Metrics
-description: Track your AI agent's performance with real conversation metrics, sentiment analysis, and message feedback insights.
+title: Quality - Feedback, Insights and Tests
+description: Find out where your AI assistant gets things wrong and fix it. Rate replies, review the patterns Hay finds each night, and replay past conversations before you publish a change.
 section: user-guide
 ---
 
-## Where Analytics Live Today
+## The Quality section
 
-Hay's working analytics are found in two places:
+**Quality** in the left sidebar groups three pages:
 
-- **The Dashboard** (`/dashboard`) - real conversation metrics, sentiment analysis, and live widgets. See [Dashboard Overview](/docs/user-guide/dashboard/).
-- **Feedback Insights** (`/insights/feedback`) - real analysis of message feedback given by your team, with CSV export.
+- **Tests** - replay past conversations against your assistant and save test cases. See [Tests](/docs/user-guide/tests/).
+- **Insights** - patterns across your conversations and your team's ratings, updated every night. See [Insights](/docs/user-guide/insights/). Not shown to the **Agent** role.
+- **Feedback** - the ratings your team and your web chat visitors gave to AI replies (this page). Not shown to the **Agent** role.
 
-> **Important:** The pages at `/analytics`, `/analytics/reports`, and `/insights` also exist, but they are **UI previews populated with demo data** - the numbers shown there are not calculated from your account. They are covered at the end of this guide so you can tell them apart from real data.
+The numbers about volume, resolution and sentiment are on the [Dashboard](/docs/user-guide/dashboard/). There is no separate Analytics page: the old `/analytics` and `/analytics/reports` previews have been removed.
 
-Only the Dashboard has a sidebar entry. There is no Analytics or Insights entry in the sidebar - Feedback Insights and the preview pages are reached by direct URL.
-
-## Real Metrics (Dashboard)
-
-The Dashboard shows metrics calculated from your actual conversations. All of them accept a date range filter and default to the last 30 days:
-
-**Conversation Metrics**
-
-- **Total Conversations** - count of conversations in the selected period
-- **Resolution Rate** - percentage of conversations marked resolved
-- **Avg Messages per Conversation** - average number of messages exchanged
-
-**Conversation Activity**
-
-A daily count of conversations over time, shown as the Activity chart.
-
-**Sentiment Analysis**
-
-Hay's AI classifies the sentiment of customer messages as they arrive. The Dashboard shows an overall sentiment score plus the breakdown of positive, neutral, and negative messages for the selected period.
-
-**Document Status Overview**
-
-Your knowledge base documents grouped by processing status.
-
-> **Not yet implemented:** Response time analytics exist as an API endpoint but currently always return zero - the calculation is a placeholder. Any "average response time" figure you see in the product is not real data yet.
-
-For a walkthrough of each Dashboard widget, see [Dashboard Overview](/docs/user-guide/dashboard/).
-
-## Feedback Insights
-
-**Feedback Insights** (`/insights/feedback`) is the one fully functional analytics page beyond the Dashboard. Its purpose: "Analyze AI response quality through user feedback."
-
-### How feedback is collected
+## Rating AI replies
 
 Feedback comes from two places:
 
@@ -56,94 +25,49 @@ Feedback comes from two places:
 When a team member clicks a thumb, a dialog opens with:
 
 - **Good** / **Bad** buttons
-- An optional **Comment (optional)** field ("What could be improved?")
+- An optional comment ("What could be improved?")
 
 Once submitted, the message shows "Feedback recorded" with an **Edit** link to change it later.
 
-Ratings are stored as `good`, `bad`, or `neutral` - there is **no star rating and no 1-5 scale**. A team rating is recorded with the reviewer who gave it; a visitor rating has no reviewer. In the CSV export, the **Given By** column says `operator` (your team) or `visitor`.
+Ratings are **good** or **bad** (a neutral value exists, but the controls only offer good and bad). There is no star rating. A visitor's rating shows on the Feedback page next to your team's, without a "Rated by" line; in the CSV export the **Given By** column says `operator` (your team) or `visitor`.
 
-The separate end-of-chat rating in the Webchat (five faces, from Very bad to Great) rates the whole conversation, not a single message, and is not part of Feedback Insights.
+If **Ask visitors to rate the conversation** is on in the Webchat **Content** tab, visitors are also asked to rate the whole conversation when it ends, with five faces from Very bad to Great; the **Satisfaction** column in Conversations shows it. That end-of-chat rating is separate from Feedback.
 
-### Stats cards
+## The Feedback page
 
-At the top of the page:
+**Quality** → **Feedback** ("Ratings your team gave to AI replies. Open any rating to see the reply in its conversation.").
 
-- **Total Feedback** - total number of ratings recorded
-- **Positive** - count and percentage of `good` ratings
-- **Negative** - count and percentage of `bad` ratings
-- **Success Rate** - percentage of ratings that are positive
+**Stat cards:** **Total Feedback**, **Positive**, **Negative** and **Positive Rate**.
 
-### Filters
+**Filters:** **Rating** (All ratings, Good, Bad, Neutral), **Source** (the channel the rated message came from), **Start date** and **End date**.
 
-Narrow the feedback list by:
+**Feedback History:** each entry shows the rating, the source channel, any comment and, for your team's ratings, "Rated by" the reviewer's email. Click **Open conversation** to jump to the rated reply. The list shows 20 entries per page with **Previous** and **Next**.
 
-- **Rating** - All Ratings, Good, Bad, or Neutral
-- **Source** - the channel the rated message came from
-- **Start Date** / **End Date**
+**Export CSV** downloads `feedback-export-<date>.csv`. The export respects the **Rating**, **Start date** and **End date** filters; the **Source** filter is not applied to it.
 
-### Feedback History
+## Using feedback to improve
 
-Each entry in the list shows the rating badge, the source channel, any comment left, a shortened message ID, and the reviewer's email. The list is paginated (20 entries per page). The rated message's text itself is not shown, and the link icon next to each entry does not navigate anywhere yet.
+1. Check the **Positive Rate** weekly - is it trending up?
+2. Filter by **Bad** and read the comments
+3. Look for patterns: a topic the assistant keeps getting wrong usually means a missing or outdated document, or a playbook that needs a step
+4. Use **Improve playbook** or **Improve knowledge** from a conversation to get a suggested fix you can review
+5. After changing documents or playbooks, watch whether negative feedback on that topic drops
 
-### Export CSV
+While testing a new setup, rate its messages liberally - the feedback history becomes your quality log.
 
-Click **Export CSV** to download your feedback as `feedback-export-<date>.csv`. The export respects the **Rating**, **Start Date**, and **End Date** filters (the **Source** filter is not applied to the export). This is currently the only working data export in Hay's analytics.
+## Common questions
 
-## Using Feedback to Improve
+### Can customers rate my assistant's responses?
 
-A practical review routine:
+On web chat, yes: visitors can give the latest AI answer a thumbs up or thumbs down, and those ratings appear on the Feedback page. Web chat can also ask for a rating of the whole conversation when it ends (**Ask visitors to rate the conversation** on the Webchat **Content** tab). Other channels have no customer rating.
 
-1. Check the **Success Rate** weekly - is it trending up?
-2. Filter by **Bad** ratings and read the comments
-3. Look for patterns: a topic the agent keeps getting wrong usually means a missing or outdated document
-4. After changing agent instructions or documents, watch whether negative feedback on that topic drops
+### Can I export this data?
 
-While testing a new agent, rate its messages liberally - the feedback history becomes your quality log.
+Yes: **Export CSV** on the Feedback page, **Export as PDF** / **Export as CSV** on a conversation, and the resolution ledger on the Usage page. PDF exports of the Dashboard and scheduled reports do not exist.
 
-## Demo / Preview Pages
-
-The following pages exist in the product but display **hardcoded demo data**. Do not use them to make decisions.
-
-### `/analytics` - Analytics
-
-Shows KPI cards (Total Conversations, Resolution Rate, Avg Response Time, Customer Satisfaction), Response Time Distribution, Top Issues, an Agent Performance table, and Channel Performance. All of these figures are demo placeholders, including the star-based satisfaction scores. The timeframe selector, **Export**, and **Refresh** buttons do nothing yet. The two chart areas ("Conversation Volume", "Resolution Rate Trend") are empty placeholders. The only real element is the list of channels itself, which reflects your enabled channel plugins - the metrics next to them do not.
-
-### `/analytics/reports` - Custom Reports
-
-A preview of a report builder (Report Configuration, Metrics Selection, Grouping & Filters, Visualization, Quick Templates, Recent Reports). Generating, saving, scheduling, viewing, and downloading reports are all not implemented - the buttons do nothing yet, and the "Recent Reports" list is demo data.
-
-### `/insights` - Insights
-
-Shows sample AI-generated improvement suggestions. Accepting or rejecting them only updates the demo list on screen - nothing is saved - and the page itself displays a "Coming soon" notice.
-
-## Common Analytics Questions
-
-### Can customers rate my agent's responses?
-
-Yes, in the Webchat. Visitors can give the latest AI answer a thumbs up or thumbs down, and those ratings appear in Feedback Insights next to your team's. When rating is turned on in the Webchat **Content** tab, visitors are also asked to rate the whole conversation when it ends.
-
-### Where did the "Customer Satisfaction" score come from?
-
-If you saw it on the `/analytics` page, it is demo data. Hay's real quality signal is the **Success Rate** on Feedback Insights, calculated from the good/bad ratings given by your team and your website visitors.
-
-### Can I export analytics data?
-
-Yes, one export works today: **Export CSV** on the Feedback Insights page. PDF exports and scheduled reports are not implemented.
-
-### What's a "good" resolution rate?
-
-Depends on your industry and complexity, but generally:
-
-- **Simple FAQ-based support:** 80-90%
-- **E-commerce support:** 70-85%
-- **Technical support:** 60-75%
-- **Complex B2B:** 50-70%
-
-Brand new agents need time: expect metrics to improve over 2-4 weeks as you add documents, refine playbooks, and adjust agent instructions.
-
-## Next Steps
+## Next steps
 
 - Review real metrics on your [Dashboard](/docs/user-guide/dashboard/)
-- Use feedback insights to improve your [Agents](/docs/user-guide/agents/)
+- Read the nightly [Insights](/docs/user-guide/insights/)
+- Replay past conversations with [Tests](/docs/user-guide/tests/)
 - Add [Documents](/docs/user-guide/documents/) for topics with negative feedback
-- Monitor your [Conversations](/docs/user-guide/conversations/) for escalation patterns

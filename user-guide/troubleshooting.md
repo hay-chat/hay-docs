@@ -5,7 +5,7 @@ description: Having issues with Hay? This guide covers common problems and their
 section: user-guide
 ---
 
-## Agent Not Responding
+## Assistant Not Responding
 
 ### Symptoms
 
@@ -15,22 +15,23 @@ section: user-guide
 
 ### Solutions
 
-**Check agent status:**
+**Check whether the AI is paused or off:**
 
-1. Go to **Agents**
-2. Verify agent is **Enabled**
-3. Check if agent has required documents and playbooks
+1. Open the **Inbox**. If it says **AI paused**, click **Resume AI** (see [Team alerts, pause and business hours](/docs/user-guide/team-alerts-and-hours/))
+2. Go to **Settings** → **Privacy** → **Customer Privacy** → **AI on your channels** and check the channel's **AI replies** is **Send automatically**, not **Drafts only** or **Off**
+3. Check **Settings** → **Billing & Usage** → **Usage**: if the plan's resolutions are used up and extra resolutions are off, the AI is paused and conversations wait for your team
+4. Check the assistant has the documents and playbooks it needs
 
 **Check integration:**
 
-1. Go to **Channels** (for channel plugins like WhatsApp, Email) or **Integrations** → **Marketplace** (for data plugins like Shopify, Zendesk)
-2. Verify connection status is **Connected**
+1. Go to **Settings** → **Channels** → **Channel list** (for channel plugins like WhatsApp, Email) or **Integrations** → **Marketplace** (for data plugins like Shopify, Zendesk)
+2. Open the integration and verify its status is **Connected** (a failing channel shows **This channel is failing**)
 3. Test with a sample message
 
 **Check conversation status:**
 
 1. Open the conversation
-2. Check if status is "Open" (not "Closed" or "Human Took Over")
+2. Check if status is "Open" (not "Closed", "Manual Control" or "Awaiting Approval")
 3. Check for error messages in conversation
 
 **If still not working:**
@@ -43,7 +44,7 @@ section: user-guide
 
 ### Symptoms
 
-- Agent gives wrong answers
+- The assistant gives wrong answers
 - Responses are vague or unhelpful
 - Frequent "I don't know" messages
 - Information is outdated
@@ -57,9 +58,9 @@ section: user-guide
 3. Make sure information is clear and complete
 4. Update outdated documents
 
-**Improve agent instructions:**
+**Improve the assistant's instructions:**
 
-1. Go to **Agents** → Your agent
+1. Go to **Settings** → **Assistant** → **Identity**
 2. Review instructions
 3. Add specific examples
 4. Be more explicit about what to do/not do
@@ -73,22 +74,22 @@ section: user-guide
 **Review and learn:**
 
 1. Read recent conversations
-2. See where agent struggles
+2. See where the assistant struggles (**Quality** → **Insights** lists the patterns)
 3. Add documents to fill knowledge gaps
 
 ## High Escalation Rate
 
 ### Symptoms
 
-- Too many conversations going to queue
-- Agent frequently says it can't help
+- Too many conversations landing in the Inbox
+- The assistant frequently says it can't help
 - Lots of "transfer to human" requests
 
 ### Solutions
 
 **Identify why escalations happen:**
 
-1. Go to **Queue**
+1. Go to **Conversations** and filter by **Escalated** status (this shows conversations requiring human attention, including those with pending-human and human-took-over statuses)
 2. Review escalation reasons
 3. Look for patterns
 
@@ -104,18 +105,18 @@ section: user-guide
 
 - Solution: Create playbooks for those topics
 - Add focused documentation
-- Update agent instructions
+- Update the assistant's instructions
 
 **Cause: Customer frustration**
 
-- Solution: Train agent on empathy
+- Solution: Add empathy guidance to the assistant's instructions
 - Respond faster
 - Offer alternatives before escalating
 
 **Adjust confidence threshold:**
 
-1. Go to **Settings** → **General**
-2. Lower confidence threshold slightly
+1. Go to **Settings** → **Workspace** → **General** → **AI Confidence Guardrails**
+2. Lower the confidence threshold slightly
 3. Monitor results
 4. Adjust as needed
 
@@ -128,8 +129,8 @@ section: user-guide
 1. **Re-authenticate:**
 
    - Go to **Integrations**
-   - Click **Reconnect**
-   - Sign in again
+   - Go to the plugin's settings page and reconfigure the connection, or disable and re-enable the integration
+   - Sign in again if prompted
    - Authorize permissions
 
 2. **Check credentials:**
@@ -240,8 +241,8 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
    - Contact organization admin
    - Verify email is verified
 
-4. **2FA issues:**
-   - 2FA enforcement is not yet fully implemented. If your organization has enabled the "Require 2FA" policy toggle in Settings → Security, note that backend enforcement is still in progress — contact your organization admin if you're experiencing login issues related to this setting.
+4. **Two-factor issues:**
+   - If your organization requires two-factor authentication, sign-in asks for a 6-digit code from your authenticator app. If you lost your device, enter one of your recovery codes instead (each works once). If you have neither, ask an Owner or Admin for help.
 
 ### Access Denied / Permission Error
 
@@ -249,7 +250,7 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
 
 1. **Check your role:**
 
-   - Go to **Settings** → **Users**
+   - Go to **Settings** → **Workspace** → **Users**
    - Verify your role and permissions
    - Contact admin if permissions need changing
 
@@ -282,11 +283,11 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
    - Try different network if possible
    - Check if other sites are slow too
 
-### Agent Response Delays
+### Assistant Response Delays
 
 **Solutions:**
 
-1. **Simplify agent:**
+1. **Simplify the setup:**
 
    - Reduce instruction complexity
    - Remove unnecessary playbooks
@@ -312,7 +313,6 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
 1. **Check filters:**
 
    - Verify date range is correct
-   - Check channel filters
    - Reset filters and try again
 
 2. **Cache delay:**
@@ -328,7 +328,7 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
 
 ### Can't Export Data
 
-**Note:** Exporting data from Analytics is not yet available. The export button is currently a placeholder and does not produce a file. This feature is planned for a future release.
+**Note:** The Dashboard has no export. You can export a conversation as PDF or CSV, the Feedback list (**Export CSV**) and the Usage resolution ledger (**Export CSV**).
 
 ## Notifications Not Working
 
@@ -338,9 +338,8 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
 
 1. **Check settings:**
 
-   - Go to **Settings** → **General**
-   - Verify email notifications are enabled
-   - Check which events you're subscribed to
+   - Alerts for conversations that need a human also go by email to available team members, after the push alerts
+   - Verify your SMTP configuration is correct in the server environment
 
 2. **Check spam:**
 
@@ -358,26 +357,35 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
    - Try sending test notification
    - Contact support if tests fail
 
-### Not Getting In-App Notifications
+### Not Getting Alerts When a Conversation Needs a Human
 
-**Solutions:**
+**With the dashboard open** you should hear a sound and see a toast. If not, check that the browser tab is allowed to play sound and show notifications.
 
-1. **Browser permissions:**
+**With the dashboard closed**, alerts only arrive on devices where **Alerts on this device** is on. Check:
 
-   - Check browser allows notifications
-   - Enable if blocked
-   - Restart browser
+1. **Is it on for this device?**
 
-2. **Do Not Disturb:**
+   - Go to **Settings** → **My Profile** (**Alerts on this device**), or open the Inbox
+   - The switch must be on for _this_ browser or phone; it is per device, not per account
+   - Use **Send a test alert** to confirm delivery
 
-   - Check system DND settings
-   - Temporarily disable
-   - Test notifications
+2. **Browser permission:**
 
-3. **Dashboard notifications:**
-   - Check settings in Hay
-   - Enable desired notification types
-   - Save preferences
+   - If the switch says alerts are blocked, notifications were denied for the Hay site
+   - Allow them again in the browser's site settings (the lock icon next to the address), then turn the switch on
+
+3. **iPhone or iPad:**
+
+   - Add Hay to your Home Screen (Share → **Add to Home Screen**) and open it from that icon
+   - Safari tabs cannot receive alerts; only the installed Home Screen app can (iOS 16.4 or later)
+
+4. **Do Not Disturb / Focus:**
+
+   - Check the system Do Not Disturb or Focus settings
+   - Temporarily disable and send a test
+
+5. **Server configuration (self-hosted):**
+   - The server needs `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` set; without them the switch is not shown
 
 ## Document Problems
 
@@ -385,7 +393,7 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
 
 **Symptoms:**
 
-- Agent says "I don't know" despite having relevant docs
+- The assistant says "I don't know" despite having relevant docs
 - Document shows zero usage
 - Responses don't reference documents
 
@@ -411,7 +419,7 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
 
 4. **Test search:**
    - Try searching for document content
-   - If you can't find it, neither can the agent
+   - If you can't find it, neither can the assistant
    - Improve titles and descriptions
 
 ### Upload Fails
@@ -453,7 +461,6 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
 
 3. **Context:**
    - Conversation ID (if relevant)
-   - Agent ID (if relevant)
    - Integration name
    - Browser and OS version
 
@@ -475,7 +482,7 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
 1. Clear description of problem
 2. Steps to reproduce
 3. Screenshots if helpful
-4. Conversation or agent ID
+4. Conversation ID
 5. When problem started
 6. What you've tried
 
@@ -501,7 +508,7 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
 **Monthly:**
 
 - Update documents
-- Review and optimize agents
+- Review and optimize the assistant's instructions and playbooks
 - Clean up unused playbooks
 - Check team access
 
@@ -530,7 +537,7 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
 
    - Review recent conversations
    - Find areas for improvement
-   - Update agent instructions
+   - Update the assistant instructions
 
 4. **Stay organized**
    - Clear naming conventions
@@ -538,11 +545,6 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
    - Archive old/unused items
 
 ## Common Error Messages
-
-### "Agent not found"
-
-**Cause:** Agent was deleted or disabled
-**Fix:** Check agent status or select different agent
 
 ### "Conversation locked"
 

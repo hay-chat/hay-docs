@@ -21,7 +21,7 @@ No! Hay is designed for non-technical users. You can set up and manage everythin
 
 ### How long does it take to set up?
 
-You can be up and running in about 10 minutes with basic setup. Full optimization typically takes 2-4 weeks as you add more documentation and refine your agents.
+You can be up and running in about 10 minutes with basic setup. Full optimization typically takes 2-4 weeks as you add more documentation and refine your assistant.
 
 ### What languages does Hay support?
 
@@ -31,32 +31,32 @@ Hay can understand and respond in over 50 languages. Your documents can be in an
 
 ### How much does Hay cost?
 
-Pricing varies based on conversation volume and features needed. Contact your account manager or visit the Hay pricing page for current plans.
+Hay has four plans (Solo, Starter, Growth and Enterprise), billed monthly or annually. Every plan includes a number of **resolutions** per billing period; a resolution is a conversation the AI closes without a human. Current prices are on [hay.chat/pricing](https://hay.chat/pricing/).
+
+### Which currencies can I pay in?
+
+Euro, US dollar, British pound and Brazilian real. You pick the currency when you first check out (the pricing page pre-selects it from your region). Stripe fixes a customer's currency with that first subscription, so later plans, including a new subscription after a cancellation, stay in it. To move to another currency, contact support and we set up a new billing customer for you.
 
 ### Is there a free trial?
 
-Most plans include a trial period. Check with your account representative for current trial offerings.
+Yes. Every new workspace starts on a free trial; the dashboard shows how many days remain. When the trial ends you pick a plan on [hay.chat/billing](https://hay.chat/billing/).
 
 ### What's included in my plan?
 
-Plans typically include:
+- A number of AI resolutions per billing period (annual plans get twelve months' worth up front)
+- Every channel and integration
+- The support level listed for your plan on [hay.chat/pricing](https://hay.chat/pricing/)
 
-- Number of conversations per month
-- Number of agents
-- Team member seats
-- Integrations
-- Support level
-- Storage
+### What happens if I exceed my resolution limit?
 
-Contact your account administrator for specific plan details.
+You are warned by email at 50 %, 80 % and 100 % of your included resolutions, and the dashboard shows a banner from 80 %. What happens at 100 % depends on the **Allow extra resolutions** switch on [hay.chat/billing](https://hay.chat/billing/):
 
-### What happens if I exceed my conversation limit?
-
-Depending on your plan, you'll either be charged for additional conversations or need to upgrade your plan. You'll receive notifications as you approach your limit.
+- **On (default):** the AI keeps working and each extra resolution is billed at your plan's per-resolution rate on the next invoice.
+- **Off:** the AI pauses. New customer messages wait in **Needs Attention** for your team, your dashboard keeps working, and nothing extra is billed. The AI resumes on its own when the next period starts, or immediately when you switch extra resolutions back on or upgrade. Conversations that were parked while the AI was paused stay in Needs Attention until your team replies or hands them back with **Return to AI**.
 
 ### Can I cancel anytime?
 
-Yes, most plans are month-to-month and can be canceled anytime. Check your specific plan terms in your agreement.
+Yes. Monthly plans can be cancelled at any time and run until the end of the paid period. Annual plans are cancelled the same way; see the refund policy for the early-exit terms.
 
 ## Getting Started
 
@@ -69,9 +69,9 @@ To start using Hay effectively, you need:
 3. At least one communication channel to connect
 4. 10-15 minutes for initial setup
 
-### Should I start with one agent or multiple?
+### Can I have more than one assistant?
 
-Start with one general agent. Add specialized agents later only if you have distinctly different use cases (e.g., sales vs. support).
+No. Hay has one AI assistant per organization. For specific situations (refunds, order status, sales questions) write a [playbook](/docs/user-guide/playbooks/).
 
 ### How many documents should I upload initially?
 
@@ -79,9 +79,9 @@ Start with 15-25 essential documents covering your most common customer question
 
 ### Can I test before going live with customers?
 
-Absolutely! Use the Playground mode to test your agent with sample questions before connecting it to real customer channels.
+Absolutely! Use the **Test your assistant** chat on the **Set up** board or the **Conversation Playground** to try sample questions, and **Tests** under **Quality** to replay past conversations, before you connect real customer channels.
 
-## Agents & AI
+## The assistant & AI
 
 ### How does the AI "learn"?
 
@@ -89,7 +89,7 @@ The AI doesn't learn automatically. It gets "smarter" when you:
 
 - Upload more documentation
 - Create better playbooks
-- Refine agent instructions
+- Refine the assistant's instructions
 - Add examples and context
 
 ### Will the AI make mistakes?
@@ -104,7 +104,7 @@ Yes, through integrations. For example, it can look up orders in Shopify or chec
 
 Yes! You control the AI through:
 
-- Agent instructions (tone, style, what to say/not say)
+- Assistant instructions (tone, style, what to say/not say) under **Settings** → **Assistant**
 - Documents (what information to use)
 - Playbooks (specific workflows)
 - Test mode (approve each response)
@@ -125,11 +125,11 @@ When a human takes over, the AI stops responding. The full conversation history 
 
 ### How long are conversations stored?
 
-By default, conversations are kept indefinitely. If a retention period is configured, conversations are anonymized (messages and personal data removed) after the specified number of days. Check **Settings** → **Privacy** for your specific retention policy.
+New organizations start with a 365-day retention period; older ones may be set to keep conversations forever. When a retention period is set, conversations are anonymized (messages and personal data removed) after the specified number of days. Check **Settings** → **Privacy** → **Customer Privacy** for your specific retention policy.
 
 ### Can I delete conversations?
 
-Conversations are archived rather than deleted for compliance and learning. For privacy requests (GDPR), use the data deletion tool in **Settings** → **Privacy**.
+Conversations can be deleted from the conversation view. If data retention is configured, conversations are automatically anonymized after the retention period. For GDPR deletion requests on behalf of customers, use the data deletion tool in **Settings** → **Privacy** → **Customer Privacy**.
 
 ## Integrations
 
@@ -147,7 +147,7 @@ Check **Integrations** → **Marketplace** for the complete list.
 
 ### Can I connect multiple channels?
 
-Yes! You can connect as many channels as you need. The same agent can work across all channels, or you can assign different agents to different channels.
+Yes! You can connect as many channels as you need. The same assistant answers on every channel.
 
 ### Do integrations cost extra?
 
@@ -177,7 +177,7 @@ Resolution rate varies by industry:
 Common causes:
 
 - Not enough documentation
-- Unclear agent instructions
+- Unclear assistant instructions
 - Complex questions outside AI's scope
 - Confidence threshold set too high
 
@@ -186,7 +186,7 @@ See the [Troubleshooting](/docs/user-guide/troubleshooting/) guide for solutions
 ### How can I improve customer satisfaction?
 
 1. Upload comprehensive documentation
-2. Write clear, empathetic agent instructions
+2. Write clear, empathetic assistant instructions
 3. Respond quickly to escalations
 4. Regularly review and optimize
 5. Learn from negative feedback
@@ -199,7 +199,7 @@ AI typically responds in:
 - 3-8 seconds for document lookups
 - 8-15 seconds for complex queries
 
-If slower, check your document organization and agent complexity.
+If slower, check your document organization and the length of your instructions and playbooks.
 
 ## Documents & Training
 
@@ -234,7 +234,7 @@ Simply edit or re-upload the correct version. Changes take effect immediately.
 
 Depends on your plan. Contact your account administrator for storage limit details.
 
-## Queue & Escalations
+## Inbox & Escalations
 
 ### Why do conversations escalate?
 
@@ -258,7 +258,7 @@ Set your own SLAs based on your business needs.
 
 ### Can I automatically assign escalations to specific team members?
 
-Today, assignment is manual: a team member can take over a conversation from the queue and it's assigned to them. Automatic routing rules (by topic, time of day, availability, or customer tier) are not yet available — coming soon.
+Today, assignment is manual: a team member can take over a conversation from the Inbox and it's assigned to them. Automatic routing rules (by topic, time of day, availability, or customer tier) are not yet available — coming soon.
 
 ### What if the queue gets too long?
 
@@ -282,7 +282,7 @@ Long term:
 Yes. Hay uses:
 
 - Encryption in transit and at rest
-- Secure password-based authentication (2FA policy toggle available in Settings → Security, backend enforcement in progress)
+- Password sign-in with optional two-factor authentication (authenticator app and recovery codes) that an Owner can require for the whole team under **Settings** → **Workspace** → **General**
 - Regular security audits
 - Compliance with data protection regulations
 
@@ -293,7 +293,6 @@ Yes. Hay provides tools for:
 - Data access requests
 - Data deletion (right to be forgotten)
 - Data portability (export)
-- Data portability
 - Consent management
 
 ### Can I control who accesses what?
@@ -304,7 +303,7 @@ Yes! Use role-based access control:
 - Admin: Settings and management
 - Member: Standard team access
 - Contributor: Contribute content (documents, playbooks)
-- Agent: Conversations only
+- Agent: conversation handling (cannot open Insights or Feedback)
 - Viewer: Read-only access
 
 ### Where is my data stored?
@@ -313,9 +312,9 @@ Data is stored in secure, encrypted databases. Contact your account manager for 
 
 ### Can I export my data?
 
-Yes! Go to **Settings** → **Privacy** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Customer Privacy**.
+Yes! Go to **Settings** → **Privacy** → **Workspace data** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Privacy** → **Customer Privacy**.
 
-> **Note:** Analytics export is not yet available.
+> **Note:** Dashboard metrics cannot be exported. You can export the Feedback list and the Usage ledger as CSV.
 
 ## Technical Questions
 
@@ -332,7 +331,9 @@ Always use the latest version for best performance.
 
 ### Can I use Hay on mobile?
 
-Yes! The dashboard works on tablets and phones through your mobile browser. There's no dedicated mobile app currently.
+Yes, through your phone's browser. There is no app to install. The dashboard adapts to small screens, and the **Inbox** screen is built for the phone: it lists the conversations waiting for a human, longest wait first, with a **Take over** button on each row.
+
+To be alerted when a customer needs a human while the dashboard is closed, turn on **Alerts on this device** (on Inbox, or under **Settings** → **My Profile**). On iPhone and iPad, first add Hay to your Home Screen (Share → **Add to Home Screen**) and open it from there; iOS only allows alerts for web apps installed that way.
 
 ### Do I need to install anything?
 
@@ -349,7 +350,7 @@ Yes! Hay has a full API for:
 - Creating conversations
 - Sending messages
 - Accessing analytics
-- Managing agents and documents
+- Managing documents and playbooks
 
 Contact support for API documentation.
 
@@ -357,11 +358,23 @@ Contact support for API documentation.
 
 ### How do I change my plan?
 
-Contact your account manager for plan changes. Self-service billing management is not yet available in the dashboard.
+Go to [hay.chat/billing](https://hay.chat/billing/), open **Plans** and choose the new plan or billing interval. The change applies to your existing subscription immediately and Stripe prorates the difference: between two monthly plans it lands on your next invoice; switching between monthly and yearly starts a new billing cycle and is invoiced right away. Upgrades and downgrades both work this way; nothing creates a second subscription. Payment details and invoices are managed in the Stripe customer portal, reachable from the same page.
+
+### Where do I see my usage?
+
+The overview on [hay.chat/billing](https://hay.chat/billing/) shows resolutions used against your allowance for the current period, the percentage, when the period renews and whether extra resolutions are allowed.
+
+### What counts as a billable resolution?
+
+A conversation the AI resolved (confirmed by the shopper or assumed), a planned hand-off from a playbook, or an action sent for approval. Greetings, spam, tests, and chats handed to your team without the AI resolving them are never billed. See [Billing and Usage](/docs/user-guide/billing-and-usage/).
+
+### Can the AI refund orders without asking me?
+
+Not by default. Refunds, cancellations, discounts and exchanges wait for an Owner or Admin to approve them. See [Action approvals](/docs/user-guide/action-approvals/).
 
 ### Can I get a refund?
 
-Refund policies vary by plan. Contact your account manager or support for specific refund requests.
+Refund terms are in the [refund policy](https://hay.chat/refund-policy/). Contact support with your workspace name and invoice number.
 
 ## Support
 

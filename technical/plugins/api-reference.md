@@ -26,6 +26,7 @@ Hay plugins are **code-first**: a plugin is an npm package whose `package.json` 
   - [register.ui.page](#registeruipage)
   - [register.cron](#registercron)
   - [register.webhookRouting](#registerwebhookrouting)
+  - [register.webchat](#registerwebchat)
 - [Runtime APIs](#runtime-apis)
   - [ctx.config](#ctxconfig)
   - [ctx.auth](#ctxauth)
@@ -92,19 +93,22 @@ Build from the repo root with `npm --workspace=plugins/core/<name> run build`; `
 
 The fields core actually reads from `package.json → "hay-plugin"` (interface `HayPluginBlock` in `server/services/plugin-manager.service.ts`):
 
-| Field              | Type       | Description                                                                                                                                                   |
-| ------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `entry`            | `string`   | Path to the compiled entry module (e.g. `"./dist/index.js"`)                                                                                                  |
-| `displayName`      | `string`   | Human-readable name shown in the marketplace                                                                                                                  |
-| `category`         | `string`   | One of `integration \| channel \| tool \| analytics \| products` (SDK `PluginCategory`); document importers are marked via `documentImporter`, not a category |
-| `capabilities`     | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `cron`                                        |
-| `env`              | `string[]` | Allow-list of host env var names that config fields may fall back to via their `env:` property                                                                |
-| `channel`          | `string`   | Channel plugins only: the channel slug (e.g. `"instagram"`); matched by `pluginManagerService.findPluginIdByChannel()` for outbound delivery                  |
-| `autoActivate`     | `boolean`  | Legacy (document importers)                                                                                                                                   |
-| `trpcRouter`       | `string`   | Legacy (document importers): path to a tRPC router loaded in-process                                                                                          |
-| `documentImporter` | `boolean`  | Legacy: marks a document importer plugin                                                                                                                      |
-| `config`           | `object`   | Legacy: manifest-style config schema, copied into the registry manifest's `configSchema` (new plugins use `register.config` instead)                          |
-| `auth`             | `object`   | Legacy: manifest-style auth config, copied into the registry manifest (new plugins use `register.auth.*` instead)                                             |
+| Field                 | Type       | Description                                                                                                                                                   |
+| --------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `entry`               | `string`   | Path to the compiled entry module (e.g. `"./dist/index.js"`)                                                                                                  |
+| `displayName`         | `string`   | Human-readable name shown in the marketplace                                                                                                                  |
+| `category`            | `string`   | One of `integration \| channel \| tool \| analytics \| products` (SDK `PluginCategory`); document importers are marked via `documentImporter`, not a category |
+| `marketplaceCategory` | `string`   | Marketplace section: one of `channels \| commerce \| payments \| crm \| knowledge \| security`. Plugins without one are listed under "Other"                  |
+| `capabilities`        | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `cron`, `email`                               |
+| `env`                 | `string[]` | Allow-list of host env var names that config fields may fall back to via their `env:` property                                                                |
+| `channel`             | `string`   | Channel plugins only: the channel slug (e.g. `"instagram"`); matched by `pluginManagerService.findPluginIdByChannel()` for outbound delivery                  |
+| `autoActivate`        | `boolean`  | Legacy (document importers)                                                                                                                                   |
+| `trpcRouter`          | `string`   | Legacy (document importers): path to a tRPC router loaded in-process                                                                                          |
+| `documentImporter`    | `boolean`  | Legacy: marks a document importer plugin                                                                                                                      |
+| `config`              | `object`   | Legacy: manifest-style config schema, copied into the registry manifest's `configSchema` (new plugins use `register.config` instead)                          |
+| `auth`                | `object`   | Legacy: manifest-style auth config, copied into the registry manifest (new plugins use `register.auth.*` instead)                                             |
+
+Two more things feed the marketplace: the top-level `package.json` `homepage` (an `https` URL, shown as the plugin's setup guide link) and a `summary` string in each `i18n/<locale>.json` (one short sentence for the marketplace card; falls back to `description`).
 
 Capabilities are **declarative**: they drive marketplace classification, plugin type inference, and the scope of the worker's callback JWT — they are not hard-enforced against your implementation.
 
@@ -270,19 +274,19 @@ register.auth.oauth2(options: OAuth2AuthOptions): void
 
 `OAuth2AuthOptions` (`packages/plugin-sdk/types/auth.ts`):
 
-| Property              | Type                     | Description                                                                                                                                     |
-| --------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                  | `string`                 | Auth method id                                                                                                                                  |
-| `label`               | `string`                 | UI label                                                                                                                                        |
-| `authorizationUrl`    | `string`                 | Provider authorize URL                                                                                                                          |
-| `tokenUrl`            | `string`                 | Provider token URL                                                                                                                              |
-| `scopes`              | `string[]`               | Requested scopes (optional)                                                                                                                     |
-| `clientId`            | `ConfigFieldReference`   | Created with `ctx.config.field("clientId")`                                                                                                     |
-| `clientSecret`        | `ConfigFieldReference`   | Created with `ctx.config.field("clientSecret")`                                                                                                 |
-| `authorizationParams` | `Record<string, string>` | Extra static authorize-URL params. Reserved params (`client_id`, `redirect_uri`, `response_type`, `state`, `scope`, etc.) cannot be overridden. |
-| `scopeSeparator`      | `string`                 | Scope join delimiter; defaults to a space. Instagram needs `","`.                                                                               |
-| `tokenExchange`       | `OAuthTokenOp`           | Declarative one-time token transform run by core right after the code exchange (e.g. Instagram `ig_exchange_token` short→long-lived swap)       |
-| `tokenRefresh`        | `OAuthTokenOp`           | Declarative custom refresh strategy for providers without a standard `refresh_token` grant (e.g. Instagram `ig_refresh_token`)                  |
+| Property              | Type                     | Description                                                                                                                                                                |
+| --------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                  | `string`                 | Auth method id                                                                                                                                                             |
+| `label`               | `string`                 | UI label                                                                                                                                                                   |
+| `authorizationUrl`    | `string`                 | Provider authorize URL                                                                                                                                                     |
+| `tokenUrl`            | `string`                 | Provider token URL                                                                                                                                                         |
+| `scopes`              | `string[]`               | Requested scopes (optional)                                                                                                                                                |
+| `clientId`            | `ConfigFieldReference`   | Created with `ctx.config.field("clientId")`                                                                                                                                |
+| `clientSecret`        | `ConfigFieldReference`   | Created with `ctx.config.field("clientSecret")`                                                                                                                            |
+| `authorizationParams` | `Record<string, string>` | Extra static authorize-URL params. Reserved params (`client_id`, `redirect_uri`, `response_type`, `state`, `scope`, etc.) cannot be overridden.                            |
+| `scopeSeparator`      | `string`                 | Scope join delimiter; defaults to a space. Instagram needs `","`.                                                                                                          |
+| `tokenExchange`       | `OAuthTokenOp`           | Declarative one-time token transform run by core right after the code exchange (e.g. Instagram `ig_exchange_token` short→long-lived swap). If it fails, the connect fails. |
+| `tokenRefresh`        | `OAuthTokenOp`           | Declarative custom refresh strategy for providers without a standard `refresh_token` grant (e.g. Instagram `ig_refresh_token`)                                             |
 
 ```typescript
 interface OAuthTokenOp {
@@ -382,7 +386,10 @@ register.cron({
   handler: async (ctx) => {
     const fresh = await refreshSomehow(ctx.auth.get());
     // Buffered, returned to core, persisted encrypted; worker restarted.
-    ctx.auth.update({ accessToken: fresh.accessToken, expiresAt: fresh.expiresAt });
+    ctx.auth.update({
+      accessToken: fresh.accessToken,
+      expiresAt: fresh.expiresAt,
+    });
   },
   retryPolicy: { maxRetries: 3, backoff: "exponential" },
 });
@@ -402,9 +409,18 @@ For providers that deliver **every org's events to a single shared webhook URL w
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `signature`             | `{ header, format: "sha256-hmac", secretEnv }` — core verifies HMAC-SHA256 over the exact raw request bytes with the secret from `process.env[secretEnv]` (must be in the `hay-plugin.env` allow-list); timing-safe compare, `sha256=` prefix stripped. Only `sha256-hmac` is supported. |
 | `verificationChallenge` | Optional GET handshake: `{ modeParam, verifyTokenParam, challengeParam, verifyTokenEnv? \| verifyTokenConfigField? }` — core echoes the challenge when mode is `subscribe` and the token matches.                                                                                        |
-| `routeKeyPath`          | `{ itemsPath, keyPath }` — dot-paths (no eval, no DSL) to the events array and the per-event routing key.                                                                                                                                                                                |
+| `routeKeyPath`          | `{ itemsPath, keyPath, nested? }` — dot-paths (no eval, no DSL) to the events array and the per-event routing key. Optional `nested: { itemsPath, keyPath }` names a sub-array inside each item whose elements carry their own routing key (see below).                                  |
 
 Routing keys are matched against the keys persisted from `onConnected` to resolve the target org.
+
+**Nested routing** (`routeKeyPath.nested`): some providers batch several accounts' events under one item — WhatsApp puts phone-number-level `changes[]` under a WABA-level `entry[]`. Declaring `nested: { itemsPath: "changes", keyPath: "value.metadata.phone_number_id" }` makes core split each item by sub-item owner:
+
+- a sub-item whose nested key resolves to an org goes to that org;
+- a sub-item whose nested key is **unknown** is dropped — it never falls back to the item-level owner;
+- a sub-item with **no** nested key (account-level events such as `account_update`) goes to the item-level (`keyPath`) owner;
+- each org receives one clone of the item containing only its own sub-items; an item with no sub-items for any org is not sent.
+
+Items whose sub-array is missing or not an array are routed whole by the item-level key, exactly as without `nested`.
 
 ```typescript
 register.webhookRouting({
@@ -421,7 +437,62 @@ register.webhookRouting({
   },
   routeKeyPath: { itemsPath: "entry", keyPath: "id" },
 });
+
+// Nested form (WhatsApp): route each change by its phone number, falling
+// back to the WABA owner for changes that carry no phone_number_id.
+register.webhookRouting({
+  // ...signature / verificationChallenge as above
+  routeKeyPath: {
+    itemsPath: "entry",
+    keyPath: "id",
+    nested: { itemsPath: "changes", keyPath: "value.metadata.phone_number_id" },
+  },
+});
 ```
+
+### register.webchat
+
+`RegisterWebchatAPI` (`packages/plugin-sdk/types/webchat.ts`) — for plugins that declare the `webchat` capability. A plugin extends the webchat widget with **data, never code**: it declares a contribution of a fixed, versioned type, Core validates the props against the schema it owns for that type, and the widget acts on it with its own built-in code. Props are literals or `config.field("name")` references.
+
+| Type          | What it does                                                                                   |
+| ------------- | ---------------------------------------------------------------------------------------------- |
+| `challenge@1` | A bot check shown before a conversation starts (see `plugins/core/turnstile`).                 |
+| `cart@1`      | Tells the widget how to add a product to the cart of the store it is embedded on (see below). |
+
+#### `cart@1`: add to cart from the chat
+
+A store plugin describes its platform's cart requests. The widget sends them from the shopper's browser, to the page's own origin only, in two cases: the shopper clicks **Add to cart** on a product card, or the AI calls the core tools `add_to_cart` / `go_to_checkout`.
+
+```typescript
+register.webchat.contribution({
+  id: "cart",
+  type: "cart@1",
+  props: {
+    enabled: config.field("cartActions"), // the org's switch, usually a boolean defaulting to true
+    addPath: "/cart/add",
+    addBody: '{"id":{{cartItemId}},"quantity":{{quantity}}}',
+    checkoutPath: "/checkout",
+  },
+});
+```
+
+| Prop                                                      | Required | Notes                                                                                                                                                                             |
+| --------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`                                                 | no       | Default `true`. `false` withdraws the contribution.                                                                                                                               |
+| `addPath`                                                 | yes      | Path the widget POSTs to. One leading slash: it can only name the page's own origin.                                                                                              |
+| `addBody`                                                 | yes      | The JSON body as text. The widget fills `{{cartItemId}}`, `{{quantity}}` and `{{conversationId}}`; quote a placeholder where the store expects a string. Must be JSON once filled. |
+| `checkoutPath`                                            | yes      | Where the card's **Checkout** link and `go_to_checkout` take the shopper.                                                                                                         |
+| `tokenPath`, `tokenResponseHeader`, `tokenRequestHeader` | no       | For stores that want a token on cart writes: the widget GETs `tokenPath`, reads the response header and sends it back as the request header. Set all three or none.               |
+| `afterAddEvents`                                          | no       | JSON array as text of DOM events fired after a successful add so the theme refreshes its cart: `[{ "name": "…", "target": "body" \| "window", "detail": { … } }]`, at most 8.      |
+| `rootPathGlobal`                                          | no       | Dotted name of a page global holding the storefront's root path (a locale folder such as `/en-ca/`), put in front of the cart paths.                                              |
+
+A product is offered for adding when all of these hold:
+
+- its catalog `source` is the contributing plugin,
+- the page the widget is on belongs to the same site as the product's `sourceUrl`,
+- the variant carries a `cartItemId` (see [ctx.productSource](#ctxproductsource)).
+
+The widget always fires `hay:cart-updated` on `document.body` after a successful add, so a theme can refresh its cart with one listener. If the store refuses the request, the card falls back to the variant's `buyUrl`.
 
 ---
 
@@ -526,7 +597,7 @@ productSource.upsert(products: CanonicalProduct[]): Promise<{ upserted: number; 
 productSource.delete(externalId: string): Promise<{ removed: boolean }>
 ```
 
-`CanonicalProduct` (same file) is the canonical catalog shape: `externalId`, `handle`, `title`, `variants: CanonicalVariant[]` (required), plus optional `descriptionHtml`, `vendor`, `productType`, `status: "active" | "draft" | "archived"`, `tags`, `categories`, `options`, `images`, `currency`, `sourceUrl`, `attributes`. Variants carry `externalId`, `title`, and optional `sku`, `price`, `compareAtPrice`, `inventoryQuantity`, `availability: "in_stock" | "out_of_stock" | "backorder"`, etc. Upserts are idempotent on `(source, externalId)`; core stamps `source` from the authenticated plugin id. See `plugins/core/shopify` for a full sync implementation (initial sync via cron + webhook-driven updates).
+`CanonicalProduct` (same file) is the canonical catalog shape: `externalId`, `handle`, `title`, `variants: CanonicalVariant[]` (required), plus optional `descriptionHtml`, `vendor`, `productType`, `status: "active" | "draft" | "archived"`, `tags`, `categories`, `options`, `images`, `currency`, `sourceUrl`, `attributes`. Variants carry `externalId`, `title`, and optional `sku`, `price`, `compareAtPrice`, `inventoryQuantity`, `availability: "in_stock" | "out_of_stock" | "backorder"`, etc. Two optional variant fields let shoppers buy from the chat: `buyUrl`, a link that puts the variant in the cart or opens checkout with it (shown as a **Buy** button on product cards and as a link on text channels), and `cartItemId`, the id the store's own cart takes for the variant, used by the plugin's [`cart@1` contribution](#cart1-add-to-cart-from-the-chat). Upserts are idempotent on `(source, externalId)`; core stamps `source` from the authenticated plugin id. See `plugins/core/shopify` for a full sync implementation (initial sync via cron + webhook-driven updates).
 
 ---
 
@@ -547,7 +618,7 @@ Endpoints the SDK runner mounts on every worker (`packages/plugin-sdk/runner/htt
 | `GET /mcp/list-tools` | Lists MCP tools (cached by core)                                                                          |
 | _(plugin routes)_     | Anything registered via `register.route` (e.g. `/webhook`, `/deliver`, `/escalate`)                       |
 
-External traffic reaches worker routes only through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The org is resolved from auth, subdomain, or query param — or, for a `POST /webhook` with no org identifier and a declared `webhookRouting` descriptor, the request is diverted to the shared webhook router.
+External traffic reaches worker routes only through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The org is resolved from the `organizationId` query param or the `x-organization-id` header (both UUID-validated against the DB) — auth-token-based org resolution is a TODO, not yet implemented — or, for a `POST /webhook` with no org identifier and a declared `webhookRouting` descriptor, the request is diverted to the shared webhook router.
 
 ---
 
@@ -574,7 +645,7 @@ Workers call back into core using the injected `HAY_API_URL` + `HAY_API_TOKEN` (
 
 ### Legacy REST callback endpoints
 
-An older Express router still exists alongside the tRPC callback API, mounted at `/v1/plugin-api` (`server/routes/v1/plugin-api/index.ts`), authenticated with the same worker JWT: `POST /send-email` (requires an `email` capability — a legacy value outside the SDK's `PluginCapability` union, used by `plugins/core/email`), `POST /mcp/register-local`, `POST /mcp/register-remote`, and `GET /health`. New plugins should use the tRPC procedures; the REST surface is kept for the email plugin path.
+An older Express router still exists alongside the tRPC callback API, mounted at `/v1/plugin-api` (`server/routes/v1/plugin-api/index.ts`), authenticated with the same worker JWT: `POST /send-email` (requires an `email` capability — a legacy value outside the SDK's `PluginCapability` union, used by the Email inbox plugin, `plugins/core/email-channel`), `POST /mcp/register-local`, `POST /mcp/register-remote`, and `GET /health`. New plugins should use the tRPC procedures; the REST surface is kept for the Email inbox send path.
 
 ---
 
@@ -685,5 +756,5 @@ Legacy paths that still exist: **document importers** (`documentImporter: true` 
 - **Getting Started**: [Getting Started guide](/docs/technical/plugins/getting-started/)
 - **Channel plugins**: [Channel Registration](/docs/technical/plugins/channel-registration/) and [Channel Architecture](/docs/technical/plugins/channel-architecture/)
 - **SDK source**: `packages/plugin-sdk/` (types under `types/`, runner under `runner/`)
-- **Reference implementations**: `plugins/core/klaviyo` / `plugins/core/woocommerce` (local MCP), `plugins/core/stripe` / `plugins/core/hubspot` (remote MCP), `plugins/core/chatwoot` / `plugins/core/instagram` / `plugins/core/whatsapp` (channels), `plugins/core/shopify` (OAuth + cron + products sync), `plugins/core/atlassian` / `plugins/core/notion` (document importers)
+- **Reference implementations**: `plugins/core/klaviyo` / `plugins/core/woocommerce` (local MCP), `plugins/core/stripe` / `plugins/core/hubspot` (remote MCP), `plugins/core/chatwoot` / `plugins/core/instagram` (channels), `plugins/core/shopify` (OAuth + cron + products sync), `plugins/core/atlassian` / `plugins/core/notion` (document importers)
 - **Authoring guide**: `.claude/skills/build-plugin/` (archetypes, templates, anti-patterns) — the canonical how-to companion to this reference

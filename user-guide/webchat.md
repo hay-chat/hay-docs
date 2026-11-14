@@ -26,13 +26,13 @@ Until the chat has been seen on a website, the card opens the **Install** tab. A
 
 The Webchat page has four tabs: **Appearance**, **Content**, **Install** and **Security**, with a live **Preview** beside them. At the top of the page, the **Show on your website** switch turns the chat on or off.
 
-When you change something, a bar appears at the bottom of the page: "You have unsaved changes", with **Discard** and **Save**. A few things apply straight away without Save: uploading or removing the logo, turning under-attack mode on or off, and showing or replacing the signed-in customer secret.
+When you change something, a bar appears at the bottom of the page: "You have unsaved changes", with **Discard** and **Save**. A few things apply straight away without Save: uploading or removing the logo, the chat button icon or the assistant's picture, turning under-attack mode on or off, and showing or replacing the signed-in customer secret.
 
 ### The live preview
 
 The preview runs the real chat with your current settings, including changes you have not saved yet. Switch between:
 
-- **Show**: **Home**, **Chat** (a short sample conversation) or **Ended** (the end-of-chat card)
+- **Show**: **Button** (the closed chat button), **Home**, **Chat** (a short sample conversation) or **Ended** (the end-of-chat card)
 - **Device**: **Desktop** or **Mobile**
 - **Theme**: **Light** or **Dark**
 
@@ -54,7 +54,7 @@ Anything you change yourself is never overwritten by the import. If you upload y
 
 ### Logo
 
-- **Upload** or **Replace** — PNG, JPG, WebP, GIF or SVG, up to 2 MB. A new logo applies straight away
+- **Upload** or **Replace** — PNG, JPG, WebP or GIF, up to 2 MB. A new logo applies straight away
 - **Remove** — shown for a logo you uploaded. The chat then falls back to your organization logo from **General** settings, and the website import does not bring its icon back
 - With no logo at all, the chat shows the first letter of your organization name on your brand colour ("No logo yet. The chat shows your first letter.")
 
@@ -69,9 +69,20 @@ The default brand colour is `#001DF5`.
 - **Theme** — **Light**, **Dark**, or **Match the visitor** (follows the light or dark setting of the visitor's device). The default is Light
 - **Button position** — **Bottom right** or **Bottom left**
 
+### Chat button
+
+The round button visitors click to open the chat, in your brand colour.
+
+- **Icon** — **Chat bubble**, **Sparkle** or **Robot**
+- **Icon style** — **Outline** or **Filled**
+- **Upload your own SVG** — up to 100 KB. It shows in one colour, white or dark to suit your brand colour, applies straight away and becomes the **Your icon** choice. **Remove** goes back to the chat bubble
+
 ### Assistant
 
-The assistant's name and avatar shown in the chat come from **Assistant** → **Identity**. Click **Edit** to change them there.
+How the assistant appears in the chat header and next to its replies. The name and avatar belong to your assistant, so they are also used across Hay; you can change the name in **Settings** → **Assistant** → **Identity** too.
+
+- **Name** — the assistant's name, for example "Ava"
+- **Avatar** — **Sparkle**, **Sparkles** or **Robot**, drawn in your brand colour. Or **Upload a picture** (PNG, JPG, WebP or GIF, up to 2 MB), which applies straight away and shows instead of the icon. Pick an icon again to go back to it
 
 ## Content
 
@@ -86,7 +97,51 @@ What visitors see when they open the chat.
 ### Greeting
 
 - **Start new chats with a greeting** — when on, a new conversation opens with your **Greeting** message (for example "Hi! How can we help you today?")
-- **Message next to the chat button** — a short message shown beside the closed chat button until the visitor opens the chat or closes the message. Leave it empty to show nothing
+- **Message next to the chat button** — a short message shown beside the closed chat button until the visitor opens the chat or closes the message. Leave it empty to show nothing. See [Message next to the chat button](#message-next-to-the-chat-button) for setting it in code
+
+### Message next to the chat button
+
+The message next to the chat button (also called the teaser) is a small bubble above the button that invites visitors to start a conversation, for example "Questions about pricing? Chat with us!". Clicking it opens the chat, and the visitor can dismiss it with the ✕. It goes away once the chat is opened, and it is not shown to a visitor who already has a conversation in progress.
+
+There are two ways to set it.
+
+**In the dashboard:** fill in **Message next to the chat button** on the **Content** tab and save. The change reaches your website straight away; you don't need to copy the install code again.
+
+**In code:** add `teaserMessage` to the widget config. A value here replaces the dashboard one on that page, so you can use a different message on different pages. An empty string (`""`) turns the teaser off for that page.
+
+```html
+<script>
+  window.HayChat = window.HayChat || {};
+  window.HayChat.config = {
+    organizationId: "your-org-id",
+    baseUrl: "https://your-api-domain.com",
+    teaserMessage: "👋 Questions about pricing? Chat with us!",
+  };
+</script>
+<script src="https://your-api-domain.com/v1/webchat/widget.js" async></script>
+```
+
+To show or change the teaser later, after a delay or when the visitor does something, call `HayChat.setTeaserMessage`:
+
+```js
+// Show or replace the teaser
+window.HayChat.setTeaserMessage("Still deciding? Ask us anything");
+
+// Remove it
+window.HayChat.setTeaserMessage("");
+
+// Example: after 30 seconds on the page
+setTimeout(() => {
+  window.HayChat?.setTeaserMessage?.("Need a hand? We're here.");
+}, 30000);
+```
+
+Good to know:
+
+- `setTeaserMessage` is available once the widget script has loaded. For a message that should be there from the start, use `teaserMessage` in the config.
+- A message set with `setTeaserMessage` shows even if the visitor dismissed an earlier one, but never while the chat is open.
+- A dismissed teaser comes back on the next page load until the visitor starts a conversation.
+- If the widget is set to `loading: "interaction"`, the dashboard message is not fetched up front, so only a message set in code shows.
 
 ### Before the chat
 
@@ -148,7 +203,7 @@ The secret is hidden until an admin clicks **Show secret**. **Replace secret** m
 
 ### The chat button and window
 
-The chat button sits in the corner you chose, in your exact brand colour. On a computer the chat opens as a window; on a phone it fills the screen. Visitors can close it with the close button or the Esc key.
+The chat button sits in the corner you chose, in your exact brand colour, with the icon you picked. On a computer the chat opens as a window; on a phone it fills the screen. Visitors can close it with the close button or the Esc key.
 
 ### Home
 

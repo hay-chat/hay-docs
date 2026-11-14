@@ -23,7 +23,7 @@ The connection works through a Chatwoot **Agent Bot** — a bot user you create 
    - **Webhook Secret** — the Webhook Secret shown on the Agent Bot's Edit page in Chatwoot. Hay uses it to verify that every incoming webhook really comes from your Chatwoot.
    - **Escalation Team ID (optional)** — when the AI hands off to a human, Hay can assign the Chatwoot conversation to this team.
 5. Save — Hay validates the credentials against your Chatwoot account.
-6. Back in Chatwoot, assign the Agent Bot to the inboxes you want Hay to handle. In Hay, make sure an agent is set up to respond on the channel, just like any other channel.
+6. Back in Chatwoot, assign the Agent Bot to the inboxes you want Hay to handle. Your Hay assistant answers on the channel like on any other.
 
 Self-hosted Chatwoot works the same way — just use your own instance URL as the Base URL. For advanced details, see the plugin README on GitHub: https://github.com/hay-chat/hay-core/tree/master/plugins/core/chatwoot
 

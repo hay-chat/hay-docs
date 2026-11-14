@@ -265,7 +265,7 @@ Guardrail config lives in the organization `settings` JSONB (`OrganizationSettin
 }
 ```
 
-All guardrail LLM evaluations run on the `medium` model tier with temperature 0.2 and structured JSON output.
+All guardrail LLM evaluations run on the `medium` model tier with temperature 0.2 and structured JSON output. Anthropic (Claude) models are the exception: the Anthropic API no longer accepts a temperature setting, so they run at the provider default.
 
 ## Message Metadata
 

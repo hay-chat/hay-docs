@@ -12,7 +12,7 @@ Shopify is one of the world's most popular e-commerce platforms, used by million
 ## How to Connect Shopify
 
 1. Go to **Integrations** → **Marketplace** in the Hay dashboard
-2. Find **Shopify** and click **Install**
+2. Find **Shopify** and click **Connect**
 3. Leave **Connection mode** set to **Managed (recommended)**
 4. Enter your **Store domain** — your myshopify.com address, e.g. `mystore.myshopify.com` (without https://). You can find it in your Shopify admin under **Settings** → **Domains**
 5. Save, then click **Connect with Shopify**
@@ -32,6 +32,20 @@ The plugin also has a **Self-hosted (own app)** connection mode for teams that r
 - Change where an undispatched order will ship (refused once fulfillment has started)
 - Add or replace the internal note on an order
 - Cancel an order — optionally restocking items, refunding, and notifying the customer
+
+### Exchanges and item swaps
+
+- Swap an item on an order that has not shipped for another variant of the same product (for example a different size)
+- Exchange delivered items for other variants: Hay.chat opens a Shopify return with the exchange items so the replacement is released
+- Email the payment link for an unpaid order, after the shopper's email or phone matches the order
+
+### Goodwill coupons
+
+The agent can create a single-use discount code as an apology. In the plugin settings, **Allow goodwill coupons** (on by default), **maximum percentage** (default 10%), **maximum fixed amount** (default 0, which turns fixed coupons off) and **validity in days** (default 30) set the limits. A coupon above the limits waits for a person to approve it.
+
+### Other settings
+
+On the Shopify settings page (**Setup** tab) you can also set **Stale tracking: domestic (days)** and **Stale tracking: international (days)**, which decide when a shipment counts as stuck because its tracking has not moved, and **How to return**: your return process in your own words (where to send items, any link or form, deadlines). Hay.chat relays it as written when a customer asks how to return something. If it is empty, those questions go to your team.
 
 ### Refunds & Returns
 
@@ -57,5 +71,17 @@ The plugin also has a **Self-hosted (own app)** connection mode for teams that r
 ### Product Catalog Sync
 
 Beyond the tools above, the Shopify plugin syncs your full product catalog into Hay in the background. That means your agent can search and recommend real products — with accurate prices, options, images, and availability — directly in conversations. The catalog re-syncs automatically on a schedule, and in self-hosted mode a background job also keeps your Shopify access token fresh so the connection never silently expires.
+
+### Add to cart from chat
+
+When the chat widget is on your Shopify storefront, the products your agent recommends show an **Add to cart** button. One click puts the product in the shopper's own cart without leaving the page, and the card then offers a **Checkout** link.
+
+- **Turn it on or off** with the **Add to cart from chat** setting in the Shopify plugin settings. It is on by default. When it is off, cards show only the link to the product.
+- **Which products get the button:** products published to your online store, with a variant that is available for sale. After you connect the store or change the setting, buttons appear once the next catalog sync has finished.
+- **Where it works:** on stores that use a Shopify theme. On a headless storefront the card falls back to its buy link.
+- **Seeing which orders came from chat:** each item added from chat carries a hidden property, `_hay_conversation`, with the conversation's id. Shopify hides it from the shopper at checkout and shows it on the order in your Shopify admin. Most themes also hide it on the cart page; if yours shows it, your theme prints every item property and needs to skip names starting with `_`.
+- **Your theme's cart icon** may not update until the next page load. If you want it to refresh immediately, your theme developer can listen for the `hay:cart-updated` event the widget fires on the page after each add.
+
+Shopify gives the agent 25 tools. Refunds, cancellations, discounts and exchanges wait for a person to approve them by default; see [Action approvals](/docs/user-guide/action-approvals/).
 
 Your agent uses all of these tools automatically: when a customer asks "where's my order #1042?" or "can I get a refund?", the agent picks the right tool, checks your store, and answers with real data — escalating to your team when a decision needs a human.

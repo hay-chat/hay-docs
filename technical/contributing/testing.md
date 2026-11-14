@@ -76,7 +76,7 @@ extracting tokens from the storage state file by hand:
 **Security notes:**
 - Only works in development (`NODE_ENV !== 'production'`)
 - Token removed from URL after validation
-- Tokens expire after 15 minutes (JWT default)
+- Tokens expire after 7 days (JWT default, configurable via `JWT_EXPIRES_IN`)
 
 **Note on the storage state file:** `playwright/.auth/user.json` stores the token inside a
 JSON-stringified `pinia:auth` localStorage entry, and the expiry field there is `expiresAt`
@@ -140,8 +140,7 @@ The following is a non-exhaustive list of spec files:
 - `tests/webchat-plugin.spec.ts` - Webchat plugin tests
 - `tests/zendesk-plugin.spec.ts` - Zendesk plugin tutorial tests
 - `tests/atlassian-plugin.spec.ts` - Atlassian plugin tests
-- `tests/email-plugin.spec.ts` - Email plugin tests
-- `tests/email-plugin-installation.spec.ts` - Email plugin installation tests
+- `tests/email-channel-setup.spec.ts` - Email inbox setup wizard tests
 - `tests/webchat-consent-strict.spec.ts` - Webchat consent (strict mode) tests
 - `tests/hubspot-oauth-flow.spec.ts` - HubSpot OAuth flow tests
 - `tests/plugin-health-check-and-settings.spec.ts` - Plugin health check and settings tests
@@ -348,7 +347,7 @@ npx playwright install
 ### GitHub Actions Example
 
 > **Note:** This is a simplified illustration. For the actual workflow this project runs,
-> see [`.github/workflows/playwright.yml`](../../../.github/workflows/playwright.yml).
+> see [`.github/workflows/playwright.yml`](https://github.com/hay-chat/hay-core/blob/master/.github/workflows/playwright.yml).
 > Key differences from the simplified example below: the real workflow is triggered by
 > `workflow_dispatch` only (manual run from the Actions tab — it is **not** a merge gate
 > and does not run on push/PR), it also spins up a Redis service and runs database
@@ -408,7 +407,7 @@ jobs:
 ### Production Safety
 
 - URL token auth **disabled** in production (`NODE_ENV !== 'production'`)
-- Tokens expire after 15 minutes (JWT config)
+- Tokens expire after 7 days (JWT config, configurable via `JWT_EXPIRES_IN`)
 - Storage state files in `.gitignore` (prevents committing tokens)
 - Test users have distinctive pattern for easy identification
 

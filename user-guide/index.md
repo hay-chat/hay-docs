@@ -11,28 +11,32 @@ Hay is a smart customer support platform that uses AI to handle repetitive suppo
 
 - **Never sleeps** - Provides instant responses to customers at any time of day
 - **Never forgets** - Remembers every piece of documentation and training you provide
-- **Learns quickly** - Gets smarter as you add more information and feedback
+- **Learns quickly** - Gets smarter as you add more documentation and playbooks
 - **Works everywhere** - Connects to your existing tools like Shopify, WhatsApp, and Zendesk
 
 ## How Does Hay Work?
 
-Hay works in four simple steps:
+Hay works in five simple steps:
 
-### 1. Connect Your Channels
+### 1. Answer a few questions
+
+The **Set up** board asks what kind of business you run and what tools you use, then tests your assistant on the questions your customers ask most. See [Set Up Your Assistant](/docs/user-guide/setup/).
+
+### 2. Connect Your Channels
 
 Link the platforms where your customers reach out to you - whether that's your website, WhatsApp, or your help desk software.
 
-### 2. Train Your Agent
+### 3. Train Your Assistant
 
 Upload your existing support documentation, FAQs, and process guides. Hay reads and learns from these instantly.
 
-### 3. Set Up Playbooks
+### 4. Set Up Playbooks
 
 Create simple workflows that tell Hay how to handle specific situations - like processing refunds, checking order status, or escalating to a human.
 
-### 4. Watch It Work
+### 5. Watch It Work
 
-Hay starts handling conversations automatically, learning and improving with every interaction.
+Hay starts handling conversations automatically. As you refine your playbooks and documentation, it gets even better.
 
 ## Who Is Hay For?
 
@@ -61,6 +65,16 @@ One AI assistant that works across all your support channels - no need to set up
 
 Your customer data stays secure and private. Hay is built with GDPR compliance and data protection in mind.
 
+## Running Hay.chat Day to Day
+
+- [Inbox](/docs/user-guide/inbox/): the conversations that need a person right now, quick questions from the AI, and spam you can check
+- [Quality: Feedback, Insights and Tests](/docs/user-guide/analytics/): rate replies, read the nightly [Insights](/docs/user-guide/insights/) and replay past conversations with [Tests](/docs/user-guide/tests/)
+- [Help center](/docs/user-guide/help-center/): publish your documents as a public website your customers can search, on a Hay address or your own domain
+- [Action approvals](/docs/user-guide/action-approvals/): decide which refunds, cancellations and discounts need a person's yes
+- [Team alerts, pause and business hours](/docs/user-guide/team-alerts-and-hours/): get alerted when a shopper needs a person, and pause the AI everywhere
+- [Billing and usage](/docs/user-guide/billing-and-usage/): what counts as a resolution and how to review it
+- [Exports, evidence packs and AI reply review](/docs/user-guide/exports-and-evidence/): export conversations, prepare a payment dispute, download your workspace
+
 ## Getting Help
 
 If you need assistance while using Hay:
@@ -69,4 +83,4 @@ If you need assistance while using Hay:
 - Contact your account manager
 - Visit our support portal
 
-Let's get started! Head to the [Quick Start](/docs/user-guide/quick-start/) guide to set up your first agent.
+Let's get started! Head to the [Quick Start](/docs/user-guide/quick-start/) guide to set up your assistant.
