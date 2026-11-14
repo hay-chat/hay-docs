@@ -156,12 +156,31 @@ For each token you can see its status (Active / Inactive / Expired), creation da
 
 ### Widget Appearance
 
-- **Widget Title** (e.g., "Chat with us") and **Widget Subtitle** (e.g., "We're here to help")
-- **Position** — Left or Right side of the page
-- **Theme** — Blue, Green, Purple, or Black
+The **Appearance** tab. The preview next to the settings updates as you change them; show it as the **Button**, **Home**, **Chat** or **Ended**, on **Desktop** or **Mobile**, in **Light** or **Dark**. Changes go live when you click **Save** in the bar at the bottom. Uploads apply straight away.
+
+- **Logo** — taken from your website icon, or upload your own (PNG, JPG, WebP or GIF, up to 2 MB). Without one, the chat shows your first letter.
+- **Brand colour** — colours found in your website icon, or pick any colour. Text on it stays readable automatically.
+- **Theme** — Light, Dark, or Match the visitor
+- **Button position** — Bottom right or Bottom left
+
+#### Chat button
+
+The round button visitors click to open the chat, in your brand colour.
+
+- **Icon** — Chat bubble, Sparkle or Robot
+- **Icon style** — Outline or Filled
+- **Upload your own SVG** — up to 100 KB. It shows in one colour, white or dark to suit your brand colour, and becomes the **Your icon** choice. **Remove** goes back to the chat bubble.
+
+#### Assistant
+
+How the assistant appears in the chat header and next to its replies. They belong to your assistant, so they also show elsewhere in Hay. You can change the name in **Settings** → **Assistant** too.
+
+- **Name** — the assistant's name, for example "Ava"
+- **Avatar** — Sparkle, Sparkles or Robot, drawn in your brand colour. Or **Upload a picture** (PNG, JPG, WebP or GIF, up to 2 MB), which shows instead of the icon; pick an icon again to remove the picture.
 
 ### Widget Behavior
 
+- **Chat title** — shown at the top of a conversation when the assistant has no name
 - **Show greeting message when chat opens** — toggle, plus a customizable **Greeting Message**
 - **Teaser Message** — a short message (up to 200 characters) shown next to the chat button before the visitor opens the chat. Leave it empty to show nothing. See [Teaser message](#teaser-message) below.
 - **Customer Satisfaction (CSAT)** — ask visitors for a 1-5 emoji rating when a conversation ends, with an optional **Rating Question**
