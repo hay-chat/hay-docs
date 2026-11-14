@@ -41,7 +41,7 @@ When the AI asks to run an action that needs a person's yes (such as a refund), 
 
 ## Spam
 
-**Spam** (a link at the bottom of the Inbox) lists conversations Hay held as spam. The AI doesn't answer them and they never count toward your bill. Each row shows why it was held (for example **Spam detector**, **Marked by your team** or **Found at close**) and the signals, such as **Many links** or **Repeated text**. Click **Not spam** to release one (the AI then answers it) or **Open** to read it. On a conversation you can use **Mark as spam**. Spam protection for web chat is under **Settings** → **Channels** → **Webchat**.
+**Spam** (a link at the bottom of the Inbox) lists conversations Hay held as spam. The AI doesn't answer them and they never count toward your bill. Each row shows why it was held (for example **Spam detector**, **Marked by your team** or **Found at close**) and the signals, such as **Many links** or **Repeated text**. Click **Not spam** to release one (the AI then answers it) or **Open** to read it. On a conversation you can use **Mark as spam**. Spam protection for web chat is on the **Security** tab of the [Webchat](/docs/user-guide/webchat/#security) page (**Settings** → **Channels**, then the **Webchat** card).
 
 Two other links on the page lead to **Conversations** (the full list) and **Metrics and reports** (the Dashboard).
 
