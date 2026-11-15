@@ -26,14 +26,15 @@ We believe that happy developers build better software.
 - Extensive tooling and scripts
 
 ```typescript
-// Good: Clear, typed interface
-interface CreateConversationInput {
-  title?: string;
-  agentId?: string;
-  language?: string;
-  metadata?: Record<string, unknown>;
-  status?: string;
-}
+// Good: Clear, typed schema (Zod)
+const createConversationSchema = z.object({
+  title: z.string().max(255).optional(),
+  language: z.string().optional(),
+  metadata: z.record(z.unknown()).optional(),
+  status: conversationStatusSchema.optional(),
+  customerId: z.string().uuid().optional(),
+  playbookVersionOverride: z.string().uuid().optional(),
+});
 
 // Bad: Unclear, any types
 function create(params: any) { ... }
@@ -154,14 +155,14 @@ Repositories extend `BaseRepository<T>` (a generic TypeORM wrapper) — no inter
 - **Minimum 80% coverage**: For new code (aspirational target — not currently enforced via CI)
 
 ```typescript
-describe("AutomationService", () => {
-  it("should trigger rule when conditions match", async () => {
+describe("DataRetentionService", () => {
+  it("should anonymize conversations past the retention window", async () => {
     const service = setupService();
-    const rule = createTestRule();
+    const org = createTestOrg({ retentionDays: 30 });
 
-    const result = await service.evaluate(rule, testConversation);
+    const result = await service.anonymizeExpired(org);
 
-    expect(result.triggered).toBe(true);
+    expect(result.anonymizedCount).toBeGreaterThan(0);
   });
 });
 ```
@@ -175,26 +176,26 @@ describe("AutomationService", () => {
 
 ````typescript
 /**
- * Evaluates automation rules against a conversation.
+ * Processes a conversation through the orchestrator pipeline.
  *
- * @param rule - The automation rule to evaluate
- * @param conversation - The conversation context
- * @returns Evaluation result with actions to execute
+ * @param conversation - The conversation to process
+ * @param trigger - What caused this processing run
+ * @returns The execution result with the chosen step and response
  *
- * @throws {ValidationError} If rule or conversation is invalid
+ * @throws {LockError} If the conversation is already being processed
  *
  * @example
  * ```ts
- * const result = await evaluate(rule, conversation);
- * if (result.matched) {
- *   await executeActions(result.actions);
+ * const result = await processConversation(conversation, "customer_message");
+ * if (result.step === "RESPOND") {
+ *   await sendReply(result.response);
  * }
  * ```
  */
-async function evaluate(
-  rule: AutomationRule,
+async function processConversation(
   conversation: Conversation,
-): Promise<EvaluationResult>;
+  trigger: OrchestratorTrigger,
+): Promise<ExecutionResult>;
 ````
 
 ### Contribution Guidelines

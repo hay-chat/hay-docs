@@ -65,7 +65,7 @@ Think of it like training a new employee by giving them all your company documen
 
 **Integrations**
 
-- Some integrations (for example Notion or Confluence through Atlassian) can import pages into your knowledge base; choose **Integration** as the source
+- Some integrations (for example Notion or Confluence through Atlassian) can import pages into your knowledge base. When the corresponding plugin is installed, it appears as an option on the import page — select it to connect and import
 
 ### Step 3: Processing
 
@@ -290,8 +290,6 @@ Use the search bar to find specific documents:
 ### Archiving Documents
 
 You can mark a document as **Archived** from the documents list without deleting it, using the archive action on each row or in bulk.
-
-> ⚠️ **Note:** Archiving from the documents list is not yet fully functional — the action currently only updates what you see on screen and does not persist to the backend. Don't rely on it yet to keep a document out of use.
 
 ### Improving a document with AI
 

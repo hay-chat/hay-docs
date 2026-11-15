@@ -443,7 +443,7 @@ core server
   └─ spawns per (org, plugin):  node packages/plugin-sdk/dist/runner/index.js
        ├─ env: HAY_ORG_CONFIG, HAY_ORG_AUTH   (your config + credentials)
        ├─ env: HAY_API_URL, HAY_API_TOKEN     (scoped JWT to call back into core)
-       ├─ HTTP: /metadata /validate-auth /config-update /disable /mcp/*  ← core calls these
+       ├─ HTTP: /health /metadata /validate-auth /on-connected /config-update /disable /cron/:name /setup/status /webchat/gate/:event /mcp/*  ← core calls these
        └─ your onStart → spawns mcp/index.js over stdio
 ```
 

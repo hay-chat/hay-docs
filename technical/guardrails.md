@@ -85,7 +85,7 @@ Prevent the orchestrator from telling the customer a state-changing action happe
 
 ### How It Works
 
-The orchestrator loop in `/server/orchestrator/run.ts` keeps a **tool ledger** for the turn (`toolsCalledThisTurn`): every tool call is recorded as `{ name, success }`. Conversation history is not turn-scoped, so the ledger is the source of truth for "what actually ran this turn". An LLM judge (prompt `execution/action-claim-check`) sees the response, the last customer message, recent conversation history, and the formatted ledger, and returns:
+The orchestrator loop in `/server/orchestrator/run.ts` keeps a **tool ledger** for the turn (`toolsCalledThisTurn`): every tool call is recorded as `{ name, success, pending?, pageTool?, decision? }`. The `pending` flag marks calls awaiting action approval, `pageTool` marks unverified page-navigation tools, and `decision` records approval outcomes (`"approved"` | `"declined"`). These affect how the ledger is formatted for the judge (e.g. `PENDING_APPROVAL`, `UNVERIFIED_PAGE_TOOL`, `DECLINED_BY_TEAM`). Conversation history is not turn-scoped, so the ledger is the source of truth for "what actually ran this turn". An LLM judge (prompt `execution/action-claim-check`) sees the response, the last customer message, recent conversation history, and the formatted ledger, and returns:
 
 ```typescript
 {
@@ -108,7 +108,7 @@ A **failed** tool call does not back a success claim.
 
 ### Failure Mode
 
-Stage 0 **fails open**: on any evaluation error it returns a passing assessment ("never block conversations on guardrail outages").
+Stage 0 uses a **conditional fail mode**: when tools were called this turn or the reply is write-adjacent (contains amounts, links, or state-changing verbs), it **fails closed** on evaluation error — returning a blocking assessment to prevent false action claims from reaching the customer. For benign replies with no tool calls in the turn, it **fails open** — returning a passing assessment to avoid blocking conversations on guardrail outages.
 
 ## Stage 1: Company Interest Protection
 
@@ -161,13 +161,13 @@ Each violation carries a `severity` (`critical` | `moderate` | `low` | `none`). 
 
 ### Failure Mode
 
-On evaluation error, Stage 1 allows the response but forces `requiresFactCheck: true`.
+Stage 1 uses a **conditional fail mode**: for write-adjacent replies (amounts, links, state-changing verbs), it **fails closed** — blocking the response. For non-write-adjacent replies, it **fails open** — allowing the response but forcing `requiresFactCheck: true` so Stage 2 still checks the claims.
 
 ## Stage 2: Fact Grounding
 
 ### Purpose
 
-Only activated when Stage 1 passes AND sets `requiresFactCheck: true`. Verifies that factual claims about the company are grounded in evidence. Implemented by `ConfidenceGuardrailService` (`assessConfidence()`).
+Stage 2 now runs on **every** non-exempt reply that passes Stage 1. When `requiresFactCheck` is set by Stage 1, it performs a full assessment (grounding + retrieval + certainty). When the reply was not flagged, it runs a **grounding-only** check: if the grounding score is high enough, it passes silently; if low, it falls into the full assessment → recheck → escalation path. Implemented by `ConfidenceGuardrailService` (`assessConfidence()`).
 
 ### Grounding Sources
 

@@ -90,8 +90,8 @@ Hay has six roles: **Owner**, **Admin**, **Contributor**, **Member**, **Viewer**
 ### Managing members and invitations
 
 - **Search** members by name or email, and filter by role
-- **Change Role** — update a member's role (Owners only — Admins can invite members but cannot change roles or remove existing members)
-- **Remove Member** — remove someone from the organization (Owners only; cannot be undone)
+- **Change Role** — update a member's role. Admins can change roles for non-owner members; only Owners can grant, change, or revoke the Owner role.
+- **Remove Member** — remove someone from the organization. Admins can remove non-owner members; only Owners can remove other Owners. Cannot be undone.
 - **Pending Invitations** — see invitations that haven't been accepted yet, with options to **resend** or **cancel** each one
 
 ## Privacy & Data (Your Own Data)
