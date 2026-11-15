@@ -19,7 +19,7 @@ Channel registration in Hay is **declarative**. A plugin does not call a registr
 2. **HTTP routes on the plugin worker** — `POST /webhook` (inbound) and `POST /deliver` (outbound), registered with `register.route()` from the SDK.
 3. **The plugin API callback `messages.receive`** — how the worker hands an inbound message to core, which creates the customer, conversation, and message.
 
-Once the plugin is enabled for an organization, the channel automatically appears in the agent settings page (`dashboard/pages/agents/[id].vue` lists every enabled plugin whose type includes `channel` and that declares a `channel` slug, alongside the built-in `web` channel). No separate registration step exists or is needed.
+Once the plugin is enabled for an organization, the channel automatically appears in the channels settings page (alongside the built-in `web` channel). No separate registration step exists or is needed.
 
 > **Note:** an older version of this guide documented a `sources.register` API as the registration mechanism. That API is a **stub** — see [The `sources` API (not the registration mechanism)](#the-sources-api-not-the-registration-mechanism) below.
 
@@ -56,9 +56,9 @@ Field-by-field (interface `HayPluginBlock` in `server/services/plugin-manager.se
 
 **Channel slug rules:**
 
-- One plugin per slug. Core resolves the channel with `pluginManagerService.findPluginIdByChannel(channel)`, which returns the first loaded plugin whose `hay-plugin.channel` matches — there is no conflict handling, so pick a slug no other plugin uses.
+- One plugin per slug per org. Core resolves the channel with `pluginManagerService.findPluginIdByChannel(organizationId, channel)`, which returns the first enabled plugin instance whose `hay-plugin.channel` matches (sorted alphabetically) — there is no conflict handling, so pick a slug no other plugin uses.
 - `"web"` is reserved for the built-in webchat/dashboard channel; the delivery service explicitly skips it.
-- The plugin API validates `channel` as a 1–64 character string. Use lowercase.
+- The plugin API validates `channel` against the regex `/^[a-z0-9][a-z0-9_-]*$/` — must start with a lowercase letter or digit, then lowercase letters, digits, hyphens, and underscores only.
 
 ---
 
@@ -139,6 +139,11 @@ Input schema (`server/routes/v1/plugin-api/trpc.ts`, requires the `messages` cap
   metadata?: Record<string, any>;   // see below
   senderType?: "customer" | "human_agent";  // default "customer"
   externalConversationId?: string;  // provider-side conversation id, if any
+  conversationId?: string;          // Hay conversation UUID the plugin recovered
+  title?: string;                   // e.g. email subject (max 255 chars)
+  replyWindowExpiresAt?: string;    // ISO datetime — provider messaging window deadline
+  holdForHuman?: boolean;           // skip the orchestrator, keep the conversation for a human
+  attachments?: Array<{ id, name, url, type, size }>;  // up to 10 customer-sent files
 }
 ```
 
