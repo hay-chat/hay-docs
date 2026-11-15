@@ -227,11 +227,10 @@ Server side: `server/routes/v1/plugin-api/trpc.ts`, procedure `messages.receive`
 
 Processing steps, in order:
 
-1. **Customer** — look up by `external_id` within the org (`customerRepository.findByExternalId`). Create if missing, storing channel data under `external_metadata[channel]`; on subsequent messages, backfill `name`/`phone` if empty and merge the latest metadata. The `from` value is a channel-scoped identity and lives in `external_id` — never in the phone field (a real phone number only lands in `phone` if the channel passes `metadata.phone`).
-2. **Agent resolution** — `getAgentForChannel(orgId, channel)`: (1) agents whose `channels` array (the `agent.channels` text-array column on the Agent entity) includes this channel — preferring the org default agent if it's among them, otherwise the earliest-created; (2) the org default agent; (3) the first available agent. Only when the org has no agents at all does the mutation fail (an internal `NOT_FOUND` that the procedure's catch-all re-throws as `INTERNAL_SERVER_ERROR` with message "No agent configured for this channel").
-3. **Conversation** — `findActiveByCustomerAndChannel(customerId, channel, orgId)`; create a new `open` conversation if none is active. If the plugin passed `externalConversationId`, it is stored under `conversation.metadata[channel].conversationId` so outbound delivery can reuse it.
-4. **Dedupe** — if `metadata.mid` is set, core claims the key `dedupe:msg:<orgId>:<channel>:<mid>` atomically via Redis `SETNX` with a 24h TTL. Duplicates return `{ processed: false, deduped: true }` without creating a message. Redis being down fails open (at-least-once beats dropping). **Channels that don't pass `mid` get no dedupe at all** — of the shipped plugins, only Instagram currently sets it (WhatsApp passes `messageSid` and Chatwoot `chatwootMessageId` in metadata, but neither under the `mid` key core checks).
-5. **Message** — added as `MessageType.CUSTOMER`, or `MessageType.HUMAN_AGENT` when `senderType === "human_agent"` (e.g. a Chatwoot agent replied on the provider side). Human-agent messages are tagged `metadata.externalOrigin: true` so outbound delivery never echoes them back to the same channel, and the conversation is flipped to `human-took-over` so the orchestrator stops responding.
+1. **Customer** — look up by `external_id` within the org (`customerRepository.findByExternalId`). Create if missing, storing channel data under `external_metadata[channel]`; on subsequent messages, backfill `name`/`phone`/`email` if empty and merge the latest metadata. The `from` value is a channel-scoped identity and lives in `external_id` — never in the phone field (a real phone number only lands in `phone` if the channel passes `metadata.phone`).
+2. **Conversation** — `findActiveByCustomerAndChannel(customerId, channel, orgId)`; create a new `open` conversation if none is active. If the plugin passed `externalConversationId`, it is stored under `conversation.metadata[channel].conversationId` so outbound delivery can reuse it. Agent resolution happens later in the orchestrator, not during message ingestion.
+3. **Dedupe** — if `metadata.mid` is set, core claims the key `dedupe:msg:<orgId>:<channel>:<mid>` atomically via Redis `SETNX` with a 24h TTL. Duplicates return `{ processed: false, deduped: true }` without creating a message. Redis being down fails open (at-least-once beats dropping). **Channels that don't pass `mid` get no dedupe at all** — of the shipped plugins, both Instagram and WhatsApp pass `mid` (the wamid) and get dedupe. Chatwoot passes `chatwootMessageId` in metadata but not under the `mid` key core checks, so it has no dedupe.
+4. **Message** — added as `MessageType.CUSTOMER`, or `MessageType.HUMAN_AGENT` when `senderType === "human_agent"` (e.g. a Chatwoot agent replied on the provider side). Human-agent messages are tagged `metadata.externalOrigin: true` so outbound delivery never echoes them back to the same channel, and the conversation is flipped to `human-took-over` so the orchestrator stops responding.
 
 The new customer message then flows through the normal orchestrator pipeline exactly as a webchat message would.
 
@@ -239,20 +238,18 @@ The new customer message then flows through the normal orchestrator pipeline exa
 
 ## Outbound: `ChannelDeliveryService` → `POST /deliver`
 
-Outbound delivery is push-based and lives in `server/services/channel-delivery.service.ts`. It subscribes to the Redis `websocket:events` channel (the same event stream the WebSocket service uses) and reacts to two event types.
+Outbound delivery is durable and queue-based, driven by `server/services/channel-delivery-queue.service.ts` (enqueue) and `server/services/channel-delivery.service.ts` (consume + deliver).
 
-### Message delivery (`message_received` events)
+When a new outbound message is created, `ConversationEventsService` enqueues a delivery job into a durable RabbitMQ queue (`channel.deliver`) via `ChannelDeliveryQueueService`. A message is enqueued only when **all** of these hold:
 
-A message is delivered to the channel plugin only when **all** of these hold:
-
-- `payload.type` is `BotAgent` or `HumanAgent` (never customer/system messages),
+- `payload.type` is `BotAgent`, `HumanAgent`, or `ProductRecommendation` (never customer/system messages),
 - `payload.metadata.externalOrigin !== true` (don't echo messages that came _from_ the channel),
 - `payload.deliveryState === "sent"` (messages `queued` by test-mode approval are skipped until approved),
-- the conversation's channel is not `web` (the dashboard/WebSocket path handles web).
+- the conversation's channel is not `web` (the dashboard/WebSocket path handles web), unless a human agent message is being sent to a web conversation (for simulator use).
 
-The service then:
+`ChannelDeliveryService` consumes the queue and:
 
-1. Resolves the plugin by slug: `pluginManagerService.findPluginIdByChannel(conversation.channel)` — matching the `hay-plugin.channel` field. No plugin registered for the channel → warn and drop.
+1. Resolves the plugin by slug: `pluginManagerService.findPluginIdByChannel(organizationId, conversation.channel)` — matching the `hay-plugin.channel` field per org. No plugin registered for the channel → warn and drop.
 2. Gets or starts the org's worker.
 3. POSTs to `http://localhost:<port>/deliver`:
 
@@ -261,9 +258,12 @@ The service then:
   to: string,                    // customer.external_id, e.g. "instagram:<psid>"
   content: string,
   messageId: string,             // Hay message UUID
+  messageType: string,           // e.g. "BotAgent", "HumanAgent", "ProductRecommendation"
   conversationId: string,
   conversationMetadata: Record<string, unknown> | null,
+  language: string | null,       // detected conversation language
   messageMetadata: Record<string, unknown> | null,
+  attachments: Array<{ url, name, type, size }>,  // signed attachment URLs
 }
 ```
 
@@ -294,13 +294,15 @@ Core specifically recognizes `"24h_window_expired"` and logs it as a warning rat
 
 The Instagram handler also strips the channel namespace before calling the provider — `to` arrives as `instagram:<psid>` (as set on inbound) and the Graph API wants the bare PSID.
 
-### Escalation (`conversation_status_changed` events)
+### Escalation
 
-When a non-web conversation flips to `pending-human`, core POSTs the worker's `/escalate` route:
+When a non-web conversation flips to `pending-human`, `ChannelDeliveryQueueService` enqueues an escalation job on the same RabbitMQ queue. `ChannelDeliveryService` consumes it and POSTs the worker's `/escalate` route:
 
 ```typescript
-{ conversationId, conversationMetadata, reason: "orchestrator_handoff" }
+{ conversationId, conversationMetadata, reason: "orchestrator_handoff", attachments }
 ```
+
+The `attachments` array carries signed URLs to files the customer sent, giving the human agent context for the handoff.
 
 This is **best-effort**: a `404` from plugins that don't register `/escalate` is silently tolerated, so implementing it is optional. Chatwoot uses it to perform provider-side handoff (reopen the ticket, assign a team); Instagram does not implement it.
 
@@ -369,14 +371,14 @@ One subtlety worth copying: `onStart` does **not** re-run on reconnect, so Insta
 5. Outbound: implement `/deliver` with the 200-`success:false` convention for permanent provider errors.
 6. Optionally implement `/escalate` for provider-side human handoff.
 
-**Reference implementations:** `plugins/core/instagram` (shared-app model, declarative webhook routing, declarative token exchange/refresh, and the only plugin that passes `metadata.mid`) and `plugins/core/chatwoot` (per-instance signature verification, escalation, human-agent forwarding, `externalConversationId`). Avoid copying the inbound handler of `plugins/core/chatwoot` verbatim — it passes no `metadata.mid`, so its inbound path has no dedupe; prefer Instagram's `<channel>:<id>` convention for `from` in new plugins.
+**Reference implementations:** `plugins/core/instagram` (shared-app model, declarative webhook routing, declarative token exchange/refresh, passes `metadata.mid` for dedupe) and `plugins/core/chatwoot` (per-instance signature verification, escalation, human-agent forwarding, `externalConversationId`). Avoid copying the inbound handler of `plugins/core/chatwoot` verbatim — it passes no `metadata.mid`, so its inbound path has no dedupe; prefer Instagram's `<channel>:<id>` convention for `from` in new plugins.
 
 ### Known gaps and stubs (as of this writing)
 
 - `sources.register` accepts calls but does not persist anything (TODO in `server/routes/v1/plugin-api/trpc.ts`).
 - Instagram's `onValidateAuth` only checks that auth state exists (throwing if none) — it returns `true` without a Graph API round-trip.
 - The `PluginApiClient` is copy-pasted into each channel plugin rather than exported from `@hay/plugin-sdk`.
-- The shared-webhook router supports exactly one signature format (`sha256-hmac`) and env-based verify tokens (`verifyTokenConfigField` exists in the type but is not resolvable on a no-org shared URL).
+- The shared-webhook router supports three signature formats (`sha256-hmac`, `sha256-hmac-base64`, `svix`) and env-based verify tokens (`verifyTokenConfigField` exists in the type but is not resolvable on a no-org shared URL).
 
 ---
 
@@ -385,5 +387,5 @@ One subtlety worth copying: `onStart` does **not** re-run on reconnect, so Insta
 - [Getting Started](/docs/technical/plugins/getting-started/) — plugin anatomy, SDK contract, lifecycle hooks
 - [Quick Reference](/docs/technical/plugins/quick-reference/) — `register.*` API signatures
 - [Channel Registration](/docs/technical/plugins/channel-registration/) — the sources table and source registration
-- Core code: `server/routes/v1/plugins/proxy.ts` (ingress), `server/services/webhook-router.service.ts` (shared-webhook fan-out), `server/services/channel-delivery.service.ts` (outbound + escalation), `server/routes/v1/plugin-api/trpc.ts` (plugin → core callbacks)
+- Core code: `server/routes/v1/plugins/proxy.ts` (ingress), `server/services/webhook-router.service.ts` (shared-webhook fan-out), `server/services/channel-delivery-queue.service.ts` (enqueue), `server/services/channel-delivery.service.ts` (outbound + escalation), `server/routes/v1/plugin-api/trpc.ts` (plugin → core callbacks)
 - Example plugin: `plugins/core/instagram`

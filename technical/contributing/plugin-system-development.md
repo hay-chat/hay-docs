@@ -344,8 +344,8 @@ Things a contributor should know exist (or don't) before building on them:
 - **Document importers bypass the worker model.** Plugins with `autoActivate: true` + `trpcRouter` (e.g. `plugins/core/atlassian`) load a tRPC router in-process at boot via `server/services/plugin-router-registry.service.ts`, coupled to `@server/*` internals. This is the legacy special case, not the pattern to extend.
 - **`onConfigUpdate` is also uncalled** — the runner exposes `POST /config-update`, but core applies config changes by restarting the worker (see the hooks table).
 - **`PluginApiClient` is duplicated per channel plugin** (`plugins/core/instagram/src/plugin-api.ts`, and likewise in `chatwoot`, `email`) instead of being an SDK export.
-- **Webhook signature format** is limited to `sha256-hmac` in `WebhookRoutingDescriptor`.
-- **The instance pool's `queuedRequests` stat is tracked but never incremented** — pool limiting works via polling (`waitForAvailableSlot`), not a real queue.
+- **Webhook signature format** supports `sha256-hmac`, `sha256-hmac-base64`, and `svix` (Standard Webhooks / Svix scheme) in `WebhookRoutingDescriptor`.
+- **Pool eviction is LRU, not queued** — when a plugin's pool is full, `makeRoomInPool` stops the least recently active worker to free a slot. There is no queuing mechanism.
 - The `plugin_instances.status` column is legacy; `runtimeState` is the field the runner actually maintains.
 - **`MCPClientFactory`'s remote-MCP branch is effectively unreachable.** It selects `RemoteMCPClient` by checking `manifest.capabilities.mcp.connection.type === "remote"` — a shape from the old `manifest.json` model. The current package.json-driven registry manifest (`RegistryManifest`, built by `plugin-manager.service.ts`) never produces a `capabilities.mcp.connection` object, so this branch never fires and every plugin resolves to `LocalHTTPMCPClient`.
 

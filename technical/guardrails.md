@@ -215,7 +215,7 @@ When Medium confidence (`performRecheck()`):
 
 If `shouldEscalate` (low tier) — or a recheck still lands in the low tier:
 
-- `enableEscalation: true` → convert to `HANDOFF` with reason "Low confidence in AI response - unverified company claims".
+- `enableEscalation: true` → convert to `HANDOFF` with reason "Low confidence in AI response - unverified company claims". When the organization has **quick-check** enabled, the low-confidence response is converted to `ASK_TEAM` instead: the AI asks the team one specific fact and continues answering once it gets a reply, avoiding a full handoff.
 - `enableEscalation: false` → replace the response with the fallback message.
 
 In both cases the replaced text is preserved as `originalMessage`.
@@ -266,7 +266,7 @@ Guardrail config lives in the organization `settings` JSONB (`OrganizationSettin
 }
 ```
 
-All guardrail LLM evaluations run on the `medium` model tier with temperature 0.2 and structured JSON output. Anthropic (Claude) models are the exception: the Anthropic API no longer accepts a temperature setting, so they run at the provider default.
+All guardrail LLM evaluations run on the `medium` model tier with temperature 0.2 and structured JSON output. The contextual fallback composer uses temperature 0.3 for more natural phrasing. Anthropic (Claude) models are the exception: the Anthropic API no longer accepts a temperature setting, so they run at the provider default.
 
 ## Message Metadata
 
@@ -455,6 +455,8 @@ conversation.messages.forEach((message) => {
 ### Services
 
 - `ActionClaimGuardrailService` - Stage 0 implementation
+- `LinkGuardrailService` - Link guardrail implementation
+- `DateGuardrailService` - Date guardrail implementation
 - `CompanyInterestGuardrailService` - Stage 1 implementation
 - `ConfidenceGuardrailService` - Stage 2 implementation
 
@@ -469,6 +471,8 @@ conversation.messages.forEach((message) => {
 ### Files
 
 - `/server/services/core/action-claim-guardrail.service.ts`
+- `/server/services/core/link-guardrail.service.ts`
+- `/server/services/core/date-guardrail.service.ts`
 - `/server/services/core/company-interest-guardrail.service.ts`
 - `/server/services/core/confidence-guardrail.service.ts`
 - `/server/orchestrator/execution.layer.ts` - pipeline wiring (`applyConfidenceGuardrails`, `applyActionClaimGuardrail`)

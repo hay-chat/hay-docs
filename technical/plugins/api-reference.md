@@ -66,7 +66,7 @@ node packages/plugin-sdk/dist/runner/index.js --plugin-path=… --org-id=… --p
 - **Config and auth are injected as env JSON** (`HAY_ORG_CONFIG`, `HAY_ORG_AUTH`) — never as raw provider env vars. Read them through `ctx.config` / `ctx.auth`.
 - Each worker receives `HAY_API_URL` and a scoped JWT in `HAY_API_TOKEN` (generated with the plugin's declared capabilities) for calling back into core.
 - Core waits for the worker's `GET /metadata` endpoint before considering it started.
-- Workers are **idle-killed after 5 minutes** of inactivity (checked every minute, `server/services/plugin-instance-manager.service.ts`). Never rely on the process staying alive — this is why crons are scheduled by core, not the worker.
+- Workers are **idle-killed after 5 minutes** of inactivity (checked every minute, `server/services/plugin-manager.service.ts`). When the pool is full, the least recently active worker is evicted via `makeRoomInPool` in `server/services/plugin-runner.service.ts`. Never rely on the process staying alive — this is why crons are scheduled by core, not the worker.
 
 ### Canonical directory layout
 
@@ -644,6 +644,8 @@ Endpoints the SDK runner mounts on every worker (`packages/plugin-sdk/runner/htt
 | `POST /cron/:name`    | Invokes the named cron handler                                                                            |
 | `POST /mcp/call-tool` | Executes an MCP tool                                                                                      |
 | `GET /mcp/list-tools` | Lists MCP tools (cached by core)                                                                          |
+| `POST /setup/status`  | Reports setup checklist progress (plugins with `register.setup`)                                           |
+| `POST /webchat/gate/:event` | Synchronous server-side webchat gate check (plugins with `register.webchat.gate`)                    |
 | _(plugin routes)_     | Anything registered via `register.route` (e.g. `/webhook`, `/deliver`, `/escalate`)                       |
 
 External traffic reaches worker routes only through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The org is resolved from the `organizationId` query param or the `x-organization-id` header (both UUID-validated against the DB) — auth-token-based org resolution is a TODO, not yet implemented — or, for a `POST /webhook` with no org identifier and a declared `webhookRouting` descriptor, the request is diverted to the shared webhook router.
@@ -667,6 +669,8 @@ Workers call back into core using the injected `HAY_API_URL` + `HAY_API_TOKEN` (
 | `mcp.registerLocal` / `mcp.registerRemote` | `mcp`       | Register MCP server + tool descriptors with core                                                                                                                                                                                                                                        |
 | `products.upsertMany` / `products.delete`  | `products`  | Product catalog sync (e.g. Shopify); core stamps the product `source` from the authenticated plugin id                                                                                                                                                                                  |
 
+> **This table is not exhaustive.** The full router includes additional procedures for media upload (`media.upload`), connection management (`connection.revoke`), channel health reporting (`channel.reportHealth`), email sending domains (`email.sendingDomain`), webhook routing key updates (`webhooks.setRoutingKeys`), persisted plugin state (`state.get/set/delete`), product pruning (`products.prune`), dispute reporting (`disputes.report`), and GDPR erasure/export (`privacy.eraseCustomer`, `privacy.exportCustomer`). See `server/routes/v1/plugin-api/trpc.ts` for the complete surface.
+
 **Inbound message dedupe is core-side**: if `metadata.mid` is set on `messages.receive`, core claims it atomically via Redis SETNX and silently drops duplicates. Channels that don't pass `mid` get no dedupe.
 
 > The router self-describes as a simplified initial implementation ("full conversation management coming in Phase 4"). Also note: the `PluginApiClient` helper is currently duplicated per channel plugin (e.g. `plugins/core/instagram/src/plugin-api.ts`, `plugins/core/chatwoot/src/plugin-api.ts`) rather than exported from the SDK — a known gap.
@@ -683,11 +687,11 @@ For `category: "channel"` plugins (see [Channel Registration](/docs/technical/pl
 
 **Inbound:** provider webhook → core proxy `POST /v1/plugins/:pluginId/webhook` → worker's registered `POST /webhook` route → plugin verifies/filters → plugin calls `messages.receive` on the callback API.
 
-**Outbound:** `server/services/channel-delivery.service.ts` subscribes to the Redis `websocket:events` channel. On `message_received` events for bot/human-agent messages with `deliveryState === "sent"` (web channel skipped), it resolves the plugin via `hay-plugin.channel`, wakes the org's worker, and posts:
+**Outbound:** `server/services/channel-delivery-queue.service.ts` enqueues deliverable messages (BotAgent, HumanAgent, and ProductRecommendation types with `deliveryState === "sent"`, web channel skipped unless a human took over) into a durable RabbitMQ queue (`channel.deliver`). `server/services/channel-delivery.service.ts` consumes from this queue, resolves the plugin via `hay-plugin.channel`, wakes the org's worker, and posts:
 
 ```
 POST /deliver
-{ to, content, messageId, conversationId, conversationMetadata, messageMetadata }
+{ to, content, messageId, messageType, conversationId, conversationMetadata, language, messageMetadata, attachments }
 ```
 
 The plugin's `/deliver` route responds with `{ success, providerMessageId?, error? }`. Convention: **non-retryable provider errors return HTTP 200 with `success: false`** (e.g. a 24-hour-window expiry) to avoid retry storms; reserve non-200 responses for retryable failures.
