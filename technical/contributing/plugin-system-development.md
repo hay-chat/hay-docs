@@ -280,10 +280,12 @@ Webhooks that do identify the org go straight through the proxy to the worker's 
 
 **File**: `server/services/channel-delivery.service.ts`
 
-Subscribes to the Redis `websocket:events` channel:
+Uses a durable RabbitMQ delivery queue (`channel.deliver`) via `ChannelDeliveryQueueService`. When a bot/human-agent or product-recommendation message is created, `ConversationEventsService` enqueues a delivery row in the `message_deliveries` table and publishes it to RabbitMQ. `ChannelDeliveryService` consumes from the queue:
 
-- `message_received` events for bot/human-agent messages (web channel skipped) → resolve the plugin by channel slug via `pluginManagerService.findPluginIdByChannel(channel)` (matching `hay-plugin.channel`), ensure the org's worker is up, and `POST /deliver` with `{ to, content, messageId, conversationId, ... }`. The plugin returns `{ success, providerMessageId?, error? }`; on success core stores the provider message ID. Convention: non-retryable provider errors return **HTTP 200 with `success: false`** to avoid retry storms.
-- `conversation_status_changed` → `pending-human` → `POST /escalate` on the worker (web channel skipped). This is best-effort: a 404 from plugins that don't implement `/escalate` is silently tolerated.
+- For outbound messages (BotAgent, HumanAgent, ProductRecommendation; web channel skipped unless a human is writing) → resolve the plugin by channel slug via `pluginManagerService.findPluginIdByChannel(organizationId, channel)` (matching `hay-plugin.channel`), ensure the org's worker is up, and `POST /deliver` with `{ to, content, messageId, messageType, conversationId, language, attachments, ... }`. The plugin returns `{ success, providerMessageId?, error? }`; on success core stores the provider message ID. Convention: non-retryable provider errors return **HTTP 200 with `success: false`** to avoid retry storms. Failed deliveries are retried with backoff; dead-lettered after exhaustion.
+- Escalation → `pending-human` → `POST /escalate` on the worker (web channel skipped), also enqueued via `channelDeliveryQueueService.enqueueEscalation()`. This is best-effort: a 404 from plugins that don't implement `/escalate` is silently tolerated.
+
+A sweep fallback runs periodically to catch any `message_deliveries` rows that were persisted but not published to RabbitMQ (e.g. during a broker outage).
 
 See [Channel Architecture](/docs/technical/plugins/channel-architecture/) for the plugin-author view.
 
@@ -295,15 +297,22 @@ See [Channel Architecture](/docs/technical/plugins/channel-architecture/) for th
 
 Workers call back into core over tRPC-HTTP using the `HAY_API_URL`/`HAY_API_TOKEN` env vars. Every procedure is a `pluginProcedure` gated by the worker's JWT (org + plugin + capabilities; `server/trpc/middleware/plugin-auth.ts`). Current surface:
 
-- `messages.receive` — input `{ from, content, channel, metadata?, senderType?, externalConversationId? }`; finds/creates the Customer (keyed on `external_id` per channel) and conversation, adds the message
-- `messages.send`, `messages.getByConversation`
-- `conversations.updateStatusByExternalId`
-- `customers.get`, `customers.findByExternalId`, `customers.upsert`
-- `sources.register`
-- `mcp.registerLocal`, `mcp.registerRemote`
-- `products.upsertMany`, `products.delete` (source is the authenticated plugin ID — a plugin can only touch its own products)
+The surface is grouped by capability area (non-exhaustive — check `server/routes/v1/plugin-api/trpc.ts` for the full list):
 
-The router self-describes as a "simplified initial implementation" — expect this surface to grow.
+- **messages**: `receive` (input `{ from, content, channel, metadata?, senderType?, externalConversationId?, conversationId?, title?, replyWindowExpiresAt?, holdForHuman?, attachments? }` — finds/creates the Customer and conversation, adds the message), `send`, `getByConversation`, `updateStatus`
+- **media**: `upload`
+- **conversations**: `updateStatusByExternalId`
+- **customers**: `get`, `findByExternalId`, `upsert`
+- **sources**: `register`
+- **mcp**: `registerLocal`, `registerRemote`
+- **products**: `upsertMany`, `delete`, `prune` (source is the authenticated plugin ID — a plugin can only touch its own products)
+- **disputes**: `report`
+- **state**: `get`, `set`, `delete` (persisted key/value store per plugin instance)
+- **connection**: `revoke`
+- **channel**: `reportHealth`
+- **email**: `sendingDomain`
+- **webhooks**: `setRoutingKeys`
+- **privacy**: `eraseCustomer`, `exportCustomer`
 
 ---
 

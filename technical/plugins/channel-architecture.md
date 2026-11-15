@@ -171,10 +171,6 @@ async onConnected(ctx) {
 
 One provider-side prerequisite Instagram handles here (and in `onStart`): app-level webhook field subscription alone does not deliver messages — the connected account must also be subscribed via `/me/subscribed_apps`. The plugin calls `graphClient.subscribeToWebhooks()` idempotently on both hooks and treats failures as non-fatal.
 
-### Legacy per-instance webhook path
-
-A separate route family, `ALL /plugins/webhooks/:pluginName/:webhookPath` plus `GET /plugins/webhooks/:pluginName` for verification challenges (handled by `pluginRouteService.handleWebhook` / `handleWebhookVerification` in `server/services/plugin-route.service.ts`), predates the worker proxy and is still mounted in `server/main.ts`. New channel plugins should use the `/v1/plugins/:pluginId/webhook` proxy path.
-
 ---
 
 ## Inbound: Normalization in the Worker
@@ -221,6 +217,11 @@ Server side: `server/routes/v1/plugin-api/trpc.ts`, procedure `messages.receive`
   metadata?: Record<string, any>,
   senderType?: "customer" | "human_agent",   // default "customer"
   externalConversationId?: string,    // provider-side conversation id (e.g. Chatwoot)
+  conversationId?: string,            // Hay conversation UUID the plugin recovered
+  title?: string,                     // e.g. email subject (max 255 chars)
+  replyWindowExpiresAt?: string,      // ISO datetime — provider messaging window deadline
+  holdForHuman?: boolean,             // skip the orchestrator, keep the conversation for a human
+  attachments?: Array<{ id, name, url, type, size }>,  // up to 10 customer-sent files
 }
 ```
 

@@ -107,7 +107,7 @@ The pipeline in `server/orchestrator/run.ts` is numbered `00`–`04` in code com
 1. **Skip check** — conversations with `status === "human-took-over"` or an `assigned_user_id` are skipped entirely. Human takeover works by setting those fields; `"ai_return"` re-enqueues when handed back.
 2. **Lock (00)** — `conversation.lock()` returns a `lockerId` or bails (lock contention is not an error, just "someone else is on it"). The lock lasts 15 seconds (`LOCK_DURATION_MS`) and a heartbeat refreshes it every 5 s (`LOCK_HEARTBEAT_INTERVAL_MS`) so long LLM/tool calls don't look abandoned. The `finally` block does an ownership-checked unlock.
 3. **Bootstrap** — seeds initial system, agent-instruction, and bot messages if absent. Throws the two non-retryable errors if `needs_processing` is false or there is no customer message.
-4. **Perception (01)** — intent/sentiment/language on the last customer message, saved via `message.savePerception()`. If the intent is `close_satisfied`/`close_unsatisfied` (or `greet` plus a gratitude regex), `validateConversationClosure()` re-checks against the full transcript; a confirmed closure generates a title, resolves the conversation, purges Redis secrets (`conversationSecretService`), sends an LLM-generated closing message, and exits early.
+4. **Perception (01)** — intent/sentiment/language on the last customer message, saved via `message.savePerception()`. If the intent is `close_satisfied`/`close_unsatisfied` (or `greet` plus a gratitude regex), `validateConversationClosure()` re-checks against the full transcript; a confirmed closure generates a title, sets the conversation to `resolved` (for `close_satisfied`) or `unresolved` (for `close_unsatisfied`), purges Redis secrets (`conversationSecretService`), sends an LLM-generated closing message, and exits early.
 5. **Retrieval (02)** — the active-playbook fetch and vector search run in parallel (`Promise.all`). Playbook **selection** is gated by `shouldReselectPlaybook()` (`playbook-gate.ts`): the selector LLM runs only when no playbook is set yet or the planner's last verdict was that the current one no longer fits (`conversation.metadata.playbookFits !== true`) — otherwise the previous selection stands. Selected playbooks are stored with `conversation.updatePlaybook()`, which populates `enabled_tools`. Matched documents are attached via `conversation.addDocument()`.
 6. **Context init (03)** — `orchestration_status` is initialized (`{ version: "v1", lastTurn: 0, toolLog: [] }`) if missing.
 7. **Execution loop (04)** — `handleExecutionLoop()`, see below.
@@ -181,13 +181,19 @@ All Stage 1/2 outcomes are appended to `orchestration_status.guardrailLog` (plus
 
 ## Inactivity Lifecycle
 
-`Orchestrator.checkInactivity()` (`server/orchestrator/index.ts`), helpers in `conversation-utils.ts`. Thresholds derive from `config.conversation.inactivityInterval`:
+`Orchestrator.checkInactivity()` (`server/orchestrator/index.ts`), helpers in `conversation-utils.ts`. Inactivity timing is **channel-specific** (`server/lib/inactivity-timing.ts`):
 
-- **½×** — LLM-generated warning message (marked `metadata.isInactivityWarning`), conversation re-enqueued with trigger `"inactivity"`.
-- **1×** — close with a message.
-- **2×** — close silently; empty conversations older than 2× are deleted outright.
+- **Webchat** uses fixed thresholds: warning at **15 min**, close at **30 min** (`WEB_INACTIVITY`).
+- **Other channels** declare their timing in the plugin manifest's `inactivity` field.
+- **Fallback** for channels with no declared timing: `CONVERSATION_INACTIVITY_INTERVAL` env (default 1800000 ms = 30 min), with fractions ½×, 1×, 2×.
 
-Closures set `status: "resolved"`, fire the `conversation.resolved` hook, and trigger title generation (prompt `conversation/title-generation`, first 10 public messages, 255-char cap).
+Lifecycle:
+
+- **Warning** — LLM-generated warning message (marked `metadata.isInactivityWarning`). After the warning, **no re-enqueue happens** — a customer reply triggers the next run itself.
+- **Close with message** — at the close threshold.
+- **Silent close** — at 2× the threshold; empty conversations older than 2× are deleted outright.
+
+Closures set `status: "resolved"` for satisfied closes or `status: "unresolved"` for unsatisfied/abandoned closes, fire the `conversation.resolved` hook, and trigger title generation (prompt `conversation/title-generation`, first 10 public messages, 255-char cap).
 
 ## Extending the Orchestrator
 

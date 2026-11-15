@@ -335,9 +335,11 @@ register.auth.oauth2({
 
 ```typescript
 register.route(method: HttpMethod, path: string, handler: RouteHandler): void
+register.route(method: HttpMethod, path: string, options: RouteOptions, handler: RouteHandler): void
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 type RouteHandler = (req, res) => void | Promise<void>; // Express-compatible
+interface RouteOptions { public?: boolean } // public: true exposes the route on the unauthenticated public plugin URL
 ```
 
 Routes are mounted on the plugin's worker HTTP server. Common uses: provider webhooks (`POST /webhook`), outbound delivery (`POST /deliver`), escalation (`POST /escalate`), callbacks. External traffic reaches them through the core proxy (`ALL /v1/plugins/:pluginId/*`), which strips credential-bearing headers before forwarding.
@@ -402,6 +404,14 @@ register.cron({
   retryPolicy: { maxRetries: 3, backoff: "exponential" },
 });
 ```
+
+### register.setup
+
+```typescript
+register.setup(options: SetupOptions): void
+```
+
+Declares a setup checklist for guided onboarding. The plugin's worker reports its setup status via `POST /setup/status`, and the dashboard shows progress on the plugin's settings page. Used by plugins that require multi-step configuration beyond a single settings form.
 
 ### register.webhookRouting
 
@@ -495,6 +505,14 @@ register.webchat.contribution({
 | `tokenPath`, `tokenResponseHeader`, `tokenRequestHeader` | no       | For stores that want a token on cart writes: the widget GETs `tokenPath`, reads the response header and sends it back as the request header. Set all three or none.               |
 | `afterAddEvents`                                          | no       | JSON array as text of DOM events fired after a successful add so the theme refreshes its cart: `[{ "name": "…", "target": "body" \| "window", "detail": { … } }]`, at most 8.      |
 | `rootPathGlobal`                                          | no       | Dotted name of a page global holding the storefront's root path (a locale folder such as `/en-ca/`), put in front of the cart paths.                                              |
+
+#### `register.webchat.gate`
+
+```typescript
+register.webchat.gate(event: string, handler: GateHandler, options?: GateOptions): void
+```
+
+A synchronous server-side check that runs before certain webchat events (e.g. conversation creation). The handler receives the event payload and returns `{ allow: boolean }`. Core calls the worker's `POST /webchat/gate/:event` endpoint. Used by bot-protection plugins like Turnstile to block spam before a conversation is created.
 
 A product is offered for adding when all of these hold:
 

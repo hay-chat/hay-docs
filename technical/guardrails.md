@@ -183,7 +183,7 @@ Weights are fixed in `ConfidenceGuardrailService.WEIGHTS`:
 
 #### Grounding Score (60% weight)
 
-LLM evaluation (prompt `execution/confidence-grounding`) of whether the response is extracted from the provided context vs. the model's prior knowledge. Returns 0.0 automatically when no documents/evidence were retrieved; on evaluation error a conservative 0.3 is used.
+LLM evaluation (prompt `execution/confidence-grounding`) of whether the response is extracted from the provided context vs. the model's prior knowledge. When no documents or evidence were retrieved, the LLM evaluates against a placeholder indicating the absence of context — a claim-free reply (e.g. a greeting) scores high while a specific company claim scores low. On evaluation error a conservative 0.3 is used.
 
 #### Retrieval Score (30% weight)
 
@@ -303,7 +303,7 @@ Bot responses that went through Stages 1/2 include guardrail information in mess
 }
 ```
 
-Stage 0 assessments are carried on the `ExecutionResult` (`actionClaim`, `actionClaimRetryAttempted`) and, on escalation, in the handoff fields (`claimedActions`, `toolsCalledThisTurn`) — they are not currently persisted in message metadata or the guardrail log.
+Stage 0 assessments are persisted in message metadata as `actionClaim` (the assessment object with `passed` and `claimedActions`) and `actionClaimRetryAttempted` (boolean). On escalation, the handoff fields also include `claimedActions` and `toolsCalledThisTurn`.
 
 ## Orchestration Logs
 
