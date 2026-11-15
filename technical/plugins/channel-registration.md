@@ -149,11 +149,10 @@ Input schema (`server/routes/v1/plugin-api/trpc.ts`, requires the `messages` cap
 
 What core does with it:
 
-1. **Customer** — finds or creates a `Customer` keyed on `external_id` = `from` for the org. `metadata.profileName` backfills the name, `metadata.phone` the phone; all metadata is stored under `customer.external_metadata[channel]`.
-2. **Agent** — resolves the responding agent for the channel: agents explicitly assigned to the channel first (preferring the org default agent, then the earliest-created), then the org default agent, then the first available agent. If the org has no agents at all, the call fails with `NOT_FOUND`.
-3. **Conversation** — reuses the customer's active conversation on that channel or creates one. `externalConversationId` is stored in `conversation.metadata[channel].conversationId` so outbound delivery can reuse it.
-4. **Dedupe** — if `metadata.mid` is a non-empty string, core claims it atomically in Redis (24h TTL). Redelivered webhooks with the same `mid` return `{ processed: false, deduped: true }` and create no message. **Channels that don't pass `mid` get no dedupe** — always set it if the provider gives you a message id. (Of the shipped plugins, only Instagram does; WhatsApp and Chatwoot pass provider message ids under other metadata keys, which core ignores for dedupe.)
-5. **Human-agent forwarding** — `senderType: "human_agent"` (a human replied on the external system, e.g. a Chatwoot agent) records the message as a human-agent message, tags it `externalOrigin: true` so it is never echoed back to the channel, and flips the conversation to `human-took-over` so the AI orchestrator stops responding.
+1. **Customer** — finds or creates a `Customer` keyed on `external_id` = `from` for the org. `metadata.profileName` backfills the name, `metadata.phone` the phone, `metadata.email` the email; all metadata is stored under `customer.external_metadata[channel]`.
+2. **Conversation** — reuses the customer's active conversation on that channel or creates one. `externalConversationId` is stored in `conversation.metadata[channel].conversationId` so outbound delivery can reuse it. Agent resolution happens later in the orchestrator, not during message ingestion.
+3. **Dedupe** — if `metadata.mid` is a non-empty string, core claims it atomically in Redis (24h TTL). Redelivered webhooks with the same `mid` return `{ processed: false, deduped: true }` and create no message. **Channels that don't pass `mid` get no dedupe** — always set it if the provider gives you a message id. Of the shipped plugins, both Instagram and WhatsApp pass `mid` and get dedupe; Chatwoot passes `chatwootMessageId` under a different key that core ignores for dedupe.
+4. **Human-agent forwarding** — `senderType: "human_agent"` (a human replied on the external system, e.g. a Chatwoot agent) records the message as a human-agent message, tags it `externalOrigin: true` so it is never echoed back to the channel, and flips the conversation to `human-took-over` so the AI orchestrator stops responding.
 
 Return value: `{ messageId, conversationId, processed, deduped }`.
 
@@ -165,10 +164,10 @@ Other plugin API procedures useful to channel plugins (same auth, capability-gat
 
 ## Outbound: `POST /deliver`
 
-When the orchestrator (or a human agent in the dashboard) produces a reply on a non-web channel, `server/services/channel-delivery.service.ts` picks it up from the Redis `websocket:events` stream and delivers it via your plugin:
+When the orchestrator (or a human agent in the dashboard) produces a reply on a non-web channel, `ChannelDeliveryQueueService` enqueues a delivery job into a durable RabbitMQ queue (`channel.deliver`). `ChannelDeliveryService` consumes the queue and delivers it via your plugin:
 
-1. Only `BotAgent` / `HumanAgent` messages with `deliveryState === "sent"` are delivered. Messages queued for approval by test mode (`deliveryState === "queued"`) are skipped until approved, and messages tagged `externalOrigin: true` are never echoed back.
-2. Core looks up your plugin with `findPluginIdByChannel(conversation.channel)`, starts the org's worker if needed, and POSTs to the worker's `/deliver` route:
+1. Only `BotAgent`, `HumanAgent`, and `ProductRecommendation` messages with `deliveryState === "sent"` are delivered. Messages queued for approval by test mode (`deliveryState === "queued"`) are skipped until approved, and messages tagged `externalOrigin: true` are never echoed back.
+2. Core looks up your plugin with `findPluginIdByChannel(organizationId, conversation.channel)`, starts the org's worker if needed, and POSTs to the worker's `/deliver` route:
 
 ```typescript
 // Request body
@@ -176,9 +175,12 @@ When the orchestrator (or a human agent in the dashboard) produces a reply on a 
   to: string;                                        // customer.external_id
   content: string;
   messageId: string;                                 // Hay message id
+  messageType: string;                               // e.g. "BotAgent", "HumanAgent", "ProductRecommendation"
   conversationId: string;
   conversationMetadata: Record<string, unknown> | null;  // includes metadata[channel].conversationId if set
+  language: string | null;                           // detected conversation language
   messageMetadata: Record<string, unknown> | null;
+  attachments: Array<{ url, name, type, size }>;     // signed attachment URLs
 }
 
 // Expected response body
@@ -193,7 +195,7 @@ When the orchestrator (or a human agent in the dashboard) produces a reply on a 
 
 ### Escalation: `POST /escalate` (optional)
 
-When a conversation flips to `pending-human` on a non-web channel, core POSTs `{ conversationId, conversationMetadata, reason: "orchestrator_handoff" }` to the worker's `/escalate` route so the plugin can perform a provider-side handoff (e.g. Chatwoot reopens the ticket and assigns a team). This is **best-effort**: if your plugin doesn't register `/escalate`, the resulting 404 is silently tolerated.
+When a conversation flips to `pending-human` on a non-web channel, core POSTs `{ conversationId, conversationMetadata, reason: "orchestrator_handoff", attachments }` to the worker's `/escalate` route so the plugin can perform a provider-side handoff (e.g. Chatwoot reopens the ticket and assigns a team). The `attachments` array carries signed URLs to files the customer sent. This is **best-effort**: if your plugin doesn't register `/escalate`, the resulting 404 is silently tolerated.
 
 ---
 
@@ -212,7 +214,7 @@ Channel plugins do not implement test mode — core enforces it before delivery 
 Earlier docs described channel registration via a `sources.register` call. Current state, for the avoidance of confusion:
 
 - **Plugin-facing `sources.register` is a stub.** The procedure exists in the plugin API router (`server/routes/v1/plugin-api/trpc.ts`, gated on the `sources` capability) but its body is a `TODO` — it logs the input and returns `{ success: true }` without persisting anything. Calling it from a plugin has no effect. **Do not use it to register a channel.**
-- **A dashboard-facing `sources` tRPC router exists** (`server/routes/v1/sources/`, backed by a real `sources` table via `SourceService`): `sources.list`, `sources.get`, `sources.getByCategory` (all filter to active sources), plus `sources.register`, `sources.activate`, `sources.deactivate` (core sources `playground` and `webchat` are protected). It works, but it plays **no role in channel routing or message delivery** — nothing in the inbound/outbound paths reads it. Its only current consumer is display metadata in the insights feedback page (`dashboard/composables/useSources.ts`).
+- **A dashboard-facing `sources` tRPC router exists** (`server/routes/v1/sources/`, backed by a real `sources` table via `SourceService`): `sources.list`, `sources.get`, `sources.getByCategory` (all filter to active sources) are dashboard-accessible, while `sources.register`, `sources.activate`, `sources.deactivate` use `internalProcedure` (operator-only, not callable from the dashboard). Core sources `playground` and `webchat` are protected. The router works, but it plays **no role in channel routing or message delivery** — nothing in the inbound/outbound paths reads it. Its only current consumer is display metadata in the insights feedback page (`dashboard/composables/useSources.ts`).
 
 In short: the `sources` table is a vestigial catalog, and the only registration that matters for a channel plugin is the declarative `hay-plugin.channel` field described above.
 
