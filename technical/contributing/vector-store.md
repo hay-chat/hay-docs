@@ -13,7 +13,7 @@ navOrder: 4
 
 This implementation provides pgvector support with multi-tenant vector storage and similarity search for your TypeORM + PostgreSQL application.
 
-This document describes the pgvector integration for embedding storage and similarity search, implemented via raw SQL through TypeORM's `AppDataSource.query` and a custom `llmProviderFactory` for generating embeddings.
+This document describes the pgvector integration for embedding storage and similarity search, implemented via raw SQL through TypeORM's `AppDataSource.query` and a custom `llmProviderFactory` for generating embeddings. Embedding generation is routed through the organization's managed provider via `llmProviderFactory.forOrganization(organizationId)`, so organizations configured for a specific AI region (e.g. EU-only) have their documents and queries embedded on the corresponding endpoint.
 
 ## Setup
 
@@ -62,7 +62,7 @@ const chunks = [
 
 const ids = await vectorStoreService.addChunks(
   organizationId,
-  documentId, // optional
+  documentId, // null if not linked to a document
   chunks,
 );
 
@@ -92,6 +92,8 @@ The `embeddings` table structure:
 
 1. **B-tree index** on `organization_id` for filtering
 2. **HNSW index** (`embeddings_embedding_hnsw_idx`) on `embedding` using cosine distance for similarity search (`m=16, ef_construction=64`)
+3. **B-tree index** (`idx_embeddings_org_metadata_conversation`) on `(organization_id, (metadata->>'conversationId'))` — supports the GDPR-related `deleteByConversationIds` and `findByConversationIds` methods
+4. **B-tree index** (`idx_embeddings_org_metadata_message`) on `(organization_id, (metadata->>'messageId'))` — supports `deleteByMessageIds` and `findByMessageIds`
 
 ### Performance Optimization
 

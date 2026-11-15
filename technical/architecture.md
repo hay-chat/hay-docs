@@ -130,7 +130,7 @@ RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-b
 Multiple security layers:
 
 1. **Network**: TLS/SSL encryption for all traffic
-2. **Authentication**: JWT with configurable expiration (default 7 days, refresh tokens 30 days)
+2. **Authentication**: JWT with configurable expiration (default 15 minutes, refresh tokens 30 days)
 3. **Authorization**: Role-based access control (RBAC)
 4. **Input Validation**: Sanitize all user input
 5. **Output Encoding**: Prevent XSS attacks
@@ -147,13 +147,14 @@ Multiple security layers:
 
 #### Metrics
 
-Observability is currently limited to structured logging. The following metrics are planned but not yet collected (no metrics library is integrated):
+A custom Prometheus-format metrics library (`/server/lib/metrics.ts`) exposes counters and histograms in Prometheus text format, served by a dedicated metrics server on a configurable port (default 9464, `METRICS_PORT`). Runtime metrics collected include:
 
-- API response times
-- Error rates
-- Queue lengths
-- Database query performance
-- Cache hit rates
+- HTTP request counts and latency
+- Queue throughput and dead-letter queue depth
+- Channel delivery attempts and outcomes
+- WebSocket connection counts
+- Dependency health checks
+- Orchestrator reply turn latency
 
 #### Logging
 
@@ -165,7 +166,7 @@ logger.info({ conversationId: '123', action: 'create', duration: 45 }, 'Processi
 
 #### Tracing
 
-Distributed tracing is not yet implemented. Currently, error reporting is handled via opt-in PostHog exception capture (`/server/lib/telemetry.ts`). Full request tracing is planned for a future release.
+OpenTelemetry distributed tracing is implemented in `/server/lib/tracing.ts` and exported over OTLP/HTTP. It is opt-in via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable, with a configurable sample ratio and attribute sanitization (allowlisting). Error reporting is also available via opt-in PostHog exception capture (`/server/lib/telemetry.ts`).
 
 ## Next Steps
 

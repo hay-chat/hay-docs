@@ -72,6 +72,9 @@ customer message ──> Conversation.addMessage()
 | `ai_return`        | Conversation entity, when a human hands the conversation back to the AI                               |
 | `recovery`         | `server/services/message-recovery.service.ts` (stale-message recovery)                                |
 | `inactivity`       | `Orchestrator.checkInactivity()` after sending an inactivity warning                                  |
+| `approval_decided` | Action-approval flow, when a pending action is approved or declined                                   |
+| `simulation`       | Offline simulation runs (test/replay without a live customer)                                         |
+| `form_submission`  | In-conversation form submitted by the customer                                                        |
 | `sweep`            | The `orchestrator-sweep` scheduled job (safety net, see below)                                        |
 
 The queue message is an `OrchestratorMessage`: `{ messageId, conversationId, organizationId, trigger, timestamp, attempt }`.
@@ -86,7 +89,7 @@ Three durable queues, declared in `OrchestratorQueueService.declareQueues()`:
 
 Two error messages are treated as **non-retryable** and acked immediately (`isNonRetryableError()` in the worker): `"Conversation does not need processing"` and `"Last customer message not found"`. If you add a new benign early-exit to `runConversation()`, add its message there too — otherwise it will burn three retries per occurrence.
 
-`RabbitMQService` reconnects with exponential backoff (max 10 attempts, capped at 30 s), re-declares queues and re-attaches consumers on reconnect, and publishes with `persistent: true`.
+`RabbitMQService` reconnects forever with exponential backoff (delay capped at 30 s), re-declares queues and re-attaches consumers on reconnect, and publishes with `persistent: true`.
 
 ### Safety nets
 
@@ -120,13 +123,13 @@ Prompts are file-based markdown templates resolved by `PromptService.getPrompt()
 
 ### Perception (`perception.layer.ts`)
 
-- `perceive(message, conversationId, organizationId)` — one structured-output LLM call (tier `"medium"`, prompt `perception/intent-analysis`) returning `{ intent: {label, score}, sentiment: {label, score}, language }`. Intent/sentiment labels are schema-enum-constrained to `MessageIntent` / `MessageSentiment`; language is an ISO 639-1 code enforced by the JSON-schema pattern `^[a-z]{2}$`.
-- `getAgentCandidate()` exists (prompt `perception/agent-selection`, score threshold > 0.7) but is **not called from `runConversation()`** — agents are assigned at conversation creation with a fallback to the organization default. Don't wire new features through it without reconsidering that decision.
+- `perceive(message, conversationId, organizationId)` — one structured-output LLM call (tier `"medium"`, prompt `perception/intent-analysis`) returning `{ intent: {label, score}, sentiment: {label, score}, language }`. Intent/sentiment labels are schema-enum-constrained to `MessageIntent` / `MessageSentiment`; language is an ISO 639-1 code enforced by the JSON-schema pattern `^[a-z]{2}(-[A-Za-z]{2,4})?$` (supports subtags like `pt-PT`, `zh-Hant`).
+- Agent selection happens at **conversation creation** with a fallback to the organization default — there is no runtime agent-routing step in the perception layer.
 
 ### Retrieval (`retrieval.layer.ts`)
 
 - `getPlaybookCandidate(messages, playbooks, orgId)` — an LLM (tier `"medium"`) scores active playbooks against the conversation (prompt `retrieval/playbook-selection`); accepted only if score > 0.7, otherwise `null`. Because of the playbook gate, this ideally runs once per conversation rather than every turn.
-- `getRelevantDocuments(messages, orgId)` — builds the query from the **last 3 customer messages**, runs `vectorStoreService.search(orgId, query, 5)` (top-5 chunks, pgvector), and keeps results with similarity > 0.4. Errors return `[]` — retrieval failure never fails the run.
+- `getRelevantDocuments(messages, orgId)` — builds the query from the **last 3 customer messages**, runs `vectorStoreService.search(orgId, query, 5)` (top-5 chunks, pgvector), and keeps results with similarity >= 0.25 (`MIN_DOCUMENT_SIMILARITY`). Errors return `[]` — retrieval failure never fails the run.
 
 ### Execution (`execution.layer.ts`)
 
@@ -140,11 +143,11 @@ Prompts are file-based markdown templates resolved by `PromptService.getPrompt()
 
 `options` (`ExecuteOptions`) also carries per-turn state owned by the run loop and shared by reference across re-plans: `toolsCalledThisTurn` (the tool ledger) and `turnGuardrailState` (retry budgets).
 
-One structured LLM call against `buildPlannerSchema(allToolNames)` returns `{ step, userMessage, toolName, toolArgs, handoffReason, closeReason, rationale, playbookFits }` with `step ∈ ASK | RESPOND | CALL_TOOL | HANDOFF | CLOSE`. `playbookFits` is the planner's verdict on whether the active playbook still matches the conversation (`null` when none is active) — it feeds the playbook gate. When tools exist, `toolName` is **enum-constrained in the schema** to the allowed set, so the model can't emit a malformed name. The layer then auto-corrects common LLM mistakes: missing step with a tool → `CALL_TOOL`; `RESPOND` with a tool but no message → `CALL_TOOL`; `CALL_TOOL` with a `userMessage` → the message is stripped; invalid tool name or `ASK`/`RESPOND` without a `userMessage` → return `null`, which makes the loop retry the planner.
+One structured LLM call against `buildPlannerSchema(allToolNames)` returns `{ step, userMessage, toolName, toolArgs, handoffReason, closeReason, rationale, playbookFits }` with `step ∈ ASK | RESPOND | CALL_TOOL | HANDOFF | CLOSE | ASK_TEAM | ASK_FORM`. `playbookFits` is the planner's verdict on whether the active playbook still matches the conversation (`null` when none is active) — it feeds the playbook gate. When tools exist, `toolName` is **enum-constrained in the schema** to the allowed set, so the model can't emit a malformed name. The layer then auto-corrects common LLM mistakes: missing step with a tool → `CALL_TOOL`; `RESPOND` with a tool but no message → `CALL_TOOL`; `CALL_TOOL` with a `userMessage` → the message is stripped; invalid tool name or `ASK`/`RESPOND` without a `userMessage` → return `null`, which makes the loop retry the planner.
 
 ## The Execution Loop (`run.ts::handleExecutionLoop`)
 
-Caps: `MAX_ITERATIONS = 15`, `MAX_EMPTY_RETRIES = 3` (after which a canned fallback message is sent). The loop owns the per-turn tool ledger (`toolsCalledThisTurn`) and the guardrail retry budgets (`turnGuardrailState`). Each iteration calls `executionLayer.execute()` and dispatches:
+Caps: `MAX_ITERATIONS = 15`, `MAX_EMPTY_RETRIES = 3` (after which a canned fallback message is sent), `TOOL_CALL_BUDGET = 8` (excess tool calls convert to `HANDOFF`). Repeated read-only tool calls (same name + args in one turn) are blocked. The loop owns the per-turn tool ledger (`toolsCalledThisTurn`) and the guardrail retry budgets (`turnGuardrailState`). Each iteration calls `executionLayer.execute()` and dispatches:
 
 - **`playbookFits === false`** — the planner says the customer moved on (e.g. order status → refund): the verdict is persisted to `conversation.metadata.playbookFits`, the selector re-runs, and the plan is discarded and re-made without spending an iteration. Bounded to **one re-selection per turn** so the planner can't ping-pong between playbooks.
 - **`CALL_TOOL`** — a `TOOL`-type message is written with `toolStatus: "RUNNING"`, then `ToolExecutionService.handleToolExecution()` runs the tool and updates the message in place; the outcome is recorded in the tool ledger and the loop continues so the planner can read the result. A guard in `run.ts` blocks non-core tools not present in `enabled_tools` — the blocked call is fed back to the model as a `TOOL` error message and does **not** count against the iteration cap. After a successful `recommend_products` call, `maybeEmitProductRecommendation()` emits a separate `PRODUCT_RECOMMENDATION` message carrying the product payload for the webchat/dashboard cards.

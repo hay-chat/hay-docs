@@ -41,7 +41,6 @@ The core model in one paragraph: a plugin is a directory under `plugins/core/<na
 | ----------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------- |
 | Plugin Manager          | `server/services/plugin-manager.service.ts`          | Filesystem discovery, registry (DB + in-memory), build/install orchestration     |
 | Plugin Runner           | `server/services/plugin-runner.service.ts`           | Spawning/stopping workers, env injection, worker JWT, metadata readiness         |
-| Plugin Instance Manager | `server/services/plugin-instance-manager.service.ts` | On-demand startup, activity tracking, idle cleanup, per-plugin instance pool     |
 | Plugin Cron             | `server/services/plugin-cron.service.ts`             | Core-side scheduling of plugin-declared cron jobs                                |
 | Webhook Router          | `server/services/webhook-router.service.ts`          | Shared-webhook fan-out for URLs that carry no org identifier                     |
 | Channel Delivery        | `server/services/channel-delivery.service.ts`        | Outbound message delivery to channel plugins via `/deliver`                      |
@@ -63,7 +62,7 @@ The SDK itself lives at `packages/plugin-sdk/` — types under `packages/plugin-
    - Plugin ID = `package.json.name`. Display name = `hay-plugin.displayName` or a Title-Cased version of the package name with the `hay-plugin-` prefix stripped (`parseDisplayName`).
    - Build a manifest from the `hay-plugin` block and persist it as the `manifest` jsonb column. The primary `type` comes from `hay-plugin.category`, plus extra types inferred from capabilities (`inferTypeFromCapabilities`: `mcp` → `mcp-connector`, `routes`/`messages` → `channel`, `sources` → `retriever`, `products` → `products`; if nothing matches, the inferred list defaults to `["mcp-connector"]`) and `documentImporter: true` → `document_importer`. The `hay-plugin.env` allow-list is stored on the manifest as `permissions.env`, and `capabilities` is mirrored into `permissions.api`.
    - Load i18n JSON files from the plugin's `i18n/` directory into `manifest.i18n`.
-   - Calculate a SHA-256 checksum over the plugin's `.ts`/`.js` files (excluding `node_modules` and `dist`) for change detection (`calculatePluginChecksum`).
+   - Calculate a checksum combining two SHA-256 hashes — one over the plugin's `.ts`/`.js` source files (excluding `node_modules` and `dist`) and one over the dependency fields in `package.json` — packed via `packPluginChecksum(sourceHash, depsHash)` for change detection.
    - Upsert into `plugin_registry` via `pluginRegistryRepository.upsertPlugin()` and the in-memory `registry` map.
 3. `loadRegistryFromDatabase()` — merge DB rows into the in-memory map.
 4. `validateExistingPlugins()` — plugins present in the DB but not found on disk are marked `status = "not_found"`.
@@ -79,11 +78,18 @@ interface HayPluginBlock {
   displayName?: string;
   category?: PluginType;        // mcp-connector | channel | retriever | playbook | document_importer | system | products
   entry?: string;               // e.g. "./dist/index.js"
-  capabilities?: string[];      // routes | mcp | auth | config | ui | messages | customers | sources | products
+  capabilities?: string[];      // routes | mcp | auth | config | ui | messages | customers | sources | products | disputes | tickets | privacy | email | webchat
   config?: ...;                 // config schema (usually declared in code instead)
   env?: string[];               // allow-list of host env vars the worker may inherit → manifest.permissions.env
   auth?: ...;
   channel?: string;             // channel plugins: the channel slug, e.g. "instagram"
+  defaultEnabled?: boolean;     // auto-enable for all orgs on discovery
+  oauthHosts?: string[];        // allowed OAuth redirect hosts
+  rendering?: object;           // webchat rendering config (e.g. product cards)
+  inactivity?: object;          // channel-specific inactivity timing overrides
+  network?: object;             // network requirements (e.g. static IP)
+  setup?: object;               // setup checklist hints (business types, group, handles)
+  marketplaceCategory?: string; // marketplace filter category (e.g. "payments", "security")
   autoActivate?: boolean;       // legacy (document importers)
   trpcRouter?: string;          // legacy (document importers)
   documentImporter?: boolean;   // legacy (document importers)
@@ -121,7 +127,7 @@ There is no in-process plugin loading and no generic "process manager" service �
    - `HAY_ORG_CONFIG` — JSON: `{ org: { id }, config: <resolved config> }`
    - `HAY_ORG_AUTH` — JSON-serialized `AuthState` (decrypted credentials)
    - `HAY_API_URL` + `HAY_API_TOKEN` — a JWT (`generatePluginJWT`) scoped to `{ organizationId, pluginId, scope: "plugin-api", capabilities }`, expiring in 24h, so the worker can call back into core
-   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through a deny-pattern list (`SECRET`, `PASSWORD`, `TOKEN`, `PRIVATE_KEY`, `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`) so secret-looking names are blocked by default
+   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through a deny-pattern list (`SECRET`, `PASSWORD`, `TOKEN`, `/PRIVATE.?KEY/i`, `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^RABBITMQ`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^LLM_`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`, `^ENCRYPTION`, `^INTERNAL_API`, `^VAPID_PRIVATE`, `^STRIPE_SECRET_KEY$`, `^STRIPE_WEBHOOK_SECRET$`, `^RESEND_EVENTS_WEBHOOK_SECRET$`, `^OTEL_`) so secret-looking names are blocked by default. Core plugins use a narrower deny list (`isCoreReservedEnv` only, no `SECRET_ENV_PATTERNS`) since they are trusted code.
 6. Wait for the worker's **`GET /metadata`** endpoint to respond (up to 20 attempts × 500ms) — not `/health`.
 7. Update the `PluginInstance` row: `runtimeState = "ready"`, `running = true`, `processId`, health `"healthy"`. On failure: `runtimeState = "error"` + `lastError`.
 8. Kick off MCP tool discovery in the background (`fetchAndStoreTools` in `server/services/plugin-tools.service.ts`, which caches the worker's `GET /mcp/list-tools` result).
@@ -189,7 +195,7 @@ One row per discovered plugin (global, not per-org). Unique index on `pluginId`.
 | `sourceType`                                                                                           | varchar                       | `core` \| `custom` \| `git`                                                                       |
 | `organizationId`                                                                                       | uuid, nullable                | set for custom plugins                                                                            |
 | `zipFilePath`, `zipUploadId`, `uploadedById`, `uploadedAt`                                             |                               | custom-plugin upload provenance                                                                   |
-| `gitConnectionId`, `gitRepoFullName`, `gitBranch`, `gitLastCommitSha`, `gitLastSyncAt`, `gitSyncError` |                               | git-sourced plugin fields                                                                         |
+| `gitConnectionId`, `gitRepoFullName`, `gitBranch`, `gitLastCommitSha`, `gitAvailableCommitSha`, `gitLastSyncAt`, `gitSyncError` |                               | git-sourced plugin fields; `gitAvailableCommitSha` is a newer branch commit found by the scheduled check, applied only by an admin sync |
 
 ### `plugin_instances` (`plugin-instance.entity.ts`)
 

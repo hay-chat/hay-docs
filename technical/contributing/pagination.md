@@ -179,7 +179,6 @@ All list endpoints return a consistent response structure:
 - `type`: DocumentationType enum
 - `status`: DocumentationStatus enum
 - `visibility`: DocumentVisibility enum
-- `agentId`: UUID string
 - `playbookId`: UUID string
 
 **Search Fields:** `["title", "content"]`
@@ -191,9 +190,10 @@ All list endpoints return a consistent response structure:
 **Available Filters:**
 
 - `status`: Conversation status enum
-- `agentId`: UUID string
+- `statuses`: Array of status enum values (for multi-status filtering, min 1, max 8)
 - `playbookId`: UUID string
 - `hasMessages`: Boolean
+- `excludePlayground`: Boolean
 
 **Search Fields:** `["title"]`
 
@@ -207,27 +207,17 @@ All list endpoints return a consistent response structure:
 - `externalId`: String
 - `hasConversations`: Boolean
 
+**Search Fields:** `["name", "email", "external_id"]`
+
+**Sort Fields:** Any valid identifier (generic sort)
+
 This is a real, working pagination endpoint — `customers.list` uses `createListProcedure` with `customerListInputSchema` (defined in `server/routes/v1/customers/index.ts`) and returns the standard paginated response.
-
-### Agents
-
-**Available Filters:**
-
-- `enabled`: Boolean
-- `hasPlaybooks`: Boolean
-
-**Search Fields:** `["name", "description"]`
-
-**Sort Fields:** `["created_at", "updated_at", "name", "enabled"]`
-
-> ⚠️ **Not yet wired up:** This schema exists in `entity-list-inputs.ts`, but `agents.list` currently returns an unpaginated array (`agentService.getAgents`) with no pagination, filtering, search, or sorting applied. Treat the above as a planned/target shape, not current behavior.
 
 ### Playbooks
 
 **Available Filters:**
 
-- `status`: Playbook status enum
-- `agentIds`: Array of UUID strings
+- `status`: Playbook status enum (`"active"`, `"inactive"`, `"draft"`)
 
 **Search Fields:** `["name", "description"]` (default); `"prompt_template"` also selectable
 
@@ -263,8 +253,7 @@ export const myEntityListInputSchema = baseListInputSchema.extend({
       orderBy: z.enum(["created_at", "name", "status"]).default("created_at"),
       orderDirection: z.enum(["asc", "desc"]).default("desc"),
     })
-    .optional()
-    .default({}),
+    .prefault({}),
 });
 ```
 
@@ -286,7 +275,7 @@ export class MyEntityRepository extends BaseRepository<MyEntity> {
 
 ```typescript
 export const myEntityRouter = t.router({
-  list: createListProcedure(myEntityListInputSchema, myEntityRepository),
+  list: createListProcedure(RESOURCES.MY_ENTITY, myEntityListInputSchema, myEntityRepository),
   // ... other procedures
 });
 ```

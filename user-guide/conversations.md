@@ -27,7 +27,7 @@ To see only conversations that need a person, use the [Inbox](/docs/user-guide/i
 
 - **Conversation** - Title and truncated ID
 - **Channel** - Where the conversation came from (shown when multiple channels are active)
-- **Status** - Current state (Open, Processing, Awaiting Approval, Needs Attention, Manual Control, Resolved, Closed)
+- **Status** - Current state (Open, Processing, Awaiting Approval, Needs Attention, Manual Control, Resolved, Unresolved, Closed)
 - **Assigned To** - Human agent, if the conversation has been taken over
 - **Duration** - How long the conversation has been active
 - **Satisfaction** - Customer satisfaction rating ("Not rated" when the customer did not give one)
@@ -42,16 +42,14 @@ Find specific conversations quickly:
 - Conversation title
 - Conversation ID
 
-> **Note:** Search currently matches conversation title and ID only. Searching by customer name/email or message content is not yet implemented.
+> **Note:** Search matches conversation title, summary, and message content. Searching by customer name/email is not yet available.
 
 **Filter by:**
 
 - **Status** - All Status, Active, Resolved, Unresolved, Escalated, Closed
 - **Timeframe** - Today, This Week, This Month, All Time (preset options)
 
-> **Note:** The timeframe filter is not yet functional — selecting a timeframe currently has no effect. A channel filter is planned but not yet available.
-
-> **Note:** The "Active", "Unresolved" and "Escalated" status filters don't currently match any real conversation status. The filter does a strict equality check against actual status values (`open`, `processing`, `pending-human`, `human-took-over`, `resolved`, `closed`), so selecting "Active" or "Escalated" may return no results.
+> **Note:** A channel filter is planned but not yet available.
 
 ## Conversation Statuses
 
@@ -65,6 +63,7 @@ Understanding what each status means:
 | **Needs Attention** | Customer needs human help | Appears in your [Inbox](/docs/user-guide/inbox/) under **Waiting for a human** |
 | **Manual Control** | A team member is now handling it | AI stops responding          |
 | **Resolved**        | Issue was solved successfully            | Conversation is complete     |
+| **Unresolved**      | Conversation ended without solving the customer's problem | Recorded for analysis; appears in reports |
 | **Closed**          | Conversation ended                       | No further action needed     |
 
 ## Opening a Conversation
@@ -148,8 +147,6 @@ Want to review AI responses before they reach customers? Use **Test Mode** (also
 - A team member reviews and approves each message
 - Messages can be edited before approval or blocked entirely
 - Approving sends the reply on the conversation's own channel: web widget, WhatsApp, Instagram or Chatwoot
-
-> **Note:** A "Supervise" toggle also appears on conversation pages, but it is not yet functional — it only changes the button label without affecting behavior. For actual review-before-send capability, use Test Mode.
 
 > **WhatsApp and Instagram:** Meta only accepts replies within 24 hours of the customer's last message. A reply approved after that window is not delivered; the message is marked as failed in the conversation and the customer has to write again before you can answer.
 
@@ -236,6 +233,7 @@ Save a complete record:
 - 📄 **Document** - Document reference
 - 📋 **Playbook** - Playbook step
 - 🛒 **ProductRecommendation** - Suggested product(s)
+- 📝 **Form** - Structured form data collected from the customer
 
 > **Note:** Feedback (👍/👎) is an action on a BotAgent message, not a separate message type. File and image attachments are shown via a 📎 paperclip icon on the message that carries them, not as their own message type.
 

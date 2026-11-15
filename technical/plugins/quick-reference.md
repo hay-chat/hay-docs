@@ -51,8 +51,8 @@ navOrder: 5
 }
 ```
 
-- **Categories**: `integration | channel | tool | analytics | products` (document importers are marked separately via `"documentImporter": true` in the `hay-plugin` block, not a category)
-- **Capabilities**: `mcp | auth | config | routes | ui | cron | products` (+ `messages | customers | sources` for channels)
+- **Categories**: `integration | channel | tool | analytics | products`
+- **Capabilities**: `mcp | auth | config | routes | ui | cron | products | disputes | tickets | privacy | email | webchat` (+ `messages | customers | sources` for channels)
 - **SDK path** is `file:../../../packages/plugin-sdk` — note `packages/`
 - Channel plugins add `"channel": "<slug>"` and (if needed) `"env": ["VAR_A", "VAR_B"]` — the allow-list for host env fallbacks
 
@@ -233,7 +233,7 @@ Crons are scheduled by **core**, not the worker (workers are idle-killed after ~
 ctx.register.webhookRouting({
   signature: {
     header: "x-hub-signature-256",
-    format: "sha256-hmac", // only supported format
+    format: "sha256-hmac", // also: "sha256-hmac-base64", "svix"
     secretEnv: "META_APP_SECRET",
   },
   verificationChallenge: {
@@ -308,7 +308,9 @@ Optional: implement `POST /escalate` for human-handoff notifications — core to
 
 All under `pluginApi.*`, capability-gated via the worker JWT (`server/routes/v1/plugin-api/trpc.ts`):
 
-`messages.receive` · `messages.send` · `messages.getByConversation` · `conversations.updateStatusByExternalId` · `customers.get` · `customers.findByExternalId` · `customers.upsert` · `sources.register` · `mcp.registerLocal` · `mcp.registerRemote` · `products.upsertMany` · `products.delete`
+`messages.receive` · `messages.send` · `messages.updateStatus` · `messages.getByConversation` · `conversations.updateStatusByExternalId` · `customers.get` · `customers.findByExternalId` · `customers.upsert` · `sources.register` · `mcp.registerLocal` · `mcp.registerRemote` · `products.upsertMany` · `products.delete` · `products.prune` · `media.upload` · `connection.revoke` · `channel.reportHealth` · `email.sendingDomain` · `webhooks.setRoutingKeys` · `state.get` · `state.set` · `state.delete` · `disputes.report` · `privacy.eraseCustomer` · `privacy.exportCustomer`
+
+Full reference: [API Reference — Plugin-to-Core Callback API](/docs/technical/plugins/api-reference/#plugin-to-core-callback-api).
 
 ---
 
@@ -421,7 +423,7 @@ node packages/plugin-sdk/dist/runner/index.js \
   --plugin-path=plugins/core/myservice --org-id=<orgId> --port=4001
 ```
 
-Workers expose: `GET /health`, `GET /metadata`, `POST /validate-auth`, `POST /on-connected`, `POST /config-update`, `POST /disable`, `POST /cron/:name`, `POST /mcp/call-tool`, `GET /mcp/list-tools`, plus your registered routes.
+Workers expose: `GET /health`, `GET /metadata`, `POST /validate-auth`, `POST /on-connected`, `POST /config-update`, `POST /disable`, `POST /cron/:name`, `POST /setup/status`, `POST /webchat/gate/:event`, `POST /mcp/call-tool`, `GET /mcp/list-tools`, plus your registered routes.
 
 ---
 
@@ -458,7 +460,7 @@ Workers expose: `GET /health`, `GET /metadata`, `POST /validate-auth`, `POST /on
 | Channel with a shared webhook URL  | `plugins/core/instagram` (webhook routing + declarative token ops)        |
 | Cron-based token refresh           | `plugins/core/shopify`                                                    |
 
-Avoid copying: `email`, `magento`, `woocommerce` — known anti-patterns (mock paths, missing sources, no idempotency; see `.claude/skills/build-plugin/reference/anti-patterns.md`).
+Avoid copying: `email-channel`, `magento`, `woocommerce` — known anti-patterns (mock paths, missing sources, no idempotency; see `.claude/skills/build-plugin/reference/anti-patterns.md`).
 
 ---
 

@@ -167,7 +167,7 @@ section: user-guide
 
 1. **Force re-sync:**
 
-   - Go to integration settings
+   - Go to **Documents** → **Sources**, find the source connected to the integration
    - Click **Sync Now**
    - Wait for completion
 
@@ -328,7 +328,7 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
 
 ### Can't Export Data
 
-**Note:** The Dashboard has no export. You can export a conversation as PDF or CSV, the Feedback list (**Export CSV**) and the Usage resolution ledger (**Export CSV**).
+**Note:** The Dashboard page itself has no export. You can export Analytics reports as CSV from the **Analytics** page, a conversation as PDF or CSV, the Feedback list (**Export CSV**) and the Usage resolution ledger (**Export CSV**).
 
 ## Notifications Not Working
 
@@ -468,7 +468,7 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
 
 **Email:**
 
-- support@hay.ai
+- support@hay.chat
 - Include "URGENT" in subject if critical
 
 **In-App:**
@@ -571,7 +571,7 @@ See the [Webchat](/docs/user-guide/webchat/) guide for all settings.
 If you've tried these solutions and still have issues:
 
 1. Check our [FAQ](/docs/user-guide/faq/) for quick answers
-2. Visit the [Hay Status Page](https://status.hay.ai) for system status
+2. Visit the [Hay Status Page](https://status.hay.chat) for system status
 3. Contact support with details about your issue
 4. Join our community forum for peer help
 

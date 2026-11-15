@@ -137,7 +137,7 @@ Conversations can be deleted from the conversation view. If data retention is co
 
 Popular integrations include:
 
-- Web Chat (built in: **Channels** → **Webchat**, then embed on your website)
+- Web Chat (built in: **Settings** → **Channels** → **Webchat**, then embed on your website)
 - WhatsApp Business
 - Email
 - Shopify
@@ -242,7 +242,7 @@ Common reasons:
 
 - Customer explicitly asks for human
 - AI isn't confident in its answer (below threshold)
-- Negative sentiment detected (frustrated customer)
+- The AI judges the situation needs human empathy (e.g. a frustrated customer)
 - Complex issue beyond AI's capabilities
 - Policy exception or special handling needed
 
@@ -303,7 +303,7 @@ Yes! Use role-based access control:
 - Admin: Settings and management
 - Member: Standard team access
 - Contributor: Contribute content (documents, playbooks)
-- Agent: conversation handling (cannot open Insights or Feedback)
+- Agent: conversation handling (cannot open Analytics, Insights or Feedback)
 - Viewer: Read-only access
 
 ### Where is my data stored?
@@ -312,9 +312,9 @@ Data is stored in secure, encrypted databases. Contact your account manager for 
 
 ### Can I export my data?
 
-Yes! Go to **Settings** → **Privacy** → **Workspace data** to export your own account data (profile, audit logs, documents you authored, and uploads). For customer data exports, use **Settings** → **Privacy** → **Customer Privacy**.
+Yes! Go to **Settings** → **Privacy** → **Workspace data** to export your own account data (profile information, organization memberships, API keys metadata, audit logs, and documents you've created). For customer data exports, use **Settings** → **Privacy** → **Customer Privacy**.
 
-> **Note:** Dashboard metrics cannot be exported. You can export the Feedback list and the Usage ledger as CSV.
+> **Note:** You can export Analytics reports, the Feedback list, and the Usage ledger as CSV.
 
 ## Technical Questions
 

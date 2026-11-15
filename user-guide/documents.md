@@ -59,10 +59,8 @@ Think of it like training a new employee by giving them all your company documen
 
 **Import from Website**
 
-- Choose **Import from Website**, enter the **Documentation URL** and click **Discover Pages**. Hay checks for a sitemap first and otherwise follows internal links; only pages from the same domain are found (this typically takes 1-3 minutes)
-- Select the pages you want. Filters such as **URL contains** and **Path starts with** help you narrow the list
-- Click **Next: Add Metadata**, choose the **Document Type**, **Status** and **Visibility**, then **Start Import**. Each page becomes a separate document, converted to markdown
-- The website is connected as a synced source and kept up to date. Manage it under **Connected sources**; a document from a source can be refreshed with **Update from Source**
+- Choose **Import from Website**, enter the URL and click **Connect website**. Hay creates a synced source and navigates to the source detail page, where you can watch the crawl progress in real time. Each discovered page becomes a separate document, converted to markdown
+- The website is connected as a synced source and kept up to date. Manage it under **Connected sources**; to refresh all documents from a source, open the source and click **Sync now**
 - Useful for importing an existing help center or documentation site
 
 **Integrations**

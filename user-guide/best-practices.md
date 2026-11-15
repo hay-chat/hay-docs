@@ -280,7 +280,7 @@ Escalate to human if:
 
 ## Managing Escalated Conversations
 
-Hay doesn't have SLA-based escalation tracking. Conversations that need a person appear in the **Inbox**. (Note: the `/queue` page in the dashboard is unrelated: it is a **Job Queue** for background processing such as document uploads, emails and exports, not customer conversations.)
+Hay doesn't have SLA-based escalation tracking. Conversations that need a person appear in the **Inbox**.
 
 ### Finding Conversations That Need You
 

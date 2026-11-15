@@ -1,23 +1,25 @@
 ---
 layout: docs.njk
 title: Guardrails
-description: Three-stage guardrail system for AI response quality
+description: Multi-stage guardrail pipeline for AI response quality
 section: technical
 navGroup: Core Systems
 navOrder: 2
 ---
 
-# Three-Stage Guardrail System
+# Guardrail Pipeline
 
 ## Overview
 
-Hay runs every AI `RESPOND` step through a three-stage guardrail pipeline before delivery:
+Hay runs every AI `RESPOND` step through a multi-stage guardrail pipeline before delivery:
 
 - **Stage 0 — Action-Claim Consistency**: blocks responses that claim a state-changing action was performed when no tool call backs it this turn.
+- **Link Guardrail**: checks that URLs in the response are real and reachable; rewrites or removes broken links.
+- **Date Guardrail**: checks that dates and deadlines in the response are plausible and consistent.
 - **Stage 1 — Company Interest Protection**: blocks responses that harm company interests (off-topic, competitor info, fabrications).
 - **Stage 2 — Fact Grounding**: verifies company-specific claims against retrieved documents, tool results, and the active playbook.
 
-The pipeline lives in `applyConfidenceGuardrails()` in `/server/orchestrator/execution.layer.ts`. Stage 0 runs first — even for conversational intents — while Stages 1 and 2 are skipped entirely when the customer's last message has an exempt intent (`GREET`, `CLOSE_SATISFIED`, `CLOSE_UNSATISFIED`), so a false "I've cancelled it, glad I could help!" on a closing message is still caught.
+The pipeline lives in `applyConfidenceGuardrails()` in `/server/orchestrator/execution.layer.ts`. Stage 0 and the link/date guardrails run first — even for conversational intents — while Stages 1 and 2 are skipped when the customer's last message has an exempt intent (`GREET`, `CLOSE_SATISFIED`, `CLOSE_UNSATISFIED`) **and** the AI reply contains no factual specifics (numbers, amounts, links). If the reply does contain factual specifics, Stages 1 and 2 still run regardless of intent, so a false "I've cancelled it, glad I could help!" on a closing message is still caught.
 
 ## Architecture
 
@@ -34,7 +36,9 @@ flowchart TD
 
   Z -->|"fa:fa-xmark VIOLATION"| RETRY0["fa:fa-rotate Corrective re-plan<br/>(1 retry per turn)"]
   RETRY0 -->|"still failing"| ESC0["fa:fa-user Escalate to Human"]
-  Z -->|"fa:fa-check PASS"| INT{"Exempt intent?<br/>(greet / close)"}
+  Z -->|"fa:fa-check PASS"| LNK["fa:fa-link Link Guardrail"]
+  LNK --> DT["fa:fa-calendar Date Guardrail"]
+  DT --> INT{"Exempt intent<br/>& no factual specifics?"}
 
   INT -->|"Yes"| DEL0["fa:fa-paper-plane Deliver"]
   INT -->|"No"| B
@@ -46,10 +50,7 @@ flowchart TD
 
   B -->|"fa:fa-xmark BLOCK"| RETRY1["fa:fa-rotate Corrective re-plan<br/>(1 retry per turn)"]
   RETRY1 -->|"still blocked"| ESC["fa:fa-user Escalate to Human"]
-  B -->|"fa:fa-check PASS"| C{"Requires<br/>Fact Check?"}
-
-  C -->|"No"| DEL1["fa:fa-paper-plane Deliver Response"]
-  C -->|"Yes"| D
+  B -->|"fa:fa-check PASS"| D
 
   subgraph D["fa:fa-magnifying-glass  Stage 2 · Fact Grounding"]
     direction TB
@@ -67,12 +68,12 @@ flowchart TD
   style ESC fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
   style ESC2 fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
   style DEL0 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
-  style DEL1 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
   style DEL2 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
+  style LNK fill:#f0f0ff,stroke:#8b8bff,color:#1a1a5c
+  style DT fill:#f0f0ff,stroke:#8b8bff,color:#1a1a5c
   style RETRY0 fill:#fffbeb,stroke:#fbbf24,color:#78350f
   style RETRY1 fill:#fffbeb,stroke:#fbbf24,color:#78350f
   style REC fill:#fffbeb,stroke:#fbbf24,color:#78350f
-  style C fill:#fff,stroke:#568aff,color:#0a155c
   style INT fill:#fff,stroke:#568aff,color:#0a155c
 ```
 

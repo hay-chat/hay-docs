@@ -45,7 +45,9 @@ Data that goes into the AI's prompt. The AI can read and reference it in convers
 <script src="https://cdn.hay.chat/widget.js" async></script>
 ```
 
-Public context is sanitized structurally before it reaches the LLM — it is wrapped in delimiters and the model is instructed to treat it as data, not instructions. You should still avoid passing anything sensitive here.
+Public context is sanitized structurally before it reaches the LLM — it is wrapped in XML tags and the model is instructed to treat it as data, not instructions. You should still avoid passing anything sensitive here.
+
+**Client-side vs server-side context:** Context set from the browser via `HayChat.addContext` is treated as _unverified visitor data_ and presented to the AI in a separate `<context source="visitor" verified="false">` block. Context set from your backend via `conversations.addContext` or loaded from a customer record is treated as _trusted business context_ and presented in a `<context source="business">` block. Design your integration accordingly — use server-side context for anything the AI should rely on for access-control or billing decisions.
 
 You can update public context at any point during the conversation:
 
@@ -197,10 +199,22 @@ Inject the user's external ID server-side into your page and pass it to the widg
       organizationId: "org_xxx",
       baseUrl: "https://app.hay.so",
       customerExternalId: "ext_usr_456", // inject this from your server, not from user input
+      customerExternalIdSignature: "a1b2c3d4...", // HMAC-SHA256 hex — see below
     },
   };
 </script>
 <script src="https://cdn.hay.chat/widget.js" async></script>
+```
+
+**`customerExternalIdSignature` is required.** Without it the visitor is treated as anonymous. Compute the signature server-side as an HMAC-SHA256 hex digest of the `customerExternalId`, keyed with your organization's identity secret (found under **Settings > Webchat**):
+
+```js
+// Node.js example — generate on your server, inject into the page
+import crypto from "crypto";
+const signature = crypto
+  .createHmac("sha256", process.env.HAY_IDENTITY_SECRET)
+  .update("ext_usr_456")
+  .digest("hex");
 ```
 
 You can still layer in ephemeral context client-side and attach per-conversation secrets via `onConversationStarted`:
@@ -211,6 +225,7 @@ You can still layer in ephemeral context client-side and attach per-conversation
     config: {
       organizationId: "org_xxx",
       customerExternalId: "ext_usr_456",
+      customerExternalIdSignature: "a1b2c3d4...",
 
       context: {
         currentPage: window.location.pathname, // ephemeral, this conversation only
@@ -291,7 +306,7 @@ Public context values are available to the AI as part of its conversation contex
 
 ### Secrets in MCP tool parameters
 
-Your MCP tool schema declares which parameters it expects. When the AI determines a tool should be called, it references available secrets by name using the pattern `<<secret.keyname>>`. Hay's orchestrator intercepts this before the MCP call and substitutes the real value.
+Your MCP tool schema declares which parameters need secret values. Hay's orchestrator injects secrets server-side into tool call arguments — the AI never sees secret names or values.
 
 **Example MCP tool schema:**
 
@@ -350,7 +365,7 @@ Available secrets (values are hidden — reference as <<secret.keyname>> in tool
 - **Conversation-scoped secrets are ephemeral** — stored in Redis with a 24-hour TTL, scoped to the conversation, never written to the database. If the user opens a new conversation (e.g. after closing the browser), your `onConversationStarted` callback fires again and you re-attach fresh secrets.
 - **Customer records store only public context** — no secrets are ever written to the database. If you need per-user credentials, attach them per-conversation via `onConversationStarted`.
 - **`conversation.id` is not sensitive** — passing it from the browser to your backend (Path B) does not expose anything meaningful. The DPoP keypair is what authenticates the conversation.
-- **`customerExternalId` should come from your server** — inject it into the page server-side rather than deriving it from user input. If a user tampers with it in the browser console, they can only affect their own AI session context (no secrets, no conversation history access).
+- **`customerExternalId` must be signed** — inject both the external ID and its HMAC-SHA256 signature into the page server-side. Without a valid `customerExternalIdSignature` the visitor is treated as anonymous. This prevents users from impersonating other customer records by changing the ID in the browser console.
 - **Validate on your side** — Hay does not verify that the user making the widget request is who you say they are. That is your backend's responsibility. Always authenticate the request in your own middleware before calling `addSecrets`.
 
 ---
