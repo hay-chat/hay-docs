@@ -29,7 +29,7 @@ flowchart TD
 
   subgraph Z["fa:fa-list-check  Stage 0: Action-Claim Consistency"]
     direction TB
-    Z1["Does the response claim an action<br/>not backed by a successful tool call<br/>this turn?"]
+    Z1["Does the response claim an action not backed by a successful tool call this turn?"]
   end
 
   Z -->|"fa:fa-xmark VIOLATION"| RETRY0["fa:fa-rotate Corrective re-plan<br/>(1 retry per turn)"]
@@ -41,7 +41,7 @@ flowchart TD
 
   subgraph B["fa:fa-shield-halved  Stage 1: Interest Protection"]
     direction TB
-    B1["Does this response harm<br/>company interests?"]
+    B1["Does this response harm company interests?"]
   end
 
   B -->|"fa:fa-xmark BLOCK"| RETRY1["fa:fa-rotate Corrective re-plan<br/>(1 retry per turn)"]
@@ -53,7 +53,7 @@ flowchart TD
 
   subgraph D["fa:fa-magnifying-glass  Stage 2 · Fact Grounding"]
     direction TB
-    D1["Are company-specific claims<br/>grounded in documents, tool results,<br/>or the active playbook?"]
+    D1["Are company-specific claims grounded in documents, tool results, or the active playbook?"]
     D2["Grounding 60% · Retrieval 30% · Certainty 10%"]
     D1 --- D2
   end
