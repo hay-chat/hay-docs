@@ -29,7 +29,7 @@ flowchart TD
 
   subgraph Z["fa:fa-list-check  Stage 0: Action-Claim Consistency"]
     direction TB
-    Z1["Does the response claim an action<br/>not backed by a successful tool call<br/>this turn?"]
+    Z1["Does the response claim an action not backed by a successful tool call this turn?"]
   end
 
   Z -->|"fa:fa-xmark VIOLATION"| RETRY0["fa:fa-rotate Corrective re-plan<br/>(1 retry per turn)"]
@@ -41,7 +41,7 @@ flowchart TD
 
   subgraph B["fa:fa-shield-halved  Stage 1: Interest Protection"]
     direction TB
-    B1["Does this response harm<br/>company interests?"]
+    B1["Does this response harm company interests?"]
   end
 
   B -->|"fa:fa-xmark BLOCK"| RETRY1["fa:fa-rotate Corrective re-plan<br/>(1 retry per turn)"]
@@ -53,7 +53,7 @@ flowchart TD
 
   subgraph D["fa:fa-magnifying-glass  Stage 2 · Fact Grounding"]
     direction TB
-    D1["Are company-specific claims<br/>grounded in documents, tool results,<br/>or the active playbook?"]
+    D1["Are company-specific claims grounded in documents, tool results, or the active playbook?"]
     D2["Grounding 60% · Retrieval 30% · Certainty 10%"]
     D1 --- D2
   end
@@ -62,18 +62,16 @@ flowchart TD
   D -->|"Medium 0.5–&lt;0.8"| REC["fa:fa-rotate Recheck"]
   D -->|"Low <0.5"| ESC2["fa:fa-user Escalate"]
 
-  style A fill:#e8f3ff,stroke:#568aff,color:#0a155c
-  style ESC0 fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
-  style ESC fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
-  style ESC2 fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
-  style DEL0 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
-  style DEL1 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
-  style DEL2 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
-  style RETRY0 fill:#fffbeb,stroke:#fbbf24,color:#78350f
-  style RETRY1 fill:#fffbeb,stroke:#fbbf24,color:#78350f
-  style REC fill:#fffbeb,stroke:#fbbf24,color:#78350f
-  style C fill:#fff,stroke:#568aff,color:#0a155c
-  style INT fill:#fff,stroke:#568aff,color:#0a155c
+  classDef primary fill:#e8f3ff,stroke:#85b7ff,color:#0a155c
+  classDef decision fill:#ffffff,stroke:#568aff,color:#0a155c
+  classDef success fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
+  classDef warning fill:#fffbeb,stroke:#fbbf24,color:#78350f
+  classDef danger fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
+  class A primary
+  class C,INT decision
+  class DEL0,DEL1,DEL2 success
+  class RETRY0,RETRY1,REC warning
+  class ESC0,ESC,ESC2 danger
 ```
 
 ## Stage 0: Action-Claim Consistency
