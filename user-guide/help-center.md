@@ -52,11 +52,11 @@ Start from one of six ready-made themes, then change anything you like. Each the
 | Theme     | Look                                                          |
 | --------- | ------------------------------------------------------------- |
 | Classic   | Accent-coloured hero, centred, with cards                     |
-| Aurora    | Purple-to-pink gradient hero, centred, with cards             |
+| Aurora    | Teal-to-green gradient hero, centred, with cards              |
 | Minimal   | No hero band, left aligned, always light                      |
 | Midnight  | Deep blue gradient hero, always dark                          |
 | Editorial | Serif type, light tint of your accent, list layout, sharp corners |
-| Playful   | Rounded type, orange-to-pink gradient, pill-shaped corners    |
+| Playful   | Rounded type, mint-to-sky gradient, pill-shaped corners       |
 
 Once you change a setting, the dashboard shows which theme you started from ("Customised from Aurora").
 
