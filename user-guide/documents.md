@@ -34,6 +34,8 @@ Think of it like training a new employee by giving them all your company documen
 1. Click **Documents** in the left sidebar (under **Knowledge**)
 2. Click **Import Document** (or **Write Document** to compose one in Hay, or **Connected sources** to manage synced sources)
 
+![The Documents page with the Import Document button highlighted](images/documents/list.png)
+
 ### Step 2: Choose Your Method
 
 **Upload Files**
