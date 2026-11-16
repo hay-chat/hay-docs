@@ -24,6 +24,7 @@ Below the cards you'll find:
 
 - **Conversation Activity** - daily conversation volume
 - **Recent Conversations** - the latest conversations, each with its status and how long ago (**View All** opens Conversations)
+- **Resolution Quota** (admin/owner only) - billable resolutions used in the current billing period against the plan's included allowance, with a progress bar and projected usage
 - **Active conversations** - a live list across Hay.chat and humans
 - **Human escalations** - takeovers for **Today** and **This week**
 - **Attention Needed** - conversations awaiting a human response
@@ -81,8 +82,6 @@ Click on any conversation to:
 
 Open the [Inbox](/docs/user-guide/inbox/) to see conversations waiting for a human, take one over, or answer the AI's quick questions. The **Attention Needed** card on the Dashboard shows the same waiting conversations.
 
-> **Not the same as `/queue`.** The `/queue` page (not in the sidebar) is the **Job Queue** of background jobs such as document processing, emails and exports. It does not list conversations.
-
 ## Real-Time Updates
 
 **Inbox** and the waiting-conversations badge update live over WebSocket. The metrics on the **Dashboard** page are loaded when you open it or change the date range; refresh the page to see the latest numbers.
@@ -132,7 +131,7 @@ Some metrics are calculated every few minutes, not instantly. Refresh your brows
 
 ### What are the possible conversation statuses?
 
-Conversations move through these statuses: `open`, `processing`, `awaiting-approval`, `pending-human` (shown as **Needs Attention**), `human-took-over` (shown as **Manual Control**), `resolved`, and `closed`. There is no "active" status. See [Conversations](/docs/user-guide/conversations/#conversation-statuses).
+Conversations move through these statuses: `open`, `processing`, `awaiting-approval`, `pending-human` (shown as **Needs Attention**), `human-took-over` (shown as **Manual Control**), `resolved`, `unresolved`, and `closed`. There is no "active" status. See [Conversations](/docs/user-guide/conversations/#conversation-statuses).
 
 ### Can I export this data?
 

@@ -1,23 +1,25 @@
 ---
 layout: docs.njk
 title: Guardrails
-description: Three-stage guardrail system for AI response quality
+description: Multi-stage guardrail pipeline for AI response quality
 section: technical
 navGroup: Core Systems
 navOrder: 2
 ---
 
-# Three-Stage Guardrail System
+# Guardrail Pipeline
 
 ## Overview
 
-Hay runs every AI `RESPOND` step through a three-stage guardrail pipeline before delivery:
+Hay runs every AI `RESPOND` step through a multi-stage guardrail pipeline before delivery:
 
 - **Stage 0 — Action-Claim Consistency**: blocks responses that claim a state-changing action was performed when no tool call backs it this turn.
+- **Link Guardrail**: checks that URLs in the response are real and reachable; rewrites or removes broken links.
+- **Date Guardrail**: checks that dates and deadlines in the response are plausible and consistent.
 - **Stage 1 — Company Interest Protection**: blocks responses that harm company interests (off-topic, competitor info, fabrications).
 - **Stage 2 — Fact Grounding**: verifies company-specific claims against retrieved documents, tool results, and the active playbook.
 
-The pipeline lives in `applyConfidenceGuardrails()` in `/server/orchestrator/execution.layer.ts`. Stage 0 runs first — even for conversational intents — while Stages 1 and 2 are skipped entirely when the customer's last message has an exempt intent (`GREET`, `CLOSE_SATISFIED`, `CLOSE_UNSATISFIED`), so a false "I've cancelled it, glad I could help!" on a closing message is still caught.
+The pipeline lives in `applyConfidenceGuardrails()` in `/server/orchestrator/execution.layer.ts`. Stage 0 and the link/date guardrails run first — even for conversational intents — while Stages 1 and 2 are skipped when the customer's last message has an exempt intent (`GREET`, `CLOSE_SATISFIED`, `CLOSE_UNSATISFIED`) **and** the AI reply contains no factual specifics (numbers, amounts, links). If the reply does contain factual specifics, Stages 1 and 2 still run regardless of intent, so a false "I've cancelled it, glad I could help!" on a closing message is still caught.
 
 ## Architecture
 
@@ -34,7 +36,9 @@ flowchart TD
 
   Z -->|"fa:fa-xmark VIOLATION"| RETRY0["fa:fa-rotate Corrective re-plan<br/>(1 retry per turn)"]
   RETRY0 -->|"still failing"| ESC0["fa:fa-user Escalate to Human"]
-  Z -->|"fa:fa-check PASS"| INT{"Exempt intent?<br/>(greet / close)"}
+  Z -->|"fa:fa-check PASS"| LNK["fa:fa-link Link Guardrail"]
+  LNK --> DT["fa:fa-calendar Date Guardrail"]
+  DT --> INT{"Exempt intent<br/>& no factual specifics?"}
 
   INT -->|"Yes"| DEL0["fa:fa-paper-plane Deliver"]
   INT -->|"No"| B
@@ -46,10 +50,7 @@ flowchart TD
 
   B -->|"fa:fa-xmark BLOCK"| RETRY1["fa:fa-rotate Corrective re-plan<br/>(1 retry per turn)"]
   RETRY1 -->|"still blocked"| ESC["fa:fa-user Escalate to Human"]
-  B -->|"fa:fa-check PASS"| C{"Requires<br/>Fact Check?"}
-
-  C -->|"No"| DEL1["fa:fa-paper-plane Deliver Response"]
-  C -->|"Yes"| D
+  B -->|"fa:fa-check PASS"| D
 
   subgraph D["fa:fa-magnifying-glass  Stage 2 · Fact Grounding"]
     direction TB
@@ -62,16 +63,18 @@ flowchart TD
   D -->|"Medium 0.5–&lt;0.8"| REC["fa:fa-rotate Recheck"]
   D -->|"Low <0.5"| ESC2["fa:fa-user Escalate"]
 
-  classDef primary fill:#e8f3ff,stroke:#85b7ff,color:#0a155c
-  classDef decision fill:#ffffff,stroke:#568aff,color:#0a155c
-  classDef success fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
-  classDef warning fill:#fffbeb,stroke:#fbbf24,color:#78350f
-  classDef danger fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
-  class A primary
-  class C,INT decision
-  class DEL0,DEL1,DEL2 success
-  class RETRY0,RETRY1,REC warning
-  class ESC0,ESC,ESC2 danger
+  style A fill:#e8f3ff,stroke:#568aff,color:#0a155c
+  style ESC0 fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
+  style ESC fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
+  style ESC2 fill:#fdf3f3,stroke:#e88181,color:#8a2a2a
+  style DEL0 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
+  style DEL2 fill:#ecfdf5,stroke:#6ee7b7,color:#065f46
+  style LNK fill:#f0f0ff,stroke:#8b8bff,color:#1a1a5c
+  style DT fill:#f0f0ff,stroke:#8b8bff,color:#1a1a5c
+  style RETRY0 fill:#fffbeb,stroke:#fbbf24,color:#78350f
+  style RETRY1 fill:#fffbeb,stroke:#fbbf24,color:#78350f
+  style REC fill:#fffbeb,stroke:#fbbf24,color:#78350f
+  style INT fill:#fff,stroke:#568aff,color:#0a155c
 ```
 
 ## Stage 0: Action-Claim Consistency
@@ -82,7 +85,7 @@ Prevent the orchestrator from telling the customer a state-changing action happe
 
 ### How It Works
 
-The orchestrator loop in `/server/orchestrator/run.ts` keeps a **tool ledger** for the turn (`toolsCalledThisTurn`): every tool call is recorded as `{ name, success }`. Conversation history is not turn-scoped, so the ledger is the source of truth for "what actually ran this turn". An LLM judge (prompt `execution/action-claim-check`) sees the response, the last customer message, recent conversation history, and the formatted ledger, and returns:
+The orchestrator loop in `/server/orchestrator/run.ts` keeps a **tool ledger** for the turn (`toolsCalledThisTurn`): every tool call is recorded as `{ name, success, pending?, pageTool?, decision? }`. The `pending` flag marks calls awaiting action approval, `pageTool` marks unverified page-navigation tools, and `decision` records approval outcomes (`"approved"` | `"declined"`). These affect how the ledger is formatted for the judge (e.g. `PENDING_APPROVAL`, `UNVERIFIED_PAGE_TOOL`, `DECLINED_BY_TEAM`). Conversation history is not turn-scoped, so the ledger is the source of truth for "what actually ran this turn". An LLM judge (prompt `execution/action-claim-check`) sees the response, the last customer message, recent conversation history, and the formatted ledger, and returns:
 
 ```typescript
 {
@@ -105,7 +108,7 @@ A **failed** tool call does not back a success claim.
 
 ### Failure Mode
 
-Stage 0 **fails open**: on any evaluation error it returns a passing assessment ("never block conversations on guardrail outages").
+Stage 0 uses a **conditional fail mode**: when tools were called this turn or the reply is write-adjacent (contains amounts, links, or state-changing verbs), it **fails closed** on evaluation error — returning a blocking assessment to prevent false action claims from reaching the customer. For benign replies with no tool calls in the turn, it **fails open** — returning a passing assessment to avoid blocking conversations on guardrail outages.
 
 ## Stage 1: Company Interest Protection
 
@@ -158,13 +161,13 @@ Each violation carries a `severity` (`critical` | `moderate` | `low` | `none`). 
 
 ### Failure Mode
 
-On evaluation error, Stage 1 allows the response but forces `requiresFactCheck: true`.
+Stage 1 uses a **conditional fail mode**: for write-adjacent replies (amounts, links, state-changing verbs), it **fails closed** — blocking the response. For non-write-adjacent replies, it **fails open** — allowing the response but forcing `requiresFactCheck: true` so Stage 2 still checks the claims.
 
 ## Stage 2: Fact Grounding
 
 ### Purpose
 
-Only activated when Stage 1 passes AND sets `requiresFactCheck: true`. Verifies that factual claims about the company are grounded in evidence. Implemented by `ConfidenceGuardrailService` (`assessConfidence()`).
+Stage 2 now runs on **every** non-exempt reply that passes Stage 1. When `requiresFactCheck` is set by Stage 1, it performs a full assessment (grounding + retrieval + certainty). When the reply was not flagged, it runs a **grounding-only** check: if the grounding score is high enough, it passes silently; if low, it falls into the full assessment → recheck → escalation path. Implemented by `ConfidenceGuardrailService` (`assessConfidence()`).
 
 ### Grounding Sources
 
@@ -180,7 +183,7 @@ Weights are fixed in `ConfidenceGuardrailService.WEIGHTS`:
 
 #### Grounding Score (60% weight)
 
-LLM evaluation (prompt `execution/confidence-grounding`) of whether the response is extracted from the provided context vs. the model's prior knowledge. Returns 0.0 automatically when no documents/evidence were retrieved; on evaluation error a conservative 0.3 is used.
+LLM evaluation (prompt `execution/confidence-grounding`) of whether the response is extracted from the provided context vs. the model's prior knowledge. When no documents or evidence were retrieved, the LLM evaluates against a placeholder indicating the absence of context — a claim-free reply (e.g. a greeting) scores high while a specific company claim scores low. On evaluation error a conservative 0.3 is used.
 
 #### Retrieval Score (30% weight)
 
@@ -212,7 +215,7 @@ When Medium confidence (`performRecheck()`):
 
 If `shouldEscalate` (low tier) — or a recheck still lands in the low tier:
 
-- `enableEscalation: true` → convert to `HANDOFF` with reason "Low confidence in AI response - unverified company claims".
+- `enableEscalation: true` → convert to `HANDOFF` with reason "Low confidence in AI response - unverified company claims". When the organization has **quick-check** enabled, the low-confidence response is converted to `ASK_TEAM` instead: the AI asks the team one specific fact and continues answering once it gets a reply, avoiding a full handoff.
 - `enableEscalation: false` → replace the response with the fallback message.
 
 In both cases the replaced text is preserved as `originalMessage`.
@@ -263,7 +266,7 @@ Guardrail config lives in the organization `settings` JSONB (`OrganizationSettin
 }
 ```
 
-All guardrail LLM evaluations run on the `medium` model tier with temperature 0.2 and structured JSON output. Anthropic (Claude) models are the exception: the Anthropic API no longer accepts a temperature setting, so they run at the provider default.
+All guardrail LLM evaluations run on the `medium` model tier with temperature 0.2 and structured JSON output. The contextual fallback composer uses temperature 0.3 for more natural phrasing. Anthropic (Claude) models are the exception: the Anthropic API no longer accepts a temperature setting, so they run at the provider default.
 
 ## Message Metadata
 
@@ -300,7 +303,7 @@ Bot responses that went through Stages 1/2 include guardrail information in mess
 }
 ```
 
-Stage 0 assessments are carried on the `ExecutionResult` (`actionClaim`, `actionClaimRetryAttempted`) and, on escalation, in the handoff fields (`claimedActions`, `toolsCalledThisTurn`) — they are not currently persisted in message metadata or the guardrail log.
+Stage 0 assessments are persisted in message metadata as `actionClaim` (the assessment object with `passed` and `claimedActions`) and `actionClaimRetryAttempted` (boolean). On escalation, the handoff fields also include `claimedActions` and `toolsCalledThisTurn`.
 
 ## Orchestration Logs
 
@@ -452,6 +455,8 @@ conversation.messages.forEach((message) => {
 ### Services
 
 - `ActionClaimGuardrailService` - Stage 0 implementation
+- `LinkGuardrailService` - Link guardrail implementation
+- `DateGuardrailService` - Date guardrail implementation
 - `CompanyInterestGuardrailService` - Stage 1 implementation
 - `ConfidenceGuardrailService` - Stage 2 implementation
 
@@ -466,6 +471,8 @@ conversation.messages.forEach((message) => {
 ### Files
 
 - `/server/services/core/action-claim-guardrail.service.ts`
+- `/server/services/core/link-guardrail.service.ts`
+- `/server/services/core/date-guardrail.service.ts`
 - `/server/services/core/company-interest-guardrail.service.ts`
 - `/server/services/core/confidence-guardrail.service.ts`
 - `/server/orchestrator/execution.layer.ts` - pipeline wiring (`applyConfidenceGuardrails`, `applyActionClaimGuardrail`)

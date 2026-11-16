@@ -66,7 +66,7 @@ node packages/plugin-sdk/dist/runner/index.js --plugin-path=… --org-id=… --p
 - **Config and auth are injected as env JSON** (`HAY_ORG_CONFIG`, `HAY_ORG_AUTH`) — never as raw provider env vars. Read them through `ctx.config` / `ctx.auth`.
 - Each worker receives `HAY_API_URL` and a scoped JWT in `HAY_API_TOKEN` (generated with the plugin's declared capabilities) for calling back into core.
 - Core waits for the worker's `GET /metadata` endpoint before considering it started.
-- Workers are **idle-killed after 5 minutes** of inactivity (checked every minute, `server/services/plugin-instance-manager.service.ts`). Never rely on the process staying alive — this is why crons are scheduled by core, not the worker.
+- Workers are **idle-killed after 5 minutes** of inactivity (checked every minute, `server/services/plugin-manager.service.ts`). When the pool is full, the least recently active worker is evicted via `makeRoomInPool` in `server/services/plugin-runner.service.ts`. Never rely on the process staying alive — this is why crons are scheduled by core, not the worker.
 
 ### Canonical directory layout
 
@@ -99,10 +99,16 @@ The fields core actually reads from `package.json → "hay-plugin"` (interface `
 | `displayName`         | `string`   | Human-readable name shown in the marketplace                                                                                                                  |
 | `category`            | `string`   | One of `integration \| channel \| tool \| analytics \| products` (SDK `PluginCategory`); document importers are marked via `documentImporter`, not a category |
 | `marketplaceCategory` | `string`   | Marketplace section: one of `channels \| commerce \| payments \| crm \| knowledge \| security`. Plugins without one are listed under "Other"                  |
-| `capabilities`        | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `cron`, `email`                               |
+| `capabilities`        | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `disputes`, `tickets`, `privacy`, `cron`, `email`, `webchat` |
 | `env`                 | `string[]` | Allow-list of host env var names that config fields may fall back to via their `env:` property                                                                |
 | `channel`             | `string`   | Channel plugins only: the channel slug (e.g. `"instagram"`); matched by `pluginManagerService.findPluginIdByChannel()` for outbound delivery                  |
-| `autoActivate`        | `boolean`  | Legacy (document importers)                                                                                                                                   |
+| `defaultEnabled`      | `boolean`  | If `true`, the plugin is enabled for every org automatically on discovery (default `false`)                                                                    |
+| `oauthHosts`          | `string[]` | Allowed OAuth redirect hosts (for providers that validate against a strict list)                                                                                |
+| `rendering`           | `object`   | Widget rendering hints (e.g. product card layout preferences)                                                                                                  |
+| `inactivity`          | `object`   | Channel-specific inactivity timing: `{ warningMinutes, closeMinutes }` — overrides the global default for conversations on this channel                        |
+| `network`             | `object`   | Network constraints for the worker (e.g. allowed outbound hosts)                                                                                               |
+| `setup`               | `object`   | `HayPluginSetupHints`: declares setup checklist items, business types, group, and handles for guided onboarding                                                |
+| `autoActivate`        | `boolean`  | Legacy (document importers)                                                                                                                                    |
 | `trpcRouter`          | `string`   | Legacy (document importers): path to a tRPC router loaded in-process                                                                                          |
 | `documentImporter`    | `boolean`  | Legacy: marks a document importer plugin                                                                                                                      |
 | `config`              | `object`   | Legacy: manifest-style config schema, copied into the registry manifest's `configSchema` (new plugins use `register.config` instead)                          |
@@ -184,7 +190,7 @@ export default defineHayPlugin((globalCtx) => ({
 | ---------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `onInitialize`   | `(ctx: HayGlobalContext) => void \| Promise<void>`                                                | Once per worker process, before the HTTP server starts. **Descriptor-only**: make `register.*` calls; no network requests, no org data.                                                                                           |
 | `onStart`        | `(ctx: HayStartContext) => void \| Promise<void>`                                                 | Every org runtime start/restart (first config save, config/auth updates). Read config/auth, gate on missing credentials, start MCP servers. Must never crash the worker — log errors instead.                                     |
-| `onConnected`    | `(ctx: HayConnectedContext) => { routingKeys?: string[] } \| Promise<{ routingKeys?: string[] }>` | Called by core (`POST /on-connected`) right after OAuth tokens are stored. Return opaque **routing keys** that core persists for shared-webhook fan-out. Throwing never fails the OAuth flow — core logs a warning and continues. |
+| `onConnected`    | `(ctx: HayConnectedContext, extras?: Record<string, unknown>) => OnConnectedResult \| Promise<OnConnectedResult>` | Called by core (`POST /on-connected`) right after OAuth tokens are stored. Return opaque **routing keys** that core persists for shared-webhook fan-out, an optional `account` (`{ label, avatarUrl }`) shown on the connection card, and optional `credentials` to persist alongside the OAuth tokens. Throwing never fails the OAuth flow — core logs a warning and continues. |
 | `onValidateAuth` | `(ctx: HayAuthValidationContext) => boolean \| Promise<boolean>`                                  | When auth credentials are saved/updated (`POST /validate-auth`). Return `true` for valid, or throw an `Error` with a user-facing message. If not implemented, auth is assumed valid.                                              |
 | `onConfigUpdate` | `(ctx: HayConfigUpdateContext) => void \| Promise<void>`                                          | After settings are saved (`POST /config-update`). Most plugins can omit this — the platform restarts registered MCP servers itself.                                                                                               |
 | `onDisable`      | `(ctx: HayDisableContext) => void \| Promise<void>`                                               | On disable/uninstall (and SIGTERM). Tear down pollers, sockets, and external subscriptions.                                                                                                                                       |
@@ -198,8 +204,8 @@ All context interfaces live in `packages/plugin-sdk/types/contexts.ts`.
 
 | Context                                         | Fields                                                                                                                                                                                         |
 | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `HayGlobalContext` (onInitialize + factory arg) | `register: HayRegisterAPI`, `config: HayConfigDescriptorAPI` (field references only — `config.field(name)`), `logger: HayLogger`                                                               |
-| `HayStartContext` (onStart)                     | `org: HayOrg`, `config: HayConfigRuntimeAPI`, `auth: HayAuthRuntimeAPI`, `mcp: HayMcpRuntimeAPI`, `productSource?: HayProductSourceRuntimeAPI` (only with the `products` capability), `logger` |
+| `HayGlobalContext` (onInitialize + factory arg) | `register: HayRegisterAPI`, `config: HayConfigDescriptorAPI` (field references only — `config.field(name)`), `logger: HayLogger`, `state?: HayPluginStateAPI` (persisted key/value store) |
+| `HayStartContext` (onStart)                     | `org: HayOrg`, `config: HayConfigRuntimeAPI`, `auth: HayAuthRuntimeAPI`, `mcp: HayMcpRuntimeAPI`, `productSource?: HayProductSourceRuntimeAPI` (only with the `products` capability), `disputes?: HayDisputeSourceRuntimeAPI` (only with the `disputes` capability), `logger` |
 | `HayConnectedContext` (onConnected)             | `org`, `config`, `auth` (fresh tokens), `logger`                                                                                                                                               |
 | `HayAuthValidationContext` (onValidateAuth)     | `org`, `config`, `auth`, `logger`                                                                                                                                                              |
 | `HayConfigUpdateContext` (onConfigUpdate)       | `org`, `config`, `logger`                                                                                                                                                                      |
@@ -234,6 +240,8 @@ Defines configuration fields; the dashboard generates the settings form from thi
 | `env`         | `string`                                            | Host env var fallback. **Must be listed in `hay-plugin.env`** — validated at load time.     |
 | `options`     | `Array<{ label: string; value: string \| number }>` | Renders a dropdown instead of free text                                                     |
 | `showWhen`    | `ShowWhen`                                          | Declarative visibility: `{ field, equals? \| in? \| notEquals? }` referencing another field |
+| `serverOnly`  | `boolean`                                           | Field is resolved only server-side, never delivered to the worker (default `false`)          |
+| `advanced`    | `boolean`                                           | Show in the Advanced tab of the settings form (default `false`)                              |
 
 ```typescript
 register.config({
@@ -327,9 +335,11 @@ register.auth.oauth2({
 
 ```typescript
 register.route(method: HttpMethod, path: string, handler: RouteHandler): void
+register.route(method: HttpMethod, path: string, options: RouteOptions, handler: RouteHandler): void
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 type RouteHandler = (req, res) => void | Promise<void>; // Express-compatible
+interface RouteOptions { public?: boolean } // public: true exposes the route on the unauthenticated public plugin URL
 ```
 
 Routes are mounted on the plugin's worker HTTP server. Common uses: provider webhooks (`POST /webhook`), outbound delivery (`POST /deliver`), escalation (`POST /escalate`), callbacks. External traffic reaches them through the core proxy (`ALL /v1/plugins/:pluginId/*`), which strips credential-bearing headers before forwarding.
@@ -395,6 +405,14 @@ register.cron({
 });
 ```
 
+### register.setup
+
+```typescript
+register.setup(options: SetupOptions): void
+```
+
+Declares a setup checklist for guided onboarding. The plugin's worker reports its setup status via `POST /setup/status`, and the dashboard shows progress on the plugin's settings page. Used by plugins that require multi-step configuration beyond a single settings form.
+
 ### register.webhookRouting
 
 ```typescript
@@ -407,9 +425,11 @@ For providers that deliver **every org's events to a single shared webhook URL w
 
 | Field                   | Description                                                                                                                                                                                                                                                                              |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `signature`             | `{ header, format: "sha256-hmac", secretEnv }` — core verifies HMAC-SHA256 over the exact raw request bytes with the secret from `process.env[secretEnv]` (must be in the `hay-plugin.env` allow-list); timing-safe compare, `sha256=` prefix stripped. Only `sha256-hmac` is supported. |
+| `signature`             | `{ header, format, secretEnv }` — core verifies the signature over the exact raw request bytes with the secret from `process.env[secretEnv]` (must be in the `hay-plugin.env` allow-list); timing-safe compare. `format` is one of: `"sha256-hmac"` (hex digest, `sha256=` prefix stripped), `"sha256-hmac-base64"` (base64 digest), or `"svix"` (Standard Webhooks / Svix verification scheme). |
 | `verificationChallenge` | Optional GET handshake: `{ modeParam, verifyTokenParam, challengeParam, verifyTokenEnv? \| verifyTokenConfigField? }` — core echoes the challenge when mode is `subscribe` and the token matches.                                                                                        |
-| `routeKeyPath`          | `{ itemsPath, keyPath, nested? }` — dot-paths (no eval, no DSL) to the events array and the per-event routing key. Optional `nested: { itemsPath, keyPath }` names a sub-array inside each item whose elements carry their own routing key (see below).                                  |
+| `routeKeyPath`          | `{ itemsPath, keyPath, nested?, keyTransform? }` — dot-paths (no eval, no DSL) to the events array and the per-event routing key. `"."` as `itemsPath` means the body itself is the single event; `"."` as `keyPath` means the item itself is the key. Optional `keyTransform: "email-address"` normalizes extracted keys. Optional `nested: { itemsPath, keyPath }` names a sub-array inside each item whose elements carry their own routing key (see below). |
+| `deauthorization`       | Optional `WebhookDeauthorizationDescriptor` — declares how a provider signals that a user revoked access (event type and field paths), so core can auto-revoke the connection.                                                                                                            |
+| `dedupe`                | Optional `WebhookDedupeDescriptor` — declares how to extract a provider message id for inbound deduplication at the webhook-router level.                                                                                                                                                  |
 
 Routing keys are matched against the keys persisted from `onConnected` to resolve the target org.
 
@@ -485,6 +505,14 @@ register.webchat.contribution({
 | `tokenPath`, `tokenResponseHeader`, `tokenRequestHeader` | no       | For stores that want a token on cart writes: the widget GETs `tokenPath`, reads the response header and sends it back as the request header. Set all three or none.               |
 | `afterAddEvents`                                          | no       | JSON array as text of DOM events fired after a successful add so the theme refreshes its cart: `[{ "name": "…", "target": "body" \| "window", "detail": { … } }]`, at most 8.      |
 | `rootPathGlobal`                                          | no       | Dotted name of a page global holding the storefront's root path (a locale folder such as `/en-ca/`), put in front of the cart paths.                                              |
+
+#### `register.webchat.gate`
+
+```typescript
+register.webchat.gate(event: string, handler: GateHandler, options?: GateOptions): void
+```
+
+A synchronous server-side check that runs before certain webchat events (e.g. conversation creation). The handler receives the event payload and returns `{ allow: boolean }`. Core calls the worker's `POST /webchat/gate/:event` endpoint. Used by bot-protection plugins like Turnstile to block spam before a conversation is created.
 
 A product is offered for adding when all of these hold:
 
@@ -616,6 +644,8 @@ Endpoints the SDK runner mounts on every worker (`packages/plugin-sdk/runner/htt
 | `POST /cron/:name`    | Invokes the named cron handler                                                                            |
 | `POST /mcp/call-tool` | Executes an MCP tool                                                                                      |
 | `GET /mcp/list-tools` | Lists MCP tools (cached by core)                                                                          |
+| `POST /setup/status`  | Reports setup checklist progress (plugins with `register.setup`)                                           |
+| `POST /webchat/gate/:event` | Synchronous server-side webchat gate check (plugins with `register.webchat.gate`)                    |
 | _(plugin routes)_     | Anything registered via `register.route` (e.g. `/webhook`, `/deliver`, `/escalate`)                       |
 
 External traffic reaches worker routes only through the core proxy: `ALL /v1/plugins/:pluginId/*` (`server/routes/v1/plugins/proxy.ts`). The org is resolved from the `organizationId` query param or the `x-organization-id` header (both UUID-validated against the DB) — auth-token-based org resolution is a TODO, not yet implemented — or, for a `POST /webhook` with no org identifier and a declared `webhookRouting` descriptor, the request is diverted to the shared webhook router.
@@ -639,6 +669,8 @@ Workers call back into core using the injected `HAY_API_URL` + `HAY_API_TOKEN` (
 | `mcp.registerLocal` / `mcp.registerRemote` | `mcp`       | Register MCP server + tool descriptors with core                                                                                                                                                                                                                                        |
 | `products.upsertMany` / `products.delete`  | `products`  | Product catalog sync (e.g. Shopify); core stamps the product `source` from the authenticated plugin id                                                                                                                                                                                  |
 
+> **This table is not exhaustive.** The full router includes additional procedures for media upload (`media.upload`), connection management (`connection.revoke`), channel health reporting (`channel.reportHealth`), email sending domains (`email.sendingDomain`), webhook routing key updates (`webhooks.setRoutingKeys`), persisted plugin state (`state.get/set/delete`), product pruning (`products.prune`), dispute reporting (`disputes.report`), and GDPR erasure/export (`privacy.eraseCustomer`, `privacy.exportCustomer`). See `server/routes/v1/plugin-api/trpc.ts` for the complete surface.
+
 **Inbound message dedupe is core-side**: if `metadata.mid` is set on `messages.receive`, core claims it atomically via Redis SETNX and silently drops duplicates. Channels that don't pass `mid` get no dedupe.
 
 > The router self-describes as a simplified initial implementation ("full conversation management coming in Phase 4"). Also note: the `PluginApiClient` helper is currently duplicated per channel plugin (e.g. `plugins/core/instagram/src/plugin-api.ts`, `plugins/core/chatwoot/src/plugin-api.ts`) rather than exported from the SDK — a known gap.
@@ -655,11 +687,11 @@ For `category: "channel"` plugins (see [Channel Registration](/docs/technical/pl
 
 **Inbound:** provider webhook → core proxy `POST /v1/plugins/:pluginId/webhook` → worker's registered `POST /webhook` route → plugin verifies/filters → plugin calls `messages.receive` on the callback API.
 
-**Outbound:** `server/services/channel-delivery.service.ts` subscribes to the Redis `websocket:events` channel. On `message_received` events for bot/human-agent messages with `deliveryState === "sent"` (web channel skipped), it resolves the plugin via `hay-plugin.channel`, wakes the org's worker, and posts:
+**Outbound:** `server/services/channel-delivery-queue.service.ts` enqueues deliverable messages (BotAgent, HumanAgent, and ProductRecommendation types with `deliveryState === "sent"`, web channel skipped unless a human took over) into a durable RabbitMQ queue (`channel.deliver`). `server/services/channel-delivery.service.ts` consumes from this queue, resolves the plugin via `hay-plugin.channel`, wakes the org's worker, and posts:
 
 ```
 POST /deliver
-{ to, content, messageId, conversationId, conversationMetadata, messageMetadata }
+{ to, content, messageId, messageType, conversationId, conversationMetadata, language, messageMetadata, attachments }
 ```
 
 The plugin's `/deliver` route responds with `{ success, providerMessageId?, error? }`. Convention: **non-retryable provider errors return HTTP 200 with `success: false`** (e.g. a 24-hour-window expiry) to avoid retry storms; reserve non-200 responses for retryable failures.

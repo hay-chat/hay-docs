@@ -54,7 +54,7 @@ Tests automatically authenticate using saved auth state. No manual login require
 - **Role**: Owner
 - **Organization**: `E2E Test Org YYYYMMDD`
 
-### Manual Browser Access (URL Token Auth)
+### Manual Browser Access (Auth Code Exchange)
 
 For debugging with Playwright MCP or manual testing, prefer `navigateWithAuth()` over
 extracting tokens from the storage state file by hand:
@@ -67,23 +67,23 @@ extracting tokens from the storage state file by hand:
    ```
 
    `navigateWithAuth()` (in `tests/helpers/login.ts`) logs in as the test user via the
-   `auth.login` API to get a fresh `accessToken`/`refreshToken`/`expiresIn`, then navigates
-   with those as URL params. This avoids the storage state file entirely, so there's no
-   risk of using a stale or expired token.
+   `auth.login` API, then calls `auth.generateAuthCode` to obtain a single-use code, and
+   navigates to `/auth/exchange?code=...`. The dashboard's exchange page redeems the code
+   for a session. This avoids the storage state file entirely, so there's no risk of using
+   a stale or expired token.
 
-2. Browser validates token and logs you in automatically
+2. The `/auth/exchange` page validates the code and logs you in automatically
 
 **Security notes:**
-- Only works in development (`NODE_ENV !== 'production'`)
-- Token removed from URL after validation
-- Tokens expire after 7 days (JWT default, configurable via `JWT_EXPIRES_IN`)
+- Auth codes are single-use and short-lived
+- Access tokens expire after 15 minutes (hardcoded in `auth.config.ts`)
 
 **Note on the storage state file:** `playwright/.auth/user.json` stores the token inside a
-JSON-stringified `pinia:auth` localStorage entry, and the expiry field there is `expiresAt`
+JSON-stringified `auth` localStorage entry, and the expiry field there is `expiresAt`
 (an absolute epoch-ms timestamp), not `expiresIn` (a relative seconds value). If you need to
-navigate manually with the `?accessToken=&refreshToken=&expiresIn=` URL params, call the
-`POST /v1/auth.login` endpoint directly (the same thing `navigateWithAuth()` does) to get a
-fresh `expiresIn` value instead of trying to derive it from the storage state file.
+authenticate manually, call the `POST /v1/auth.login` and `POST /v1/auth.generateAuthCode`
+endpoints directly (the same thing `navigateWithAuth()` does) to get a fresh auth code,
+then navigate to `/auth/exchange?code=CODE`.
 
 ## Writing Tests
 
@@ -155,7 +155,8 @@ The following is a non-exhaustive list of spec files:
   - `createTestUser()` - Create test user + org + tokens
   - `generateAuthState()` - Create Playwright storage state
 - `tests/helpers/login.ts` - Navigation utilities
-  - `navigateWithAuth(page, path)` - Navigate to a path with URL token auth injected
+  - `navigateWithAuth(page, path)` - Navigate to a path via auth code exchange
+- `tests/helpers/approval-seed.ts` - Approval test data seeding utilities
 
 ### Global Setup
 
@@ -332,15 +333,15 @@ npx playwright install
 2. Match new Pinia store structure
 3. Re-run global setup
 
-### URL token auth not working
+### Auth code exchange not working
 
-**Problem**: Middleware not recognizing token
+**Problem**: `/auth/exchange?code=...` not logging in
 
 **Checklist**:
-- Running in development (`NODE_ENV !== 'production'`)
-- Token is valid (check expiry)
-- All three parameters passed correctly in URL: `?accessToken=TOKEN&refreshToken=REFRESH_TOKEN&expiresIn=SECONDS`
-- Check browser console for auth middleware logs
+- Auth code is fresh (codes are single-use and short-lived)
+- The `code` parameter is present in the URL: `/auth/exchange?code=CODE`
+- Server is running and reachable (the exchange page calls `auth.exchangeAuthCode`)
+- Check browser console for auth exchange errors
 
 ## CI/CD Integration
 
@@ -406,8 +407,8 @@ jobs:
 
 ### Production Safety
 
-- URL token auth **disabled** in production (`NODE_ENV !== 'production'`)
-- Tokens expire after 7 days (JWT config, configurable via `JWT_EXPIRES_IN`)
+- Auth code exchange uses standard protected endpoints with single-use codes
+- Access tokens expire after 15 minutes (hardcoded in `auth.config.ts`)
 - Storage state files in `.gitignore` (prevents committing tokens)
 - Test users have distinctive pattern for easy identification
 

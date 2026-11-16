@@ -19,10 +19,12 @@ When a conversation passes the retention window, Hay **anonymizes** it rather th
 
 - All messages in the conversation
 - Customer link (who the conversation was with)
-- Conversation title
-- Context and metadata
+- Conversation title and summary
+- Context, metadata, and resolution metadata
+- Media files and attachments
 - Linked document references
 - Associated vector embeddings
+- Related records (action logs, pending actions, team questions, notification deliveries, and order links)
 
 **Preserved (for analytics):**
 
@@ -34,11 +36,11 @@ After anonymization, the conversation record remains with the title `[Anonymized
 
 ## Configuring Retention
 
-1. Go to **Settings** → **Privacy** → **Customer Privacy**
+1. Go to **Settings** → **Customer Privacy** (under the Privacy section)
 2. Under **Conversation Retention Period**, choose a timeframe: Disabled (keep forever), 30, 60, 90, 180, or 365 days (365 days is marked recommended)
 3. Click **Save Retention Policy**
 
-The retention period counts from when a conversation was **closed** (`closed_at`). If a conversation's `closed_at` is not set, the system falls back to its creation date. Only conversations with status `closed` or `resolved` are eligible for anonymization. Open or in-progress conversations are never touched.
+The retention period counts from when a conversation was **closed** (`closed_at`). If a conversation's `closed_at` is not set, the system falls back to its creation date. Only conversations with status `closed`, `resolved`, or `unresolved` are eligible for anonymization. Open or in-progress conversations are never touched.
 
 ## Legal Hold
 
@@ -56,12 +58,15 @@ Conversations on legal hold are **exempt from automatic anonymization**, even if
 The retention job runs automatically once per day (at 3:00 AM server time). Each run:
 
 1. Finds all organizations with a retention policy configured
-2. Identifies closed/resolved conversations past the retention window
+2. Identifies closed, resolved, or unresolved conversations past the retention window
 3. Skips conversations on legal hold
 4. Deletes associated embeddings from the vector store
-5. Deletes all messages
-6. Anonymizes the conversation record
-7. Writes an entry to the audit log
+5. Deletes media files and attachments
+6. Deletes all messages and related records
+7. Anonymizes the conversation record
+8. Writes an entry to the audit log
+9. Sweeps expired customers — customer records with no remaining live conversations past the retention window are deleted
+10. Expires old insight text (at 2× the retention period)
 
 If an error occurs while processing one organization, the job continues with the remaining organizations.
 
@@ -72,6 +77,8 @@ Every retention cleanup is logged in the audit trail with:
 - Number of conversations anonymized
 - Number of messages deleted
 - Number of embeddings deleted
+- Number of media files deleted
+- Number of media file deletion failures
 - The retention period that was applied
 - The cutoff date used
 - The list of affected conversation IDs

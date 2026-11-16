@@ -61,15 +61,13 @@ Think of it like training a new employee by giving them all your company documen
 
 **Import from Website**
 
-- Choose **Import from Website**, enter the **Documentation URL** and click **Discover Pages**. Hay checks for a sitemap first and otherwise follows internal links; only pages from the same domain are found (this typically takes 1-3 minutes)
-- Select the pages you want. Filters such as **URL contains** and **Path starts with** help you narrow the list
-- Click **Next: Add Metadata**, choose the **Document Type**, **Status** and **Visibility**, then **Start Import**. Each page becomes a separate document, converted to markdown
-- The website is connected as a synced source and kept up to date. Manage it under **Connected sources**; a document from a source can be refreshed with **Update from Source**
+- Choose **Import from Website**, enter the URL and click **Connect website**. Hay creates a synced source and navigates to the source detail page, where you can watch the crawl progress in real time. Each discovered page becomes a separate document, converted to markdown
+- The website is connected as a synced source and kept up to date. Manage it under **Connected sources**; to refresh all documents from a source, open the source and click **Sync now**
 - Useful for importing an existing help center or documentation site
 
 **Integrations**
 
-- Some integrations (for example Notion or Confluence through Atlassian) can import pages into your knowledge base; choose **Integration** as the source
+- Some integrations (for example Notion or Confluence through Atlassian) can import pages into your knowledge base. When the corresponding plugin is installed, it appears as an option on the import page — select it to connect and import
 
 ### Step 3: Processing
 
@@ -294,8 +292,6 @@ Use the search bar to find specific documents:
 ### Archiving Documents
 
 You can mark a document as **Archived** from the documents list without deleting it, using the archive action on each row or in bulk.
-
-> ⚠️ **Note:** Archiving from the documents list is not yet fully functional — the action currently only updates what you see on screen and does not persist to the backend. Don't rely on it yet to keep a document out of use.
 
 ### Improving a document with AI
 

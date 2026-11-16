@@ -34,7 +34,7 @@ Each integration has its own guide covering what it is, how to connect it, and w
 - [Shopify](/docs/user-guide/integrations/shopify/) - Orders, refunds, returns, exchanges, customers, products, and catalog sync
 - [WooCommerce](/docs/user-guide/integrations/woocommerce/) - Orders, tracking, cancellations, refunds, goodwill coupons, and products
 - [Magento](/docs/user-guide/integrations/magento/) - Orders, tracking, cancellations, refunds, and products
-- [Wix](/docs/user-guide/integrations/wix/) - Orders, tracking, cancellations, refunds, and products
+- [Wix Stores](/docs/user-guide/integrations/wix/) - Orders, tracking, cancellations, refunds, and products
 - [Nuvemshop / Tiendanube](/docs/user-guide/integrations/nuvemshop/) - Orders, Pix payment links, tracking, goodwill coupons, and products
 
 **Shipping**
@@ -45,7 +45,8 @@ Each integration has its own guide covering what it is, how to connect it, and w
 **Payments & marketing**
 
 - [Stripe](/docs/user-guide/integrations/stripe/) - Payments, refunds, subscriptions, and invoices
-- [Klaviyo](/docs/user-guide/integrations/klaviyo/) - Profiles, subscriptions, campaigns, and flows
+- [Klaviyo](/docs/user-guide/integrations/klaviyo/) - Profiles, lists, segments, campaigns, flows, events, and templates
+- [Mercado Pago](/docs/user-guide/integrations/mercadopago/) - Payments, Pix codes, and refunds
 
 **CRM & scheduling**
 
@@ -58,6 +59,11 @@ Each integration has its own guide covering what it is, how to connect it, and w
 - [Zendesk](/docs/user-guide/integrations/zendesk/) - Tickets, users, macros, and Help Center articles
 - [Atlassian (Jira & Confluence)](/docs/user-guide/integrations/atlassian/) - Jira issues plus Confluence page import
 - [Notion](/docs/user-guide/integrations/notion/) - Import Notion pages into your knowledge base
+- [Spacebring](/docs/user-guide/integrations/spacebring/) - Room bookings, guest invites, and issue reporting for co-working spaces
+
+**Security**
+
+- [Bot protection (Turnstile)](/docs/user-guide/integrations/turnstile/) - Stop bots from opening webchat conversations with Cloudflare Turnstile
 
 ### Web Chat
 

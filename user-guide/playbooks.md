@@ -267,7 +267,7 @@ If the playbook has saved test cases, they run against the draft when you publis
 
 ### Archiving, duplicating and deleting
 
-On the **Playbooks** list, each row has a **More actions** menu with **Edit**, **Duplicate** (creates "<name> (copy)"), **Archive** and, for archived playbooks, **Restore as draft**. **Delete Playbook** is in the **More actions** menu in the editor and cannot be undone. An archived playbook is not used by the assistant. The list shows **Total Playbooks**, **Active** and **Total Triggers** cards, and can be filtered by category and status.
+On the **Playbooks** list, each row has a **More actions** menu with **Edit**, **Duplicate** (creates "<name> (copy)"), **Archive** and, for archived playbooks, **Restore as draft**. **Delete Playbook** is in the **More actions** menu on both the list and the editor, and cannot be undone. An archived playbook is not used by the assistant. The list shows **Total Playbooks**, **Active** and **Total Triggers** cards, and can be filtered by status.
 
 ## Common Playbook Templates
 

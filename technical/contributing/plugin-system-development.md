@@ -41,7 +41,6 @@ The core model in one paragraph: a plugin is a directory under `plugins/core/<na
 | ----------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------- |
 | Plugin Manager          | `server/services/plugin-manager.service.ts`          | Filesystem discovery, registry (DB + in-memory), build/install orchestration     |
 | Plugin Runner           | `server/services/plugin-runner.service.ts`           | Spawning/stopping workers, env injection, worker JWT, metadata readiness         |
-| Plugin Instance Manager | `server/services/plugin-instance-manager.service.ts` | On-demand startup, activity tracking, idle cleanup, per-plugin instance pool     |
 | Plugin Cron             | `server/services/plugin-cron.service.ts`             | Core-side scheduling of plugin-declared cron jobs                                |
 | Webhook Router          | `server/services/webhook-router.service.ts`          | Shared-webhook fan-out for URLs that carry no org identifier                     |
 | Channel Delivery        | `server/services/channel-delivery.service.ts`        | Outbound message delivery to channel plugins via `/deliver`                      |
@@ -63,7 +62,7 @@ The SDK itself lives at `packages/plugin-sdk/` — types under `packages/plugin-
    - Plugin ID = `package.json.name`. Display name = `hay-plugin.displayName` or a Title-Cased version of the package name with the `hay-plugin-` prefix stripped (`parseDisplayName`).
    - Build a manifest from the `hay-plugin` block and persist it as the `manifest` jsonb column. The primary `type` comes from `hay-plugin.category`, plus extra types inferred from capabilities (`inferTypeFromCapabilities`: `mcp` → `mcp-connector`, `routes`/`messages` → `channel`, `sources` → `retriever`, `products` → `products`; if nothing matches, the inferred list defaults to `["mcp-connector"]`) and `documentImporter: true` → `document_importer`. The `hay-plugin.env` allow-list is stored on the manifest as `permissions.env`, and `capabilities` is mirrored into `permissions.api`.
    - Load i18n JSON files from the plugin's `i18n/` directory into `manifest.i18n`.
-   - Calculate a SHA-256 checksum over the plugin's `.ts`/`.js` files (excluding `node_modules` and `dist`) for change detection (`calculatePluginChecksum`).
+   - Calculate a checksum combining two SHA-256 hashes — one over the plugin's `.ts`/`.js` source files (excluding `node_modules` and `dist`) and one over the dependency fields in `package.json` — packed via `packPluginChecksum(sourceHash, depsHash)` for change detection.
    - Upsert into `plugin_registry` via `pluginRegistryRepository.upsertPlugin()` and the in-memory `registry` map.
 3. `loadRegistryFromDatabase()` — merge DB rows into the in-memory map.
 4. `validateExistingPlugins()` — plugins present in the DB but not found on disk are marked `status = "not_found"`.
@@ -79,11 +78,18 @@ interface HayPluginBlock {
   displayName?: string;
   category?: PluginType;        // mcp-connector | channel | retriever | playbook | document_importer | system | products
   entry?: string;               // e.g. "./dist/index.js"
-  capabilities?: string[];      // routes | mcp | auth | config | ui | messages | customers | sources | products
+  capabilities?: string[];      // routes | mcp | auth | config | ui | messages | customers | sources | products | disputes | tickets | privacy | email | webchat
   config?: ...;                 // config schema (usually declared in code instead)
   env?: string[];               // allow-list of host env vars the worker may inherit → manifest.permissions.env
   auth?: ...;
   channel?: string;             // channel plugins: the channel slug, e.g. "instagram"
+  defaultEnabled?: boolean;     // auto-enable for all orgs on discovery
+  oauthHosts?: string[];        // allowed OAuth redirect hosts
+  rendering?: object;           // webchat rendering config (e.g. product cards)
+  inactivity?: object;          // channel-specific inactivity timing overrides
+  network?: object;             // network requirements (e.g. static IP)
+  setup?: object;               // setup checklist hints (business types, group, handles)
+  marketplaceCategory?: string; // marketplace filter category (e.g. "payments", "security")
   autoActivate?: boolean;       // legacy (document importers)
   trpcRouter?: string;          // legacy (document importers)
   documentImporter?: boolean;   // legacy (document importers)
@@ -121,7 +127,7 @@ There is no in-process plugin loading and no generic "process manager" service �
    - `HAY_ORG_CONFIG` — JSON: `{ org: { id }, config: <resolved config> }`
    - `HAY_ORG_AUTH` — JSON-serialized `AuthState` (decrypted credentials)
    - `HAY_API_URL` + `HAY_API_TOKEN` — a JWT (`generatePluginJWT`) scoped to `{ organizationId, pluginId, scope: "plugin-api", capabilities }`, expiring in 24h, so the worker can call back into core
-   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through a deny-pattern list (`SECRET`, `PASSWORD`, `TOKEN`, `PRIVATE_KEY`, `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`) so secret-looking names are blocked by default
+   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through a deny-pattern list (`SECRET`, `PASSWORD`, `TOKEN`, `/PRIVATE.?KEY/i`, `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^RABBITMQ`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^LLM_`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`, `^ENCRYPTION`, `^INTERNAL_API`, `^VAPID_PRIVATE`, `^STRIPE_SECRET_KEY$`, `^STRIPE_WEBHOOK_SECRET$`, `^RESEND_EVENTS_WEBHOOK_SECRET$`, `^OTEL_`) so secret-looking names are blocked by default. Core plugins use a narrower deny list (`isCoreReservedEnv` only, no `SECRET_ENV_PATTERNS`) since they are trusted code.
 6. Wait for the worker's **`GET /metadata`** endpoint to respond (up to 20 attempts × 500ms) — not `/health`.
 7. Update the `PluginInstance` row: `runtimeState = "ready"`, `running = true`, `processId`, health `"healthy"`. On failure: `runtimeState = "error"` + `lastError`.
 8. Kick off MCP tool discovery in the background (`fetchAndStoreTools` in `server/services/plugin-tools.service.ts`, which caches the worker's `GET /mcp/list-tools` result).
@@ -189,7 +195,7 @@ One row per discovered plugin (global, not per-org). Unique index on `pluginId`.
 | `sourceType`                                                                                           | varchar                       | `core` \| `custom` \| `git`                                                                       |
 | `organizationId`                                                                                       | uuid, nullable                | set for custom plugins                                                                            |
 | `zipFilePath`, `zipUploadId`, `uploadedById`, `uploadedAt`                                             |                               | custom-plugin upload provenance                                                                   |
-| `gitConnectionId`, `gitRepoFullName`, `gitBranch`, `gitLastCommitSha`, `gitLastSyncAt`, `gitSyncError` |                               | git-sourced plugin fields                                                                         |
+| `gitConnectionId`, `gitRepoFullName`, `gitBranch`, `gitLastCommitSha`, `gitAvailableCommitSha`, `gitLastSyncAt`, `gitSyncError` |                               | git-sourced plugin fields; `gitAvailableCommitSha` is a newer branch commit found by the scheduled check, applied only by an admin sync |
 
 ### `plugin_instances` (`plugin-instance.entity.ts`)
 
@@ -208,6 +214,7 @@ One row per `(organizationId, pluginId)` — the org's enablement, config, auth,
 | `status`                                                                              | varchar                     | legacy field (`stopped`/`starting`/`running`/`stopping`/`error`), kept for backwards compatibility                                    |
 | `runtimeState`                                                                        | varchar                     | the current state machine field (`PluginInstanceRuntimeState`)                                                                        |
 | `lastActivityAt`                                                                      | timestamptz                 | idle-kill input                                                                                                                       |
+| `channelHealth`                                                                       | jsonb, nullable             | channel health signals reported by the plugin (`ChannelHealth` interface)                                                             |
 | `priority`                                                                            | integer                     |                                                                                                                                       |
 
 ### `plugin_webhook_routes` (`plugin-webhook-route.entity.ts`)
@@ -260,7 +267,7 @@ Some providers (e.g. Meta) deliver all events for all customers to **one** webho
 The dispatch point is in the proxy (`server/routes/v1/plugins/proxy.ts`): a request to `.../webhook` with **no** org identifier, for a plugin that declared a routing descriptor, is diverted to `webhookRouterService.handle()` (`server/services/webhook-router.service.ts`), which:
 
 1. Answers the provider's GET verification handshake if declared (echoes the challenge param after checking the verify token).
-2. For POSTs, verifies the HMAC over the raw body bytes (`verifyHmacSha256` from `server/services/plugin-route.service.ts`).
+2. For POSTs, verifies the HMAC over the raw body bytes (`verifyHmacSha256` from `server/lib/hmac-signature.ts`).
 3. Extracts a routing key per payload entry (`routeKeyPath`), resolves key → org via `plugin_webhook_routes`, and fans each entry out to the right org's worker `POST /webhook` (with credential-bearing headers stripped). With `nested`, each entry's sub-array is filtered per org first: sub-items route by their own key, keyless sub-items go to the entry owner, unknown nested keys are dropped, and each org gets a clone of the entry with only its sub-items.
 
 Core never learns which provider it's routing for — all provider knowledge is in the plugin's declaration.
@@ -273,10 +280,12 @@ Webhooks that do identify the org go straight through the proxy to the worker's 
 
 **File**: `server/services/channel-delivery.service.ts`
 
-Subscribes to the Redis `websocket:events` channel:
+Uses a durable RabbitMQ delivery queue (`channel.deliver`) via `ChannelDeliveryQueueService`. When a bot/human-agent or product-recommendation message is created, `ConversationEventsService` enqueues a delivery row in the `message_deliveries` table and publishes it to RabbitMQ. `ChannelDeliveryService` consumes from the queue:
 
-- `message_received` events for bot/human-agent messages (web channel skipped) → resolve the plugin by channel slug via `pluginManagerService.findPluginIdByChannel(channel)` (matching `hay-plugin.channel`), ensure the org's worker is up, and `POST /deliver` with `{ to, content, messageId, conversationId, ... }`. The plugin returns `{ success, providerMessageId?, error? }`; on success core stores the provider message ID. Convention: non-retryable provider errors return **HTTP 200 with `success: false`** to avoid retry storms.
-- `conversation_status_changed` → `pending-human` → `POST /escalate` on the worker (web channel skipped). This is best-effort: a 404 from plugins that don't implement `/escalate` is silently tolerated.
+- For outbound messages (BotAgent, HumanAgent, ProductRecommendation; web channel skipped unless a human is writing) → resolve the plugin by channel slug via `pluginManagerService.findPluginIdByChannel(organizationId, channel)` (matching `hay-plugin.channel`), ensure the org's worker is up, and `POST /deliver` with `{ to, content, messageId, messageType, conversationId, language, attachments, ... }`. The plugin returns `{ success, providerMessageId?, error? }`; on success core stores the provider message ID. Convention: non-retryable provider errors return **HTTP 200 with `success: false`** to avoid retry storms. Failed deliveries are retried with backoff; dead-lettered after exhaustion.
+- Escalation → `pending-human` → `POST /escalate` on the worker (web channel skipped), also enqueued via `channelDeliveryQueueService.enqueueEscalation()`. This is best-effort: a 404 from plugins that don't implement `/escalate` is silently tolerated.
+
+A sweep fallback runs periodically to catch any `message_deliveries` rows that were persisted but not published to RabbitMQ (e.g. during a broker outage).
 
 See [Channel Architecture](/docs/technical/plugins/channel-architecture/) for the plugin-author view.
 
@@ -288,15 +297,22 @@ See [Channel Architecture](/docs/technical/plugins/channel-architecture/) for th
 
 Workers call back into core over tRPC-HTTP using the `HAY_API_URL`/`HAY_API_TOKEN` env vars. Every procedure is a `pluginProcedure` gated by the worker's JWT (org + plugin + capabilities; `server/trpc/middleware/plugin-auth.ts`). Current surface:
 
-- `messages.receive` — input `{ from, content, channel, metadata?, senderType?, externalConversationId? }`; finds/creates the Customer (keyed on `external_id` per channel) and conversation, adds the message
-- `messages.send`, `messages.getByConversation`
-- `conversations.updateStatusByExternalId`
-- `customers.get`, `customers.findByExternalId`, `customers.upsert`
-- `sources.register`
-- `mcp.registerLocal`, `mcp.registerRemote`
-- `products.upsertMany`, `products.delete` (source is the authenticated plugin ID — a plugin can only touch its own products)
+The surface is grouped by capability area (non-exhaustive — check `server/routes/v1/plugin-api/trpc.ts` for the full list):
 
-The router self-describes as a "simplified initial implementation" — expect this surface to grow.
+- **messages**: `receive` (input `{ from, content, channel, metadata?, senderType?, externalConversationId?, conversationId?, title?, replyWindowExpiresAt?, holdForHuman?, attachments? }` — finds/creates the Customer and conversation, adds the message), `send`, `getByConversation`, `updateStatus`
+- **media**: `upload`
+- **conversations**: `updateStatusByExternalId`
+- **customers**: `get`, `findByExternalId`, `upsert`
+- **sources**: `register`
+- **mcp**: `registerLocal`, `registerRemote`
+- **products**: `upsertMany`, `delete`, `prune` (source is the authenticated plugin ID — a plugin can only touch its own products)
+- **disputes**: `report`
+- **state**: `get`, `set`, `delete` (persisted key/value store per plugin instance)
+- **connection**: `revoke`
+- **channel**: `reportHealth`
+- **email**: `sendingDomain`
+- **webhooks**: `setRoutingKeys`
+- **privacy**: `eraseCustomer`, `exportCustomer`
 
 ---
 
@@ -328,8 +344,8 @@ Things a contributor should know exist (or don't) before building on them:
 - **Document importers bypass the worker model.** Plugins with `autoActivate: true` + `trpcRouter` (e.g. `plugins/core/atlassian`) load a tRPC router in-process at boot via `server/services/plugin-router-registry.service.ts`, coupled to `@server/*` internals. This is the legacy special case, not the pattern to extend.
 - **`onConfigUpdate` is also uncalled** — the runner exposes `POST /config-update`, but core applies config changes by restarting the worker (see the hooks table).
 - **`PluginApiClient` is duplicated per channel plugin** (`plugins/core/instagram/src/plugin-api.ts`, and likewise in `chatwoot`, `email`) instead of being an SDK export.
-- **Webhook signature format** is limited to `sha256-hmac` in `WebhookRoutingDescriptor`.
-- **The instance pool's `queuedRequests` stat is tracked but never incremented** — pool limiting works via polling (`waitForAvailableSlot`), not a real queue.
+- **Webhook signature format** supports `sha256-hmac`, `sha256-hmac-base64`, and `svix` (Standard Webhooks / Svix scheme) in `WebhookRoutingDescriptor`.
+- **Pool eviction is LRU, not queued** — when a plugin's pool is full, `makeRoomInPool` stops the least recently active worker to free a slot. There is no queuing mechanism.
 - The `plugin_instances.status` column is legacy; `runtimeState` is the field the runner actually maintains.
 - **`MCPClientFactory`'s remote-MCP branch is effectively unreachable.** It selects `RemoteMCPClient` by checking `manifest.capabilities.mcp.connection.type === "remote"` — a shape from the old `manifest.json` model. The current package.json-driven registry manifest (`RegistryManifest`, built by `plugin-manager.service.ts`) never produces a `capabilities.mcp.connection` object, so this branch never fires and every plugin resolves to `LocalHTTPMCPClient`.
 

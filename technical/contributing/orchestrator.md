@@ -72,6 +72,9 @@ customer message ──> Conversation.addMessage()
 | `ai_return`        | Conversation entity, when a human hands the conversation back to the AI                               |
 | `recovery`         | `server/services/message-recovery.service.ts` (stale-message recovery)                                |
 | `inactivity`       | `Orchestrator.checkInactivity()` after sending an inactivity warning                                  |
+| `approval_decided` | Action-approval flow, when a pending action is approved or declined                                   |
+| `simulation`       | Offline simulation runs (test/replay without a live customer)                                         |
+| `form_submission`  | In-conversation form submitted by the customer                                                        |
 | `sweep`            | The `orchestrator-sweep` scheduled job (safety net, see below)                                        |
 
 The queue message is an `OrchestratorMessage`: `{ messageId, conversationId, organizationId, trigger, timestamp, attempt }`.
@@ -86,7 +89,7 @@ Three durable queues, declared in `OrchestratorQueueService.declareQueues()`:
 
 Two error messages are treated as **non-retryable** and acked immediately (`isNonRetryableError()` in the worker): `"Conversation does not need processing"` and `"Last customer message not found"`. If you add a new benign early-exit to `runConversation()`, add its message there too — otherwise it will burn three retries per occurrence.
 
-`RabbitMQService` reconnects with exponential backoff (max 10 attempts, capped at 30 s), re-declares queues and re-attaches consumers on reconnect, and publishes with `persistent: true`.
+`RabbitMQService` reconnects forever with exponential backoff (delay capped at 30 s), re-declares queues and re-attaches consumers on reconnect, and publishes with `persistent: true`.
 
 ### Safety nets
 
@@ -104,7 +107,7 @@ The pipeline in `server/orchestrator/run.ts` is numbered `00`–`04` in code com
 1. **Skip check** — conversations with `status === "human-took-over"` or an `assigned_user_id` are skipped entirely. Human takeover works by setting those fields; `"ai_return"` re-enqueues when handed back.
 2. **Lock (00)** — `conversation.lock()` returns a `lockerId` or bails (lock contention is not an error, just "someone else is on it"). The lock lasts 15 seconds (`LOCK_DURATION_MS`) and a heartbeat refreshes it every 5 s (`LOCK_HEARTBEAT_INTERVAL_MS`) so long LLM/tool calls don't look abandoned. The `finally` block does an ownership-checked unlock.
 3. **Bootstrap** — seeds initial system, agent-instruction, and bot messages if absent. Throws the two non-retryable errors if `needs_processing` is false or there is no customer message.
-4. **Perception (01)** — intent/sentiment/language on the last customer message, saved via `message.savePerception()`. If the intent is `close_satisfied`/`close_unsatisfied` (or `greet` plus a gratitude regex), `validateConversationClosure()` re-checks against the full transcript; a confirmed closure generates a title, resolves the conversation, purges Redis secrets (`conversationSecretService`), sends an LLM-generated closing message, and exits early.
+4. **Perception (01)** — intent/sentiment/language on the last customer message, saved via `message.savePerception()`. If the intent is `close_satisfied`/`close_unsatisfied` (or `greet` plus a gratitude regex), `validateConversationClosure()` re-checks against the full transcript; a confirmed closure generates a title, sets the conversation to `resolved` (for `close_satisfied`) or `unresolved` (for `close_unsatisfied`), purges Redis secrets (`conversationSecretService`), sends an LLM-generated closing message, and exits early.
 5. **Retrieval (02)** — the active-playbook fetch and vector search run in parallel (`Promise.all`). Playbook **selection** is gated by `shouldReselectPlaybook()` (`playbook-gate.ts`): the selector LLM runs only when no playbook is set yet or the planner's last verdict was that the current one no longer fits (`conversation.metadata.playbookFits !== true`) — otherwise the previous selection stands. Selected playbooks are stored with `conversation.updatePlaybook()`, which populates `enabled_tools`. Matched documents are attached via `conversation.addDocument()`.
 6. **Context init (03)** — `orchestration_status` is initialized (`{ version: "v1", lastTurn: 0, toolLog: [] }`) if missing.
 7. **Execution loop (04)** — `handleExecutionLoop()`, see below.
@@ -120,13 +123,13 @@ Prompts are file-based markdown templates resolved by `PromptService.getPrompt()
 
 ### Perception (`perception.layer.ts`)
 
-- `perceive(message, conversationId, organizationId)` — one structured-output LLM call (tier `"medium"`, prompt `perception/intent-analysis`) returning `{ intent: {label, score}, sentiment: {label, score}, language }`. Intent/sentiment labels are schema-enum-constrained to `MessageIntent` / `MessageSentiment`; language is an ISO 639-1 code enforced by the JSON-schema pattern `^[a-z]{2}$`.
-- `getAgentCandidate()` exists (prompt `perception/agent-selection`, score threshold > 0.7) but is **not called from `runConversation()`** — agents are assigned at conversation creation with a fallback to the organization default. Don't wire new features through it without reconsidering that decision.
+- `perceive(message, conversationId, organizationId)` — one structured-output LLM call (tier `"medium"`, prompt `perception/intent-analysis`) returning `{ intent: {label, score}, sentiment: {label, score}, language }`. Intent/sentiment labels are schema-enum-constrained to `MessageIntent` / `MessageSentiment`; language is an ISO 639-1 code enforced by the JSON-schema pattern `^[a-z]{2}(-[A-Za-z]{2,4})?$` (supports subtags like `pt-PT`, `zh-Hant`).
+- Agent selection happens at **conversation creation** with a fallback to the organization default — there is no runtime agent-routing step in the perception layer.
 
 ### Retrieval (`retrieval.layer.ts`)
 
 - `getPlaybookCandidate(messages, playbooks, orgId)` — an LLM (tier `"medium"`) scores active playbooks against the conversation (prompt `retrieval/playbook-selection`); accepted only if score > 0.7, otherwise `null`. Because of the playbook gate, this ideally runs once per conversation rather than every turn.
-- `getRelevantDocuments(messages, orgId)` — builds the query from the **last 3 customer messages**, runs `vectorStoreService.search(orgId, query, 5)` (top-5 chunks, pgvector), and keeps results with similarity > 0.4. Errors return `[]` — retrieval failure never fails the run.
+- `getRelevantDocuments(messages, orgId)` — builds the query from the **last 3 customer messages**, runs `vectorStoreService.search(orgId, query, 5)` (top-5 chunks, pgvector), and keeps results with similarity >= 0.25 (`MIN_DOCUMENT_SIMILARITY`). Errors return `[]` — retrieval failure never fails the run.
 
 ### Execution (`execution.layer.ts`)
 
@@ -140,16 +143,18 @@ Prompts are file-based markdown templates resolved by `PromptService.getPrompt()
 
 `options` (`ExecuteOptions`) also carries per-turn state owned by the run loop and shared by reference across re-plans: `toolsCalledThisTurn` (the tool ledger) and `turnGuardrailState` (retry budgets).
 
-One structured LLM call against `buildPlannerSchema(allToolNames)` returns `{ step, userMessage, toolName, toolArgs, handoffReason, closeReason, rationale, playbookFits }` with `step ∈ ASK | RESPOND | CALL_TOOL | HANDOFF | CLOSE`. `playbookFits` is the planner's verdict on whether the active playbook still matches the conversation (`null` when none is active) — it feeds the playbook gate. When tools exist, `toolName` is **enum-constrained in the schema** to the allowed set, so the model can't emit a malformed name. The layer then auto-corrects common LLM mistakes: missing step with a tool → `CALL_TOOL`; `RESPOND` with a tool but no message → `CALL_TOOL`; `CALL_TOOL` with a `userMessage` → the message is stripped; invalid tool name or `ASK`/`RESPOND` without a `userMessage` → return `null`, which makes the loop retry the planner.
+One structured LLM call against `buildPlannerSchema(allToolNames)` returns `{ step, userMessage, toolName, toolArgs, handoffReason, closeReason, rationale, playbookFits }` with `step ∈ ASK | RESPOND | CALL_TOOL | HANDOFF | CLOSE | ASK_TEAM | ASK_FORM`. `playbookFits` is the planner's verdict on whether the active playbook still matches the conversation (`null` when none is active) — it feeds the playbook gate. When tools exist, `toolName` is **enum-constrained in the schema** to the allowed set, so the model can't emit a malformed name. The layer then auto-corrects common LLM mistakes: missing step with a tool → `CALL_TOOL`; `RESPOND` with a tool but no message → `CALL_TOOL`; `CALL_TOOL` with a `userMessage` → the message is stripped; invalid tool name or `ASK`/`RESPOND` without a `userMessage` → return `null`, which makes the loop retry the planner.
 
 ## The Execution Loop (`run.ts::handleExecutionLoop`)
 
-Caps: `MAX_ITERATIONS = 15`, `MAX_EMPTY_RETRIES = 3` (after which a canned fallback message is sent). The loop owns the per-turn tool ledger (`toolsCalledThisTurn`) and the guardrail retry budgets (`turnGuardrailState`). Each iteration calls `executionLayer.execute()` and dispatches:
+Caps: `MAX_ITERATIONS = 15`, `MAX_EMPTY_RETRIES = 3` (after which a canned fallback message is sent), `TOOL_CALL_BUDGET = 8` (excess tool calls convert to `HANDOFF`). Repeated read-only tool calls (same name + args in one turn) are blocked. The loop owns the per-turn tool ledger (`toolsCalledThisTurn`) and the guardrail retry budgets (`turnGuardrailState`). Each iteration calls `executionLayer.execute()` and dispatches:
 
 - **`playbookFits === false`** — the planner says the customer moved on (e.g. order status → refund): the verdict is persisted to `conversation.metadata.playbookFits`, the selector re-runs, and the plan is discarded and re-made without spending an iteration. Bounded to **one re-selection per turn** so the planner can't ping-pong between playbooks.
 - **`CALL_TOOL`** — a `TOOL`-type message is written with `toolStatus: "RUNNING"`, then `ToolExecutionService.handleToolExecution()` runs the tool and updates the message in place; the outcome is recorded in the tool ledger and the loop continues so the planner can read the result. A guard in `run.ts` blocks non-core tools not present in `enabled_tools` — the blocked call is fed back to the model as a `TOOL` error message and does **not** count against the iteration cap. After a successful `recommend_products` call, `maybeEmitProductRecommendation()` emits a separate `PRODUCT_RECOMMENDATION` message carrying the product payload for the webchat/dashboard cards.
-- **`HANDOFF`** — status becomes `pending-human` (broadcast via WebSocket) and `generateHandoffSummary()` is fired asynchronously (prompt `conversation/handoff-summary`, last 15 public messages, saved to `conversation.summary` for the human agent). If online humans exist (`userRepository.findOnlineByOrganization`), the agent's `human_handoff_available_instructions` are injected and the loop continues, or a default/LLM-generated transfer message is sent; with nobody online, `human_handoff_unavailable_instructions` or a default apology. A `handoffProcessed` flag deduplicates repeated HANDOFF steps.
+- **`HANDOFF`** — status becomes `pending-human` (broadcast via WebSocket) and `generateHandoffSummary()` is fired asynchronously (prompt `conversation/handoff-summary`, last 15 public messages, saved to `conversation.summary` for the human agent). Availability is determined by the business-hours model (`getAvailability()` from `business-hours.service.ts`, returning `open | open_nobody_online | closed`). When `open`, the agent's `human_handoff_available_instructions` are injected and the loop continues, or a default/LLM-generated transfer message is sent; when `open_nobody_online` or `closed`, `human_handoff_unavailable_instructions` or a default apology. A `handoffProcessed` flag deduplicates repeated HANDOFF steps.
 - **`CLOSE`** — optional final message, Redis secrets deleted, loop ends. (The conversation status itself is resolved by the closure path in perception or by inactivity — CLOSE only ends the turn.)
+- **`ASK_TEAM`** — delegates a focused factual question to the human team via `teamQuestionService` (quick-check, D19). The AI keeps the conversation open and replies once a team member answers; unlike `HANDOFF`, the customer stays with the bot.
+- **`ASK_FORM`** — emits a `FORM`-type message carrying the form schema and pauses the loop. The conversation resumes on `form_submission` trigger when the customer submits.
 - **`RESPOND` / `ASK`** — the bot message is sent with guardrail metadata attached. If the result also carries an unexecuted tool, the message is flagged `potentialHallucination` in metadata and an error is logged.
 
 ## Guardrails (Three-Stage)
@@ -160,7 +165,12 @@ The stages decide in the order below, but their LLM calls overlap: unless the re
 
 0. **Action-claim consistency** (`action-claim-guardrail.service.ts`, prompt `execution/action-claim-check`) — runs first, _before_ the intent exemption, so a false "I've cancelled it, glad I could help!" on a closing turn is still caught. An LLM extracts state-changing action claims from the drafted response and checks them against the turn's tool ledger (failed calls don't back a claim). On violation the planner gets one corrective re-plan with explicit feedback (`maxRetries: 1` per turn); if the retry still can't back its claim, the result becomes a `HANDOFF` (or the fallback message when `escalateOnFailure` is off). Defaults in `DEFAULT_ACTION_CLAIM_GUARDRAIL_CONFIG` (`server/types/organization-settings.types.ts`): `{ enabled: true, maxRetries: 1, escalateOnFailure: true }`, org-overridable via `settings.actionClaimGuardrail`.
 
-Stages 1–2 are skipped for `GREET` / `CLOSE_SATISFIED` / `CLOSE_UNSATISFIED` intents:
+Between Stage 0 and Stages 1–2, two lightweight guardrails run:
+
+- **Link guardrail** (`link-guardrail.service.ts`) — validates URLs in the drafted response; rewrites or removes broken links. If the text changes, Stages 1–2 re-run on the rewritten version.
+- **Date guardrail** (`date-guardrail.service.ts`) — checks date references in the response against known facts; flags or corrects implausible dates.
+
+Stages 1–2 are skipped for `GREET` / `CLOSE_SATISFIED` / `CLOSE_UNSATISFIED` intents (but only when the reply has no factual specifics — numbers, amounts, or links trigger the stages even on exempt intents):
 
 1. **Company interest** (`company-interest-guardrail.service.ts`) — an LLM assesses the drafted response and returns `{ violationType, severity, requiresFactCheck }`. Critical severity blocks the response — but first the planner gets one corrective re-plan carrying the reviewer's reasoning (`maxRetries: 1` per turn, same philosophy as Stage 0); only if that fails does it become a `HANDOFF` with a fallback message, the original text preserved in metadata.
 2. **Fact grounding** (`confidence-guardrail.service.ts`) — runs only when Stage 1 sets `requiresFactCheck`. Weighted score = grounding 0.6 + retrieval 0.3 + certainty 0.1; default tiers `high ≥ 0.8`, `medium ≥ 0.5`, `low < 0.5` (org-overridable via organization settings, merged by `mergeConfig`). Recent successful tool results (last 3 non-error `TOOL` messages) **and the active playbook's rendered instructions** count as authoritative synthetic documents (similarity 0.95) — without the latter, playbook-driven policy statements would be flagged as ungrounded. Medium tier triggers one `performRecheck()` with relaxed retrieval (threshold 0.3, up to 10 docs), kept only if the score improves. Low tier converts to `HANDOFF` (if `enableEscalation`) or a fallback message.
@@ -171,13 +181,19 @@ All Stage 1/2 outcomes are appended to `orchestration_status.guardrailLog` (plus
 
 ## Inactivity Lifecycle
 
-`Orchestrator.checkInactivity()` (`server/orchestrator/index.ts`), helpers in `conversation-utils.ts`. Thresholds derive from `config.conversation.inactivityInterval`:
+`Orchestrator.checkInactivity()` (`server/orchestrator/index.ts`), helpers in `conversation-utils.ts`. Inactivity timing is **channel-specific** (`server/lib/inactivity-timing.ts`):
 
-- **½×** — LLM-generated warning message (marked `metadata.isInactivityWarning`), conversation re-enqueued with trigger `"inactivity"`.
-- **1×** — close with a message.
-- **2×** — close silently; empty conversations older than 2× are deleted outright.
+- **Webchat** uses fixed thresholds: warning at **15 min**, close at **30 min** (`WEB_INACTIVITY`).
+- **Other channels** declare their timing in the plugin manifest's `inactivity` field.
+- **Fallback** for channels with no declared timing: `CONVERSATION_INACTIVITY_INTERVAL` env (default 1800000 ms = 30 min), with fractions ½×, 1×, 2×.
 
-Closures set `status: "resolved"`, fire the `conversation.resolved` hook, and trigger title generation (prompt `conversation/title-generation`, first 10 public messages, 255-char cap).
+Lifecycle:
+
+- **Warning** — LLM-generated warning message (marked `metadata.isInactivityWarning`). After the warning, **no re-enqueue happens** — a customer reply triggers the next run itself.
+- **Close with message** — at the close threshold.
+- **Silent close** — at 2× the threshold; empty conversations older than 2× are deleted outright.
+
+Closures set `status: "resolved"` for satisfied closes or `status: "unresolved"` for unsatisfied/abandoned closes, fire the `conversation.resolved` hook, and trigger title generation (prompt `conversation/title-generation`, first 10 public messages, 255-char cap).
 
 ## Extending the Orchestrator
 
