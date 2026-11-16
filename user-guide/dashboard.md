@@ -11,6 +11,8 @@ On a phone you land on **Inbox** when you open Hay; on a desktop you land on the
 
 ## Dashboard (metrics)
 
+![The Dashboard with the four metric cards, the Conversation Activity chart and Recent Conversations](images/dashboard/overview.png)
+
 The **Dashboard** entry in the sidebar shows the most important metrics and activity at a glance. At the top, a **date range** selector (Last 7 days, Last 30 days, Last 90 days, This week, This month, This year, or Custom range) and a **Refresh** button. Four metric cards follow:
 
 - **Total Conversations** - conversations in the period, with how many were resolved

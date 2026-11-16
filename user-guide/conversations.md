@@ -70,6 +70,8 @@ Understanding what each status means:
 
 Click any conversation to see the full details:
 
+![A conversation handed off to a human: the thread on the left, customer and conversation details on the right, and Take Over at the top](images/conversations/detail.png)
+
 ### Conversation Thread
 
 The main area shows all messages in chronological order:

@@ -11,6 +11,8 @@ section: user-guide
 
 The headline says how many conversations are waiting for a human ("Nothing is waiting for a human", "3 conversations are waiting for a human") and the line below it shows the longest wait or how many conversations the AI is handling. A badge on the sidebar entry (and the bell in the top bar on phones) shows the waiting count. The page updates live.
 
+![The Inbox with an action waiting for approval, a question for the team and conversations waiting for a human](images/inbox/overview.png)
+
 ## The lists
 
 - **Waiting for a human** - conversations the AI handed off, longest wait first. Each row shows the customer, the AI's summary, the channel and how long they have waited. Click **Take over** to pick one up: the AI stops replying and the conversation opens for you. **Open** just opens it.
@@ -22,6 +24,8 @@ When nothing is waiting the page says **All quiet**.
 ## Questions for the team
 
 When the AI doesn't know a fact, it can ask your team and keep answering the customer's other questions meanwhile. These appear under **Questions for the team** with what the customer wrote. For each one:
+
+![A question for the team, with the answer box (1), the Send as written switch (2), Save to knowledge (3) and Send answer (4)](images/inbox/question-for-the-team.png)
 
 1. Type **Your answer**.
 2. Choose how it goes out. With the **Send as written** switch on, your words go to the customer exactly as you wrote them. With it off, the AI passes your answer on in the customer's language, using only what you wrote.

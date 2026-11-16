@@ -50,6 +50,8 @@ Before you start, think about:
 1. Click **Playbooks** in the sidebar (under **Knowledge**)
 2. Click the **+** button to create a new playbook
 
+![The Playbooks page with the + button highlighted](images/playbooks/list.png)
+
 > **Tip:** Two faster ways to start. **From template** (a menu next to the **+** button) creates a draft playbook from a ready-made template for you to review and activate. **Generate Playbook** (with the sparkles icon) opens the AI wizard, which walks you through five steps (Purpose, Actions, Documents, Boundaries, Generate) and produces a draft you can review and edit. The **Set up** board can also write playbooks for you; see [Set Up Your Assistant](/docs/user-guide/setup/).
 
 ### Step 3: Basic Information

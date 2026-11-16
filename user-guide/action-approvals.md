@@ -39,6 +39,8 @@ Pending requests appear in the conversation and in the [Inbox](/docs/user-guide/
 - **Decline** it with a reason
 - Select several requests of one kind and approve them together
 
+![A refund request in the Inbox with the Approve, Lower amount and Decline buttons](images/action-approvals/inbox-request.png)
+
 Owners and Admins can approve by default. The Owner can allow Members and Contributors too.
 
 If nobody decides within **48 hours**, the request expires and the conversation is handed to your team. Hay.chat never approves anything on its own.

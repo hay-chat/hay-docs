@@ -25,11 +25,10 @@ graph LR
   Gateway --> Queue
   Services --> DB
 
-  style Clients fill:#e8f3ff,stroke:#568aff,color:#0a155c
-  style Gateway fill:#e8f3ff,stroke:#568aff,color:#0a155c
-  style Services fill:#e8f3ff,stroke:#568aff,color:#0a155c
-  style Queue fill:#f5f5f5,stroke:#d4d4d4,color:#404040
-  style DB fill:#f5f5f5,stroke:#d4d4d4,color:#404040
+  classDef primary fill:#e8f3ff,stroke:#85b7ff,color:#0a155c
+  classDef muted fill:#f1f5f9,stroke:#cad5e2,color:#314158
+  class Clients,Gateway,Services primary
+  class Queue,DB muted
 ```
 
 ### Core Components
@@ -103,11 +102,12 @@ Multi-layer caching reduces database load:
 
 ```mermaid
 graph LR
-  A["fa:fa-browser Client Cache"] --> B["fa:fa-bolt Redis"] --> C["fa:fa-database Database"]
+  A["fa:fa-display Client Cache"] --> B["fa:fa-bolt Redis"] --> C["fa:fa-database Database"]
 
-  style A fill:#e8f3ff,stroke:#568aff,color:#0a155c
-  style B fill:#e8f3ff,stroke:#568aff,color:#0a155c
-  style C fill:#f5f5f5,stroke:#d4d4d4,color:#404040
+  classDef primary fill:#e8f3ff,stroke:#85b7ff,color:#0a155c
+  classDef muted fill:#f1f5f9,stroke:#cad5e2,color:#314158
+  class A,B primary
+  class C muted
 ```
 
 - **Client**: Browser cache for static assets
