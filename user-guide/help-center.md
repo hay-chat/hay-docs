@@ -18,7 +18,7 @@ Open it from **Knowledge → Help center** in the dashboard. Only owners and adm
 The first time you open the page, a short setup walks you through three steps. You can change everything later.
 
 1. **Basics.** The name shown at the top of the site, its address (`yourname.haychat.co` on hosted Hay) and its language. The language sets the site's own labels, such as the search box; your articles are shown as written.
-2. **Brand.** A ready-made theme to start from, an accent colour, a font and a home page layout: one card per collection, or every article listed under its collection.
+2. **Brand.** A ready-made theme to start from, an accent colour, a font and a home page layout: one card per collection, or every article listed under its collection. If you have added your website in Hay, the accent colour starts as your brand colour, taken from your website's icon, and the colour fields offer your website's colours to pick from.
 3. **Content.** Your first collection and the documents in it. You can skip this step.
 
 A new help center is **offline**: nobody outside your team can see it until you go live.
@@ -59,6 +59,8 @@ Start from one of six ready-made themes, then change anything you like. Each the
 | Playful   | Rounded type, mint-to-sky gradient, pill-shaped corners       |
 
 Once you change a setting, the dashboard shows which theme you started from ("Customised from Aurora").
+
+The site shows your organization's logo at the top and as the browser tab icon. If you have not uploaded one, it uses the icon taken from your website, the same one your chat widget uses.
 
 ### Settings
 
