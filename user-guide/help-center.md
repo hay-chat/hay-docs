@@ -18,7 +18,7 @@ Open it from **Knowledge → Help center** in the dashboard. Only owners and adm
 The first time you open the page, a short setup walks you through three steps. You can change everything later.
 
 1. **Basics.** The name shown at the top of the site, its address (`yourname.haychat.co` on hosted Hay) and its language. The language sets the site's own labels, such as the search box; your articles are shown as written.
-2. **Brand.** An accent colour, a font and a home page layout: one card per collection, or every article listed under its collection.
+2. **Brand.** A ready-made theme to start from, an accent colour, a font and a home page layout: one card per collection, or every article listed under its collection. If you have added your website in Hay, the accent colour starts as your brand colour, taken from your website's icon, and the colour fields offer your website's colours to pick from.
 3. **Content.** Your first collection and the documents in it. You can skip this step.
 
 A new help center is **offline**: nobody outside your team can see it until you go live.
@@ -43,15 +43,49 @@ Deleting a collection never deletes the documents in it.
 
 ## Appearance
 
-The **Appearance** tab has a live preview, at desktop or mobile width. You can change:
+The **Appearance** tab has a live preview next to the settings. It shows the whole page scaled down to fit, as a desktop browser or as a phone. The preview shows your unsaved changes; visitors see them once you save.
 
-- the accent colour (if it is too light to read on white, links use the normal text colour and buttons stay readable),
-- the font: Sans, Serif, Rounded or Mono,
-- the home page layout,
-- the hero title and subtitle above the search box,
-- whether "Powered by Hay" is shown.
+### Themes
 
-The preview shows your unsaved changes; visitors see them once you save.
+Start from one of six ready-made themes, then change anything you like. Each theme keeps your accent colour, hero text and "Powered by Hay" setting.
+
+| Theme     | Look                                                          |
+| --------- | ------------------------------------------------------------- |
+| Classic   | Accent-coloured hero, centred, with cards                     |
+| Aurora    | Teal-to-green gradient hero, centred, with cards              |
+| Minimal   | No hero band, left aligned, always light                      |
+| Midnight  | Deep blue gradient hero, always dark                          |
+| Editorial | Serif type, light tint of your accent, list layout, sharp corners |
+| Playful   | Rounded type, mint-to-sky gradient, pill-shaped corners       |
+
+Once you change a setting, the dashboard shows which theme you started from ("Customised from Aurora").
+
+The site shows your organization's logo at the top and as the browser tab icon. If you have not uploaded one, it uses the icon taken from your website, the same one your chat widget uses.
+
+### Settings
+
+- **Accent colour.** If it is too light to read on white, links use the normal text colour and buttons stay readable.
+- **Font**: Sans (Instrument Sans), Serif (Newsreader), Rounded (Nunito), Mono (JetBrains Mono headings) or System. The first four load from Google Fonts, so visitors' browsers contact Google. **System** uses each visitor's own fonts and loads nothing, if your privacy policy rules out third-party requests.
+- **Home page layout**: cards or list.
+- **Colour scheme**: Automatic follows each visitor's light or dark setting; Light or Dark always uses that one.
+- **Corners**: Sharp, Rounded or Pill, for cards, the search box and buttons.
+- **Hero background**:
+  - **Accent**: your accent colour.
+  - **Gradient**: two colours of your choice, running diagonally, across or down. The dashboard warns you if text would be hard to read on it.
+  - **Tint**: a light wash of your accent colour.
+  - **Image**: a photo you upload (JPEG, PNG or WebP, up to 5 MB; a wide photo works best). The text on it is white, so you can darken the image a little, a medium amount or a lot. The image is saved as soon as you upload it. Until you upload one, the hero uses your accent colour.
+  - **None**: no band; the hero sits on the page background.
+- **Hero alignment**: centred or left.
+- **Hero title and subtitle** above the search box.
+- Whether **"Powered by Hay"** is shown.
+
+### Search engines and link previews
+
+Every page is set up for search engines and for sharing without any work from you:
+
+- Each page has a title and a description. Where an article has no description, Hay uses the start of its text.
+- Links shared in chat apps and social networks show a preview card with the page's title and description, and your organization's logo if you have one.
+- Search engines receive a sitemap and structured data (articles, breadcrumbs and the site's search), which helps them show your pages well.
 
 ## Going live
 
