@@ -63,7 +63,7 @@ Once you change a setting, the dashboard shows which theme you started from ("Cu
 ### Settings
 
 - **Accent colour.** If it is too light to read on white, links use the normal text colour and buttons stay readable.
-- **Font**: Sans, Serif, Rounded or Mono.
+- **Font**: Sans (Instrument Sans), Serif (Newsreader), Rounded (Nunito), Mono (JetBrains Mono headings) or System. The first four load from Google Fonts, so visitors' browsers contact Google. **System** uses each visitor's own fonts and loads nothing, if your privacy policy rules out third-party requests.
 - **Home page layout**: cards or list.
 - **Colour scheme**: Automatic follows each visitor's light or dark setting; Light or Dark always uses that one.
 - **Corners**: Sharp, Rounded or Pill, for cards, the search box and buttons.
