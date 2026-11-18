@@ -57,6 +57,7 @@ Most options are also set in the dashboard. A value given in the embed config wi
 | `loading`                     | `"eager" \| "idle" \| "interaction"`                      | `"idle"`                                      | When the chat (everything but the button) is downloaded. `"interaction"` fetches nothing, not even the public config, until the visitor reaches for the button, so the button paints in `brandColor` or the default until then. |
 | `onConversationStarted`       | `(conversation: { id: string }) => void \| Promise<void>` | —                                             | Called when the first message creates a conversation. If it returns a Promise, that first message is sent once it resolves.                                                                                                     |
 | `debug`                       | `boolean`                                                 | `false`                                       | Log widget diagnostics to the browser console.                                                                                                                                                                                  |
+| `embedded`                    | `{ startClosed?, onReady?, onClose?, onUnread? }`         | —                                             | The chat is the whole page: no button or teaser, always the full-screen sheet, open from the start. For a mobile app's WebView; the [React Native SDK](/docs/technical/react-native-sdk/) sets it for you.                        |
 
 Removed: `theme` (the four colour presets) and `widgetSubtitle`. Use `brandColor` and `themeMode`; the header's second line now comes from the organization's availability ("Typically replies in …").
 
@@ -71,6 +72,7 @@ Available on `window.HayChat` once `widget.js` has run (calls made before the ch
 | `setTeaserMessage(message)`                   | Show or replace the message next to the button; `""` removes it.                                                    |
 | `registerTool(tool)` / `unregisterTool(name)` | Register a page tool (WebMCP shape) the AI may call in this browser. Needs **Allow page actions** in the dashboard. |
 | `highlight(target, label?)`                   | Draw the AI highlight around an element while a page tool acts on it.                                               |
+| `open()` / `close()`                          | Embedded chat only (`config.embedded`): show or hide the chat. Replies that arrive while it is hidden count as unread. |
 
 Device storage consent also gates the visitor's conversation history: the home view's **Your conversations** list is only fetched after consent.
 

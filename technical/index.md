@@ -83,6 +83,7 @@ Choose your path:
 - **[Architecture](/docs/technical/architecture/)** - Understand Hay's design
 - **[Philosophy](/docs/technical/philosophy/)** - Learn our design principles
 - **[Plugin Development](/docs/technical/plugins/getting-started/)** - Build your first plugin
+- **[SDKs](/docs/technical/sdks/)** - Put Hay in your website, mobile app or backend
 - **[API Reference](/docs/technical/plugins/api-reference/)** - Integrate with Hay's API
 
 ### Community
