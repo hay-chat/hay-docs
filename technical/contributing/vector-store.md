@@ -227,7 +227,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 1. Check index usage: `EXPLAIN ANALYZE your_query`
 2. Consider partial indexes for large orgs
-3. Monitor `lists` and `ef_construction` HNSW parameters
+3. Monitor `m`, `ef_construction`, and `ef_search` HNSW parameters
 
 ### Multi-tenancy concerns
 

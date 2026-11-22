@@ -78,7 +78,7 @@ interface HayPluginBlock {
   displayName?: string;
   category?: PluginType;        // mcp-connector | channel | retriever | playbook | document_importer | system | products
   entry?: string;               // e.g. "./dist/index.js"
-  capabilities?: string[];      // routes | mcp | auth | config | ui | messages | customers | sources | products | disputes | tickets | privacy | email | webchat
+  capabilities?: string[];      // routes | mcp | auth | config | ui | messages | customers | sources | products | disputes | tickets | privacy | email | webchat | cron | state | credentials
   config?: ...;                 // config schema (usually declared in code instead)
   env?: string[];               // allow-list of host env vars the worker may inherit → manifest.permissions.env
   auth?: ...;
@@ -90,6 +90,8 @@ interface HayPluginBlock {
   network?: object;             // network requirements (e.g. static IP)
   setup?: object;               // setup checklist hints (business types, group, handles)
   marketplaceCategory?: string; // marketplace filter category (e.g. "payments", "security")
+  oauthProviderInstall?: boolean; // flag that the provider's app store can start installs
+  credentials?: unknown;        // array declaring secrets core delivers on request (typed as CredentialDeclaration[] in HayPluginManifest)
   autoActivate?: boolean;       // legacy (document importers)
   trpcRouter?: string;          // legacy (document importers)
   documentImporter?: boolean;   // legacy (document importers)
@@ -122,11 +124,16 @@ There is no in-process plugin loading and no generic "process manager" service �
 
    (In development, if the compiled runner doesn't exist, it falls back to `npx tsx packages/plugin-sdk/runner/index.ts`.)
 
+   **Isolation mode**: `pluginIsolationMode()` (`server/lib/plugin-isolation.ts`) supports three modes — `off` (child process, the default for development), `strict` (spawns in a separate plugin-host container with egress policy enforcement via `launchInPluginHost`), and `degraded` (container spawn attempted, falls back to child process on failure). When not `off`, the worker runs in an isolated container rather than as a direct child process.
+
 5. Environment injection (`buildSDKEnv`):
    - `HAY_ORG_ID`, `HAY_PLUGIN_ID`, `HAY_WORKER_PORT`
-   - `HAY_ORG_CONFIG` — JSON: `{ org: { id }, config: <resolved config> }`
-   - `HAY_ORG_AUTH` — JSON-serialized `AuthState` (decrypted credentials)
+   - `HAY_ORG_SETTINGS` — JSON: `{ org: { id }, config: <resolved config>, authMethodId: <string|null> }`
+   - `HAY_WORKER_SECRET` — shared secret for worker ↔ core authentication
    - `HAY_API_URL` + `HAY_API_TOKEN` — a JWT (`generatePluginJWT`) scoped to `{ organizationId, pluginId, scope: "plugin-api", capabilities }`, expiring in 24h, so the worker can call back into core
+   - `HAY_PUBLIC_URL` — the public-facing base URL of the core server
+   - `NODE_OPTIONS` — set to `--max-old-space-size=1024`
+   - Secrets are **not** injected via environment. Workers pull credentials from core at startup using the `credentials.get` plugin API procedure.
    - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through a deny-pattern list (`SECRET`, `PASSWORD`, `TOKEN`, `/PRIVATE.?KEY/i`, `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^RABBITMQ`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^LLM_`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`, `^ENCRYPTION`, `^INTERNAL_API`, `^VAPID_PRIVATE`, `^STRIPE_SECRET_KEY$`, `^STRIPE_WEBHOOK_SECRET$`, `^RESEND_EVENTS_WEBHOOK_SECRET$`, `^OTEL_`) so secret-looking names are blocked by default. Core plugins use a narrower deny list (`isCoreReservedEnv` only, no `SECRET_ENV_PATTERNS`) since they are trusted code.
 6. Wait for the worker's **`GET /metadata`** endpoint to respond (up to 20 attempts × 500ms) — not `/health`.
 7. Update the `PluginInstance` row: `runtimeState = "ready"`, `running = true`, `processId`, health `"healthy"`. On failure: `runtimeState = "error"` + `lastError`.

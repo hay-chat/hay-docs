@@ -38,31 +38,33 @@ There is no `manifest.json`. All metadata lives in the plugin's `package.json` u
     "displayName": "Instagram",
     "category": "channel",
     "channel": "instagram",
-    "capabilities": ["messages", "customers"],
+    "capabilities": ["messages", "credentials"],
     "env": ["META_APP_ID", "META_APP_SECRET", "META_VERIFY_TOKEN"]
   }
 }
 ```
 
-_(verbatim from `plugins/core/instagram/package.json`)_
+_(condensed from `plugins/core/instagram/package.json`; some fields omitted for clarity)_
 
 The load-bearing fields:
 
 - **`category: "channel"`** — classifies the plugin in the marketplace.
 - **`channel: "<slug>"`** — the channel slug (e.g. `"instagram"`). This is the join key for outbound delivery: `Conversation.channel` is a free-form string, and core resolves which plugin owns a channel via `pluginManagerService.findPluginIdByChannel(organizationId, channel)`, which matches this field per org.
-- **`capabilities: ["messages", "customers"]`** — scopes the worker's Plugin API JWT so it may call `messages.*` and `customers.*` procedures.
+- **`capabilities: ["messages", "credentials"]`** — scopes the worker's Plugin API JWT so it may call `messages.*` and `credentials.*` procedures. (`customers` is a separate capability for plugins that need direct `customers.*` access; most channel plugins don't need it since `messages.receive` handles customer creation internally.)
 
 The entry module registers Express-style routes on the worker in `onInitialize`:
 
 ```typescript
 // plugins/core/instagram/src/index.ts
-register.route("POST", "/webhook", async (req, res) => {
+register.route("POST", "/webhook", { public: true }, async (req, res) => {
   /* inbound */
 });
 register.route("POST", "/deliver", async (req, res) => {
   /* outbound */
 });
 ```
+
+The `{ public: true }` flag on `/webhook` is load-bearing: the proxy only forwards external requests to routes declared as public. `/deliver` is called internally by core and doesn't need it.
 
 `/webhook` and `/deliver` are conventions, not registry magic: `/webhook` is where core's proxy and shared-webhook router forward provider payloads, and `/deliver` is the route `ChannelDeliveryService` POSTs to.
 
@@ -143,6 +145,16 @@ register.webhookRouting({
     itemsPath: "entry", // dot-path to the array of items
     keyPath: "id", // dot-path within each item to the routing key
   },
+  dedupe: {
+    source: "raw-body", // dedupe window based on a hash of the raw request body
+    windowSeconds: 86400,
+  },
+  deauthorization: {
+    format: "signed-request",
+    param: "signed_request",
+    secretEnv: "META_APP_SECRET",
+    keyPath: "user_id",
+  },
 });
 ```
 
@@ -163,7 +175,12 @@ async onConnected(ctx) {
   //  and re-subscribes the account to the app's webhooks — see below)
   const account = await client.getConnectedAccount(token);
   // account: { ids, username, profilePictureUrl }
-  return { routingKeys: account.ids };
+  return {
+    routingKeys: account.ids,
+    ...(account.username && {
+      account: { label: account.username, avatarUrl: account.profilePictureUrl },
+    }),
+  };
 }
 ```
 
@@ -179,7 +196,7 @@ The worker's `/webhook` handler is where all provider-specific knowledge lives. 
 
 1. **Trust check** — reject any request missing `x-hay-webhook-verified: true` with `403`. The worker is localhost-only behind core; core already verified the shared HMAC, so the worker does not re-verify.
 2. **Availability check** — return `503` if credentials aren't loaded yet (org hasn't completed OAuth).
-3. **Filter** — Instagram log-and-ignores: echoes of its own outbound (`message.is_echo`), non-message events (postbacks/reactions), and attachment-only or empty-text messages (text-only MVP). It also normalizes both delivery shapes Meta uses (`entry[].messaging[]` and `entry[].changes[].value` where `field === "messages"`).
+3. **Filter** — Instagram log-and-ignores: echoes of its own outbound (`message.is_echo`), non-message events (postbacks/reactions), and messages with neither text nor attachments. It supports photos, videos, voice notes, and files via `ingestMessage`. It also normalizes both delivery shapes Meta uses (`entry[].messaging[]` and `entry[].changes[].value` where `field === "messages"`).
 4. **Enrich** — best-effort sender profile lookup via the Graph API; failures degrade gracefully rather than dropping the message.
 5. **Hand off to core** — call `messages.receive` on the Plugin API:
 

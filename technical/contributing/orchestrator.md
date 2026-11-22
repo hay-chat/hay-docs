@@ -35,7 +35,7 @@ This guide covers how the pieces fit together and where to make changes. For cod
 | `server/services/core/action-claim-guardrail.service.ts`                    | Stage 0 guardrail: action-claim vs. tool-call consistency                           |
 | `server/services/core/company-interest-guardrail.service.ts`                | Stage 1 guardrail: company interest                                                 |
 | `server/services/core/confidence-guardrail.service.ts`                      | Stage 2 guardrail: fact grounding                                                   |
-| `server/prompts/en/{perception,retrieval,execution,conversation,playbook}/` | All LLM prompt templates (also `pt/`, `es/`)                                        |
+| `server/prompts/en/{perception,retrieval,execution,conversation,playbook,knowledge,insights,simulation}/` | All LLM prompt templates (also `pt/`, `es/`)                                        |
 
 ## End-to-End Flow
 
@@ -111,7 +111,7 @@ The pipeline in `server/orchestrator/run.ts` is numbered `00`–`04` in code com
 5. **Retrieval (02)** — the active-playbook fetch and vector search run in parallel (`Promise.all`). Playbook **selection** is gated by `shouldReselectPlaybook()` (`playbook-gate.ts`): the selector LLM runs only when no playbook is set yet or the planner's last verdict was that the current one no longer fits (`conversation.metadata.playbookFits !== true`) — otherwise the previous selection stands. Selected playbooks are stored with `conversation.updatePlaybook()`, which populates `enabled_tools`. Matched documents are attached via `conversation.addDocument()`.
 6. **Context init (03)** — `orchestration_status` is initialized (`{ version: "v1", lastTurn: 0, toolLog: [] }`) if missing.
 7. **Execution loop (04)** — `handleExecutionLoop()`, see below.
-8. **On success** — error counters reset, title generated asynchronously once there are ≥ 2 customer messages, `setProcessed(true)`. **On failure** — `processing_error_count` increments; at ≥ 3 the conversation is flagged `is_stuck` with `stuck_reason: "repeated_processing_failures"`.
+8. **On success** — error counters reset, title generated asynchronously once there are ≥ 2 customer messages, `markProcessed(lastCustomerMessage.id)` (a compare-and-set that only clears `needs_processing` if no newer customer message arrived). **On failure** — `processing_error_count` increments; at ≥ 3 the conversation is flagged `is_stuck` with `stuck_reason: "repeated_processing_failures"`.
 
 Throughout the run, the processing phase (`ProcessingPhase` in `types.ts`: `perceiving → retrieving → executing → idle`) is persisted in `orchestration_status.processingState` and broadcast as a `conversation_status_changed` WebSocket event — via Redis pub/sub channel `websocket:events` when Redis is up, direct `websocketService` otherwise (`publishStatusChange()` in `run.ts`). The dashboard's "typing" indicators are driven by these events.
 
@@ -137,7 +137,7 @@ Prompts are file-based markdown templates resolved by `PromptService.getPrompt()
 
 - the base planner prompt (`execution/planner`), including the combined tool name list (playbook `enabled_tools` + the core tools `coreToolRegistry.listFor(conversation)` offers in this conversation, from `server/services/core/core-tools`);
 - a language-enforcement block (only while the conversation has ≤ 3 customer messages);
-- a user-context block (`buildContextPrompt()`) — merged customer `external_metadata` + conversation `context`, plus Redis secret **key names** to be referenced as `<<secret.key>>` in tool args (values are never exposed to the model);
+- a user-context block (`buildContextPrompt()`) — merged customer `external_metadata` + conversation `context` (secrets are not exposed to the model; core fills them into tool properties at execution time via `x-hay-secret`);
 - a knowledge block (`buildKnowledgePrompt()`) — the last 5 attached documents, each truncated to 8,000 chars;
 - optionally, corrective `plannerFeedback` from a guardrail-triggered retry (appended last).
 
@@ -193,7 +193,7 @@ Lifecycle:
 - **Close with message** — at the close threshold.
 - **Silent close** — at 2× the threshold; empty conversations older than 2× are deleted outright.
 
-Closures set `status: "resolved"` for satisfied closes or `status: "unresolved"` for unsatisfied/abandoned closes, fire the `conversation.resolved` hook, and trigger title generation (prompt `conversation/title-generation`, first 10 public messages, 255-char cap).
+Inactivity closures provisionally set `status: "resolved"` (with `resolved: false`); the close classifier reclassifies to `"unresolved"` if the AI had not answered. Perception closures set the final status directly: `"resolved"` for `close_satisfied`, `"unresolved"` for `close_unsatisfied`. All closures fire the `conversation.resolved` hook and trigger title generation (prompt `conversation/title-generation`, first 10 public messages, 255-char cap).
 
 ## Extending the Orchestrator
 

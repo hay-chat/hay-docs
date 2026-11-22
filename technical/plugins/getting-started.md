@@ -18,7 +18,7 @@ Before writing any code, understand what a Hay plugin actually is:
 - A plugin is a **directory under `plugins/core/<name>/`** whose `package.json` contains a **`hay-plugin` block**. That block is the only metadata the loader reads — **there is no `manifest.json`**.
 - The **plugin ID is the npm package name** (e.g. `hay-plugin-klaviyo`).
 - The entry file (`src/index.ts`, compiled to `dist/index.js`) **default-exports the result of `defineHayPlugin(...)`** from `@hay/plugin-sdk`.
-- Plugins do **not** run inside the core server process. For each `(organization, plugin)` pair, core spawns a **separate HTTP worker process** from the SDK runner, injects the org's config and credentials, and talks to it over HTTP. Idle workers are killed after 5 minutes and respawned on demand.
+- Plugins do **not** run inside the core server process. For each `(organization, plugin)` pair, core spawns a **separate HTTP worker process** from the SDK runner, injects the org's config and credentials, and talks to it over HTTP. Idle workers are killed after a configurable inactivity timeout (5 minutes by default) and respawned on demand.
 - You **declare** everything (config fields, auth methods, routes, UI) in `onInitialize`, and **wire up runtime behavior** (MCP servers, API clients) in `onStart`. After OAuth tokens are stored, core calls `onConnected` so the plugin can return webhook routing keys and connected-account info.
 
 ### What You'll Build
@@ -101,7 +101,7 @@ Key points:
 - **`name`** is the plugin ID used everywhere (API calls, worker routing, UI asset paths). The convention is `hay-plugin-<name>` for integrations and `hay-channel-<name>-<provider>` for channels.
 - **`hay-plugin`** is what makes this directory a plugin — the discovery loop in `server/services/plugin-manager.service.ts` skips any directory without it.
 - **`category`** must be one of `integration | channel | tool | analytics | products`.
-- **`capabilities`** are declarative: `mcp | auth | config | ui | routes | cron | products | disputes | tickets | privacy | email | webchat` (channels additionally use `messages`, `customers`, `sources`). They drive marketplace classification and the scope of the JWT the worker uses to call back into core.
+- **`capabilities`** are declarative: `mcp | auth | config | ui | routes | cron | products | disputes | tickets | privacy | email | webchat | state | credentials` (channels additionally use `messages`, `customers`, `sources`). They drive marketplace classification and the scope of the JWT the worker uses to call back into core. `credentials` is declared by most real plugins (it enables pulling secrets via the `credentials.get` API); `state` enables persistent key/value storage across restarts.
 - **`env`** is an allow-list of host environment variable names that config fields may fall back to. Leave it empty unless self-hosters need to set credentials via `process.env`.
 - **`"type": "module"`** is required — the loader dynamically `import()`s the entry.
 - The SDK dependency path is `file:../../../packages/plugin-sdk` (note the `packages/` segment).
@@ -443,11 +443,11 @@ core server
   └─ spawns per (org, plugin):  node packages/plugin-sdk/dist/runner/index.js
        ├─ env: HAY_ORG_CONFIG, HAY_ORG_AUTH   (your config + credentials)
        ├─ env: HAY_API_URL, HAY_API_TOKEN     (scoped JWT to call back into core)
-       ├─ HTTP: /health /metadata /validate-auth /on-connected /config-update /disable /cron/:name /setup/status /webchat/gate/:event /mcp/*  ← core calls these
+       ├─ HTTP: /health /metadata /validate-auth /on-connected /config-update /disable /cron/:name /setup/status /webchat/gate/:event /disputes/evidence /tickets/form /tickets/create /mcp/*  ← core calls these (dispute/ticket routes only for plugins with those capabilities)
        └─ your onStart → spawns mcp/index.js over stdio
 ```
 
-Workers are killed after 5 minutes of inactivity and respawned on demand — never rely on in-memory state surviving between requests, and never schedule work with `setInterval` inside a plugin (the platform provides `register.cron` for that; see the [API Reference](/docs/technical/plugins/api-reference/)).
+Workers are killed after a period of inactivity (5 minutes by default) and respawned on demand — never rely on in-memory state surviving between requests, and never schedule work with `setInterval` inside a plugin (the platform provides `register.cron` for that; see the [API Reference](/docs/technical/plugins/api-reference/)).
 
 ## Next Steps
 

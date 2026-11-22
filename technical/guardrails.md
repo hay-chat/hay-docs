@@ -483,7 +483,14 @@ conversation.messages.forEach((message) => {
 ### Tests
 
 - `/server/tests/services/action-claim-guardrail.service.test.ts`
+- `/server/tests/services/link-guardrail.service.test.ts`
+- `/server/tests/services/date-guardrail.service.test.ts`
 - `/server/tests/orchestrator/execution-action-claim.test.ts`
 - `/server/tests/orchestrator/execution-company-interest-retry.test.ts`
 - `/server/tests/orchestrator/execution-confidence-context.test.ts`
 - `/server/tests/orchestrator/company-interest-history.test.ts`
+- `/server/tests/orchestrator/execution-link-guardrail.test.ts`
+- `/server/tests/orchestrator/execution-date-guardrail.test.ts`
+- `/server/tests/orchestrator/execution-always-fact-check.test.ts`
+- `/server/tests/orchestrator/execution-guardrail-fail-closed.test.ts`
+- `/server/tests/orchestrator/execution-contextual-fallback.test.ts`

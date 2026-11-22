@@ -46,13 +46,13 @@ navOrder: 5
   },
   "devDependencies": {
     "typescript": "^5.3.3",
-    "@types/node": "^20.10.0"
+    "@types/node": "^26.6.6"
   }
 }
 ```
 
 - **Categories**: `integration | channel | tool | analytics | products`
-- **Capabilities**: `mcp | auth | config | routes | ui | cron | products | disputes | tickets | privacy | email | webchat` (+ `messages | customers | sources` for channels)
+- **Capabilities**: `mcp | auth | config | routes | ui | cron | products | disputes | tickets | privacy | email | webchat | state | credentials` (+ `messages | customers | sources` for channels; most channel plugins declare `messages` + `credentials`)
 - **SDK path** is `file:../../../packages/plugin-sdk` — note `packages/`
 - Channel plugins add `"channel": "<slug>"` and (if needed) `"env": ["VAR_A", "VAR_B"]` — the allow-list for host env fallbacks
 
@@ -192,7 +192,7 @@ The platform runs the entire OAuth dance and auto-refreshes tokens — plugins n
 ### Reading Config & Auth at Runtime
 
 ```typescript
-const apiKey = ctx.config.get<string>("apiKey"); // throws if missing
+const apiKey = ctx.config.get<string>("apiKey"); // throws if required and missing
 const region = ctx.config.getOptional<string>("region");
 
 const authState = ctx.auth.get(); // { methodId, credentials } | null
@@ -266,7 +266,7 @@ Requires the `ui` capability and a `vite.config.ui.ts` that builds `components/`
 
 ## Channel Plugins
 
-`package.json`: `"category": "channel"`, `"channel": "<slug>"`, `"capabilities": ["messages", "customers"]`.
+`package.json`: `"category": "channel"`, `"channel": "<slug>"`, `"capabilities": ["messages", "credentials"]`.
 
 ### Inbound: Forward a Message to Core
 
@@ -308,7 +308,7 @@ Optional: implement `POST /escalate` for human-handoff notifications — core to
 
 All under `pluginApi.*`, capability-gated via the worker JWT (`server/routes/v1/plugin-api/trpc.ts`):
 
-`messages.receive` · `messages.send` · `messages.updateStatus` · `messages.getByConversation` · `conversations.updateStatusByExternalId` · `customers.get` · `customers.findByExternalId` · `customers.upsert` · `sources.register` · `mcp.registerLocal` · `mcp.registerRemote` · `products.upsertMany` · `products.delete` · `products.prune` · `media.upload` · `connection.revoke` · `channel.reportHealth` · `email.sendingDomain` · `webhooks.setRoutingKeys` · `state.get` · `state.set` · `state.delete` · `disputes.report` · `privacy.eraseCustomer` · `privacy.exportCustomer`
+`messages.receive` · `messages.send` · `messages.updateStatus` · `messages.getByConversation` · `conversations.updateStatusByExternalId` · `customers.get` · `customers.findByExternalId` · `customers.upsert` · `sources.register` · `mcp.registerLocal` · `mcp.registerRemote` · `products.upsertMany` · `products.delete` · `products.prune` · `media.upload` · `connection.revoke` · `channel.reportHealth` · `email.sendingDomain` · `email.receivedMessage` · `email.receivedAttachments` · `credentials.get` · `webhooks.setRoutingKeys` · `state.get` · `state.set` · `state.delete` · `disputes.report` · `privacy.eraseCustomer` · `privacy.exportCustomer`
 
 Full reference: [API Reference — Plugin-to-Core Callback API](/docs/technical/plugins/api-reference/#plugin-to-core-callback-api).
 

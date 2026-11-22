@@ -155,7 +155,7 @@ Most integrations are included in your plan. Some third-party services (like Wha
 
 ### Can I build custom integrations?
 
-Yes! Hay has an API for custom integrations. Contact support for developer documentation.
+Yes! Hay has an API and plugin system for custom integrations. See the [Plugin Development guide](/docs/technical/plugins/getting-started/) and the [API Reference](/docs/technical/plugins/api-reference/) to get started.
 
 ### Will my Shopify/Zendesk data be secure?
 
@@ -282,7 +282,7 @@ Long term:
 Yes. Hay uses:
 
 - Encryption in transit and at rest
-- Password sign-in with optional two-factor authentication (authenticator app and recovery codes) that an Owner can require for the whole team under **Settings** → **Workspace** → **General**
+- Password or passkey sign-in with optional two-factor authentication (authenticator app and recovery codes) that an Owner can require for the whole team under **Settings** → **Workspace** → **General**
 - Regular security audits
 - Compliance with data protection regulations
 
@@ -341,7 +341,7 @@ No installation needed! Hay is fully web-based. Just log in through your browser
 
 ### What if Hay is down?
 
-Check status at [status.hay.ai](https://status.hay.ai) (example URL). For urgent issues during outages, check for status updates and estimated resolution times.
+Check status at [status.hay.chat](https://status.hay.chat). For urgent issues during outages, check for status updates and estimated resolution times.
 
 ### Can I use API to automate things?
 
@@ -352,7 +352,7 @@ Yes! Hay has a full API for:
 - Accessing analytics
 - Managing documents and playbooks
 
-Contact support for API documentation.
+See the [API Reference](/docs/technical/plugins/api-reference/) for details.
 
 ## Billing & Account
 
@@ -380,7 +380,7 @@ Refund terms are in the [refund policy](https://hay.chat/refund-policy/). Contac
 
 ### How do I contact support?
 
-- **Email:** support@hay.ai (example)
+- **Email:** support@hay.chat
 - **In-app:** Click the Help icon in the dashboard
 - **Community:** Join our community forum
 
@@ -392,7 +392,7 @@ Typically Monday-Friday, business hours in your region. Check your plan for spec
 
 Response times vary by plan and urgency:
 
-- Critical issues: 1-4 hours
+- Critical issues: 1-4 hours (depending on plan)
 - Normal issues: 24 hours
 - Questions: 48 hours
 
