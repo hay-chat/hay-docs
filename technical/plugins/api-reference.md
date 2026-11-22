@@ -514,10 +514,17 @@ register.webchat.contribution({
 #### `register.webchat.gate`
 
 ```typescript
-register.webchat.gate(event: string, handler: GateHandler, options?: GateOptions): void
+register.webchat.gate(event: WebchatGateEvent, handler: GateHandler, options?: GateOptions): void
+
+type WebchatGateEvent = "conversation.create" | "message.send";
+
+interface WebchatGateResult {
+  decision: "allow" | "deny" | "flag";
+  reason?: string;
+}
 ```
 
-A synchronous server-side check that runs before certain webchat events (e.g. conversation creation). The handler receives the event payload and returns `{ allow: boolean }`. Core calls the worker's `POST /webchat/gate/:event` endpoint. Used by bot-protection plugins like Turnstile to block spam before a conversation is created.
+A synchronous server-side check that runs before certain webchat events. The handler receives the event payload and returns a `WebchatGateResult` with a `decision` (`"allow"`, `"deny"`, or `"flag"`) and an optional `reason`. Core calls the worker's `POST /webchat/gate/:event` endpoint. Used by bot-protection plugins like Turnstile to block spam before a conversation is created.
 
 A product is offered for adding when all of these hold:
 

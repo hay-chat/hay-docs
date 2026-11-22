@@ -247,7 +247,7 @@ A plugin's entry module default-exports `defineHayPlugin(factory)`; the factory 
 | `onDisable`      | Core `POST /disable` on disable/uninstall and before SIGTERM                       | Tear down resources.                                                                                                                                                                              |
 | `onEnable`       | **Never.**                                                                         | Typed in the SDK (`types/plugin.ts`, marked "CORE-ONLY, not called by runner") — but nothing in core calls it either. Reserved for a future core-side path; do not build on it.                   |
 
-The `register.*` API available in `onInitialize` (`packages/plugin-sdk/types/register.ts`): `register.config(schema)`, `register.auth.apiKey(...)` / `register.auth.oauth2(...)`, `register.route(method, path, handler)`, `register.ui.page(...)`, `register.cron(options)`, `register.webhookRouting(descriptor)`. Everything registered surfaces as data in `GET /metadata`, which core caches on `plugin_registry.metadata`.
+The `register.*` API available in `onInitialize` (`packages/plugin-sdk/types/register.ts`): `register.config(schema)`, `register.auth.apiKey(...)` / `register.auth.oauth2(...)`, `register.route(method, path, handler)`, `register.ui.page(...)`, `register.cron(options)`, `register.webhookRouting(descriptor)`, `register.webchat(options)` (webchat gate handlers), `register.setup(options)` (setup checklist). Everything registered surfaces as data in `GET /metadata`, which core caches on `plugin_registry.metadata`.
 
 **OAuth is entirely core-side.** `server/services/oauth.service.ts` runs authorization, token exchange, and refresh — including non-standard flows a plugin declares via `tokenExchange`/`tokenRefresh` descriptors (`packages/plugin-sdk/types/auth.ts`), executed declaratively by core (used by the Instagram plugin's `ig_exchange_token`/`ig_refresh_token`). Plugins never call OAuth endpoints themselves; the runner also refreshes expiring tokens before worker start (see [The Worker Runtime](#the-worker-runtime)).
 
@@ -320,7 +320,8 @@ The surface is grouped by capability area (non-exhaustive — check `server/rout
 - **state**: `get`, `set`, `delete` (persisted key/value store per plugin instance)
 - **connection**: `revoke`
 - **channel**: `reportHealth`
-- **email**: `sendingDomain`
+- **credentials**: `get` (pull secrets the manifest declares)
+- **email**: `sendingDomain`, `receivedMessage`, `receivedAttachments`
 - **webhooks**: `setRoutingKeys`
 - **privacy**: `eraseCustomer`, `exportCustomer`
 
@@ -330,8 +331,8 @@ The surface is grouped by capability area (non-exhaustive — check `server/rout
 
 **Files**: `server/routes/v1/plugins/index.ts` (router), `server/routes/v1/plugins/plugins.handler.ts` (implementations). All procedures are `authenticatedProcedure`.
 
-- **Queries**: `plugins.getAll`, `plugins.get`, `plugins.getInstances`, `plugins.getUITemplate`, `plugins.getMCPTools`, `plugins.getMenuItems`, `plugins.testConnection`, `plugins.getPluginTranslations`, `plugins.oauth.isAvailable`, `plugins.oauth.status`
-- **Mutations**: `plugins.enable`, `plugins.disable`, `plugins.restart`, `plugins.configure`, `plugins.refreshMCPTools`, `plugins.validateAuth`, `plugins.oauth.initiate`, `plugins.oauth.revoke`
+- **Queries**: `plugins.getAll`, `plugins.get`, `plugins.getInstances`, `plugins.connectionStates`, `plugins.setupStatus`, `plugins.getUITemplate`, `plugins.getMCPTools`, `plugins.getMenuItems`, `plugins.testConnection`, `plugins.getPluginTranslations`, `plugins.oauth.isAvailable`, `plugins.oauth.status`
+- **Mutations**: `plugins.enable`, `plugins.disable`, `plugins.restart`, `plugins.configure`, `plugins.refreshMCPTools`, `plugins.validateAuth`, `plugins.callUiRoute`, `plugins.getUiAssetUrls`, `plugins.oauth.initiate`, `plugins.oauth.revoke`, `plugins.oauth.completeWithCode`
 
 There is **no** generic `plugins.invokeTool` mutation — MCP tool invocation happens inside the orchestrator via the worker's `POST /mcp/call-tool`.
 
@@ -353,7 +354,7 @@ Things a contributor should know exist (or don't) before building on them:
 - **`onEnable` is dead code** — typed in the SDK but invoked by neither the runner nor core.
 - **Document importers bypass the worker model.** Plugins with `autoActivate: true` + `trpcRouter` (e.g. `plugins/core/atlassian`) load a tRPC router in-process at boot via `server/services/plugin-router-registry.service.ts`, coupled to `@server/*` internals. This is the legacy special case, not the pattern to extend.
 - **`onConfigUpdate` is also uncalled** — the runner exposes `POST /config-update`, but core applies config changes by restarting the worker (see the hooks table).
-- **`PluginApiClient` is duplicated per channel plugin** (`plugins/core/instagram/src/plugin-api.ts`, and likewise in `chatwoot`, `email`) instead of being an SDK export.
+- **`PluginApiClient` is duplicated per channel plugin** (`plugins/core/instagram/src/plugin-api.ts`, and likewise in `chatwoot`, `email-channel`, `whatsapp`, `messenger`) instead of being an SDK export.
 - **Webhook signature format** supports `sha256-hmac`, `sha256-hmac-base64`, and `svix` (Standard Webhooks / Svix scheme) in `WebhookRoutingDescriptor`.
 - **Pool eviction is LRU, not queued** — when a plugin's pool is full, `makeRoomInPool` stops the least recently active worker to free a slot. There is no queuing mechanism.
 - The `plugin_instances.status` column is legacy; `runtimeState` is the field the runner actually maintains.
