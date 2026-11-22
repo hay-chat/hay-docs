@@ -134,7 +134,7 @@ There is no in-process plugin loading and no generic "process manager" service �
    - `HAY_PUBLIC_URL` — the public-facing base URL of the core server
    - `NODE_OPTIONS` — set to `--max-old-space-size=1024`
    - Secrets are **not** injected via environment. Workers pull credentials from core at startup using the `credentials.get` plugin API procedure.
-   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through a deny-pattern list (`SECRET`, `PASSWORD`, `TOKEN`, `/PRIVATE.?KEY/i`, `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^RABBITMQ`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^LLM_`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`, `^ENCRYPTION`, `^INTERNAL_API`, `^VAPID_PRIVATE`, `^STRIPE_SECRET_KEY$`, `^STRIPE_WEBHOOK_SECRET$`, `^RESEND_EVENTS_WEBHOOK_SECRET$`, `^OTEL_`) so secret-looking names are blocked by default. Core plugins use a narrower deny list (`isCoreReservedEnv` only, no `SECRET_ENV_PATTERNS`) since they are trusted code.
+   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) are resolved **server-side** by `resolveConfigForWorker` to populate config defaults — the resolved values appear inside `HAY_ORG_SETTINGS.config`, not as separate env vars in the worker process. The deny-pattern list (`SECRET`, `PASSWORD`, `TOKEN`, `/PRIVATE.?KEY/i`, `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^RABBITMQ`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^LLM_`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`, `^ENCRYPTION`, `^INTERNAL_API`, `^VAPID_PRIVATE`, `^STRIPE_SECRET_KEY$`, `^STRIPE_WEBHOOK_SECRET$`, `^RESEND_EVENTS_WEBHOOK_SECRET$`, `^RESEND_API_KEY$`, `^OTEL_`) blocks secret-looking names from resolution. Core plugins use a narrower deny list (`isCoreReservedEnv` only, no `SECRET_ENV_PATTERNS`) since they are trusted code.
 6. Wait for the worker's **`GET /metadata`** endpoint to respond (up to 20 attempts × 500ms) — not `/health`.
 7. Update the `PluginInstance` row: `runtimeState = "ready"`, `running = true`, `processId`, health `"healthy"`. On failure: `runtimeState = "error"` + `lastError`.
 8. Kick off MCP tool discovery in the background (`fetchAndStoreTools` in `server/services/plugin-tools.service.ts`, which caches the worker's `GET /mcp/list-tools` result).
@@ -156,6 +156,8 @@ The SDK runner's HTTP server (`packages/plugin-sdk/runner/http-server.ts`) expos
 | `POST /config-update`                        | Runs `onConfigUpdate`                                                                                                                                                                    |
 | `POST /disable`                              | Runs `onDisable`                                                                                                                                                                         |
 | `POST /cron/:name`                           | Runs a registered cron handler                                                                                                                                                           |
+| `POST /setup/status`                         | Returns the plugin's setup checklist status                                                                                                                                              |
+| `POST /webchat/gate/:event`                  | Runs the plugin's webchat gate handler for the given event                                                                                                                               |
 | `POST /mcp/call-tool`, `GET /mcp/list-tools` | MCP tool invocation / discovery                                                                                                                                                          |
 | _(dynamic)_                                  | Any route the plugin declared via `register.route(method, path, handler)` — mounted verbatim on the Express app (this is how channel plugins expose `/webhook`, `/deliver`, `/escalate`) |
 
@@ -170,6 +172,7 @@ All dashboard/webhook traffic to a worker goes through the core proxy: `ALL /v1/
 - `pluginManagerService.getOrStartWorker(organizationId, pluginId)` is the on-demand entry point (chat turns, tools, the plugin proxy, webhooks, product sync). Concurrent callers for the same org and plugin share one in-flight start (`startWorker`), so a burst of turns spawns one worker.
 - **Activity**: every call bumps the worker's in-memory `lastActivity`.
 - **Idle cleanup**: the `plugin-worker-cleanup` job runs every 5 minutes and stops workers idle for more than 5 minutes, so an idle worker lives 5-10 minutes.
+- **Token-lifetime recycling**: workers are also recycled based on their API token lifetime — once idle after half the token lifetime (`MAX_WORKER_AGE_MS`, 12h) a soft recycle is triggered, and at `HARD_MAX_WORKER_AGE_MS` (20h) the worker is force-killed regardless of activity.
 - **Pool limits**: each plugin's `plugin_registry.max_concurrent_instances` (default 10) caps concurrent workers across orgs. When the pool is full, the least recently active worker of that plugin is stopped first (`makeRoomInPool`).
 - A worker start runs the plugin's `onStart` again (for Shopify, a catalog push), so cold starts are not free.
 
@@ -226,7 +229,7 @@ One row per `(organizationId, pluginId)` — the org's enablement, config, auth,
 
 ### `plugin_webhook_routes` (`plugin-webhook-route.entity.ts`)
 
-Plugin-agnostic index mapping `(pluginId, routingKey)` → `(organizationId, pluginInstanceId)`, with a unique index on the pair. Populated from the routing keys a plugin returns from its `onConnected` hook; consumed by the webhook router to resolve which org a shared-webhook payload belongs to. Cascade-deleted with the plugin instance.
+Plugin-agnostic index mapping `(pluginId, routingKey)` → `(organizationId, pluginInstanceId)`, with a unique index on the pair. Populated from the routing keys a plugin returns from its `onConnected` hook, or set at runtime via the `webhooks.setRoutingKeys` plugin API procedure; consumed by the webhook router to resolve which org a shared-webhook payload belongs to. Cascade-deleted with the plugin instance.
 
 ---
 

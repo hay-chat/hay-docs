@@ -338,7 +338,7 @@ Channel plugins call back into core via the Plugin API (`server/routes/v1/plugin
 | `customers.get` / `customers.findByExternalId` / `customers.upsert` | `customers` | Customer lookup and enrichment                                                                                |
 | `sources.register`                                                  | `sources`   | **Stub** — accepts input and returns `{ success: true }`, but persistence is a TODO in the code               |
 
-_(The router also exposes `mcp.registerLocal`, `mcp.registerRemote`, `products.upsertMany`, and `products.delete` for non-channel capabilities.)_
+_(The router exposes many more procedures for non-channel capabilities — `mcp.registerLocal`, `mcp.registerRemote`, `products.upsertMany`, `products.delete`, `credentials.get`, `email.receivedMessage`, `messages.updateStatus`, `channel.reportHealth`, `state.get/set/delete`, `privacy.*`, and others. See `server/lib/plugin-capabilities.ts` for the complete list.)_
 
 Note the router self-describes as a "simplified initial implementation" — full conversation management is planned for a later phase.
 
@@ -381,7 +381,7 @@ One subtlety worth copying: `onStart` does **not** re-run on reconnect, so Insta
 
 ## Building a New Channel Plugin — Checklist
 
-1. `package.json`: `category: "channel"`, `channel: "<slug>"`, `capabilities: ["messages", "customers"]`.
+1. `package.json`: `category: "channel"`, `channel: "<slug>"`, `capabilities: ["messages", "credentials"]`. (Add `"customers"` only if your plugin calls `customers.*` procedures directly.)
 2. `onInitialize`: `register.config` + `register.auth.*`; `register.route("POST", "/webhook", …)` and `register.route("POST", "/deliver", …)`.
 3. If the provider uses one shared webhook URL with no tenant identifier: `register.webhookRouting(...)` + return routing keys from `onConnected`. Otherwise, verify per-instance signatures yourself using the raw bytes from `req.rawBody` / `x-original-url` (see `plugins/core/chatwoot` for the reference implementation: HMAC-SHA256 with `timingSafeEqual` and a replay window — note that Chatwoot's own inbound route is registered at `/messages`, not `/webhook`, matching Chatwoot's "Agent Bot" terminology; `/webhook` is only a convention other plugins are free to deviate from, so follow Chatwoot for the signature-verification pattern, not the route name).
 4. Inbound: filter echoes and out-of-scope events, then call `messages.receive` with a channel-scoped `from` and — **always** — the provider message ID in `metadata.mid` so core can dedupe redeliveries.

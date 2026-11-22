@@ -39,7 +39,7 @@ The `hay-plugin` block in the plugin's `package.json` is the single source of tr
     "displayName": "Instagram",
     "category": "channel",
     "channel": "instagram",
-    "capabilities": ["messages", "customers"],
+    "capabilities": ["messages", "credentials"],
     "env": ["META_APP_ID", "META_APP_SECRET", "META_VERIFY_TOKEN"]
   }
 }
@@ -51,7 +51,7 @@ Field-by-field (interface `HayPluginBlock` in `server/services/plugin-manager.se
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `category`     | `"channel"`                                                                                                                                                                                       |
 | `channel`      | The channel slug (e.g. `"instagram"`, `"chatwoot"`). This is the value stored on `conversation.channel` and on `agent.channels`, and the key core uses to find your plugin for outbound delivery. |
-| `capabilities` | `["messages", "customers"]` — grants the worker's JWT access to the `messages.*` and `customers.*` plugin API procedures.                                                                         |
+| `capabilities` | `["messages", "credentials"]` — grants the worker's JWT access to the `messages.*` and `credentials.*` (secret retrieval) plugin API procedures. `customers` is a separate capability for `customers.*` access, but most channel plugins don't need it since `messages.receive` handles customer creation internally. |
 | `env`          | Allow-list of host env var names that config fields may fall back to (optional).                                                                                                                  |
 
 **Channel slug rules:**
