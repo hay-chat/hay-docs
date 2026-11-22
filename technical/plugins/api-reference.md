@@ -99,7 +99,7 @@ The fields core actually reads from `package.json → "hay-plugin"` (interface `
 | `displayName`         | `string`   | Human-readable name shown in the marketplace                                                                                                                  |
 | `category`            | `string`   | One of `integration \| channel \| tool \| analytics \| products` (SDK `PluginCategory`); document importers are marked via `documentImporter`, not a category |
 | `marketplaceCategory` | `string`   | Marketplace section: one of `channels \| commerce \| payments \| crm \| knowledge \| security`. Plugins without one are listed under "Other"                  |
-| `capabilities`        | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `disputes`, `tickets`, `privacy`, `cron`, `email`, `webchat` |
+| `capabilities`        | `string[]` | Declared capabilities: `routes`, `mcp`, `auth`, `config`, `ui`, `messages`, `customers`, `sources`, `products`, `disputes`, `tickets`, `privacy`, `cron`, `email`, `webchat`, `state`, `credentials` |
 | `env`                 | `string[]` | Allow-list of host env var names that config fields may fall back to via their `env:` property                                                                |
 | `channel`             | `string`   | Channel plugins only: the channel slug (e.g. `"instagram"`); matched by `pluginManagerService.findPluginIdByChannel()` for outbound delivery                  |
 | `defaultEnabled`      | `boolean`  | If `true`, the plugin is enabled for every org automatically on discovery (default `false`)                                                                    |
@@ -107,6 +107,8 @@ The fields core actually reads from `package.json → "hay-plugin"` (interface `
 | `rendering`           | `object`   | Widget rendering hints (e.g. product card layout preferences)                                                                                                  |
 | `inactivity`          | `object`   | Channel-specific inactivity timing: `{ warningMinutes, closeMinutes }` — overrides the global default for conversations on this channel                        |
 | `network`             | `object`   | Network constraints for the worker (e.g. allowed outbound hosts)                                                                                               |
+| `oauthProviderInstall`| `boolean`  | If `true`, the provider's app store can start the install flow (the plugin's own callback URL is sent as `redirect_uri`)                                        |
+| `credentials`         | `array`    | Array of secret declarations (`{ key, label, description?, required? }`); the worker pulls values at runtime via the `credentials.get` plugin API procedure     |
 | `setup`               | `object`   | `HayPluginSetupHints`: declares setup checklist items, business types, group, and handles for guided onboarding                                                |
 | `autoActivate`        | `boolean`  | Legacy (document importers)                                                                                                                                    |
 | `trpcRouter`          | `string`   | Legacy (document importers): path to a tRPC router loaded in-process                                                                                          |
@@ -129,7 +131,7 @@ Capabilities are **declarative**: they drive marketplace classification, plugin 
     "displayName": "Instagram",
     "category": "channel",
     "channel": "instagram",
-    "capabilities": ["messages", "customers"],
+    "capabilities": ["messages", "credentials"],
     "env": ["META_APP_ID", "META_APP_SECRET", "META_VERIFY_TOKEN"]
   }
 }
@@ -295,6 +297,8 @@ register.auth.oauth2(options: OAuth2AuthOptions): void
 | `scopeSeparator`      | `string`                 | Scope join delimiter; defaults to a space. Instagram needs `","`.                                                                                                          |
 | `tokenExchange`       | `OAuthTokenOp`           | Declarative one-time token transform run by core right after the code exchange (e.g. Instagram `ig_exchange_token` short→long-lived swap). If it fails, the connect fails. |
 | `tokenRefresh`        | `OAuthTokenOp`           | Declarative custom refresh strategy for providers without a standard `refresh_token` grant (e.g. Instagram `ig_refresh_token`)                                             |
+| `connectFlow`         | `"redirect" \| "client"` | `"redirect"` (default) for a standard server-side redirect; `"client"` for providers that use a client-side code exchange (e.g. Meta Embedded Signup)                       |
+| `tokenRequestFormat`  | `"form" \| "json"`       | Body encoding for the token exchange POST; defaults to `"form"` (URL-encoded). Set to `"json"` for providers that require a JSON body.                                     |
 
 ```typescript
 interface OAuthTokenOp {
@@ -302,6 +306,7 @@ interface OAuthTokenOp {
   grantType: string; // value for the grant_type query param
   tokenParam: string; // query-param name carrying the current access token
   includeClientSecret?: boolean; // append client_secret (needed by token exchange)
+  includeClientId?: boolean;     // append client_id without reading it from env
 }
 ```
 
@@ -509,10 +514,17 @@ register.webchat.contribution({
 #### `register.webchat.gate`
 
 ```typescript
-register.webchat.gate(event: string, handler: GateHandler, options?: GateOptions): void
+register.webchat.gate(event: WebchatGateEvent, handler: GateHandler, options?: GateOptions): void
+
+type WebchatGateEvent = "conversation.create" | "message.send";
+
+interface WebchatGateResult {
+  decision: "allow" | "deny" | "flag";
+  reason?: string;
+}
 ```
 
-A synchronous server-side check that runs before certain webchat events (e.g. conversation creation). The handler receives the event payload and returns `{ allow: boolean }`. Core calls the worker's `POST /webchat/gate/:event` endpoint. Used by bot-protection plugins like Turnstile to block spam before a conversation is created.
+A synchronous server-side check that runs before certain webchat events. The handler receives the event payload and returns a `WebchatGateResult` with a `decision` (`"allow"`, `"deny"`, or `"flag"`) and an optional `reason`. Core calls the worker's `POST /webchat/gate/:event` endpoint. Used by bot-protection plugins like Turnstile to block spam before a conversation is created.
 
 A product is offered for adding when all of these hold:
 
@@ -666,10 +678,12 @@ Workers call back into core using the injected `HAY_API_URL` + `HAY_API_TOKEN` (
 | `customers.findByExternalId`               | `customers` | `{ externalId }`                                                                                                                                                                                                                                                                        |
 | `customers.upsert`                         | `customers` | `{ externalId, channel, email?, phone?, name?, metadata? }`                                                                                                                                                                                                                             |
 | `sources.register`                         | `sources`   | `{ id, name, category: "messaging" \| "social" \| "email" \| "helpdesk", icon?, metadata? }` — **currently a stub** (accepts input, logs, returns `{ success: true }`; persistence is a TODO in the handler)                                                                            |
+| `messages.updateStatus`                    | `messages`  | `{ messageId, status: "sent" \| "delivered" \| "read" \| "failed", error? }` — report provider delivery status back to core                                                                                                                                                             |
+| `credentials.get`                          | `credentials` | `{ keys?: string[] }` — pull secrets the manifest declares (from the `credentials` block in `hay-plugin`); returns `Record<string, string>`                                                                                                                                           |
 | `mcp.registerLocal` / `mcp.registerRemote` | `mcp`       | Register MCP server + tool descriptors with core                                                                                                                                                                                                                                        |
 | `products.upsertMany` / `products.delete`  | `products`  | Product catalog sync (e.g. Shopify); core stamps the product `source` from the authenticated plugin id                                                                                                                                                                                  |
 
-> **This table is not exhaustive.** The full router includes additional procedures for media upload (`media.upload`), connection management (`connection.revoke`), channel health reporting (`channel.reportHealth`), email sending domains (`email.sendingDomain`), webhook routing key updates (`webhooks.setRoutingKeys`), persisted plugin state (`state.get/set/delete`), product pruning (`products.prune`), dispute reporting (`disputes.report`), and GDPR erasure/export (`privacy.eraseCustomer`, `privacy.exportCustomer`). See `server/routes/v1/plugin-api/trpc.ts` for the complete surface.
+> **This table is not exhaustive.** The full router includes additional procedures for media upload (`media.upload`), connection management (`connection.revoke`), channel health reporting (`channel.reportHealth`), email sending domains (`email.sendingDomain`), inbound email processing (`email.receivedMessage`, `email.receivedAttachments`), webhook routing key updates (`webhooks.setRoutingKeys`), persisted plugin state (`state.get/set/delete`), product pruning (`products.prune`), dispute reporting (`disputes.report`), and GDPR erasure/export (`privacy.eraseCustomer`, `privacy.exportCustomer`). See `server/routes/v1/plugin-api/trpc.ts` for the complete surface.
 
 **Inbound message dedupe is core-side**: if `metadata.mid` is set on `messages.receive`, core claims it atomically via Redis SETNX and silently drops duplicates. Channels that don't pass `mid` get no dedupe.
 
@@ -720,6 +734,10 @@ import { Hay } from "@/utils/api";
 | `Hay.plugins.getMenuItems.query()`                    | —                      | Plugin-contributed menu items                                                            |
 | `Hay.plugins.testConnection.query({ pluginId })`      | `{ pluginId }`         | Health check (`PluginHealthCheckResult`)                                                 |
 | `Hay.plugins.getPluginTranslations.query({ locale })` | `{ locale: string }`   | i18n bundles for the org's **enabled** plugins, falling back to `en`                     |
+| `Hay.plugins.connectionStates.query()`                 | —                      | Connection states for all enabled plugins in the org                                     |
+| `Hay.plugins.setupStatus.query({ pluginId })`         | `{ pluginId }`         | Setup checklist progress for a plugin with `register.setup`                              |
+| `Hay.plugins.callUiRoute.query({ pluginId, ... })`    | `{ pluginId, ... }`    | Invoke a plugin's UI backend route                                                       |
+| `Hay.plugins.getUiAssetUrls.query({ pluginId })`      | `{ pluginId }`         | Signed URLs for plugin UI assets                                                         |
 | `Hay.plugins.oauth.isAvailable.query({ pluginId })`   | `{ pluginId }`         | `{ available, ... }` — whether OAuth is registered and client credentials are resolvable |
 | `Hay.plugins.oauth.status.query({ pluginId })`        | `{ pluginId }`         | Current OAuth connection status                                                          |
 
@@ -734,6 +752,7 @@ import { Hay } from "@/utils/api";
 | `Hay.plugins.refreshMCPTools.mutate({ pluginId })`          | `{ pluginId }`                                       | Re-fetch tool list from the worker                                  |
 | `Hay.plugins.validateAuth.mutate({ pluginId, authState })`  | `{ pluginId, authState: { methodId, credentials } }` | Proxies to the worker's `/validate-auth`                            |
 | `Hay.plugins.oauth.initiate.mutate({ pluginId })`           | `{ pluginId }`                                       | Returns `{ authorizationUrl, state }` to start the flow             |
+| `Hay.plugins.oauth.completeWithCode.mutate({ pluginId, code })` | `{ pluginId, code, ... }`                        | Client-side code exchange for providers with `connectFlow: "client"` |
 | `Hay.plugins.oauth.revoke.mutate({ pluginId })`             | `{ pluginId }`                                       | Revoke the stored connection                                        |
 
 ### Non-tRPC HTTP endpoints

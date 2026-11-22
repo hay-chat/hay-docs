@@ -40,7 +40,6 @@ Find specific conversations quickly:
 **Search by:**
 
 - Conversation title
-- Conversation ID
 
 > **Note:** Search matches conversation title, summary, and message content. Searching by customer name/email is not yet available.
 

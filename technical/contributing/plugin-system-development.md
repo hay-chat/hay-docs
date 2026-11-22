@@ -78,7 +78,7 @@ interface HayPluginBlock {
   displayName?: string;
   category?: PluginType;        // mcp-connector | channel | retriever | playbook | document_importer | system | products
   entry?: string;               // e.g. "./dist/index.js"
-  capabilities?: string[];      // routes | mcp | auth | config | ui | messages | customers | sources | products | disputes | tickets | privacy | email | webchat
+  capabilities?: string[];      // routes | mcp | auth | config | ui | messages | customers | sources | products | disputes | tickets | privacy | email | webchat | cron | state | credentials
   config?: ...;                 // config schema (usually declared in code instead)
   env?: string[];               // allow-list of host env vars the worker may inherit → manifest.permissions.env
   auth?: ...;
@@ -90,6 +90,8 @@ interface HayPluginBlock {
   network?: object;             // network requirements (e.g. static IP)
   setup?: object;               // setup checklist hints (business types, group, handles)
   marketplaceCategory?: string; // marketplace filter category (e.g. "payments", "security")
+  oauthProviderInstall?: boolean; // flag that the provider's app store can start installs
+  credentials?: unknown;        // array declaring secrets core delivers on request (typed as CredentialDeclaration[] in HayPluginManifest)
   autoActivate?: boolean;       // legacy (document importers)
   trpcRouter?: string;          // legacy (document importers)
   documentImporter?: boolean;   // legacy (document importers)
@@ -122,12 +124,17 @@ There is no in-process plugin loading and no generic "process manager" service �
 
    (In development, if the compiled runner doesn't exist, it falls back to `npx tsx packages/plugin-sdk/runner/index.ts`.)
 
+   **Isolation mode**: `pluginIsolationMode()` (`server/lib/plugin-isolation.ts`) supports three modes — `off` (child process, the default for development), `strict` (spawns in a separate plugin-host container with egress policy enforcement via `launchInPluginHost`), and `degraded` (container spawn attempted, falls back to child process on failure). When not `off`, the worker runs in an isolated container rather than as a direct child process.
+
 5. Environment injection (`buildSDKEnv`):
    - `HAY_ORG_ID`, `HAY_PLUGIN_ID`, `HAY_WORKER_PORT`
-   - `HAY_ORG_CONFIG` — JSON: `{ org: { id }, config: <resolved config> }`
-   - `HAY_ORG_AUTH` — JSON-serialized `AuthState` (decrypted credentials)
+   - `HAY_ORG_SETTINGS` — JSON: `{ org: { id }, config: <resolved config>, authMethodId: <string|null> }`
+   - `HAY_WORKER_SECRET` — shared secret for worker ↔ core authentication
    - `HAY_API_URL` + `HAY_API_TOKEN` — a JWT (`generatePluginJWT`) scoped to `{ organizationId, pluginId, scope: "plugin-api", capabilities }`, expiring in 24h, so the worker can call back into core
-   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) — filtered through a deny-pattern list (`SECRET`, `PASSWORD`, `TOKEN`, `/PRIVATE.?KEY/i`, `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^RABBITMQ`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^LLM_`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`, `^ENCRYPTION`, `^INTERNAL_API`, `^VAPID_PRIVATE`, `^STRIPE_SECRET_KEY$`, `^STRIPE_WEBHOOK_SECRET$`, `^RESEND_EVENTS_WEBHOOK_SECRET$`, `^OTEL_`) so secret-looking names are blocked by default. Core plugins use a narrower deny list (`isCoreReservedEnv` only, no `SECRET_ENV_PATTERNS`) since they are trusted code.
+   - `HAY_PUBLIC_URL` — the public-facing base URL of the core server
+   - `NODE_OPTIONS` — set to `--max-old-space-size=1024`
+   - Secrets are **not** injected via environment. Workers pull credentials from core at startup using the `credentials.get` plugin API procedure.
+   - Host env vars from the plugin's allow-list (`manifest.permissions.env`, i.e. `hay-plugin.env`) are resolved **server-side** by `resolveConfigForWorker` to populate config defaults — the resolved values appear inside `HAY_ORG_SETTINGS.config`, not as separate env vars in the worker process. The deny-pattern list (`SECRET`, `PASSWORD`, `TOKEN`, `/PRIVATE.?KEY/i`, `CREDENTIAL`, `^DB_`, `^DATABASE`, `^REDIS`, `^RABBITMQ`, `^AWS_`, `^OPENAI`, `^ANTHROPIC`, `^LLM_`, `^JWT`, `^SMTP`, `^GITHUB`, `^NPM`, `^PLUGIN_ENCRYPTION`, `^HAY_`, `^ENCRYPTION`, `^INTERNAL_API`, `^VAPID_PRIVATE`, `^STRIPE_SECRET_KEY$`, `^STRIPE_WEBHOOK_SECRET$`, `^RESEND_EVENTS_WEBHOOK_SECRET$`, `^RESEND_API_KEY$`, `^OTEL_`) blocks secret-looking names from resolution. Core plugins use a narrower deny list (`isCoreReservedEnv` only, no `SECRET_ENV_PATTERNS`) since they are trusted code.
 6. Wait for the worker's **`GET /metadata`** endpoint to respond (up to 20 attempts × 500ms) — not `/health`.
 7. Update the `PluginInstance` row: `runtimeState = "ready"`, `running = true`, `processId`, health `"healthy"`. On failure: `runtimeState = "error"` + `lastError`.
 8. Kick off MCP tool discovery in the background (`fetchAndStoreTools` in `server/services/plugin-tools.service.ts`, which caches the worker's `GET /mcp/list-tools` result).
@@ -149,6 +156,8 @@ The SDK runner's HTTP server (`packages/plugin-sdk/runner/http-server.ts`) expos
 | `POST /config-update`                        | Runs `onConfigUpdate`                                                                                                                                                                    |
 | `POST /disable`                              | Runs `onDisable`                                                                                                                                                                         |
 | `POST /cron/:name`                           | Runs a registered cron handler                                                                                                                                                           |
+| `POST /setup/status`                         | Returns the plugin's setup checklist status                                                                                                                                              |
+| `POST /webchat/gate/:event`                  | Runs the plugin's webchat gate handler for the given event                                                                                                                               |
 | `POST /mcp/call-tool`, `GET /mcp/list-tools` | MCP tool invocation / discovery                                                                                                                                                          |
 | _(dynamic)_                                  | Any route the plugin declared via `register.route(method, path, handler)` — mounted verbatim on the Express app (this is how channel plugins expose `/webhook`, `/deliver`, `/escalate`) |
 
@@ -163,6 +172,7 @@ All dashboard/webhook traffic to a worker goes through the core proxy: `ALL /v1/
 - `pluginManagerService.getOrStartWorker(organizationId, pluginId)` is the on-demand entry point (chat turns, tools, the plugin proxy, webhooks, product sync). Concurrent callers for the same org and plugin share one in-flight start (`startWorker`), so a burst of turns spawns one worker.
 - **Activity**: every call bumps the worker's in-memory `lastActivity`.
 - **Idle cleanup**: the `plugin-worker-cleanup` job runs every 5 minutes and stops workers idle for more than 5 minutes, so an idle worker lives 5-10 minutes.
+- **Token-lifetime recycling**: workers are also recycled based on their API token lifetime — once idle after half the token lifetime (`MAX_WORKER_AGE_MS`, 12h) a soft recycle is triggered, and at `HARD_MAX_WORKER_AGE_MS` (20h) the worker is force-killed regardless of activity.
 - **Pool limits**: each plugin's `plugin_registry.max_concurrent_instances` (default 10) caps concurrent workers across orgs. When the pool is full, the least recently active worker of that plugin is stopped first (`makeRoomInPool`).
 - A worker start runs the plugin's `onStart` again (for Shopify, a catalog push), so cold starts are not free.
 
@@ -219,7 +229,7 @@ One row per `(organizationId, pluginId)` — the org's enablement, config, auth,
 
 ### `plugin_webhook_routes` (`plugin-webhook-route.entity.ts`)
 
-Plugin-agnostic index mapping `(pluginId, routingKey)` → `(organizationId, pluginInstanceId)`, with a unique index on the pair. Populated from the routing keys a plugin returns from its `onConnected` hook; consumed by the webhook router to resolve which org a shared-webhook payload belongs to. Cascade-deleted with the plugin instance.
+Plugin-agnostic index mapping `(pluginId, routingKey)` → `(organizationId, pluginInstanceId)`, with a unique index on the pair. Populated from the routing keys a plugin returns from its `onConnected` hook, or set at runtime via the `webhooks.setRoutingKeys` plugin API procedure; consumed by the webhook router to resolve which org a shared-webhook payload belongs to. Cascade-deleted with the plugin instance.
 
 ---
 
@@ -237,7 +247,7 @@ A plugin's entry module default-exports `defineHayPlugin(factory)`; the factory 
 | `onDisable`      | Core `POST /disable` on disable/uninstall and before SIGTERM                       | Tear down resources.                                                                                                                                                                              |
 | `onEnable`       | **Never.**                                                                         | Typed in the SDK (`types/plugin.ts`, marked "CORE-ONLY, not called by runner") — but nothing in core calls it either. Reserved for a future core-side path; do not build on it.                   |
 
-The `register.*` API available in `onInitialize` (`packages/plugin-sdk/types/register.ts`): `register.config(schema)`, `register.auth.apiKey(...)` / `register.auth.oauth2(...)`, `register.route(method, path, handler)`, `register.ui.page(...)`, `register.cron(options)`, `register.webhookRouting(descriptor)`. Everything registered surfaces as data in `GET /metadata`, which core caches on `plugin_registry.metadata`.
+The `register.*` API available in `onInitialize` (`packages/plugin-sdk/types/register.ts`): `register.config(schema)`, `register.auth.apiKey(...)` / `register.auth.oauth2(...)`, `register.route(method, path, handler)`, `register.ui.page(...)`, `register.cron(options)`, `register.webhookRouting(descriptor)`, `register.webchat(options)` (webchat gate handlers), `register.setup(options)` (setup checklist). Everything registered surfaces as data in `GET /metadata`, which core caches on `plugin_registry.metadata`.
 
 **OAuth is entirely core-side.** `server/services/oauth.service.ts` runs authorization, token exchange, and refresh — including non-standard flows a plugin declares via `tokenExchange`/`tokenRefresh` descriptors (`packages/plugin-sdk/types/auth.ts`), executed declaratively by core (used by the Instagram plugin's `ig_exchange_token`/`ig_refresh_token`). Plugins never call OAuth endpoints themselves; the runner also refreshes expiring tokens before worker start (see [The Worker Runtime](#the-worker-runtime)).
 
@@ -310,7 +320,8 @@ The surface is grouped by capability area (non-exhaustive — check `server/rout
 - **state**: `get`, `set`, `delete` (persisted key/value store per plugin instance)
 - **connection**: `revoke`
 - **channel**: `reportHealth`
-- **email**: `sendingDomain`
+- **credentials**: `get` (pull secrets the manifest declares)
+- **email**: `sendingDomain`, `receivedMessage`, `receivedAttachments`
 - **webhooks**: `setRoutingKeys`
 - **privacy**: `eraseCustomer`, `exportCustomer`
 
@@ -320,8 +331,8 @@ The surface is grouped by capability area (non-exhaustive — check `server/rout
 
 **Files**: `server/routes/v1/plugins/index.ts` (router), `server/routes/v1/plugins/plugins.handler.ts` (implementations). All procedures are `authenticatedProcedure`.
 
-- **Queries**: `plugins.getAll`, `plugins.get`, `plugins.getInstances`, `plugins.getUITemplate`, `plugins.getMCPTools`, `plugins.getMenuItems`, `plugins.testConnection`, `plugins.getPluginTranslations`, `plugins.oauth.isAvailable`, `plugins.oauth.status`
-- **Mutations**: `plugins.enable`, `plugins.disable`, `plugins.restart`, `plugins.configure`, `plugins.refreshMCPTools`, `plugins.validateAuth`, `plugins.oauth.initiate`, `plugins.oauth.revoke`
+- **Queries**: `plugins.getAll`, `plugins.get`, `plugins.getInstances`, `plugins.connectionStates`, `plugins.setupStatus`, `plugins.getUITemplate`, `plugins.getMCPTools`, `plugins.getMenuItems`, `plugins.testConnection`, `plugins.getPluginTranslations`, `plugins.oauth.isAvailable`, `plugins.oauth.status`
+- **Mutations**: `plugins.enable`, `plugins.disable`, `plugins.restart`, `plugins.configure`, `plugins.refreshMCPTools`, `plugins.validateAuth`, `plugins.callUiRoute`, `plugins.getUiAssetUrls`, `plugins.oauth.initiate`, `plugins.oauth.revoke`, `plugins.oauth.completeWithCode`
 
 There is **no** generic `plugins.invokeTool` mutation — MCP tool invocation happens inside the orchestrator via the worker's `POST /mcp/call-tool`.
 
@@ -343,7 +354,7 @@ Things a contributor should know exist (or don't) before building on them:
 - **`onEnable` is dead code** — typed in the SDK but invoked by neither the runner nor core.
 - **Document importers bypass the worker model.** Plugins with `autoActivate: true` + `trpcRouter` (e.g. `plugins/core/atlassian`) load a tRPC router in-process at boot via `server/services/plugin-router-registry.service.ts`, coupled to `@server/*` internals. This is the legacy special case, not the pattern to extend.
 - **`onConfigUpdate` is also uncalled** — the runner exposes `POST /config-update`, but core applies config changes by restarting the worker (see the hooks table).
-- **`PluginApiClient` is duplicated per channel plugin** (`plugins/core/instagram/src/plugin-api.ts`, and likewise in `chatwoot`, `email`) instead of being an SDK export.
+- **`PluginApiClient` is duplicated per channel plugin** (`plugins/core/instagram/src/plugin-api.ts`, and likewise in `chatwoot`, `email-channel`, `whatsapp`, `messenger`) instead of being an SDK export.
 - **Webhook signature format** supports `sha256-hmac`, `sha256-hmac-base64`, and `svix` (Standard Webhooks / Svix scheme) in `WebhookRoutingDescriptor`.
 - **Pool eviction is LRU, not queued** — when a plugin's pool is full, `makeRoomInPool` stops the least recently active worker to free a slot. There is no queuing mechanism.
 - The `plugin_instances.status` column is legacy; `runtimeState` is the field the runner actually maintains.

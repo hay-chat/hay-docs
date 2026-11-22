@@ -25,6 +25,7 @@ When a conversation passes the retention window, Hay **anonymizes** it rather th
 - Linked document references
 - Associated vector embeddings
 - Related records (action logs, pending actions, team questions, notification deliveries, and order links)
+- Conversation outcome text (classification reason, exclusion reason, exclusion review notes)
 
 **Preserved (for analytics):**
 
@@ -67,6 +68,7 @@ The retention job runs automatically once per day (at 3:00 AM server time). Each
 8. Writes an entry to the audit log
 9. Sweeps expired customers — customer records with no remaining live conversations past the retention window are deleted
 10. Expires old insight text (at 2× the retention period)
+11. Deletes expired test transcripts and simulation data
 
 If an error occurs while processing one organization, the job continues with the remaining organizations.
 

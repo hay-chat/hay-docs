@@ -18,7 +18,7 @@ graph LR
   Clients["fa:fa-globe Clients<br/>Web / Mobile"]
   Gateway["fa:fa-shield-halved API Gateway<br/>Express"]
   Services["fa:fa-puzzle-piece Services<br/>Plugins"]
-  Queue["fa:fa-list-check Message Queue<br/>RabbitMQ + Redis"]
+  Queue["fa:fa-list-check Queues<br/>RabbitMQ + PostgreSQL"]
   DB["fa:fa-database Database<br/>PostgreSQL"]
 
   Clients --> Gateway --> Services
@@ -119,7 +119,7 @@ graph LR
 
 RabbitMQ (via `amqplib`) handles orchestrator messaging, and a custom Postgres-backed job queue (using `SKIP LOCKED`) coordinated through Redis pub/sub handles background jobs:
 
-- Failed jobs are marked as `FAILED` by `JobQueueService.failJob()`; there is no automatic retry
+- Failed jobs are marked as `FAILED` by `JobQueueService.failJob()`. Jobs whose server crashed mid-processing are automatically requeued by `requeueStaleJobs()` up to `MAX_JOB_ATTEMPTS` (3) times before being marked FAILED; there is no retry for jobs that fail during normal handler execution
 - Job priority is ordered via a SQL column, not a Bull-style priority queue
 - No rate limiting per job type
 

@@ -53,13 +53,13 @@ Configure how AI responses are evaluated for confidence and accuracy:
 - **Enable Human Escalation** — when confidence is low, escalate to a human agent instead of sending the AI response
 - **Fallback Message** — message shown when confidence is low and escalation is disabled. It is automatically translated to match the conversation language.
 
-### Two-factor for the team
-
-On the same page, **Two-factor authentication for your team** has a **Require two-factor authentication** switch. Members who haven't set it up are asked to at their next sign-in.
-
 ### Danger Zone
 
 Visible to **Owners only**.
+
+This section includes:
+
+- **Two-factor authentication for your team** — a **Require two-factor authentication** switch. Members who haven't set it up are asked to at their next sign-in.
 
 **Delete organization** permanently deletes the organization and all associated data. The confirmation dialog warns that this will immediately:
 
@@ -182,7 +182,7 @@ This page is gated behind an advanced-settings warning — "**Advanced — chang
 ### Chat Provider
 
 - **Provider** — the provider used to generate the assistant's responses. Choose from **OpenAI**, **Anthropic (Claude)**, **Google Gemini**, **Mistral**, **xAI Grok**, **Custom (OpenAI-compatible)**, or **Custom — supports tool calling (OpenAI-compatible)** (seven options total).
-- **Base URL** — the provider's OpenAI-compatible API base URL. Shown only for Mistral, Grok, and custom endpoints.
+- **Base URL** — the provider's OpenAI-compatible API base URL. Shown only for Mistral, Grok, and both custom endpoint options.
 - **Use my own API key** — when off, Hay's managed AI is used (billed with your plan). When on, enter your own provider **API Key** — it is stored encrypted and never shown again after saving.
 
 ### Model Tiers

@@ -28,12 +28,14 @@ We believe that happy developers build better software.
 ```typescript
 // Good: Clear, typed schema (Zod)
 const createConversationSchema = z.object({
-  title: z.string().max(255).optional(),
-  language: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
-  status: conversationStatusSchema.optional(),
+  title: z.string().min(1).max(255).optional(),
+  language: z.string().max(35).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  status: settableStatusSchema.optional(),
   customerId: z.string().uuid().optional(),
-  playbookVersionOverride: z.string().uuid().optional(),
+  playbookVersionOverride: z
+    .object({ playbookId: z.string().uuid(), versionId: z.string().uuid() })
+    .optional(),
 });
 
 // Bad: Unclear, any types
@@ -52,8 +54,8 @@ Sensible defaults that work out of the box.
 - Intelligent defaults that can be overridden
 
 ```typescript
-// Convention: Plugins auto-discovered from plugins/core/ and plugins/custom/{orgId}/
-// No configuration needed — discovery runs automatically at startup via PluginManagerService.discoverPlugins()
+// Core plugins are auto-discovered from plugins/core/ at startup via PluginManagerService.discoverPlugins()
+// Custom plugins are uploaded via the plugin upload service to plugins/custom/{orgId}/
 ```
 
 #### 3. Fail Fast, Fail Loud
@@ -85,7 +87,7 @@ External integrations are always plugins, never bolted directly onto core logic.
 
 **In practice:**
 
-Plugins are discovered dynamically from `plugins/core/` (built-in plugins) and `plugins/custom/{organizationId}/` (org-specific plugins). The core source code never hardcodes plugin IDs.
+Core plugins are auto-discovered from `plugins/core/` at startup. Org-specific plugins are uploaded via the plugin upload service to `plugins/custom/{organizationId}/`. The core source code never hardcodes plugin IDs.
 
 #### 5. Data Ownership and Privacy
 
@@ -178,24 +180,18 @@ describe("DataRetentionService", () => {
 /**
  * Processes a conversation through the orchestrator pipeline.
  *
- * @param conversation - The conversation to process
- * @param trigger - What caused this processing run
- * @returns The execution result with the chosen step and response
+ * The trigger (customer_message, inactivity, etc.) comes from the
+ * RabbitMQ queue message, not as a parameter. The method acquires
+ * a lock internally and skips processing if the lock is held.
  *
- * @throws {LockError} If the conversation is already being processed
+ * @param conversationId - The ID of the conversation to process
  *
  * @example
  * ```ts
- * const result = await processConversation(conversation, "customer_message");
- * if (result.step === "RESPOND") {
- *   await sendReply(result.response);
- * }
+ * await orchestrator.processConversation(conversationId);
  * ```
  */
-async function processConversation(
-  conversation: Conversation,
-  trigger: OrchestratorTrigger,
-): Promise<ExecutionResult>;
+async processConversation(conversationId: string): Promise<void>;
 ````
 
 ### Contribution Guidelines
